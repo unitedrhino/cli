@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "origin_kind": "third_party",
+  "registry": "unitedrhino",
+  "slug": "ur-iot",
+  "registry_url": "https://github.com/unitedrhino/saas",
+  "installed_version": "1.0.0",
+  "installed_at": 1778471460000
+}

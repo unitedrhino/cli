@@ -1,0 +1,39 @@
+{
+  "name": "@unitedrhino/ur-api-skills",
+  "version": "1.0.0",
+  "description": "联犀 SaaS 平台 ur-api 技能包 — 面向 AI 工具的 API 调用技能文档",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "SKILL.md",
+    "ur-*/SKILL.md",
+    "ur-*/references/**",
+    "ur-*/scripts/**",
+    "ur-*/swagger-index.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ur-api",
+    "unitedrhino",
+    "saas",
+    "iot",
+    "skill",
+    "ai",
+    "mcp"
+  ],
+  "author": "UnitedRhino",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unitedrhino/saas.git",
+    "directory": "cli/ur/npm-package"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

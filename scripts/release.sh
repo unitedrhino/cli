@@ -4,8 +4,20 @@ set -euo pipefail
 # ur CLI 跨平台 Release 构建与发布脚本
 # 用法: bash scripts/release.sh [VERSION]
 # 示例: bash scripts/release.sh v0.1.0
+#
+# 环境变量（推荐写入 .env 文件，脚本会自动加载）：
+#   GITHUB_TOKEN  - GitHub Personal Access Token
+#   GITEE_TOKEN   - Gitee 私人令牌
+#   PARALLEL      - 并发构建数（默认 8）
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# 自动加载 .env 文件（如果存在）
+if [[ -f "${ROOT}/.env" ]]; then
+  # shellcheck source=/dev/null
+  source "${ROOT}/.env"
+fi
+
 VERSION="${1:-v0.1.0}"
 BUILD_DIR="${ROOT}/dist/release-${VERSION}"
 RELEASE_DIR="${BUILD_DIR}/packages"

@@ -1,0 +1,18 @@
+# 环境变量配置（含敏感 token）
+.env
+
+# 构建产物
+dist/
+bin/
+*.exe
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

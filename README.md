@@ -16,6 +16,28 @@
 
 ---
 
+## 发布环境配置（仅维护者）
+
+如需执行 Release 发布，需配置以下环境变量：
+
+```bash
+# 1. 复制模板
+cp .env.example .env
+
+# 2. 编辑 .env，填入真实 token
+# GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# GITEE_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+| 变量 | 说明 | 获取方式 |
+|------|------|---------|
+| `GITHUB_TOKEN` | GitHub 个人访问令牌 | GitHub → Settings → Developer settings → Personal access tokens |
+| `GITEE_TOKEN` | Gitee 私人令牌 | Gitee → 个人设置 → 私人令牌 → 生成新令牌 |
+
+> `.env` 文件已被 `.gitignore` 忽略，不会被提交到仓库。
+
+---
+
 ## 二、安装方式
 
 ### 方式一：直接下载预编译二进制（推荐）

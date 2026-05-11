@@ -18,7 +18,41 @@
 
 ## 二、安装方式
 
-### 方式一：从源码构建（推荐开发者）
+### 方式一：直接下载预编译二进制（推荐）
+
+从 GitHub 或 Gitee Release 下载对应平台的二进制包，解压后即可使用。**国内用户建议优先使用 Gitee**。
+
+```bash
+# 1. 确定平台和架构
+# Linux x86_64:   Linux-x86_64
+# Linux arm64:    Linux-aarch64
+# macOS Intel:    macOS-x86_64
+# macOS Apple Silicon: macOS-arm64
+# Windows x86_64: Windows-x86_64
+PLATFORM="Linux-x86_64"
+VERSION="v0.1.0"
+
+# 2. 下载（优先 Gitee，国内更快）
+# Gitee 下载
+curl -LO "https://gitee.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz"
+
+# 或 GitHub 下载（Gitee 不可用时备用）
+# curl -LO "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz"
+
+# 3. 解压并安装
+tar -xzf "ur-cli-${VERSION}-${PLATFORM}.tar.gz"
+cd "linux-amd64/bin"  # 根据实际目录调整
+sudo cp ur-* /usr/local/bin/
+
+# 4. 验证
+ur-iot --help
+```
+
+> **Windows 用户**：下载 `.zip` 包，解压后将二进制所在目录添加到系统 `PATH` 环境变量。
+>
+> **完整平台列表**：支持 39 个原生平台（Linux、macOS、Windows、FreeBSD、OpenBSD、NetBSD、AIX、DragonFly、Illumos、Plan9、Solaris 等），详见 Release 页面。
+
+### 方式二：从源码构建（推荐开发者）
 
 ```bash
 # 1. 克隆仓库
@@ -33,7 +67,7 @@ ls ./bin/
 # ur-console  ur-iot  ur-org-energy  ur-org-manage  ur-platform-manage
 ```
 
-### 方式二：单独构建某个 CLI
+### 方式三：单独构建某个 CLI
 
 ```bash
 # 例如构建物联网 CLI
@@ -43,7 +77,7 @@ go build -o /usr/local/bin/ur-iot ./cmd/ur-iot
 go build -o /usr/local/bin/ur-platform-manage ./cmd/ur-platform-manage
 ```
 
-### 方式三：安装到系统 PATH
+### 方式四：安装到系统 PATH
 
 ```bash
 # 构建并安装到 /usr/local/bin（需要 sudo 权限）

@@ -128,7 +128,7 @@ func runLoginPoll(ctx context.Context, baseURL, setupCode string, jsonMode bool,
 	}
 
 	// 验证连接并获取用户信息
-	userID, err := verifyConnection(ctx, baseURL, result.AccessKey, result.AccessSecret)
+	userID, err := verifyConnection(ctx, baseURL, result.AccessKey, result.AccessSecret, result.TenantCode)
 	if err != nil {
 		return outputLoginError(stderr, jsonMode, fmt.Errorf("验证连接失败: %w", err))
 	}
@@ -223,7 +223,11 @@ func outputLoginError(stderr io.Writer, jsonMode bool, err error) int {
 	return 1
 }
 
-func verifyConnection(ctx context.Context, baseURL, accessKey, accessSecret string) (string, error) {
+func verifyConnection(ctx context.Context, baseURL, accessKey, accessSecret, tenantCode string) (string, error) {
+	// Device Flow 首次登录时配置文件尚未保存，临时设置环境变量
+	if tenantCode != "" {
+		os.Setenv("UR_TENANT_CODE", tenantCode)
+	}
 	jwt, err := auth.GenerateJWT("0", accessKey, accessSecret)
 	if err != nil {
 		return "", fmt.Errorf("生成 JWT: %w", err)
@@ -231,7 +235,8 @@ func verifyConnection(ctx context.Context, baseURL, accessKey, accessSecret stri
 
 	appID, err := config.GetAppID()
 	if err != nil {
-		return "", fmt.Errorf("获取 appID: %w", err)
+		// Device Flow 首次登录时配置文件尚未保存，使用默认值
+		appID = "77"
 	}
 
 	reqBody, _ := json.Marshal(map[string]any{})

@@ -48,13 +48,17 @@ func BuildConsoleURL(baseURL, setupCode string) string {
 }
 
 // PollSetupCheck 轮询绑定状态
-func PollSetupCheck(ctx context.Context, baseURL, setupCode string) (SetupResult, error) {
+// onPoll 回调：每次轮询时调用，参数为 (当前次数, 总次数, 是否完成, 错误)
+func PollSetupCheck(ctx context.Context, baseURL, setupCode string, onPoll func(current, total int, done bool, err error)) (SetupResult, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
 	url := strings.TrimRight(baseURL, "/") + openclawSetupPath
 
 	for i := 0; i < maxPollCount; i++ {
 		select {
 		case <-ctx.Done():
+			if onPoll != nil {
+				onPoll(i, maxPollCount, false, ctx.Err())
+			}
 			return SetupResult{}, ctx.Err()
 		default:
 		}
@@ -68,9 +72,21 @@ func PollSetupCheck(ctx context.Context, baseURL, setupCode string) (SetupResult
 
 		resp, err := client.Do(req)
 		if err != nil {
-			// 网络错误时继续轮询
+			if onPoll != nil {
+				onPoll(i, maxPollCount, false, fmt.Errorf("网络错误: %w", err))
+			}
 			time.Sleep(pollInterval)
 			continue
+		}
+
+		// 检查 404：后端接口未部署
+		if resp.StatusCode == http.StatusNotFound {
+			resp.Body.Close()
+			err := fmt.Errorf("后端尚未支持 CLI 绑定功能（接口 %s 返回 404），请联系管理员升级后端版本", openclawSetupPath)
+			if onPoll != nil {
+				onPoll(i, maxPollCount, false, err)
+			}
+			return SetupResult{}, err
 		}
 
 		var result struct {
@@ -85,31 +101,56 @@ func PollSetupCheck(ctx context.Context, baseURL, setupCode string) (SetupResult
 		}
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 			resp.Body.Close()
+			if onPoll != nil {
+				onPoll(i, maxPollCount, false, fmt.Errorf("解析响应失败: %w", err))
+			}
 			time.Sleep(pollInterval)
 			continue
 		}
 		resp.Body.Close()
 
 		if result.Code != 200 {
-			return SetupResult{}, fmt.Errorf("setup-check failed: %s", result.Msg)
+			err := fmt.Errorf("setup-check failed: %s", result.Msg)
+			if onPoll != nil {
+				onPoll(i, maxPollCount, false, err)
+			}
+			return SetupResult{}, err
 		}
 
 		switch result.Data.Status {
 		case "completed":
+			if onPoll != nil {
+				onPoll(i, maxPollCount, true, nil)
+			}
 			return SetupResult{
 				AccessKey:    result.Data.AccessKey,
 				AccessSecret: result.Data.AccessSecret,
 				TenantCode:   result.Data.TenantCode,
 			}, nil
 		case "expired":
-			return SetupResult{}, fmt.Errorf("绑定码已过期，请重新运行 ur-api login")
+			err := fmt.Errorf("绑定码已过期，请重新运行 ur-iot login")
+			if onPoll != nil {
+				onPoll(i, maxPollCount, false, err)
+			}
+			return SetupResult{}, err
 		case "denied":
-			return SetupResult{}, fmt.Errorf("绑定被拒绝")
+			err := fmt.Errorf("绑定被拒绝")
+			if onPoll != nil {
+				onPoll(i, maxPollCount, false, err)
+			}
+			return SetupResult{}, err
 		}
 
 		// pending，继续轮询
+		if onPoll != nil {
+			onPoll(i, maxPollCount, false, nil)
+		}
 		time.Sleep(pollInterval)
 	}
 
-	return SetupResult{}, fmt.Errorf("绑定超时（%d 分钟），请重新运行 ur-api login", maxPollCount*5/60)
+	err := fmt.Errorf("绑定超时（%d 分钟），请重新运行 ur-iot login", maxPollCount*5/60)
+	if onPoll != nil {
+		onPoll(maxPollCount, maxPollCount, false, err)
+	}
+	return SetupResult{}, err
 }

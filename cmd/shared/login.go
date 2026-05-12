@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -61,68 +62,103 @@ func runLogin(ctx context.Context, args []string, stdout, stderr io.Writer) int 
 	if noWait {
 		if jsonMode {
 			b, _ := json.Marshal(map[string]interface{}{
+				"status":           "authorization_required",
 				"verification_url": consoleURL,
 				"setup_code":       setupCode,
 				"expires_in":       600,
-				"hint":             fmt.Sprintf("在浏览器中打开 verification_url 完成授权，然后执行: login --setup-code %s", setupCode),
+				"instructions": []string{
+					"在浏览器中打开 verification_url",
+					"登录后进入「访问令牌」页面",
+					"创建或选择一个访问令牌",
+					"点击「完成 CLI 绑定」",
+					"告诉我「已完成」，我会继续完成认证",
+				},
+				"next_command": fmt.Sprintf("ur-iot login --setup-code %s", setupCode),
 			})
 			fmt.Fprintln(stdout, string(b))
 		} else {
-			fmt.Fprintln(stdout, "在浏览器中打开以下链接完成授权：")
+			fmt.Fprintln(stdout, "请在浏览器中完成授权：")
 			fmt.Fprintln(stdout, consoleURL)
-			fmt.Fprintf(stdout, "\n授权完成后，执行: login --setup-code %s\n", setupCode)
+			fmt.Fprintln(stdout, "\n步骤：")
+			fmt.Fprintln(stdout, "  1. 点击链接进入控制台「访问令牌」页面")
+			fmt.Fprintln(stdout, "  2. 创建或选择一个访问令牌")
+			fmt.Fprintln(stdout, "  3. 点击「完成 CLI 绑定」")
+			fmt.Fprintf(stdout, "\n授权完成后，执行: ur-iot login --setup-code %s\n", setupCode)
 		}
 		return 0
 	}
 
 	// 3. 默认模式：显示 URL + 阻塞轮询（兼容现有行为）
-	fmt.Fprintln(stdout, "╔══════════════════════════════════════════════════════════╗")
-	fmt.Fprintln(stdout, "║           联犀 OpenClaw CLI 授权                         ║")
-	fmt.Fprintln(stdout, "╠══════════════════════════════════════════════════════════╣")
-	fmt.Fprintf(stdout, "║  请在浏览器中完成授权：                                   ║\n")
-	fmt.Fprintf(stdout, "║  %s\n", consoleURL)
-	fmt.Fprintln(stdout, "║                                                          ║")
-	fmt.Fprintln(stdout, "║  步骤：                                                  ║")
-	fmt.Fprintln(stdout, "║  1. 点击链接进入控制台「访问令牌」页面                     ║")
-	fmt.Fprintln(stdout, "║  2. 点击「创建访问令牌」（或选择已有令牌）                  ║")
-	fmt.Fprintln(stdout, "║  3. 点击「完成 CLI 绑定」                                  ║")
-	fmt.Fprintln(stdout, "╠══════════════════════════════════════════════════════════╣")
-	fmt.Fprintln(stdout, "║  正在等待授权...（每5秒检测一次，最多10分钟）             ║")
-	fmt.Fprintln(stdout, "╚══════════════════════════════════════════════════════════╝")
+	fmt.Fprintln(stdout, "请在浏览器中完成授权：")
+	fmt.Fprintln(stdout, consoleURL)
+	fmt.Fprintln(stdout, "\n步骤：")
+	fmt.Fprintln(stdout, "  1. 点击链接进入控制台「访问令牌」页面")
+	fmt.Fprintln(stdout, "  2. 创建或选择一个访问令牌")
+	fmt.Fprintln(stdout, "  3. 点击「完成 CLI 绑定」")
+	fmt.Fprintln(stdout, "\n正在等待授权...（每5秒检测一次，最多10分钟）")
 
 	return runLoginPoll(ctx, baseURL, setupCode, jsonMode, stdout, stderr)
 }
 
 // runLoginPoll 执行轮询 + 保存配置 + 验证连接
 func runLoginPoll(ctx context.Context, baseURL, setupCode string, jsonMode bool, stdout, stderr io.Writer) int {
-	result, err := auth.PollSetupCheck(ctx, baseURL, setupCode)
+	result, err := auth.PollSetupCheck(ctx, baseURL, setupCode, func(current, total int, done bool, pollErr error) {
+		if jsonMode {
+			return
+		}
+		if done {
+			fmt.Fprintf(stdout, "\r✓ 检测到授权完成（第 %d/%d 次检测）\n", current+1, total)
+			return
+		}
+		if pollErr != nil {
+			// 非 404 的网络错误只显示一次提示
+			if current == 0 {
+				fmt.Fprintf(stdout, "\r  正在检测...（第 %d/%d 次）网络暂时不稳定，继续等待...\n", current+1, total)
+			}
+			return
+		}
+		// 每 6 次（30 秒）更新一次进度
+		if current%6 == 0 && current > 0 {
+			remainingMin := (total - current) * 5 / 60
+			fmt.Fprintf(stdout, "\r  正在等待授权...（第 %d/%d 次检测，剩余约 %d 分钟）", current+1, total, remainingMin)
+		}
+	})
 	if err != nil {
 		return outputLoginError(stderr, jsonMode, err)
 	}
 
+	// 验证连接并获取用户信息
+	userID, err := verifyConnection(ctx, baseURL, result.AccessKey, result.AccessSecret)
+	if err != nil {
+		return outputLoginError(stderr, jsonMode, fmt.Errorf("验证连接失败: %w", err))
+	}
+
+	appID, _ := config.GetAppID()
+
 	// 保存配置
 	profile := config.Profile{
 		BaseURL:      baseURL,
-		AppID:        "77",
+		AppID:        appID,
 		TenantCode:   result.TenantCode,
 		AccessKey:    result.AccessKey,
 		AccessSecret: result.AccessSecret,
+	}
+	if userID != "" {
+		if uid, err := strconv.ParseInt(userID, 10, 64); err == nil {
+			profile.UserID = uid
+		}
 	}
 	if err := config.SaveProfile(profile); err != nil {
 		return outputLoginError(stderr, jsonMode, fmt.Errorf("保存配置失败: %w", err))
 	}
 
-	// 验证连接
-	if err := verifyConnection(ctx, baseURL, result.AccessKey, result.AccessSecret); err != nil {
-		return outputLoginError(stderr, jsonMode, fmt.Errorf("验证连接失败: %w", err))
-	}
-
 	if jsonMode {
 		b, _ := json.Marshal(map[string]interface{}{
-			"event":        "authorization_complete",
-			"tenant_code":  result.TenantCode,
-			"access_key":   result.AccessKey,
+			"event":         "authorization_complete",
+			"tenant_code":   result.TenantCode,
+			"access_key":    result.AccessKey,
 			"access_secret": result.AccessSecret,
+			"user_id":       userID,
 		})
 		fmt.Fprintln(stdout, string(b))
 	} else {
@@ -149,7 +185,7 @@ func resolveBaseURL(baseURLArg string, stdout, stderr io.Writer) (string, error)
 // selectBaseURLInteractive 交互式选择平台地址
 func selectBaseURLInteractive(stdout io.Writer) (string, error) {
 	fmt.Fprintln(stdout, "请选择联犀平台地址：")
-	fmt.Fprintln(stdout, "[1] 联犀 SaaS (https://api.unitedrhino.com)")
+	fmt.Fprintln(stdout, "[1] 联犀 SaaS (https://saas.unitedrhino.com)")
 	fmt.Fprintln(stdout, "[2] 私有化部署（自定义）")
 	fmt.Fprint(stdout, "> ")
 
@@ -160,7 +196,7 @@ func selectBaseURLInteractive(stdout io.Writer) (string, error) {
 
 	switch choice {
 	case "1":
-		return "https://api.unitedrhino.com", nil
+		return "https://saas.unitedrhino.com", nil
 	case "2":
 		fmt.Fprint(stdout, "请输入私有化地址: ")
 		var customURL string
@@ -187,36 +223,44 @@ func outputLoginError(stderr io.Writer, jsonMode bool, err error) int {
 	return 1
 }
 
-func verifyConnection(ctx context.Context, baseURL, accessKey, accessSecret string) error {
+func verifyConnection(ctx context.Context, baseURL, accessKey, accessSecret string) (string, error) {
 	jwt, err := auth.GenerateJWT("0", accessKey, accessSecret)
 	if err != nil {
-		return fmt.Errorf("生成 JWT: %w", err)
+		return "", fmt.Errorf("生成 JWT: %w", err)
+	}
+
+	appID, err := config.GetAppID()
+	if err != nil {
+		return "", fmt.Errorf("获取 appID: %w", err)
 	}
 
 	reqBody, _ := json.Marshal(map[string]any{})
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimRight(baseURL, "/")+"/api/v1/system/user/self/get-one", bytes.NewReader(reqBody))
 	if err != nil {
-		return fmt.Errorf("构建请求: %w", err)
+		return "", fmt.Errorf("构建请求: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+jwt)
-	req.Header.Set("app-id", "77")
+	req.Header.Set("app-id", appID)
 
 	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
 	if err != nil {
-		return fmt.Errorf("发送请求: %w", err)
+		return "", fmt.Errorf("发送请求: %w", err)
 	}
 	defer resp.Body.Close()
 
 	var result struct {
 		Code int    `json:"code"`
 		Msg  string `json:"msg"`
+		Data struct {
+			UserID string `json:"userID"`
+		} `json:"data"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return fmt.Errorf("解析响应: %w", err)
+		return "", fmt.Errorf("解析响应: %w", err)
 	}
 	if result.Code != 200 {
-		return fmt.Errorf("API 错误: %s", result.Msg)
+		return "", fmt.Errorf("API 错误: %s", result.Msg)
 	}
-	return nil
+	return result.Data.UserID, nil
 }

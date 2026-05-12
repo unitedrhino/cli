@@ -75,8 +75,12 @@ func ResolveToken(ctx context.Context) (string, error) {
 	if err == nil && authCtx.Token != "" {
 		return authCtx.Token, nil
 	}
-	if err == nil && authCtx.UserID != "" && authCtx.AccessKey != "" && authCtx.AccessSecret != "" {
-		return GenerateJWT(authCtx.UserID, authCtx.AccessKey, authCtx.AccessSecret)
+	if err == nil && authCtx.AccessKey != "" && authCtx.AccessSecret != "" {
+		userID := authCtx.UserID
+		if userID == "" {
+			userID = "0"
+		}
+		return GenerateJWT(userID, authCtx.AccessKey, authCtx.AccessSecret)
 	}
 	profile, err := config.CurrentProfile()
 	if err != nil {
@@ -101,8 +105,12 @@ func ResolveAuthHeaders(ctx context.Context) (map[string]string, error) {
 		if authCtx.Token != "" {
 			return map[string]string{"token": authCtx.Token}, nil
 		}
-		if authCtx.UserID != "" && authCtx.AccessKey != "" && authCtx.AccessSecret != "" {
-			jwt, err := GenerateJWT(authCtx.UserID, authCtx.AccessKey, authCtx.AccessSecret)
+		if authCtx.AccessKey != "" && authCtx.AccessSecret != "" {
+			userID := authCtx.UserID
+			if userID == "" {
+				userID = "0"
+			}
+			jwt, err := GenerateJWT(userID, authCtx.AccessKey, authCtx.AccessSecret)
 			if err != nil {
 				return nil, err
 			}

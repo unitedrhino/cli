@@ -183,9 +183,13 @@ func ResolveAuthContext() (AuthContext, error) {
 			AccessSecret: strings.TrimSpace(os.Getenv("UR_ACCESS_SECRET")),
 		}, nil
 	}
-	if profile.UserID > 0 && profile.AccessKey != "" && profile.AccessSecret != "" {
+	if profile.AccessKey != "" && profile.AccessSecret != "" {
+		userID := ""
+		if profile.UserID > 0 {
+			userID = strconv.FormatInt(profile.UserID, 10)
+		}
 		return AuthContext{
-			UserID:       strconv.FormatInt(profile.UserID, 10),
+			UserID:       userID,
 			AccessKey:    profile.AccessKey,
 			AccessSecret: profile.AccessSecret,
 		}, nil

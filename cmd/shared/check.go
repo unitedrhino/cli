@@ -2,6 +2,7 @@ package shared
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -10,21 +11,66 @@ import (
 	"gitee.com/unitedrhino/cli/internal/config"
 )
 
-func runCheck(ctx context.Context, app config.CLIApp, _ []string, stdout, stderr io.Writer) int {
+func runCheck(ctx context.Context, app config.CLIApp, args []string, stdout, stderr io.Writer) int {
+	jsonMode := false
+	for _, arg := range args {
+		if arg == "--json" {
+			jsonMode = true
+		}
+	}
+
 	baseURL, err := config.GetBaseURL()
 	if err != nil {
-		fmt.Fprintln(stderr, err.Error())
+		outputCheckError(stderr, jsonMode, err)
 		return 1
 	}
 	appID, err := config.GetAppID()
 	if err != nil {
-		fmt.Fprintln(stderr, err.Error())
+		outputCheckError(stderr, jsonMode, err)
 		return 1
 	}
 	tenantCode, err := config.GetTenantCode()
 	if err != nil {
-		fmt.Fprintln(stderr, err.Error())
+		outputCheckError(stderr, jsonMode, err)
 		return 1
+	}
+
+	if jsonMode {
+		status := map[string]interface{}{
+			"app_name":        app.DisplayName(),
+			"binary_name":     app.BinaryName(),
+			"base_url":        baseURL,
+			"app_id":          appID,
+			"tenant_code":     tenantCode,
+			"allowed_auth":    app.AllowedAuthTypes(),
+			"features":        app.Features(),
+			"auth_status":     "checking",
+			"auth_status_msg": "",
+		}
+
+		// 验证认证
+		resp, err := client.DoAPI(ctx, client.APIRequest{
+			Path: "/api/v1/system/user/self/get-one",
+			Body: map[string]any{"withTenant": true},
+		})
+		if err != nil {
+			status["auth_status"] = "error"
+			status["auth_status_msg"] = err.Error()
+			b, _ := json.Marshal(status)
+			fmt.Fprintln(stdout, string(b))
+			return 1
+		}
+		if resp.Code != 200 {
+			status["auth_status"] = "failed"
+			status["auth_status_msg"] = resp.Msg
+			b, _ := json.Marshal(status)
+			fmt.Fprintln(stdout, string(b))
+			return 1
+		}
+		status["auth_status"] = "ok"
+		b, _ := json.Marshal(status)
+		fmt.Fprintln(stdout, string(b))
+		return 0
 	}
 
 	fmt.Fprintf(stdout, "[OK] 应用: %s (%s)\n", app.DisplayName(), app.BinaryName())
@@ -53,6 +99,18 @@ func runCheck(ctx context.Context, app config.CLIApp, _ []string, stdout, stderr
 	}
 	fmt.Fprintln(stdout, "\n[OK] 认证通过")
 	return 0
+}
+
+func outputCheckError(stderr io.Writer, jsonMode bool, err error) {
+	if jsonMode {
+		b, _ := json.Marshal(map[string]interface{}{
+			"auth_status":     "error",
+			"auth_status_msg": err.Error(),
+		})
+		fmt.Fprintln(stderr, string(b))
+	} else {
+		fmt.Fprintln(stderr, err.Error())
+	}
 }
 
 func printFeatureTree(w io.Writer, features []config.Feature, indent string) {

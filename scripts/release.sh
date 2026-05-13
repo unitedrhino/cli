@@ -252,7 +252,7 @@ release_github() {
       -H "Accept: application/vnd.github.v3+json" \
       -H "Content-Type: application/octet-stream" \
       "${upload_url}?name=${fname}" \
-      --data-binary "@${asset}" >/dev/null 2>&1; then
+      --data-binary "@$asset" >/dev/null 2>&1; then
       echo "OK"
     else
       echo "FAILED"

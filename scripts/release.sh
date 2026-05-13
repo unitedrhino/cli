@@ -127,6 +127,28 @@ build_one() {
     return 1
   fi
 
+  # 复制 skill 资源到发布包（排除 scripts/ 子目录）
+  mkdir -p "${platform_dir}/skill"
+  for item in "${ROOT}/skill"/*; do
+    local skill_name=$(basename "$item")
+    if [[ "$skill_name" == "scripts" ]]; then
+      continue
+    fi
+    if [[ -d "$item" ]]; then
+      # 子 skill 目录：复制整个目录但排除其中的 scripts/
+      mkdir -p "${platform_dir}/skill/${skill_name}"
+      for subitem in "$item"/*; do
+        local sub_skill_name=$(basename "$subitem")
+        if [[ "$sub_skill_name" == "scripts" ]]; then
+          continue
+        fi
+        cp -R "$subitem" "${platform_dir}/skill/${skill_name}/"
+      done
+    else
+      cp -R "$item" "${platform_dir}/skill/"
+    fi
+  done
+
   echo "OK:${platform}:${name}"
 }
 export -f build_one platform_name

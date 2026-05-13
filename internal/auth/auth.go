@@ -165,3 +165,30 @@ func sha256Hex(value string) string {
 	sum := sha256.Sum256([]byte(value))
 	return fmt.Sprintf("%x", sum[:])
 }
+
+// RefreshToken 尝试用保存的账号密码重新登录获取新 token。
+// 成功后会将新 token 写回配置文件。
+func RefreshToken(ctx context.Context) (string, error) {
+	profile, err := config.CurrentProfile()
+	if err != nil {
+		return "", fmt.Errorf("no profile found: %w", err)
+	}
+	if profile.Account == "" || profile.Password == "" {
+		return "", fmt.Errorf("no account/password in profile, cannot refresh token")
+	}
+	baseURL, _ := config.GetBaseURL()
+	appID, _ := config.GetAppID()
+	tenantCode, _ := config.GetTenantCode()
+
+	result, err := DoPasswordLoginRaw(ctx, baseURL, appID, tenantCode, profile.Account, profile.Password)
+	if err != nil {
+		return "", fmt.Errorf("refresh login failed: %w", err)
+	}
+
+	// 保存新 token
+	profile.Token = result.Token
+	if err := config.SaveProfile(profile); err != nil {
+		return "", fmt.Errorf("save refreshed token failed: %w", err)
+	}
+	return result.Token, nil
+}

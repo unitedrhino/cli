@@ -278,6 +278,21 @@ ur api /api/v1/things/device/interact/property-control-send \
 ```
 
 
+## 设备数据分析
+
+设备属性历史数据的查询与分析见子域 Skill：
+- **`ur-device-analytics/SKILL.md`** — 属性历史查询、趋势分析、聚合统计、报表生成
+
+## 设备调试
+
+设备日志查询和实时调试见子域 Skill：
+- **`ur-device-debug/SKILL.md`** — 设备日志查询、属性控制、行为调用、事件发送、Mock数据生成
+
+覆盖内容：
+- 7 种日志查询：属性、事件、命令、上下线、异常、诊断(Hub)、SDK
+- 4 种调试操作：属性控制、行为调用、事件发送、Mock数据生成
+- 典型排障工作流：属性不更新、控制测试、离线排查
+
 ## 注意事项
 
 - **deviceName 是设备唯一 ID（非显示名称）**，控制/查询时必须同时提供 productID + deviceName

@@ -312,7 +312,19 @@ Excel 原始定义：电压、电流、功率、电能等 double 类型属性，
 
 ## 校验方法
 
-生成物模型 JSON 后，使用以下 Go 测试代码校验：
+### 方式 1：CLI 校验（推荐）
+
+```bash
+ur model validate model.json
+```
+
+校验内容：
+- identifier 命名规范和唯一性
+- 必填字段完整性
+- 枚举值合法性（mode、type、dir 等）
+- Define 结构合法性
+
+### 方式 2：Go 代码校验
 
 ```bash
 cd backend/things/share/domain/schema
@@ -335,6 +347,15 @@ func TestValidateThingModel(t *testing.T) {
 ```
 
 校验通过后，`ValidateWithFmt` 会自动补充默认值（如 bool 的 mapping、int 的 min/max/step 等）。
+
+### 生成模板
+
+```bash
+ur model template property --json   # 属性模板
+ur model template event --yaml      # 事件模板
+ur model template action --json     # 行为模板
+ur model template full --yaml       # 完整物模型模板
+```
 
 ## MQTT 协议使用参考
 

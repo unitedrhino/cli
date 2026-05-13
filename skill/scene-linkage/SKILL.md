@@ -761,23 +761,23 @@ description: "Use when generating, validating, or troubleshooting 联犀 IoT sce
 
 ## CLI 校验工具
 
-场景联动 JSON 可使用校验脚本进行基础结构验证：
+场景联动 JSON 可使用 CLI 命令进行基础结构验证：
 
 ```bash
-cd /home/yl/code/saas
-python3 .claude/skills/scene-linkage-skill/scripts/validate_scene.py scene.json
+ur scene validate scene.json
 ```
 
-脚本会检查：
+校验内容：
 - 必填字段是否缺失
 - 枚举值是否合法
 - Compare 的 termType 与 values 数量是否匹配
 - Action 的类型与对应详情字段是否一致
 
-也支持从标准输入读取：
+也支持生成模板：
 
 ```bash
-cat scene.json | python3 .claude/skills/scene-linkage-skill/scripts/validate_scene.py -
+ur scene template auto     # 生成自动触发场景模板
+ur scene template manual   # 生成手动触发场景模板
 ```
 
 ## 与物模型的关联

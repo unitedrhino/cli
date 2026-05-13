@@ -12,9 +12,18 @@ import (
 	"gitee.com/unitedrhino/cli/internal/response"
 )
 
+func isValidFormat(f string) bool {
+	for _, v := range response.ValidFormats {
+		if v == f {
+			return true
+		}
+	}
+	return false
+}
+
 func runAPI(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, "usage: ur api <path> [--body JSON] [--body-file FILE] [--header KEY:VALUE] [--fields SELECTORS] [--summarize]")
+		fmt.Fprintln(stderr, "usage: ur api <path> [--body JSON] [--body-file FILE] [--header KEY:VALUE] [--fields SELECTORS] [--summarize] [--format FORMAT] [--transform PATH] [--output FILE] [--debug]")
 		return 2
 	}
 	path := args[0]
@@ -22,6 +31,10 @@ func runAPI(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	headers := map[string]string{}
 	fields := ""
 	summarize := false
+	format := ""
+	transform := ""
+	outputPath := ""
+	debug := false
 
 	for i := 1; i < len(args); i++ {
 		switch args[i] {
@@ -75,21 +88,64 @@ func runAPI(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 			i++
 		case "--summarize":
 			summarize = true
+		case "--format":
+			if i+1 >= len(args) {
+				fmt.Fprintln(stderr, "--format requires FORMAT")
+				return 2
+			}
+			format = args[i+1]
+			if !isValidFormat(format) {
+				fmt.Fprintf(stderr, "invalid format %q, valid: %s\n", format, strings.Join(response.ValidFormats, ", "))
+				return 2
+			}
+			i++
+		case "--transform":
+			if i+1 >= len(args) {
+				fmt.Fprintln(stderr, "--transform requires PATH")
+				return 2
+			}
+			transform = args[i+1]
+			i++
+		case "--output":
+			if i+1 >= len(args) {
+				fmt.Fprintln(stderr, "--output requires FILE")
+				return 2
+			}
+			outputPath = args[i+1]
+			i++
+		case "--debug":
+			debug = true
 		default:
 			fmt.Fprintf(stderr, "unknown api option: %s\n", args[i])
 			return 2
 		}
 	}
 
-	if fields != "" && summarize {
-		fmt.Fprintln(stderr, "--fields and --summarize are mutually exclusive")
+	mutuallyExclusive := 0
+	if fields != "" {
+		mutuallyExclusive++
+	}
+	if summarize {
+		mutuallyExclusive++
+	}
+	if transform != "" {
+		mutuallyExclusive++
+	}
+	if mutuallyExclusive > 1 {
+		fmt.Fprintln(stderr, "--fields, --summarize and --transform are mutually exclusive")
 		return 2
 	}
 
-	resp, err := client.DoAPI(ctx, client.APIRequest{Path: path, Body: body, Headers: headers})
+	resp, err := client.DoAPI(ctx, client.APIRequest{Path: path, Body: body, Headers: headers, Debug: debug})
 	if err != nil {
 		fmt.Fprintln(stderr, err.Error())
 		return 1
+	}
+
+	// 业务错误友好提示
+	code := normalizeCode(resp.Code)
+	if code != 200 {
+		fmt.Fprintf(stderr, "[错误] 业务返回 code=%d: %s\n", resp.Code, resp.Msg)
 	}
 
 	// 将 resp 转为 map[string]any 以便过滤
@@ -116,13 +172,34 @@ func runAPI(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 		out = response.Summarize(respMap)
 	}
 
-	raw, err := json.MarshalIndent(out, "", "  ")
+	raw, err := response.FormatOutput(out, response.FormatOptions{Format: format, Transform: transform})
 	if err != nil {
-		fmt.Fprintln(stderr, err.Error())
+		fmt.Fprintf(stderr, "format output: %v\n", err)
 		return 1
 	}
-	_, _ = fmt.Fprintln(stdout, string(raw))
+
+	if outputPath != "" {
+		if err := os.WriteFile(outputPath, raw, 0644); err != nil {
+			fmt.Fprintf(stderr, "write output file: %v\n", err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "输出已保存: %s\n", outputPath)
+	} else {
+		_, _ = fmt.Fprintln(stdout, string(raw))
+	}
+
+	if code != 200 {
+		return 1
+	}
 	return 0
+}
+
+// normalizeCode 将后端各种成功码统一为 200
+func normalizeCode(code int) int {
+	if code == 0 {
+		return 200
+	}
+	return code
 }
 
 func toMapAny(v any) (map[string]any, error) {

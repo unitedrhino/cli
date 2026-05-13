@@ -21,6 +21,7 @@ type APIRequest struct {
 	Path    string
 	Body    map[string]any
 	Headers map[string]string
+	Debug   bool
 }
 
 type APIResponse struct {
@@ -29,7 +30,24 @@ type APIResponse struct {
 	Data interface{} `json:"data"`
 }
 
+// DoAPI 发送 API 请求，若遇到认证失败会自动刷新 token 并重试一次。
 func DoAPI(ctx context.Context, req APIRequest) (APIResponse, error) {
+	resp, err := doAPIOnce(ctx, req)
+	if err != nil {
+		return APIResponse{}, err
+	}
+	if isAuthFailure(resp) {
+		if _, refreshErr := auth.RefreshToken(ctx); refreshErr == nil {
+			if req.Debug {
+				log.Println("[debug] token refreshed, retrying request...")
+			}
+			return doAPIOnce(ctx, req)
+		}
+	}
+	return resp, nil
+}
+
+func doAPIOnce(ctx context.Context, req APIRequest) (APIResponse, error) {
 	baseURL, err := config.GetBaseURL()
 	if err != nil {
 		return APIResponse{}, err
@@ -78,6 +96,9 @@ func DoAPI(ctx context.Context, req APIRequest) (APIResponse, error) {
 	for key, value := range authHeaders {
 		httpReq.Header.Set(key, value)
 	}
+	if req.Debug {
+		logDebugRequest(httpReq, rawBody)
+	}
 	resp, err := (&http.Client{Timeout: 30 * time.Second}).Do(httpReq)
 	if err != nil {
 		return APIResponse{}, fmt.Errorf("do request: %w", err)
@@ -87,6 +108,9 @@ func DoAPI(ctx context.Context, req APIRequest) (APIResponse, error) {
 	if err != nil {
 		return APIResponse{}, fmt.Errorf("read response: %w", err)
 	}
+	if req.Debug {
+		logDebugResponse(resp, rawResp)
+	}
 	if reqTraceparent := httpReq.Header.Get("traceparent"); reqTraceparent != "" || resp.Header.Get("traceparent") != "" {
 		log.Printf("ur-api trace path=%s reqTraceparent=%s respTraceparent=%s status=%d", req.Path, reqTraceparent, resp.Header.Get("traceparent"), resp.StatusCode)
 	}
@@ -95,6 +119,21 @@ func DoAPI(ctx context.Context, req APIRequest) (APIResponse, error) {
 		return APIResponse{}, fmt.Errorf("decode response status=%d body=%s: %w", resp.StatusCode, strings.TrimSpace(string(rawResp)), err)
 	}
 	return out, nil
+}
+
+// isAuthFailure 判断响应是否为认证/授权失败。
+func isAuthFailure(resp APIResponse) bool {
+	if resp.Code == 401 {
+		return true
+	}
+	msg := strings.ToLower(resp.Msg)
+	authKeywords := []string{"token", "认证", "登录", "unauthorized", "未授权", "权限", "expire", "过期", "invalid"}
+	for _, kw := range authKeywords {
+		if strings.Contains(msg, kw) {
+			return true
+		}
+	}
+	return false
 }
 
 func normalizeRequestPathAndBody(path string, body map[string]any) (string, map[string]any, error) {
@@ -144,4 +183,60 @@ func bodyContainsSingularID(body map[string]any) bool {
 		}
 	}
 	return false
+}
+
+// 脱敏敏感 header
+var sensitiveHeaders = []string{"token", "authorization", "cookie", "set-cookie", "x-api-key", "api-key", "password"}
+
+func isSensitiveHeader(key string) bool {
+	lower := strings.ToLower(key)
+	for _, h := range sensitiveHeaders {
+		if lower == h || strings.Contains(lower, h) {
+			return true
+		}
+	}
+	return false
+}
+
+func redactHeaders(headers http.Header) http.Header {
+	redacted := headers.Clone()
+	for key := range redacted {
+		if isSensitiveHeader(key) {
+			redacted.Set(key, "<REDACTED>")
+		}
+	}
+	return redacted
+}
+
+func logDebugRequest(req *http.Request, body []byte) {
+	log.Println("[debug] ---------- HTTP Request ----------")
+	log.Printf("[debug] %s %s", req.Method, req.URL.String())
+	for key, values := range redactHeaders(req.Header) {
+		for _, v := range values {
+			log.Printf("[debug] %s: %s", key, v)
+		}
+	}
+	if len(body) > 0 {
+		log.Printf("[debug] Body: %s", string(body))
+	}
+	log.Println("[debug] ----------------------------------")
+}
+
+func logDebugResponse(resp *http.Response, body []byte) {
+	log.Println("[debug] ---------- HTTP Response ---------")
+	log.Printf("[debug] Status: %d %s", resp.StatusCode, resp.Status)
+	for key, values := range resp.Header {
+		for _, v := range values {
+			log.Printf("[debug] %s: %s", key, v)
+		}
+	}
+	if len(body) > 0 {
+		const maxBodyLen = 4096
+		if len(body) > maxBodyLen {
+			log.Printf("[debug] Body: %s... (%d bytes truncated)", string(body[:maxBodyLen]), len(body))
+		} else {
+			log.Printf("[debug] Body: %s", string(body))
+		}
+	}
+	log.Println("[debug] ----------------------------------")
 }

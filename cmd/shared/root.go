@@ -12,7 +12,13 @@ import (
 )
 
 // Execute 是所有 CLI 应用的统一入口
-func Execute(app config.CLIApp, ctx context.Context, args []string, stdout, stderr io.Writer) int {
+func Execute(app config.CLIApp, ctx context.Context, version string, args []string, stdout, stderr io.Writer) int {
+	for _, arg := range args {
+		if arg == "--version" || arg == "-v" {
+			fmt.Fprintln(stdout, version)
+			return 0
+		}
+	}
 	if len(args) == 0 {
 		printHelp(app, stdout)
 		return 0
@@ -34,10 +40,14 @@ func Execute(app config.CLIApp, ctx context.Context, args []string, stdout, stde
 		return runConfig(args[1:], stdout, stderr)
 	case "generate-skills":
 		return runGenerateSkills(app, args[1:], stdout, stderr)
+	case "completion":
+		return runCompletion(args[1:], stdout, stderr)
 	case "scene":
 		return runScene(args[1:], stdout, stderr)
 	case "script":
 		return runScript(args[1:], stdout, stderr)
+	case "model":
+		return runModel(args[1:], stdout, stderr)
 	case "help", "--help", "-h":
 		printHelp(app, stdout)
 		return 0

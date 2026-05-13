@@ -79,9 +79,9 @@ ur check
 | **租户管理员** | 本租户 CRUD（admin/all 接口） | `ur login` 用租户管理员账号授权 |
 | **普通用户** | 个人信息、设备分享（仅 all 接口） | `ur login` 用普通用户账号授权 |
 
-> **切换角色**：重新运行 `ur login`（用不同账号授权），或用 `--profile` 使用不同 profile：
+> **切换角色**：重新运行 `ur login`（用不同账号授权），或用 `--app` 切换应用上下文：
 > ```bash
-> ur api /api/v1/... --profile platform-admin
+> ur --app platform-manage api /api/v1/...
 > ```
 
 ### 第二步：根据任务选择子域
@@ -170,6 +170,12 @@ IoT AI 工具迁移相关子域：
 - `ur-iot-context/SKILL.md`
 - `ur-iot-client/SKILL.md`
 
+设备数据分析子域：
+- `ur-device-analytics/SKILL.md` — 属性历史查询、趋势分析、聚合统计、报表生成（物模型驱动）
+
+设备调试子域：
+- `ur-device-debug/SKILL.md` — 设备日志查询（属性/事件/命令/上下线/异常/诊断/SDK）、实时调试（属性控制/行为调用/事件发送/Mock数据）
+
 ## 快速开始
 
 ### 方式 1：Device Auth（推荐，默认）
@@ -216,6 +222,9 @@ export UR_USER_ID=12345
 
 # 或临时使用已有 token
 export UR_TOKEN=xxx
+
+# 指定应用上下文（等效于 --app）
+export UR_APP=iot
 ```
 
 ## 认证原理
@@ -269,46 +278,150 @@ AccessKey + AccessSecret → HS256 JWT → Authorization: Bearer header
 
 ## CLI 用法
 
+### 全局选项
+
+```bash
+# 查看版本
+ur --version
+ur -v
+
+# 切换应用上下文（支持 iot, platform-manage, org-manage, org-energy, console）
+ur --app iot api /api/v1/things/device/info/get-list
+UR_APP=iot ur api /api/v1/things/device/info/get-list
+```
+
+### 认证与配置
+
 ```bash
 # Device Auth 授权（推荐首次使用）
 ur login
 
+# AI 模式：分步授权（获取 URL 和 setupCode，不阻塞）
+ur login --no-wait --json
+ur login --setup-code ABC123 --json
+
 # 交互式配置 baseURL/appID/tenantCode（高级/手动配置）
 ur setup
-
-# 临时覆盖环境做一次性检查
-ur check --base-url http://120.25.49.238:7777 --app-id 77 --tenant-code platform
-
-# 调用 API
-ur api /api/v1/things/device/info/get-list --body '{"page":{"page":1,"size":10}}'
-
-# 使用指定 profile 调用（多服务器切换）
-ur api /api/v1/things/device/info/get-list --profile tx-prod --body '{"page":{"page":1,"size":10}}'
-
-# 通过 CLI 参数覆盖连接配置（无需切换 profile）
-ur api /api/v1/system/user/self/get-one \
-  --base-url http://1.13.180.134:7777 --app-id 200 --tenant-code platform
-
-# 从文件读取请求 body（适合大型 JSON）
-ur api /api/v1/things/protocol/script/update --body-file /tmp/payload.json
-
-# 查看 token（解码 payload）
-ur token --decode
-ur token --raw
 
 # 验证配置 + 连通性
 ur check
 
-# 管理配置
+# 管理多环境配置
 ur config --list
 ur config --use prod
 
+# 查看当前 token
+ur token --decode
+ur token --raw
+```
+
+### API 调用
+
+```bash
+# 基本调用
+ur api /api/v1/things/device/info/get-list --body '{"page":{"page":1,"size":10}}'
+
+# 输出格式控制
+ur api /api/v1/things/device/info/get-list --body '{"page":{"page":1,"size":10}}' --format yaml
+ur api /api/v1/things/device/info/get-list --body '{"page":{"page":1,"size":10}}' --format raw
+
+# 字段筛选（只保留指定字段）
+ur api /api/v1/things/device/info/get-list --body '{"page":{"page":1,"size":10}}' --fields code,data.total,data.list
+
+# 摘要模式（列表只保留前 5 条）
+ur api /api/v1/things/device/info/get-list --body '{"page":{"page":1,"size":10}}' --summarize
+
+# GJSON 路径提取
+ur api /api/v1/things/device/info/get-list --body '{"page":{"page":1,"size":10}}' --transform data.list.0.deviceName
+
+# 保存输出到文件
+ur api /api/v1/things/device/info/get-list --body '{"page":{"page":1,"size":10}}' --output result.json
+
+# 调试模式（打印完整 HTTP 请求/响应，敏感头已脱敏）
+ur api /api/v1/things/device/info/get-list --body '{"page":{"page":1,"size":10}}' --debug
+
+# 自定义请求头
+ur api /api/v1/things/device/info/get-list -H "X-Custom-Header: value" --body '{}'
+
+# 从文件读取请求 body（适合大型 JSON）
+ur api /api/v1/things/protocol/script/update --body-file /tmp/payload.json
+
+# 临时覆盖连接配置做一次性调用（通过环境变量）
+UR_BASE_URL=http://120.25.49.238:7777 UR_APP_ID=77 UR_TENANT_CODE=platform ur check
+UR_BASE_URL=http://1.13.180.134:7777 UR_APP_ID=200 UR_TENANT_CODE=platform \
+  ur api /api/v1/system/user/self/get-one
+```
+
+### 物模型命令
+
+```bash
+# 生成物模型模板
+ur model template property --json
+ur model template event --yaml --output event.yaml
+ur model template action --json
+ur model template full --yaml --output model.yaml
+
+# 校验物模型 JSON
+ur model validate /tmp/model.json
+
+# 从物模型生成协议脚本框架
+ur model generate-script /tmp/model.json --mode property --output script.go
+```
+
+### 场景联动命令
+
+```bash
+# 生成场景联动模板
+ur scene template auto     # 自动触发场景
+ur scene template manual   # 手动触发场景
+
+# 校验场景联动 JSON
+ur scene validate /tmp/scene.json
+```
+
+### 协议脚本命令
+
+```bash
+# 生成协议脚本模板
+ur script template up-before    # 上行前处理
+ur script template up-after     # 上行后处理
+ur script template down-before  # 下行前处理
+ur script template down-after   # 下行后处理
+
+# 校验协议脚本
+ur script validate /tmp/script.go
+```
+
+### Schema 与补全
+
+```bash
 # 查看 API schema
 ur schema
 ur schema --json
 ur schema --auth-type admin
 ur schema /api/v1/things/device/info/create
+
+# Shell 补全（安装后新开终端生效）
+ur completion bash >> ~/.bashrc
+ur completion zsh >> ~/.zshrc
+ur completion fish > ~/.config/fish/completions/ur.fish
 ```
+
+### 输出选项说明
+
+| 选项 | 说明 | 示例 |
+|------|------|------|
+| `--format json` | 美化 JSON（默认） | `ur api ... --format json` |
+| `--format raw` | 单行 JSON | `ur api ... --format raw` |
+| `--format yaml` | YAML 格式 | `ur api ... --format yaml` |
+| `--transform PATH` | GJSON 路径提取 | `--transform data.list.0.name` |
+| `--fields SELECTORS` | 字段筛选（逗号分隔） | `--fields code,data.total` |
+| `--summarize` | 摘要模式（列表截断前 5 条） | `ur api ... --summarize` |
+| `--output FILE` | 保存到文件 | `--output result.json` |
+| `--debug` | 打印 HTTP 详情（敏感头脱敏） | `ur api ... --debug` |
+| `--header, -H` | 自定义请求头 | `-H "X-Request-ID: abc"` |
+
+> **注意**：`--fields`、`--summarize`、`--transform` 三者互斥，只能同时用其中一个。
 
 ## API 通用约定
 
@@ -348,6 +461,8 @@ Swagger 中 x-auth-type 标注了权限层级：
 | JWT 已过期 | 检查 `exp` 字段 | 重新生成 JWT |
 | 访问令牌过期 | Device Auth / JWT 模式 | 重新运行 `ur login` 或重新生成 JWT |
 
+**Token 自动刷新**：CLI 在调用 `ur api` 时，若遇到认证失败（code=401 或响应消息包含认证相关关键词），会**自动使用保存的账号密码重新登录获取新 token**，保存到配置文件后**自动重试原请求一次**。此行为无需手动干预，但若自动刷新失败（如账号密码已变更），会返回认证错误。
+
 ### 403 权限不足
 
 | 错误信息 | 原因 | 解决方案 |
@@ -358,6 +473,12 @@ Swagger 中 x-auth-type 标注了权限层级：
 | 该企业未绑定该应用 | 租户未开通该 App | 联系平台管理员绑定应用 |
 
 ### 业务错误 (code != 200)
+
+CLI 调用 `ur api` 时，若业务返回 code 不为 200，会在 stderr 输出友好的错误提示，同时仍将完整响应输出到 stdout（或 `--output` 文件），方便查看具体错误信息：
+
+```
+[错误] 业务返回 code=500: 数据不存在
+```
 
 | 错误码 | 常见原因 | 排查方法 |
 |--------|----------|----------|

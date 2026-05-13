@@ -363,6 +363,29 @@ func Handle(ctx context.Context, req *deviceMsg.PublishMsg) *deviceMsg.PublishMs
 8. **缓存刷新周期 10 分钟** — 脚本修改后最多等 10 分钟生效
 9. **dm 包函数需要真实服务** — 本地测试时仅 `gjson`/`json`/`utils`/`log`/`deviceMsg` 可用
 
+## CLI 工具
+
+### 生成脚本模板
+
+```bash
+ur script template up-before    # 上行前处理模板
+ur script template up-after     # 上行后处理模板
+ur script template down-before  # 下行前处理模板
+ur script template down-after   # 下行后处理模板
+```
+
+### 校验脚本
+
+```bash
+ur script validate /tmp/script.go
+```
+
+### 从物模型生成脚本框架
+
+```bash
+ur model generate-script /tmp/model.json --mode property --output script.go
+```
+
 ## 本地测试
 
 写完脚本后，可通过本地测试 SDK 验证。在 `script_test.go` 中添加测试用例：

@@ -35,6 +35,26 @@ func printHelp(app config.CLIApp, w io.Writer) {
   %s scene template [auto|manual]
   %s script validate <file>
   %s script template [up-before|up-after|down-before|down-after]
+  %s model template [property|event|action|full] [--json|--yaml] [--output file]
+  %s model validate <file>
+  %s model generate-script <model-file> [--mode type] [--output file]
+  %s completion bash|zsh|fish
+
+全局选项:
+  --app <name>           指定应用上下文（iot, platform-manage, org-manage, org-energy, console）
+                         也可通过 UR_APP 环境变量设置
+  --version, -v          显示 CLI 版本号
+
+api 选项:
+  --body JSON            请求体 JSON
+  --body-file FILE       从文件读取请求体
+  --header, -H KEY:VALUE 自定义请求头
+  --fields SELECTORS     字段筛选（逗号分隔）
+  --summarize            摘要模式（列表只保留前 5 条）
+  --format FORMAT        输出格式：json（默认）/ raw / yaml
+  --transform PATH       GJSON 路径提取
+  --output FILE          将输出保存到文件
+  --debug                打印 HTTP 请求/响应详情（敏感头已脱敏）
 
 login 选项:
   --no-wait              请求授权后返回 URL 和 setupCode，不阻塞轮询（AI 模式第 1 步）
@@ -61,7 +81,7 @@ login 示例:
   UR_BASE_URL, UR_APP_ID, UR_TENANT_CODE, UR_TOKEN, UR_USER_ID, UR_ACCESS_KEY, UR_ACCESS_SECRET
 `, bin, app.DisplayName(),
 		bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin,
-		bin, bin, bin, bin,
+		bin, bin, bin, bin, bin, bin, bin, bin, bin, bin,
 		app.AppID(),
 		func() string {
 			if tc := app.DefaultTenantCode(); tc != "" {

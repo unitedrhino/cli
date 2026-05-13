@@ -36,6 +36,8 @@ func Execute(app config.CLIApp, ctx context.Context, args []string, stdout, stde
 		return runGenerateSkills(app, args[1:], stdout, stderr)
 	case "scene":
 		return runScene(args[1:], stdout, stderr)
+	case "script":
+		return runScript(args[1:], stdout, stderr)
 	case "help", "--help", "-h":
 		printHelp(app, stdout)
 		return 0

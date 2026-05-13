@@ -33,6 +33,8 @@ func printHelp(app config.CLIApp, w io.Writer) {
   %s generate-skills [--output DIR]
   %s scene validate <file>
   %s scene template [auto|manual]
+  %s script validate <file>
+  %s script template [up-before|up-after|down-before|down-after]
 
 login 选项:
   --no-wait              请求授权后返回 URL 和 setupCode，不阻塞轮询（AI 模式第 1 步）

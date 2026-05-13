@@ -59,7 +59,8 @@ login 示例:
 
 运行时认证环境变量:
   UR_BASE_URL, UR_APP_ID, UR_TENANT_CODE, UR_TOKEN, UR_USER_ID, UR_ACCESS_KEY, UR_ACCESS_SECRET
-`, bin, app.DisplayName(), bin, bin, bin, bin, bin, bin, bin, bin,
+`, bin, app.DisplayName(),
+		bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin,
 		bin, bin, bin, bin,
 		app.AppID(),
 		func() string {

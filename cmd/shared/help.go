@@ -31,6 +31,8 @@ func printHelp(app config.CLIApp, w io.Writer) {
   %s config [--list|--use NAME]
   %s schema [path] [--json] [--auth-type CODE]
   %s generate-skills [--output DIR]
+  %s scene validate <file>
+  %s scene template [auto|manual]
 
 login 选项:
   --no-wait              请求授权后返回 URL 和 setupCode，不阻塞轮询（AI 模式第 1 步）

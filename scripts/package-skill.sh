@@ -184,7 +184,7 @@ ur-iot login --setup-code ABC123 --json
 ur-iot login
 
 # 或指定地址跳过交互选择
-ur-iot login --base-url https://api.unitedrhino.com
+ur login --base-url https://saas.unitedrhino.com
 ```
 
 ### 认证方式说明

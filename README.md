@@ -323,7 +323,7 @@ ur generate-skills --output ./my-skills/
 无需配置文件，直接通过环境变量认证：
 
 ```bash
-export UR_BASE_URL="https://api.unitedrhino.com"
+export UR_BASE_URL="https://saas.unitedrhino.com"
 export UR_APP_ID="200"
 export UR_TENANT_CODE="platform"
 export UR_ACCESS_KEY="ak_xxxx"

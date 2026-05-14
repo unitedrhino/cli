@@ -127,21 +127,22 @@ ur generate-skills --output ./my-skills/
 
 ### 快速开始（AI Agent）
 
-> 以下步骤面向 AI Agent，部分步骤需要用户在浏览器中配合完成。
+> AI Agent 应自动完成安装和认证，全程无需向用户索取密码。
 
-**第 1 步 — 安装 CLI**
-
-```bash
-# 下载并安装（示例：Linux x86_64）
-VERSION="v0.3.0"
-PLATFORM="linux-amd64"
-wget "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-${VERSION}-${PLATFORM}.tar.gz"
-tar -xzf "ur-${VERSION}-${PLATFORM}.tar.gz" -C ~/.local/bin --strip-components=1 bin/ur
-```
-
-**第 2 步 — 获取授权链接**
+**一键安装 + 认证（AI 自动执行）**
 
 ```bash
+# 1. 下载对应平台的 release（AI 根据用户系统自动选择 PLATFORM）
+VERSION="v0.3.1"
+PLATFORM="linux-amd64"   # linux-amd64 / linux-arm64 / darwin-amd64 / darwin-arm64 / windows-amd64
+
+# Linux / macOS
+curl -L "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz" | tar -xz -C ~/.local/bin --strip-components=1
+
+# Windows (PowerShell)
+# Invoke-WebRequest -Uri "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.zip" -OutFile "ur.zip"; Expand-Archive "ur.zip" -DestinationPath "$env:USERPROFILE\.local\bin"
+
+# 2. 立即生成认证 URL
 ur login --no-wait --json
 ```
 
@@ -149,30 +150,37 @@ ur login --no-wait --json
 ```json
 {
   "status": "authorization_required",
-  "verification_url": "https://console.unitedrhino.com/user/access-tokens?setup=ABC123",
+  "verification_url": "https://saas.unitedrhino.com/#/user/settings?tab=access-tokens&setup=ABC123&redirect=openclaw",
   "setup_code": "ABC123",
   "expires_in": 600,
   "next_command": "ur login --setup-code ABC123"
 }
 ```
 
-将 `verification_url` 发送给用户，提示其在浏览器中打开链接并点击「完成 CLI 绑定」。
+AI 解析 JSON，向用户发送：
+> 请在浏览器中打开链接完成 CLI 授权：https://saas.unitedrhino.com/#/user/settings?tab=access-tokens&setup=ABC123&redirect=openclaw
 
-**第 3 步 — 完成授权**
-
-用户确认在浏览器中点击「完成 CLI 绑定」后：
+用户确认在浏览器中点击「完成 CLI 绑定」后，AI 自动执行：
 
 ```bash
 ur login --setup-code ABC123 --json
 ```
 
-**第 4 步 — 验证并生成 Skills**
+输出示例：
+```json
+{
+  "event": "authorization_complete",
+  "tenant_code": "t1",
+  "access_key": "ak_xxxx",
+  "access_secret": "sk_xxxx",
+  "user_id": "123"
+}
+```
+
+**验证并生成 Skills**
 
 ```bash
-# 验证认证状态
 ur check
-
-# 生成 AI Agent Skills（最终目标）
 ur generate-skills --output ./skills/
 ```
 

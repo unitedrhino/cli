@@ -14,28 +14,29 @@ metadata:
 
 ### AI 环境中唯一可用的配置方式
 
-`ur-xxx setup` 是终端交互式命令（需要逐行输入账号密码），**在当前对话环境中无法使用**。
+`ur setup` 是终端交互式命令（需要逐行输入账号密码），**在当前对话环境中无法使用**。
 
-**唯一可行的配置方式**是设备授权流（Device Flow），AI 分两步完成：
+**唯一可行的配置方式**是设备授权流（Device Flow），AI 自动完成：
 
-**第 1 步 — 获取授权 URL**：
+**第 1 步 — 获取授权 URL**（AI 自动执行）：
 ```bash
-ur-iot login --no-wait --json
+ur login --no-wait --json
 ```
 输出 JSON 示例：
 ```json
 {
-  "verification_url": "https://console.unitedrhino.com/user/access-tokens?setup=ABC123",
+  "status": "authorization_required",
+  "verification_url": "https://saas.unitedrhino.com/#/user/settings?tab=access-tokens&setup=ABC123&redirect=openclaw",
   "setup_code": "ABC123",
   "expires_in": 600,
-  "hint": "在浏览器中打开 verification_url 完成授权，然后执行: login --setup-code ABC123"
+  "next_command": "ur login --setup-code ABC123"
 }
 ```
-AI 解析 JSON，向用户展示 `verification_url` 和操作步骤。
+AI 解析 JSON，直接向用户发送 `verification_url`，无需额外确认步骤。
 
-**第 2 步 — 完成授权**（用户确认在浏览器中点击「完成 CLI 绑定」后）：
+**第 2 步 — 完成授权**（用户确认在浏览器中点击「完成 CLI 绑定」后，AI 自动执行）：
 ```bash
-ur-iot login --setup-code ABC123 --json
+ur login --setup-code ABC123 --json
 ```
 输出 JSON 示例：
 ```json
@@ -43,7 +44,8 @@ ur-iot login --setup-code ABC123 --json
   "event": "authorization_complete",
   "tenant_code": "t1",
   "access_key": "ak_xxxx",
-  "access_secret": "sk_xxxx"
+  "access_secret": "sk_xxxx",
+  "user_id": "123"
 }
 ```
 
@@ -54,7 +56,7 @@ ur-iot login --setup-code ABC123 --json
 如果用户在本地终端直接操作：
 ```bash
 # 阻塞模式：生成 URL → 等待用户浏览器授权 → 自动保存配置
-ur-iot login
+ur login
 
 # 或指定地址跳过交互选择
 ur login --base-url https://saas.unitedrhino.com

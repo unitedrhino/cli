@@ -139,9 +139,7 @@ wget "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-${VERSI
 tar -xzf "ur-${VERSION}-${PLATFORM}.tar.gz" -C ~/.local/bin --strip-components=1 bin/ur
 ```
 
-**第 2 步 — 启动 Device Flow 认证**
-
-> 后台运行命令，它会输出一个授权 URL 和绑定码。提取 URL 和绑定码发送给用户，用户在浏览器中完成授权后，CLI 会自动轮询获取凭证。
+**第 2 步 — 获取授权链接**
 
 ```bash
 ur login --no-wait --json
@@ -150,13 +148,15 @@ ur login --no-wait --json
 输出示例：
 ```json
 {
-  "verification_url": "https://console.unitedrhino.com/#/user/settings?tab=access-tokens&setup=ABC123&redirect=openclaw",
+  "status": "authorization_required",
+  "verification_url": "https://console.unitedrhino.com/user/access-tokens?setup=ABC123",
   "setup_code": "ABC123",
-  "expires_in": 600
+  "expires_in": 600,
+  "next_command": "ur login --setup-code ABC123"
 }
 ```
 
-将 `verification_url` 发送给用户，提示其在浏览器中打开链接并完成 CLI 绑定。
+将 `verification_url` 发送给用户，提示其在浏览器中打开链接并点击「完成 CLI 绑定」。
 
 **第 3 步 — 完成授权**
 

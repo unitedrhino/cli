@@ -58,7 +58,7 @@ func runLogin(ctx context.Context, args []string, stdout, stderr io.Writer) int 
 	setupCode = auth.GenerateSetupCode()
 	consoleURL := auth.BuildConsoleURL(baseURL, setupCode)
 
-	// --no-wait 模式：输出 JSON，立即返回（AI 友好）
+	// --no-wait 模式：输出信息，立即返回（AI 友好）
 	if noWait {
 		if jsonMode {
 			b, _ := json.Marshal(map[string]interface{}{
@@ -66,24 +66,12 @@ func runLogin(ctx context.Context, args []string, stdout, stderr io.Writer) int 
 				"verification_url": consoleURL,
 				"setup_code":       setupCode,
 				"expires_in":       600,
-				"instructions": []string{
-					"在浏览器中打开 verification_url",
-					"登录后进入「访问令牌」页面",
-					"创建或选择一个访问令牌",
-					"点击「完成 CLI 绑定」",
-					"告诉我「已完成」，我会继续完成认证",
-				},
-				"next_command": fmt.Sprintf("ur-iot login --setup-code %s", setupCode),
+				"next_command":     fmt.Sprintf("ur login --setup-code %s", setupCode),
 			})
 			fmt.Fprintln(stdout, string(b))
 		} else {
-			fmt.Fprintln(stdout, "请在浏览器中完成授权：")
-			fmt.Fprintln(stdout, consoleURL)
-			fmt.Fprintln(stdout, "\n步骤：")
-			fmt.Fprintln(stdout, "  1. 点击链接进入控制台「访问令牌」页面")
-			fmt.Fprintln(stdout, "  2. 创建或选择一个访问令牌")
-			fmt.Fprintln(stdout, "  3. 点击「完成 CLI 绑定」")
-			fmt.Fprintf(stdout, "\n授权完成后，执行: ur-iot login --setup-code %s\n", setupCode)
+			fmt.Fprintf(stdout, "请在浏览器中完成授权：%s\n", consoleURL)
+			fmt.Fprintf(stdout, "授权完成后执行: ur login --setup-code %s\n", setupCode)
 		}
 		return 0
 	}

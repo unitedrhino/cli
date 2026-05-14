@@ -26,6 +26,7 @@ func Execute(ctx context.Context, version string, args []string, stdout, stderr 
 
 // resolveApp 解析应用上下文并过滤掉 --app 参数。
 // 先查 --app 参数，再查 UR_APP 环境变量，默认 org-manage。
+// 解析成功后，将 appID 和默认 tenantCode 写入环境变量，确保后续 API 请求携带正确的 header。
 func resolveApp(args []string) (config.CLIApp, []string) {
 	filtered := make([]string, 0, len(args))
 	var app config.CLIApp
@@ -49,5 +50,14 @@ func resolveApp(args []string) (config.CLIApp, []string) {
 	if app == "" {
 		app = config.AppOrgManage
 	}
+
+	// 将 app 对应的 appID 和 tenantCode 注入环境变量，供 client.DoAPI 读取
+	if appID := app.AppID(); appID != "" {
+		os.Setenv("UR_APP_ID", appID)
+	}
+	if tc := app.DefaultTenantCode(); tc != "" {
+		os.Setenv("UR_TENANT_CODE", tc)
+	}
+
 	return app, filtered
 }

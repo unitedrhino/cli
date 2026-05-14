@@ -270,7 +270,7 @@ release_gitee() {
   release_resp=$(curl -s -X POST \
     -H "Content-Type: application/json" \
     "https://gitee.com/api/v5/repos/${owner}/${repo}/releases" \
-    -d "{\"access_token\":\"${GITEE_TOKEN}\",\"tag_name\":\"${VERSION}\",\"name\":\"ur-cli ${VERSION}\",\"body\":\"ur CLI ${VERSION} 跨平台发布\"}" 2>/dev/null)
+    -d "{\"access_token\":\"${GITEE_TOKEN}\",\"tag_name\":\"${VERSION}\",\"target_commitish\":\"main\",\"name\":\"ur-cli ${VERSION}\",\"body\":\"ur CLI ${VERSION} 跨平台发布\"}" 2>/dev/null)
 
   local release_id
   release_id=$(echo "$release_resp" | grep -o '"id":[0-9]*' | head -1 | cut -d':' -f2)

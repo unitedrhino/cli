@@ -104,21 +104,10 @@ build_one() {
   mkdir -p "${platform_dir}"
 
   local build_err=0
-  for app in platform-manage iot org-manage org-energy console; do
-    if ! (cd "${ROOT}" && GOOS="$goos" GOARCH="$goarch" CGO_ENABLED=0 go build \
-          -ldflags "-s -w -X main.version=${VERSION}" \
-          -o "${platform_dir}/ur-${app}${exe_suffix}" "./cmd/ur-${app}" 2>/dev/null); then
-      build_err=1
-      break
-    fi
-  done
-
-  if [[ $build_err -eq 0 ]]; then
-    if ! (cd "${ROOT}" && GOOS="$goos" GOARCH="$goarch" CGO_ENABLED=0 go build \
-          -ldflags "-s -w -X main.version=${VERSION}" \
-          -o "${platform_dir}/ur${exe_suffix}" . 2>/dev/null); then
-      build_err=1
-    fi
+  if ! (cd "${ROOT}" && GOOS="$goos" GOARCH="$goarch" CGO_ENABLED=0 go build \
+        -ldflags "-s -w -X main.version=${VERSION}" \
+        -o "${platform_dir}/ur${exe_suffix}" . 2>/dev/null); then
+    build_err=1
   fi
 
   if [[ $build_err -ne 0 ]]; then

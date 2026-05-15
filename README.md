@@ -83,7 +83,7 @@ ur --app iot generate-skills --output ./skills/ur-iot
 ```bash
 # 1. 确定平台和架构
 PLATFORM="linux-amd64"    # linux-amd64 / linux-arm64 / darwin-amd64 / darwin-arm64 / windows-amd64
-VERSION="v0.3.0"
+VERSION="v0.3.4"
 
 # 2. 下载
 wget "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-${VERSION}-${PLATFORM}.tar.gz"
@@ -133,7 +133,7 @@ ur generate-skills --output ./my-skills/
 
 ```bash
 # 1. 下载对应平台的 release（AI 根据用户系统自动选择 PLATFORM）
-VERSION="v0.3.1"
+VERSION="v0.3.4"
 PLATFORM="linux-amd64"   # linux-amd64 / linux-arm64 / darwin-amd64 / darwin-arm64 / windows-amd64
 
 # Linux / macOS
@@ -363,7 +363,11 @@ ur api /api/v1/things/device/info/get-list
 │   ├── pushm.sh               # 强制推送当前分支到两个远程
 │   └── tag.sh                 # 打标签并推送到两个远程
 ├── scripts/
-│   └── release.sh             # 跨平台 Release 构建与发布（封装脚本）
+│   ├── release.sh             # 跨平台 Release 构建与发布（封装脚本）
+│   ├── generate-api-lists.py  # 从 swagger 自动生成 skill API 端点列表
+│   └── update-skills.sh       # 一键更新 skill 并同步到 skills 仓库
+├── skill/                     # 预生成的 Skill 文档（供 AI Agent 使用）
+├── SKILL_MAINTENANCE.md       # Skill 混合维护模式文档（手写骨架 + 自动生成端点）
 └── references/                # 参考文档
 ```
 
@@ -389,7 +393,7 @@ go test -cover ./...
 使用封装好的 release 脚本：
 
 ```bash
-bash scripts/release.sh v0.3.0
+bash scripts/release.sh v0.3.4
 ```
 
 脚本会自动完成：

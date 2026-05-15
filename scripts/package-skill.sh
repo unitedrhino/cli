@@ -5,6 +5,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SAAS_ROOT="$(cd "${ROOT}/../../.." && pwd)"
 OUT_DIR="${SAAS_ROOT}/dist/resource/claw"
 ARCHS=""
+# SKILL_VERSION: 可通过环境变量或 --version 参数指定，默认 0.0.0-dev
+SKILL_VERSION="${SKILL_VERSION:-0.0.0-dev}"
 
 # GOOS-GOARCH → 分发名映射（如 windows-amd64 → x64-win）
 goarch_to_distname() {
@@ -45,16 +47,25 @@ while [[ $# -gt 0 ]]; do
       ARCHS="$2"
       shift 2
       ;;
+    --version)
+      if [[ -z "${2:-}" ]]; then
+        echo "[package-skill] error: --version requires a version" >&2
+        exit 1
+      fi
+      SKILL_VERSION="$2"
+      shift 2
+      ;;
     -h|--help)
-      echo "Usage: $(basename "$0") [OUT_DIR] [--arch ARCH_LIST]"
+      echo "Usage: $(basename "$0") [OUT_DIR] [--arch ARCH_LIST] [--version VERSION]"
       echo ""
       echo "Arguments:"
-      echo "  OUT_DIR          Output directory (default: ./dist)"
+      echo "  OUT_DIR            Output directory (default: ./dist)"
       echo ""
       echo "Options:"
-      echo "  --arch LIST      Comma-separated list of GOOS-GOARCH pairs"
-      echo "                   Examples: linux-amd64,linux-arm64,darwin-amd64,darwin-arm64"
-      echo "  -h, --help       Show this help"
+      echo "  --arch LIST        Comma-separated list of GOOS-GOARCH pairs"
+      echo "                     Examples: linux-amd64,linux-arm64,darwin-amd64,darwin-arm64"
+      echo "  --version VERSION  Skills version (default: ${SKILL_VERSION})"
+      echo "  -h, --help         Show this help"
       exit 0
       ;;
     -*)

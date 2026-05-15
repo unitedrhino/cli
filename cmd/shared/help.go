@@ -28,7 +28,7 @@ func printHelp(app config.CLIApp, w io.Writer) {
   %s api <path> [options]
   %s token [--decode|--raw]
   %s check
-  %s config [--list|--use NAME]
+  %s config [--list|--use NAME|tenant [--list|--use CODE]]
   %s schema [path] [--json] [--auth-type CODE]
   %s generate-skills [--output DIR]
   %s scene validate <file>

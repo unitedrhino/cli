@@ -217,7 +217,42 @@ func SaveProfile(profile Profile) error {
 		name = "default"
 		cfg.CurrentProfile = "default"
 	}
-	cfg.Profiles[name] = profile
+	// merge: 逐字段合并，只覆盖非零值字段，保留已有 profile 中的其他字段
+	if existing, ok := cfg.Profiles[name]; ok {
+		if profile.BaseURL != "" {
+			existing.BaseURL = profile.BaseURL
+		}
+		if profile.AppID != "" {
+			existing.AppID = profile.AppID
+		}
+		if profile.TenantCode != "" {
+			existing.TenantCode = profile.TenantCode
+		}
+		if profile.AccessKey != "" {
+			existing.AccessKey = profile.AccessKey
+		}
+		if profile.AccessSecret != "" {
+			existing.AccessSecret = profile.AccessSecret
+		}
+		if profile.UserID != 0 {
+			existing.UserID = profile.UserID
+		}
+		if profile.Account != "" {
+			existing.Account = profile.Account
+		}
+		if profile.Password != "" {
+			existing.Password = profile.Password
+		}
+		if profile.Role != "" {
+			existing.Role = profile.Role
+		}
+		if profile.Token != "" {
+			existing.Token = profile.Token
+		}
+		cfg.Profiles[name] = existing
+	} else {
+		cfg.Profiles[name] = profile
+	}
 	return WriteConfig(cfg)
 }
 

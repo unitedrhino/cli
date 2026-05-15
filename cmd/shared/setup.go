@@ -60,20 +60,15 @@ func runSetup(app config.CLIApp, _ []string, stdout, stderr io.Writer, in io.Rea
 		tenantCode = tc
 	}
 
-	cfg := config.Config{
-		CurrentProfile: "default",
-		Profiles: map[string]config.Profile{
-			"default": {
-				BaseURL:    values["baseURL"],
-				AppID:      values["appID"],
-				TenantCode: tenantCode,
-				Account:    values["account"],
-				Password:   values["password"],
-				Role:       string(app),
-			},
-		},
+	profile := config.Profile{
+		BaseURL:    values["baseURL"],
+		AppID:      values["appID"],
+		TenantCode: tenantCode,
+		Account:    values["account"],
+		Password:   values["password"],
+		Role:       string(app),
 	}
-	if err := config.WriteConfig(cfg); err != nil {
+	if err := config.SaveProfile(profile); err != nil {
 		fmt.Fprintln(stderr, err.Error())
 		return 1
 	}

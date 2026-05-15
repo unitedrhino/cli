@@ -32,6 +32,23 @@ metadata:
 
 ## API 参考
 
+<!-- API_LIST:ur-ai -->
+
+| 方法 | 端点 | 说明 | 权限 |
+|------|------|------|------|
+| POST | `/api/v1/things/alarm/info/create` | 新增告警 | admin |
+| POST | `/api/v1/things/alarm/info/delete` | 删除告警 | admin |
+| POST | `/api/v1/things/alarm/info/get-list` | 获取告警信息列表 | admin |
+| POST | `/api/v1/things/alarm/info/get-one` | 获取告警信息 | admin |
+| POST | `/api/v1/things/alarm/info/update` | 更新告警 | admin |
+| POST | `/api/v1/things/alarm/record/deal` | 处理告警 | admin |
+| POST | `/api/v1/things/alarm/record/get-list` | 获取告警记录列表 | admin |
+| POST | `/api/v1/things/alarm/scene/batch-create` | 更新告警和场景的关联 | admin |
+| POST | `/api/v1/things/alarm/scene/delete` | 删除告警和场景的关联 | admin |
+| POST | `/api/v1/things/alarm/scene/get-list` | 获取告警和场景的关联列表 | admin |
+
+<!-- END_API_LIST -->
+
 权限: 管理员
 
 | 端点 | 说明 | 权限 |

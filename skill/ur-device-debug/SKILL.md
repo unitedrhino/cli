@@ -30,6 +30,25 @@ ur api /api/v1/things/device/info/get-one \
 
 ## 设备日志查询
 
+<!-- API_LIST:ur-device-debug -->
+
+| 方法 | 端点 | 说明 | 权限 |
+|------|------|------|------|
+| POST | `/api/v1/things/device/interact/action-get-one` | 获取调用设备行为的结果 | admin |
+| POST | `/api/v1/things/device/interact/action-resp` | 回复设备行为调用结果 | admin |
+| POST | `/api/v1/things/device/interact/action-send` | 调用设备行为 | admin |
+| POST | `/api/v1/things/device/interact/event-send` | 下行事件通知设备 | admin |
+| POST | `/api/v1/things/device/interact/gateway-get-found-send` | 请求网关上报拓扑关系 | admin |
+| POST | `/api/v1/things/device/interact/gateway-notify-bind-send` | 通知网关绑定子设备 | admin |
+| POST | `/api/v1/things/device/interact/property-control-batch-send` | 批量调用设备属性 | admin |
+| POST | `/api/v1/things/device/interact/property-control-get-one` | 获取调用设备属性的结果 | admin |
+| POST | `/api/v1/things/device/interact/property-control-send` | 调用设备属性 | admin |
+| POST | `/api/v1/things/device/interact/property-get-report-batch-send` | 批量请求设备获取设备最新属性 | admin |
+| POST | `/api/v1/things/device/interact/property-get-report-send` | 请求设备获取设备最新属性 | admin |
+| POST | `/api/v1/things/device/interact/schema-mock-gen` | 生成物模型模拟数据 | admin |
+
+<!-- END_API_LIST -->
+
 ### 通用查询参数
 
 所有日志查询共享以下基础参数：

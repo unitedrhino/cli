@@ -27,6 +27,52 @@ metadata:
 
 ## API 参考
 
+<!-- API_LIST:ur-project -->
+
+| 方法 | 端点 | 说明 | 权限 |
+|------|------|------|------|
+| POST | `/api/v1/things/area/info/create` | 新增项目区域 | admin |
+| POST | `/api/v1/things/area/info/delete` | 删除项目区域 | admin |
+| POST | `/api/v1/things/area/info/get-list` | 获取项目区域列表 | all |
+| POST | `/api/v1/things/area/info/get-one` | 获取项目区域详情 | all |
+| POST | `/api/v1/things/area/info/update` | 更新项目区域 | admin |
+| POST | `/api/v1/things/area/profile/get-list` | 获取区域配置列表 | admin |
+| POST | `/api/v1/things/area/profile/get-one` | 获取区域配置详情 | admin |
+| POST | `/api/v1/things/area/profile/update` | 更新区域配置 | admin |
+| POST | `/api/v1/things/data/area/batch-delete` | 删除授权区域权限 | admin |
+| POST | `/api/v1/things/data/area/batch-update` | 更新授权区域权限 | admin |
+| POST | `/api/v1/things/data/area/get-list` | 获取区域权限列表 | admin |
+| POST | `/api/v1/things/data/area/user/apply/deal` | 授权区域权限 | admin |
+| POST | `/api/v1/things/data/area/user/apply/get-list` | 获取区域权限列表 | admin |
+| POST | `/api/v1/things/data/project/batch-create` | 批量创建授权项目权限 | admin |
+| POST | `/api/v1/things/data/project/batch-delete` | 批量删除授权项目权限 | admin |
+| POST | `/api/v1/things/data/project/create` | 创建授权项目权限 | admin |
+| POST | `/api/v1/things/data/project/delete` | 删除授权项目权限 | admin |
+| POST | `/api/v1/things/data/project/get-list` | 获取项目权限列表 | admin |
+| POST | `/api/v1/things/group/device/batch-create` | 添加分组设备 | admin |
+| POST | `/api/v1/things/group/device/batch-delete` | 删除分组设备 | admin |
+| POST | `/api/v1/things/group/device/batch-update` | 更新分组设备 | admin |
+| POST | `/api/v1/things/group/info/create` | 创建分组 | admin |
+| POST | `/api/v1/things/group/info/delete` | 删除分组 | admin |
+| POST | `/api/v1/things/group/info/get-list` | 获取分组列表 | admin |
+| POST | `/api/v1/things/group/info/get-one` | 获取分组详情信息 | admin |
+| POST | `/api/v1/things/group/info/update` | 更新分组信息 | admin |
+| POST | `/api/v1/things/project/crud/create` | 新增项目crud | admin |
+| POST | `/api/v1/things/project/crud/delete` | 删除项目crud | admin |
+| POST | `/api/v1/things/project/crud/get-list` | 获取项目crud列表 | admin |
+| POST | `/api/v1/things/project/crud/get-one` | 获取项目crud详情 | admin |
+| POST | `/api/v1/things/project/crud/update` | 更新项目crud | admin |
+| POST | `/api/v1/things/project/info/create` | 新增项目 | admin |
+| POST | `/api/v1/things/project/info/delete` | 删除项目 | admin |
+| POST | `/api/v1/things/project/info/get-list` | 获取项目列表 | all |
+| POST | `/api/v1/things/project/info/get-one` | 获取项目详情 | all |
+| POST | `/api/v1/things/project/info/update` | 更新项目 | admin |
+| POST | `/api/v1/things/project/profile/get-list` | 获取项目配置列表 | admin |
+| POST | `/api/v1/things/project/profile/get-one` | 获取项目配置详情 | admin |
+| POST | `/api/v1/things/project/profile/update` | 更新项目配置 | admin |
+
+<!-- END_API_LIST -->
+
 权限: 管理员
 
 | 端点 | 说明 | 权限 |

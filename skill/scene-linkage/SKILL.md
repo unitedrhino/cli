@@ -437,6 +437,20 @@ description: "Use when generating, validating, or troubleshooting 联犀 IoT sce
 | CmpType | `eq`, `not`, `btw`, `gt`, `gte`, `lt`, `lte`, `in`, `all` |
 | StateKeepType | `duration`, `repeat` |
 
+<!-- API_LIST:scene-linkage -->
+
+| 方法 | 端点 | 说明 | 权限 |
+|------|------|------|------|
+| POST | `/api/v1/things/scene/info/create` | 新增场景 | admin |
+| POST | `/api/v1/things/scene/info/delete` | 删除场景 | admin |
+| POST | `/api/v1/things/scene/info/get-list` | 获取场景信息列表 | admin |
+| POST | `/api/v1/things/scene/info/get-one` | 获取场景信息详情 | admin |
+| POST | `/api/v1/things/scene/info/manually-trigger` | 手动触发场景 | admin |
+| POST | `/api/v1/things/scene/info/update` | 更新场景 | admin |
+| POST | `/api/v1/things/scene/log/get-list` | 获取场景日志列表 | admin |
+
+<!-- END_API_LIST -->
+
 ## 实战案例
 
 ### 案例1：温度超限自动开空调+通知

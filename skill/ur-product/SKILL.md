@@ -27,6 +27,46 @@ metadata:
 
 ## API 参考
 
+<!-- API_LIST:ur-product -->
+
+| 方法 | 端点 | 说明 | 权限 |
+|------|------|------|------|
+| POST | `/api/v1/things/product/category/batch-export` | 批量导出产品品类 | admin |
+| POST | `/api/v1/things/product/category/batch-import` | 批量导入产品品类 | admin |
+| POST | `/api/v1/things/product/category/create` | 新增产品品类 | admin |
+| POST | `/api/v1/things/product/category/delete` | 删除产品品类 | admin |
+| POST | `/api/v1/things/product/category/get-list` | 获取产品品类列表 | admin |
+| POST | `/api/v1/things/product/category/get-one` | 获取产品品类详情 | admin |
+| POST | `/api/v1/things/product/category/schema/batch-create` | 批量新增产品品类物模型 | admin |
+| POST | `/api/v1/things/product/category/schema/batch-delete` | 批量删除产品品类物模型 | admin |
+| POST | `/api/v1/things/product/category/schema/batch-update` | 批量更新产品品类物模型 | admin |
+| POST | `/api/v1/things/product/category/schema/get-list` | 获取产品品类物模型列表 | admin |
+| POST | `/api/v1/things/product/category/update` | 更新产品品类 | admin |
+| POST | `/api/v1/things/product/config/update` | 更新配置 | admin |
+| POST | `/api/v1/things/product/custom/get-one` | 获取产品自定义信息详情 | admin |
+| POST | `/api/v1/things/product/custom/update` | 更新产品自定义信息 | admin |
+| POST | `/api/v1/things/product/info/batch-export` | 批量导出产品 | admin |
+| POST | `/api/v1/things/product/info/batch-import` | 批量导入产品 | admin |
+| POST | `/api/v1/things/product/info/create` | 新增产品 | admin |
+| POST | `/api/v1/things/product/info/delete` | 删除产品 | admin |
+| POST | `/api/v1/things/product/info/get-list` | 获取产品信息列表 | admin |
+| POST | `/api/v1/things/product/info/get-one` | 获取产品详情 | admin |
+| POST | `/api/v1/things/product/info/init` | 初始化产品 | admin |
+| POST | `/api/v1/things/product/info/update` | 更新产品 | admin |
+| POST | `/api/v1/things/product/remote-config/create` | 创建配置 | admin |
+| POST | `/api/v1/things/product/remote-config/get-list` | 获取配置列表 | admin |
+| POST | `/api/v1/things/product/remote-config/lastest-read` | 获取最新配置 | admin |
+| POST | `/api/v1/things/product/remote-config/push-all` | 推送配置 | admin |
+| POST | `/api/v1/things/product/schema/batch-create` | 批量创建产品物模型 | admin |
+| POST | `/api/v1/things/product/schema/create` | 创建产品物模型 | admin |
+| POST | `/api/v1/things/product/schema/delete` | 删除产品物模型 | admin |
+| POST | `/api/v1/things/product/schema/get-list` | 获取产品物模型 | admin |
+| POST | `/api/v1/things/product/schema/tsl-import` | 导入产品物模型tsl | admin |
+| POST | `/api/v1/things/product/schema/tsl-read` | 获取产品物模型tsl | admin |
+| POST | `/api/v1/things/product/schema/update` | 更新产品物模型 | admin |
+
+<!-- END_API_LIST -->
+
 权限: 管理员
 
 | 端点 | 说明 | 权限 |

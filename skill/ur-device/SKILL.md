@@ -120,6 +120,57 @@ metadata:
 
 ## API 参考
 
+<!-- API_LIST:ur-device -->
+
+| 方法 | 端点 | 说明 | 权限 |
+|------|------|------|------|
+| POST | `/api/v1/things/device/auth/access` | 设备操作认证 | device |
+| POST | `/api/v1/things/device/auth/login` | 设备登录认证 | device |
+| POST | `/api/v1/things/device/auth/register` | 设备自动注册 | device |
+| POST | `/api/v1/things/device/auth/root-check` | 鉴定是否是root账号 | device |
+| POST | `/api/v1/things/device/auth5/access` | 设备操作认证 | device |
+| POST | `/api/v1/things/device/auth5/login` | 设备登录认证 | device |
+| POST | `/api/v1/things/device/edge/send/{handle}/{type}` | 设备使用http协议用云端交互,需要在http头中带上mqtt的账号密码(basic auth) | device |
+| POST | `/api/v1/things/device/edge/upload-file` | 设备文件直传,需要在http头中带上mqtt的账号密码(basic auth) | device |
+| POST | `/api/v1/things/device/gateway/batch-create` | 添加网关子设备 | admin |
+| POST | `/api/v1/things/device/gateway/batch-delete` | 解绑子设备 | admin |
+| POST | `/api/v1/things/device/gateway/get-list` | 获取子设备列表 | admin |
+| POST | `/api/v1/things/device/group/batch-create` | 将设备加到多个分组中 | admin |
+| POST | `/api/v1/things/device/group/batch-delete` | 删除设备所在分组 | admin |
+| POST | `/api/v1/things/device/group/batch-update` | 更新设备所在分组 | admin |
+| POST | `/api/v1/things/device/info/batch-bind` | 批量绑定 | admin |
+| POST | `/api/v1/things/device/info/batch-import` | 批量导入设备 | admin |
+| POST | `/api/v1/things/device/info/batch-update` | 批量更新设备 | admin |
+| POST | `/api/v1/things/device/info/batch-update-import` | 导入批量更新设备 | admin |
+| POST | `/api/v1/things/device/info/bind` | 绑定 | admin |
+| POST | `/api/v1/things/device/info/bind/token/create` | 创建绑定token | admin |
+| POST | `/api/v1/things/device/info/bind/token/get-one` | 绑定token状态查询 | admin |
+| POST | `/api/v1/things/device/info/can-bind` | 是否可以绑定设备 | admin |
+| POST | `/api/v1/things/device/info/count` | 设备统计详情 | admin |
+| POST | `/api/v1/things/device/info/create` | 新增设备 | admin |
+| POST | `/api/v1/things/device/info/delete` | 删除设备 | admin |
+| POST | `/api/v1/things/device/info/get-list` | 获取设备列表 | admin |
+| POST | `/api/v1/things/device/info/get-one` | 获取设备详情 | admin |
+| POST | `/api/v1/things/device/info/move` | 转移设备到新设备上 | admin |
+| POST | `/api/v1/things/device/info/ota/upgrade` | 设备升级,获取升级包手动升级 | admin |
+| POST | `/api/v1/things/device/info/transfer` | 转让设备 | admin |
+| POST | `/api/v1/things/device/info/unbind` | 解绑设备 | admin |
+| POST | `/api/v1/things/device/info/update` | 更新设备 | admin |
+| POST | `/api/v1/things/device/profile/delete` | 删除设备配置 | admin |
+| POST | `/api/v1/things/device/profile/get-list` | 获取设备配置列表 | admin |
+| POST | `/api/v1/things/device/profile/get-one` | 获取设备配置详情 | admin |
+| POST | `/api/v1/things/device/profile/update` | 更新设备配置 | admin |
+| POST | `/api/v1/things/device/schema/batch-create` | 批量创建设备物模型 | admin |
+| POST | `/api/v1/things/device/schema/batch-delete` | 批量删除设备物模型 | admin |
+| POST | `/api/v1/things/device/schema/create` | 创建设备物模型 | admin |
+| POST | `/api/v1/things/device/schema/get-list` | 获取设备物模型列表 | admin |
+| POST | `/api/v1/things/device/schema/tsl-read` | 获取设备物模型tsl | admin |
+| POST | `/api/v1/things/device/schema/update` | 更新设备物模型 | admin |
+| POST | `/api/v1/things/device/version/get-list` | 获取设备模块版本列表 | admin |
+| POST | `/api/v1/things/device/version/get-one` | 获取设备模块版本详情 | admin |
+
+<!-- END_API_LIST -->
+
 权限: mixed
 
 | 端点 | 说明 | 权限 |

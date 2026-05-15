@@ -320,7 +320,7 @@ EOFCMD
 {
   "ownerId": "unitedrhino",
   "slug": "${app_name}",
-  "version": "1.0.0",
+  "version": "${SKILL_VERSION:-0.0.0-dev}",
   "publishedAt": $(date +%s)000
 }
 EOF
@@ -332,7 +332,7 @@ EOF
   "registry": "unitedrhino",
   "slug": "${app_name}",
   "registry_url": "https://github.com/unitedrhino/saas",
-  "installed_version": "1.0.0",
+  "installed_version": "${SKILL_VERSION:-0.0.0-dev}",
   "installed_at": $(date +%s)000
 }
 EOF

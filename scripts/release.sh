@@ -104,8 +104,11 @@ build_one() {
   mkdir -p "${platform_dir}"
 
   local build_err=0
+  local commit_sha build_date
+  commit_sha="$(git -C "${ROOT}" rev-parse --short HEAD 2>/dev/null || echo "unknown")"
+  build_date="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
   if ! (cd "${ROOT}" && GOOS="$goos" GOARCH="$goarch" CGO_ENABLED=0 go build \
-        -ldflags "-s -w -X main.version=${VERSION}" \
+        -ldflags "-s -w -X main.versionVar=${VERSION} -X gitee.com/unitedrhino/cli/internal/version.BuildVersion=${VERSION} -X gitee.com/unitedrhino/cli/internal/version.BuildCommit=${commit_sha} -X gitee.com/unitedrhino/cli/internal/version.BuildDate=${build_date}" \
         -o "${platform_dir}/ur${exe_suffix}" . 2>/dev/null); then
     build_err=1
   fi
@@ -137,6 +140,14 @@ build_one() {
       cp -R "$item" "${platform_dir}/skill/"
     fi
   done
+
+  # 写入 skills 版本元数据（供 ur skills update 查询本地版本）
+  cat > "${platform_dir}/skill/_meta.json" << EOF
+{
+  "version": "${VERSION}",
+  "updatedAt": "${build_date}"
+}
+EOF
 
   echo "OK:${platform}:${name}"
 }

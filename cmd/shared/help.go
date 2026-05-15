@@ -39,6 +39,8 @@ func printHelp(app config.CLIApp, w io.Writer) {
   %s model validate <file>
   %s model generate-script <model-file> [--mode type] [--output file]
   %s completion bash|zsh|fish
+  %s upgrade [--dry-run] [--version TAG] [--json]
+  %s skills list|update|version [--json] [--dry-run]
 
 全局选项:
   --app <name>           指定应用上下文（iot, platform-manage, org-manage, org-energy, console）

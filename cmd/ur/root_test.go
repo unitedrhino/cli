@@ -14,7 +14,7 @@ func TestExecuteTokenRawUsesEnvToken(t *testing.T) {
 	t.Setenv("UR_TOKEN", "runtime-token")
 
 	var stdout, stderr bytes.Buffer
-	code := Execute(context.Background(), []string{"token", "--raw"}, &stdout, &stderr)
+	code := Execute(context.Background(), "test", []string{"token", "--raw"}, &stdout, &stderr)
 	if code != 0 {
 		t.Fatalf("exit code = %d, stderr=%s", code, stderr.String())
 	}

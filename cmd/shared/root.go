@@ -52,6 +52,8 @@ func Execute(app config.CLIApp, ctx context.Context, ver string, args []string, 
 		return runUpgrade(args[1:], stdout, stderr)
 	case "skills", "skill":
 		return runSkills(args[1:], stdout, stderr)
+	case "ai-tool":
+		return runAiTool(ctx, args[1:], stdout, stderr)
 	case "help", "--help", "-h":
 		printHelp(app, stdout)
 		return 0

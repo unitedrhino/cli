@@ -230,6 +230,9 @@ metadata:
 | POST | `/api/v1/system/user/self/tenant/get-one` | 获取当前用户在当前租户的详情 | all |
 | POST | `/api/v1/system/user/self/tenant/join` | 用户加入租户（通过邀请码、邮件或手机邀请） | all |
 | POST | `/api/v1/system/user/self/tenant/update` | 更新当前用户在当前租户的信息 | all |
+| POST | `/api/v1/system/user/self/third-auth/start` | 第三方登录授权起跳 | public |
+| POST | `/api/v1/system/user/self/third-login` | 第三方登录回调换平台登录态 | public |
+| POST | `/api/v1/system/user/self/third-register` | 第三方补全注册 | public |
 | POST | `/api/v1/system/user/self/update` | 更新用户基本数据 | all |
 | POST | `/api/v1/system/user/self/user/search` | 精准搜索用户 | all |
 | POST | `/api/v1/system/user/tenant/get-list` | 用户所处的租户列表 | all |

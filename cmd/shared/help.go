@@ -41,6 +41,12 @@ func printHelp(app config.CLIApp, w io.Writer) {
   %s completion bash|zsh|fish
   %s upgrade [--dry-run] [--version TAG] [--json]
   %s skills list|update|version [--json] [--dry-run]
+%s ai-tool artifact get --id <id> [--output-dir <dir>]
+%s ai-tool artifact save --id <id> --dir <dir>
+%s ai-tool validate --id <id>
+%s ai-tool run --id <id> --inputs <json> [--timeout <seconds>]
+%s ai-tool edit --id <id> --instruction <text>
+%s ai-tool render --id <id> [--output <file>]
 
 全局选项:
   --app <name>           指定应用上下文（iot, platform-manage, org-manage, org-energy, console）
@@ -83,7 +89,7 @@ login 示例:
   UR_BASE_URL, UR_APP_ID, UR_TENANT_CODE, UR_TOKEN, UR_USER_ID, UR_ACCESS_KEY, UR_ACCESS_SECRET
 `, bin, app.DisplayName(),
 		bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin,
-		bin, bin, bin, bin, bin, bin, bin, bin, bin, bin,
+		bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin,
 		app.AppID(),
 		func() string {
 			if tc := app.DefaultTenantCode(); tc != "" {

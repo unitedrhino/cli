@@ -294,6 +294,28 @@ func runUserSelf(ctx context.Context, args []string, stdout, stderr io.Writer) i
 		return runUserSelfTenant(ctx, args[1:], stdout, stderr)
 	case "profile":
 		return runUserSelfProfile(ctx, args[1:], stdout, stderr)
+	case "cancel":
+		return runUserSelfCancel(ctx, args[1:], stdout, stderr)
+	case "bind-account":
+		return runUserSelfBindAccount(ctx, args[1:], stdout, stderr)
+	case "user-search":
+		return runUserSelfUserSearch(ctx, args[1:], stdout, stderr)
+	case "third-auth":
+		return runUserSelfThirdAuth(ctx, args[1:], stdout, stderr)
+	case "third-login":
+		return runUserSelfThirdLogin(ctx, args[1:], stdout, stderr)
+	case "third-register":
+		return runUserSelfThirdRegister(ctx, args[1:], stdout, stderr)
+	case "app":
+		return runUserSelfApp(ctx, args[1:], stdout, stderr)
+	case "menu":
+		return runUserSelfMenu(ctx, args[1:], stdout, stderr)
+	case "notify-preference":
+		return runUserSelfNotifyPreference(ctx, args[1:], stdout, stderr)
+	case "openclaw":
+		return runUserSelfOpenclaw(ctx, args[1:], stdout, stderr)
+	case "resource":
+		return runUserSelfResource(ctx, args[1:], stdout, stderr)
 	case "help", "--help", "-h":
 		printUserSelfHelp(stdout)
 		return 0
@@ -311,19 +333,30 @@ func printUserSelfHelp(w io.Writer) {
 	fmt.Fprintln(w, "User self management")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "Subcommands:")
-	fmt.Fprintln(w, "  login          User login")
-	fmt.Fprintln(w, "  logout         User logout")
-	fmt.Fprintln(w, "  register       User register")
-	fmt.Fprintln(w, "  get-one        Query current user info")
-	fmt.Fprintln(w, "  update         Update current user info")
-	fmt.Fprintln(w, "  change-pwd     Change password")
-	fmt.Fprintln(w, "  forget-pwd     Forget password")
-	fmt.Fprintln(w, "  captcha        Get captcha")
-	fmt.Fprintln(w, "  access-token   Access token management")
-	fmt.Fprintln(w, "  message        Message management")
-	fmt.Fprintln(w, "  tenant         Tenant management")
-	fmt.Fprintln(w, "  profile        Profile management")
-	fmt.Fprintln(w, "  help           Show this help message")
+	fmt.Fprintln(w, "  login\t\tUser login")
+	fmt.Fprintln(w, "  logout\t\tUser logout")
+	fmt.Fprintln(w, "  register\t\tUser register")
+	fmt.Fprintln(w, "  get-one\t\tQuery current user info")
+	fmt.Fprintln(w, "  update\t\tUpdate current user info")
+	fmt.Fprintln(w, "  change-pwd\t\tChange password")
+	fmt.Fprintln(w, "  forget-pwd\t\tForget password")
+	fmt.Fprintln(w, "  captcha\t\tGet captcha")
+	fmt.Fprintln(w, "  access-token\t\tAccess token management")
+	fmt.Fprintln(w, "  message\t\tMessage management")
+	fmt.Fprintln(w, "  tenant\t\tTenant management")
+	fmt.Fprintln(w, "  profile\t\tProfile management")
+	fmt.Fprintln(w, "  cancel\t\tCancel account")
+	fmt.Fprintln(w, "  bind-account\t\tBind account")
+	fmt.Fprintln(w, "  user-search\t\tSearch user by account")
+	fmt.Fprintln(w, "  third-auth\t\tThird-party auth (start)")
+	fmt.Fprintln(w, "  third-login\t\tThird-party login")
+	fmt.Fprintln(w, "  third-register\t\tThird-party register")
+	fmt.Fprintln(w, "  app\t\tApp management (get-list, get-one)")
+	fmt.Fprintln(w, "  menu\t\tMenu management (get-list)")
+	fmt.Fprintln(w, "  notify-preference\tNotification preference (read, update)")
+	fmt.Fprintln(w, "  openclaw\t\tOpenClaw setup (setup-check, setup-complete)")
+	fmt.Fprintln(w, "  resource\t\tResource/action permissions (action)")
+	fmt.Fprintln(w, "  help\t\tShow this help message")
 }
 
 // runUserSelfLogin 执行用户登录命令
@@ -1378,6 +1411,671 @@ func runUserSelfProfileUpdate(ctx context.Context, args []string, stdout, stderr
 	resp, err := client.DoAPI(ctx, client.APIRequest{
 		Path: "/api/v1/system/user/self/profile/update",
 		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserSelfCancel 执行注销用户命令
+func runUserSelfCancel(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/cancel",
+		Body: map[string]any{},
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserSelfBindAccount 执行绑定账号命令
+func runUserSelfBindAccount(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/bind-account",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserSelfUserSearch 执行精准搜索用户命令
+func runUserSelfUserSearch(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	account := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--account":
+			if i+1 < len(args) {
+				account = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if account == "" {
+		fmt.Fprintln(stderr, "--account is required")
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/user/search",
+		Body: map[string]any{"account": account},
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserSelfThirdAuth 执行第三方认证命令
+func runUserSelfThirdAuth(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		printUserSelfThirdAuthHelp(stdout)
+		return 0
+	}
+
+	switch args[0] {
+	case "start":
+		return runUserSelfThirdAuthStart(ctx, args[1:], stdout, stderr)
+	case "help", "--help", "-h":
+		printUserSelfThirdAuthHelp(stdout)
+		return 0
+	default:
+		fmt.Fprintf(stderr, "unknown third-auth subcommand: %s\n", args[0])
+		printUserSelfThirdAuthHelp(stderr)
+		return 2
+	}
+}
+
+func printUserSelfThirdAuthHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur user self third-auth <subcommand> [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Third-party auth management")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Subcommands:")
+	fmt.Fprintln(w, "  start   Start third-party auth flow")
+}
+
+func runUserSelfThirdAuthStart(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/third-auth/start",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserSelfThirdLogin 执行第三方登录命令
+func runUserSelfThirdLogin(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/third-login",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserSelfThirdRegister 执行第三方注册命令
+func runUserSelfThirdRegister(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/third-register",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserSelfApp 执行应用管理命令
+func runUserSelfApp(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		printUserSelfAppHelp(stdout)
+		return 0
+	}
+
+	switch args[0] {
+	case "get-list":
+		return runUserSelfAppGetList(ctx, args[1:], stdout, stderr)
+	case "get-one":
+		return runUserSelfAppGetOne(ctx, args[1:], stdout, stderr)
+	case "help", "--help", "-h":
+		printUserSelfAppHelp(stdout)
+		return 0
+	default:
+		fmt.Fprintf(stderr, "unknown app subcommand: %s\n", args[0])
+		printUserSelfAppHelp(stderr)
+		return 2
+	}
+}
+
+func printUserSelfAppHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur user self app <subcommand> [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "App management")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Subcommands:")
+	fmt.Fprintln(w, "  get-list   Query app list")
+	fmt.Fprintln(w, "  get-one    Query app detail")
+}
+
+func runUserSelfAppGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput, page, size, _ := parseInfoListParams(args)
+	reqBody := map[string]any{
+		"page": map[string]any{"page": page, "size": size},
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/app/get-list",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+func runUserSelfAppGetOne(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/app/get-one",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserSelfMenu 执行菜单管理命令
+func runUserSelfMenu(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		printUserSelfMenuHelp(stdout)
+		return 0
+	}
+
+	switch args[0] {
+	case "get-list":
+		return runUserSelfMenuGetList(ctx, args[1:], stdout, stderr)
+	case "help", "--help", "-h":
+		printUserSelfMenuHelp(stdout)
+		return 0
+	default:
+		fmt.Fprintf(stderr, "unknown menu subcommand: %s\n", args[0])
+		printUserSelfMenuHelp(stderr)
+		return 2
+	}
+}
+
+func printUserSelfMenuHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur user self menu <subcommand> [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Menu management")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Subcommands:")
+	fmt.Fprintln(w, "  get-list   Query menu list")
+}
+
+func runUserSelfMenuGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput, page, size, remaining := parseInfoListParams(args)
+	reqBody := map[string]any{
+		"page": map[string]any{"page": page, "size": size},
+	}
+
+	for i := 0; i < len(remaining); i++ {
+		switch remaining[i] {
+		case "--app-id":
+			if i+1 < len(remaining) {
+				reqBody["appID"] = remaining[i+1]
+				i++
+			}
+		case "--is-common":
+			if i+1 < len(remaining) {
+				reqBody["isCommon"] = remaining[i+1]
+				i++
+			}
+		}
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/menu/get-list",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserSelfNotifyPreference 执行通知偏好管理命令
+func runUserSelfNotifyPreference(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		printUserSelfNotifyPreferenceHelp(stdout)
+		return 0
+	}
+
+	switch args[0] {
+	case "read":
+		return runUserSelfNotifyPreferenceRead(ctx, args[1:], stdout, stderr)
+	case "update":
+		return runUserSelfNotifyPreferenceUpdate(ctx, args[1:], stdout, stderr)
+	case "help", "--help", "-h":
+		printUserSelfNotifyPreferenceHelp(stdout)
+		return 0
+	default:
+		fmt.Fprintf(stderr, "unknown notify-preference subcommand: %s\n", args[0])
+		printUserSelfNotifyPreferenceHelp(stderr)
+		return 2
+	}
+}
+
+func printUserSelfNotifyPreferenceHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur user self notify-preference <subcommand> [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Notification preference management")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Subcommands:")
+	fmt.Fprintln(w, "  read    Read notification preference")
+	fmt.Fprintln(w, "  update  Update notification preference")
+}
+
+func runUserSelfNotifyPreferenceRead(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/notify-preference/read",
+		Body: map[string]any{},
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+func runUserSelfNotifyPreferenceUpdate(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/notify-preference/update",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserSelfOpenclaw 执行 OpenClaw 管理命令
+func runUserSelfOpenclaw(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		printUserSelfOpenclawHelp(stdout)
+		return 0
+	}
+
+	switch args[0] {
+	case "setup-check":
+		return runUserSelfOpenclawSetupCheck(ctx, args[1:], stdout, stderr)
+	case "setup-complete":
+		return runUserSelfOpenclawSetupComplete(ctx, args[1:], stdout, stderr)
+	case "help", "--help", "-h":
+		printUserSelfOpenclawHelp(stdout)
+		return 0
+	default:
+		fmt.Fprintf(stderr, "unknown openclaw subcommand: %s\n", args[0])
+		printUserSelfOpenclawHelp(stderr)
+		return 2
+	}
+}
+
+func printUserSelfOpenclawHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur user self openclaw <subcommand> [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "OpenClaw setup management")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Subcommands:")
+	fmt.Fprintln(w, "  setup-check     Check CLI binding status")
+	fmt.Fprintln(w, "  setup-complete  Complete CLI binding")
+}
+
+func runUserSelfOpenclawSetupCheck(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/setup-check",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+func runUserSelfOpenclawSetupComplete(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/setup-complete",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserSelfResource 执行资源权限管理命令
+func runUserSelfResource(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		printUserSelfResourceHelp(stdout)
+		return 0
+	}
+
+	switch args[0] {
+	case "action":
+		return runUserSelfResourceAction(ctx, args[1:], stdout, stderr)
+	case "help", "--help", "-h":
+		printUserSelfResourceHelp(stdout)
+		return 0
+	default:
+		fmt.Fprintf(stderr, "unknown resource subcommand: %s\n", args[0])
+		printUserSelfResourceHelp(stderr)
+		return 2
+	}
+}
+
+func printUserSelfResourceHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur user self resource <subcommand> [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Resource permission management")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Subcommands:")
+	fmt.Fprintln(w, "  action   Resource action permissions (get-list)")
+}
+
+func runUserSelfResourceAction(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		printUserSelfResourceActionHelp(stdout)
+		return 0
+	}
+
+	switch args[0] {
+	case "get-list":
+		return runUserSelfResourceActionGetList(ctx, args[1:], stdout, stderr)
+	case "help", "--help", "-h":
+		printUserSelfResourceActionHelp(stdout)
+		return 0
+	default:
+		fmt.Fprintf(stderr, "unknown resource action subcommand: %s\n", args[0])
+		return 2
+	}
+}
+
+func printUserSelfResourceActionHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur user self resource action <subcommand> [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Resource action permissions")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Subcommands:")
+	fmt.Fprintln(w, "  get-list   Query resource action permission list")
+}
+
+func runUserSelfResourceActionGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/self/resource/action/get-list",
+		Body: map[string]any{},
 	})
 	if err != nil {
 		fmt.Fprintf(stderr, "API error: %v\n", err)

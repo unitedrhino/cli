@@ -54,6 +54,24 @@ func Execute(app config.CLIApp, ctx context.Context, ver string, args []string, 
 		return runSkills(args[1:], stdout, stderr)
 	case "ai-tool":
 		return runAiTool(ctx, args[1:], stdout, stderr)
+	case "agg":
+		return runAgg(ctx, args[1:], stdout, stderr)
+	case "device":
+		return runDevice(ctx, args[1:], stdout, stderr)
+	case "user":
+		return runUser(ctx, args[1:], stdout, stderr)
+	case "tenant":
+		return runTenant(ctx, args[1:], stdout, stderr)
+	case "dept":
+		return runDept(ctx, args[1:], stdout, stderr)
+	case "alarm":
+		return runAlarm(ctx, args[1:], stdout, stderr)
+	case "area":
+		return runArea(ctx, args[1:], stdout, stderr)
+	case "project":
+		return runProject(ctx, args[1:], stdout, stderr)
+	case "ota":
+		return runOta(ctx, args[1:], stdout, stderr)
 	case "help", "--help", "-h":
 		printHelp(app, stdout)
 		return 0

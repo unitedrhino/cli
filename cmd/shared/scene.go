@@ -1,22 +1,30 @@
 package shared
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
+
+	"gitee.com/unitedrhino/cli/internal/client"
 )
 
 // runScene 场景联动相关命令
 //   scene validate <file>     校验场景联动 JSON
 //   scene template auto       生成自动触发模板
 //   scene template manual     生成手动触发模板
+//   scene info get-list       查询场景列表
+//   scene info get-one        查询场景详情
+//   scene info create         创建场景
+//   scene info update         更新场景
+//   scene info delete         删除场景
+//   scene info trigger        手动触发场景
+//   scene log get-list        查询场景日志
 func runScene(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, "用法: scene validate <file>       # 校验场景联动 JSON")
-		fmt.Fprintln(stderr, "       scene template auto         # 生成自动触发模板")
-		fmt.Fprintln(stderr, "       scene template manual       # 生成手动触发模板")
-		return 2
+		printSceneHelp(stdout)
+		return 0
 	}
 
 	subCmd := args[0]
@@ -27,8 +35,16 @@ func runScene(args []string, stdout, stderr io.Writer) int {
 		return runSceneValidate(subArgs, stdout, stderr)
 	case "template":
 		return runSceneTemplate(subArgs, stdout, stderr)
+	case "info":
+		return runSceneInfo(subArgs, stdout, stderr)
+	case "log":
+		return runSceneLog(subArgs, stdout, stderr)
+	case "help", "--help", "-h":
+		printSceneHelp(stdout)
+		return 0
 	default:
 		fmt.Fprintf(stderr, "未知的 scene 子命令: %s\n", subCmd)
+		printSceneHelp(stderr)
 		return 2
 	}
 }
@@ -191,6 +207,374 @@ func sceneManualTemplate() map[string]any {
 			},
 		},
 	}
+}
+
+// runSceneInfo 执行场景信息管理命令
+func runSceneInfo(args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		printSceneInfoHelp(stdout)
+		return 0
+	}
+
+	ctx := context.Background()
+	switch args[0] {
+	case "get-list":
+		return runSceneInfoGetList(ctx, args[1:], stdout, stderr)
+	case "get-one":
+		return runSceneInfoGetOne(ctx, args[1:], stdout, stderr)
+	case "create":
+		return runSceneInfoCreate(ctx, args[1:], stdout, stderr)
+	case "update":
+		return runSceneInfoUpdate(ctx, args[1:], stdout, stderr)
+	case "delete":
+		return runSceneInfoDelete(ctx, args[1:], stdout, stderr)
+	case "trigger":
+		return runSceneInfoTrigger(ctx, args[1:], stdout, stderr)
+	case "help", "--help", "-h":
+		printSceneInfoHelp(stdout)
+		return 0
+	default:
+		fmt.Fprintf(stderr, "未知的 scene info 子命令: %s\n", args[0])
+		printSceneInfoHelp(stderr)
+		return 2
+	}
+}
+
+// printSceneInfoHelp 打印场景信息帮助信息
+func printSceneInfoHelp(w io.Writer) {
+	fmt.Fprintln(w, "用法: ur scene info <subcommand> [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "场景信息管理")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "子命令:")
+	fmt.Fprintln(w, "  get-list   查询场景列表")
+	fmt.Fprintln(w, "  get-one    查询场景详情")
+	fmt.Fprintln(w, "  create     创建场景")
+	fmt.Fprintln(w, "  update     更新场景")
+	fmt.Fprintln(w, "  delete     删除场景")
+	fmt.Fprintln(w, "  trigger    手动触发场景")
+}
+
+// parseSceneInfoListParams 解析场景列表查询参数
+func parseSceneInfoListParams(args []string) (jsonOutput bool, page, size int, remaining []string) {
+	page = 1
+	size = 20
+	remaining = make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--page":
+			if i+1 < len(args) {
+				fmt.Sscanf(args[i+1], "%d", &page)
+				i++
+			}
+		case "--size":
+			if i+1 < len(args) {
+				fmt.Sscanf(args[i+1], "%d", &size)
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		default:
+			remaining = append(remaining, args[i])
+		}
+	}
+	return
+}
+
+// runSceneInfoGetList 执行查询场景列表命令
+func runSceneInfoGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput, page, size, remaining := parseSceneInfoListParams(args)
+	reqBody := map[string]any{
+		"page": map[string]any{"page": page, "size": size},
+	}
+
+	for i := 0; i < len(remaining); i++ {
+		switch remaining[i] {
+		case "--name":
+			if i+1 < len(remaining) {
+				reqBody["name"] = remaining[i+1]
+				i++
+			}
+		case "--state":
+			if i+1 < len(remaining) {
+				reqBody["state"] = remaining[i+1]
+				i++
+			}
+		}
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/things/rule/scene/info/get-list",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputSceneResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runSceneInfoGetOne 执行查询场景详情命令
+func runSceneInfoGetOne(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	sceneID := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--id":
+			if i+1 < len(args) {
+				sceneID = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if sceneID == "" {
+		fmt.Fprintln(stderr, "--id is required")
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/things/rule/scene/info/get-one",
+		Body: map[string]any{"id": sceneID},
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputSceneResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runSceneInfoCreate 执行创建场景命令
+func runSceneInfoCreate(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/things/rule/scene/info/create",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputSceneResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runSceneInfoUpdate 执行更新场景命令
+func runSceneInfoUpdate(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/things/rule/scene/info/update",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputSceneResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runSceneInfoDelete 执行删除场景命令
+func runSceneInfoDelete(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	sceneID := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--id":
+			if i+1 < len(args) {
+				sceneID = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if sceneID == "" {
+		fmt.Fprintln(stderr, "--id is required")
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/things/rule/scene/info/delete",
+		Body: map[string]any{"id": sceneID},
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputSceneResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runSceneInfoTrigger 执行手动触发场景命令
+func runSceneInfoTrigger(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	sceneID := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--id":
+			if i+1 < len(args) {
+				sceneID = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if sceneID == "" {
+		fmt.Fprintln(stderr, "--id is required")
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/things/rule/scene/info/manually-trigger",
+		Body: map[string]any{"id": sceneID},
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputSceneResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runSceneLog 执行场景日志管理命令
+func runSceneLog(args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		printSceneLogHelp(stdout)
+		return 0
+	}
+
+	ctx := context.Background()
+	switch args[0] {
+	case "get-list":
+		return runSceneLogGetList(ctx, args[1:], stdout, stderr)
+	case "help", "--help", "-h":
+		printSceneLogHelp(stdout)
+		return 0
+	default:
+		fmt.Fprintf(stderr, "未知的 scene log 子命令: %s\n", args[0])
+		printSceneLogHelp(stderr)
+		return 2
+	}
+}
+
+// printSceneLogHelp 打印场景日志帮助信息
+func printSceneLogHelp(w io.Writer) {
+	fmt.Fprintln(w, "用法: ur scene log <subcommand> [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "场景日志管理")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "子命令:")
+	fmt.Fprintln(w, "  get-list   查询场景日志列表")
+}
+
+// runSceneLogGetList 执行查询场景日志列表命令
+func runSceneLogGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput, page, size, remaining := parseSceneInfoListParams(args)
+	reqBody := map[string]any{
+		"page": map[string]any{"page": page, "size": size},
+	}
+
+	for i := 0; i < len(remaining); i++ {
+		switch remaining[i] {
+		case "--scene-id":
+			if i+1 < len(remaining) {
+				reqBody["sceneID"] = remaining[i+1]
+				i++
+			}
+		case "--result":
+			if i+1 < len(remaining) {
+				reqBody["result"] = remaining[i+1]
+				i++
+			}
+		}
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/things/rule/scene/log/get-list",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputSceneResult(resp, jsonOutput, stdout, stderr)
+}
+
+// outputSceneResult 统一输出场景命令结果
+func outputSceneResult(resp client.APIResponse, jsonOutput bool, stdout, stderr io.Writer) int {
+	if jsonOutput {
+		raw, _ := json.MarshalIndent(resp, "", "  ")
+		fmt.Fprintln(stdout, string(raw))
+		return 0
+	}
+	if resp.Code != 200 {
+		fmt.Fprintf(stderr, "Error: %s\n", resp.Msg)
+		return 1
+	}
+	data, err := json.MarshalIndent(resp.Data, "", "  ")
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
+	}
+	fmt.Fprintln(stdout, string(data))
+	return 0
 }
 
 // ---------- 校验器 ----------
@@ -703,8 +1087,24 @@ func (v *sceneValidator) validateStringEnum(path string, value any, allowed map[
 }
 
 func printSceneHelp(stdout io.Writer) {
-	fmt.Fprintln(stdout, "场景联动命令:")
-	fmt.Fprintln(stdout, "  scene validate <file>     校验场景联动 JSON 文件")
-	fmt.Fprintln(stdout, "  scene template auto       生成自动触发场景模板")
-	fmt.Fprintln(stdout, "  scene template manual     生成手动触发场景模板")
+	fmt.Fprintln(stdout, "用法: ur scene <subcommand> [options]")
+	fmt.Fprintln(stdout, "")
+	fmt.Fprintln(stdout, "场景联动管理")
+	fmt.Fprintln(stdout, "")
+	fmt.Fprintln(stdout, "子命令:")
+	fmt.Fprintln(stdout, "  info       场景信息管理 (get-list, get-one, create, update, delete, trigger)")
+	fmt.Fprintln(stdout, "  log        场景日志管理 (get-list)")
+	fmt.Fprintln(stdout, "  validate   校验场景联动 JSON 文件")
+	fmt.Fprintln(stdout, "  template   生成场景模板 (auto, manual)")
+	fmt.Fprintln(stdout, "  help       显示帮助信息")
+	fmt.Fprintln(stdout, "")
+	fmt.Fprintln(stdout, "示例:")
+	fmt.Fprintln(stdout, "  # 查询场景列表")
+	fmt.Fprintln(stdout, "  ur scene info get-list")
+	fmt.Fprintln(stdout, "")
+	fmt.Fprintln(stdout, "  # 校验场景联动 JSON 文件")
+	fmt.Fprintln(stdout, "  ur scene validate scene.json")
+	fmt.Fprintln(stdout, "")
+	fmt.Fprintln(stdout, "  # 生成自动触发场景模板")
+	fmt.Fprintln(stdout, "  ur scene template auto")
 }

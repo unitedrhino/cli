@@ -47,6 +47,15 @@ func printHelp(app config.CLIApp, w io.Writer) {
 %s ai-tool run --id <id> --inputs <json> [--timeout <seconds>]
 %s ai-tool edit --id <id> --instruction <text>
 %s ai-tool render --id <id> [--output <file>]
+%s agg -p PRODUCT_ID -i DATA_ID -f FUNCS [-d DEVICE_NAME] [-j]
+%s device <subcommand> [options]
+%s user <subcommand> [options]
+%s tenant <subcommand> [options]
+%s dept <subcommand> [options]
+%s alarm <subcommand> [options]
+%s area <subcommand> [options]
+%s project <subcommand> [options]
+%s ota <subcommand> [options]
 
 全局选项:
   --app <name>           指定应用上下文（iot, platform-manage, org-manage, org-energy, console）
@@ -79,6 +88,64 @@ login 示例:
   %s login
   %s login --base-url https://api.example.com
 
+agg 选项:
+  -p, --product-id string    产品 ID（必需）
+  -d, --device-name string   设备名称（可选，不填则查询产品下所有设备）
+  -i, --data-id string       属性标识符（必需，从物模型获取）
+  -f, --funcs string         聚合函数，逗号分隔（必需）
+                             支持：avg, first, last, count, twa, max, min, sum
+      --fill string          数据缺失时的填充模式
+      --no-first-ts          不填充最早的时间戳
+  -j, --json                 JSON 格式输出
+
+agg 示例:
+  # 查询设备 CPU 使用率的平均值
+  %s agg -p p_smartswitch_001 -d switch-001 -i CpuUsage -f avg
+
+  # 查询设备温度的最大值和最小值
+  %s agg -p p_smartswitch_001 -d switch-001 -i Temperature -f max,min
+
+  # 查询产品下所有设备的平均温度
+  %s agg -p p_smartswitch_001 -i Temperature -f avg
+
+  # JSON 格式输出
+  %s agg -p p_smartswitch_001 -d switch-001 -i CpuUsage -f avg -j
+
+device 子命令:
+  log        查询设备日志（属性、事件、命令、上下线、诊断、异常、SDK）
+  control    向设备发送属性控制指令
+  action     调用设备行为（send、get、resp）
+  mock       生成物模型模拟数据
+  report     模拟设备上报消息（通过 HTTP 协议）
+
+device log 子命令:
+  property   查询属性日志（最新值、历史记录）
+  event      查询事件日志
+  send       查询命令日志
+  status     查询上下线日志
+  hub        查询诊断日志（MQTT 通信）
+  abnormal   查询异常日志
+  sdk        查询 SDK 日志
+
+device 示例:
+  # 查询设备最新属性值
+  %s device log property -p p_smartswitch_001 -d switch-001
+
+  # 查询设备温度历史记录
+  %s device log property -p p_smartswitch_001 -d switch-001 --data-id Temperature --arg-func avg
+
+  # 控制设备属性
+  %s device control -p p_smartswitch_001 -d switch-001 --data '{"PowerSwitch": 1}'
+
+  # 调用设备行为
+  %s device action send -p p_smartswitch_001 -d switch-001 --data-id OpenValve --input '{"Duration": 30}'
+
+  # 生成 Mock 数据
+  %s device mock -p p_smartswitch_001 -d switch-001 --data-id Temperature --num 5
+
+  # 模拟设备上报
+  %s device report -p p_smartswitch_001 -d switch-001 --params '{"Temperature": 25.3}'
+
 应用信息:
   AppID:      %s
   TenantCode: %s
@@ -90,6 +157,7 @@ login 示例:
 `, bin, app.DisplayName(),
 		bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin,
 		bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin, bin,
+		bin, bin, bin, bin, bin, bin, bin,
 		app.AppID(),
 		func() string {
 			if tc := app.DefaultTenantCode(); tc != "" {

@@ -20,6 +20,10 @@ func runUser(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 		return runUserInfo(ctx, args[1:], stdout, stderr)
 	case "self":
 		return runUserSelf(ctx, args[1:], stdout, stderr)
+	case "data":
+		return runUserData(ctx, args[1:], stdout, stderr)
+	case "dept":
+		return runUserDept(ctx, args[1:], stdout, stderr)
 	case "help", "--help", "-h":
 		printUserHelp(stdout)
 		return 0
@@ -39,6 +43,8 @@ func printUserHelp(w io.Writer) {
 	fmt.Fprintln(w, "Subcommands:")
 	fmt.Fprintln(w, "  info       User info management (get-list, get-one, create, update, delete)")
 	fmt.Fprintln(w, "  self       User self management (login, logout, register, profile, etc.)")
+	fmt.Fprintln(w, "  data       User data permissions (project, area)")
+	fmt.Fprintln(w, "  dept       User department management (batch-create, batch-delete)")
 	fmt.Fprintln(w, "  help       Show this help message")
 }
 
@@ -2076,6 +2082,218 @@ func runUserSelfResourceActionGetList(ctx context.Context, args []string, stdout
 	resp, err := client.DoAPI(ctx, client.APIRequest{
 		Path: "/api/v1/system/user/self/resource/action/get-list",
 		Body: map[string]any{},
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserData 执行用户数据权限管理命令
+func runUserData(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		printUserDataHelp(stdout)
+		return 0
+	}
+
+	switch args[0] {
+	case "project":
+		return runUserDataProject(ctx, args[1:], stdout, stderr)
+	case "area":
+		return runUserDataArea(ctx, args[1:], stdout, stderr)
+	case "help", "--help", "-h":
+		printUserDataHelp(stdout)
+		return 0
+	default:
+		fmt.Fprintf(stderr, "unknown user data subcommand: %s\n", args[0])
+		printUserDataHelp(stderr)
+		return 2
+	}
+}
+
+func printUserDataHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur user data <subcommand> [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "User data permission management")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Subcommands:")
+	fmt.Fprintln(w, "  project   Project data permissions (get-list)")
+	fmt.Fprintln(w, "  area      Area data permissions (get-list)")
+}
+
+func runUserDataProject(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		fmt.Fprintln(stdout, "Usage: ur user data project <subcommand> [options]")
+		fmt.Fprintln(stdout, "")
+		fmt.Fprintln(stdout, "Subcommands:")
+		fmt.Fprintln(stdout, "  get-list   Query project permission list")
+		return 0
+	}
+
+	switch args[0] {
+	case "get-list":
+		return runUserDataProjectGetList(ctx, args[1:], stdout, stderr)
+	default:
+		fmt.Fprintf(stderr, "unknown user data project subcommand: %s\n", args[0])
+		return 2
+	}
+}
+
+func runUserDataProjectGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput, page, size, _ := parseInfoListParams(args)
+	reqBody := map[string]any{
+		"page": map[string]any{"page": page, "size": size},
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/data/project/get-list",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+func runUserDataArea(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		fmt.Fprintln(stdout, "Usage: ur user data area <subcommand> [options]")
+		fmt.Fprintln(stdout, "")
+		fmt.Fprintln(stdout, "Subcommands:")
+		fmt.Fprintln(stdout, "  get-list   Query area permission list")
+		return 0
+	}
+
+	switch args[0] {
+	case "get-list":
+		return runUserDataAreaGetList(ctx, args[1:], stdout, stderr)
+	default:
+		fmt.Fprintf(stderr, "unknown user data area subcommand: %s\n", args[0])
+		return 2
+	}
+}
+
+func runUserDataAreaGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput, page, size, _ := parseInfoListParams(args)
+	reqBody := map[string]any{
+		"page": map[string]any{"page": page, "size": size},
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/data/area/get-list",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// runUserDept 执行用户部门管理命令
+func runUserDept(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		printUserDeptHelp(stdout)
+		return 0
+	}
+
+	switch args[0] {
+	case "batch-create":
+		return runUserDeptBatchCreate(ctx, args[1:], stdout, stderr)
+	case "batch-delete":
+		return runUserDeptBatchDelete(ctx, args[1:], stdout, stderr)
+	case "help", "--help", "-h":
+		printUserDeptHelp(stdout)
+		return 0
+	default:
+		fmt.Fprintf(stderr, "unknown user dept subcommand: %s\n", args[0])
+		printUserDeptHelp(stderr)
+		return 2
+	}
+}
+
+func printUserDeptHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur user dept <subcommand> [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "User department management")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Subcommands:")
+	fmt.Fprintln(w, "  batch-create   Batch create user departments")
+	fmt.Fprintln(w, "  batch-delete   Batch delete user departments")
+}
+
+func runUserDeptBatchCreate(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/dept/batch-create",
+		Body: reqBody,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+
+	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+func runUserDeptBatchDelete(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	jsonOutput := false
+	bodyJSON := ""
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--body":
+			if i+1 < len(args) {
+				bodyJSON = args[i+1]
+				i++
+			}
+		case "--json", "-j":
+			jsonOutput = true
+		}
+	}
+
+	if bodyJSON == "" {
+		fmt.Fprintln(stderr, "--body is required")
+		return 2
+	}
+
+	reqBody, err := parseBodyArg(bodyJSON)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/system/user/dept/batch-delete",
+		Body: reqBody,
 	})
 	if err != nil {
 		fmt.Fprintf(stderr, "API error: %v\n", err)

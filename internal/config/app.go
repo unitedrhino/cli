@@ -202,6 +202,16 @@ func platformManageFeatures() []Feature {
 			},
 		},
 		{
+			Name:        "问题反馈",
+			Description: "查看和处理用户提交的问题反馈（使用问题/业务受损/业务不可用），支持按类型、状态、租户筛选",
+			APIs:        []string{"/api/v1/system/ops/feedback/get-list", "/api/v1/system/ops/feedback/update", "/api/v1/system/ops/feedback/create"},
+			SubFeatures: []Feature{
+				{Name: "反馈列表", Description: "查看所有用户提交的问题反馈，按类型/状态/租户筛选", APIs: []string{"/api/v1/system/ops/feedback/get-list"}},
+				{Name: "反馈详情", Description: "查看反馈完整信息，包含页面URL和AI对话上下文", APIs: []string{"/api/v1/system/ops/feedback/get-list"}},
+				{Name: "状态更新", Description: "更新反馈处理状态（待处理→处理中→已完成）", APIs: []string{"/api/v1/system/ops/feedback/update"}},
+			},
+		},
+		{
 			Name:        "通知管理",
 			Description: "通知配置、模板、消息记录",
 			SubFeatures: []Feature{
@@ -453,6 +463,14 @@ func consoleFeatures() []Feature {
 				{Name: "创建令牌", Description: "创建 AccessKey/Secret", APIs: []string{"/api/v1/system/user/self/access-token/create"}},
 				{Name: "查看令牌", Description: "查看已有令牌", APIs: []string{"/api/v1/system/user/self/access-token/get-list"}},
 				{Name: "删除令牌", Description: "删除令牌", APIs: []string{"/api/v1/system/user/self/access-token/delete"}},
+			},
+		},
+		{
+			Name:        "问题反馈",
+			Description: "提交问题反馈（使用问题/业务受损/业务不可用），自动附带当前页面URL和用户信息",
+			APIs:        []string{"/api/v1/system/ops/feedback/create"},
+			SubFeatures: []Feature{
+				{Name: "提交反馈", Description: "选择问题类型、填写描述和联系方式", APIs: []string{"/api/v1/system/ops/feedback/create"}},
 			},
 		},
 		{

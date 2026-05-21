@@ -1,6 +1,6 @@
 ---
 name: ur-api
-description: "Use when calling 联犀 SaaS 平台 API: device management, user management, product management, tenant management, AI management, project management, system management, or IoT device operations. triggers: API调用, 设备列表, IoT设备控制, 设备注册, 访问令牌, 物模型管理, OTA升级, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理"
+description: "Use when calling 联犀 SaaS 平台 API: device management, user management, product management, tenant management, AI management, project management, system management, or IoT device operations. triggers: API调用, 设备列表, IoT设备控制, 设备注册, 访问令牌, 物模型管理, OTA升级, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 问题反馈, 提交反馈, 反馈类型, 使用问题, 业务受损, 业务不可用"
 ---
 # ur-api — 联犀 SaaS 平台 API 工具
 
@@ -495,6 +495,48 @@ CLI 调用 `ur api` 时，若业务返回 code 不为 200，会在 stderr 输出
 | ETIMEDOUT | 网络超时 | 检查网络连通性或增加超时 |
 | SSL 错误 | HTTPS 证书问题 | 检查证书或使用 HTTP |
 
+### 调用持续异常：提交问题反馈
+
+当以下情况出现时，应引导用户提交问题反馈以便开发团队定位问题：
+
+- **同一接口多次调用均返回异常**（非临时性网络波动）
+- **CLI 自动重试后仍然失败**（token 自动刷新也无效）
+- **返回的错误信息不明确**，无法从常见错误表中匹配到解决方案
+- **服务响应异常缓慢或超时**，且排除了本地网络问题
+
+**反馈提交方式**：
+
+1. **控制台提交**（推荐）：访问控制台页面 `http://<host>:<port>/app/console/`，点击顶部工具栏的「问题反馈」按钮，选择问题类型（使用问题/业务受损/业务不可用），填写反馈内容和联系方式，系统会自动附带当前页面 URL。
+
+2. **API 直接提交**：
+```bash
+# 使用 ur 提交问题反馈（自动填充当前用户和应用信息）
+ur api /api/v1/system/ops/feedback/create \
+  --body '{
+    "appID": "<当前应用ID>",
+    "feedbackType": "usageProblem",
+    "issueDesc": "描述遇到的问题",
+    "contactInformation": "联系方式（手机号或邮箱）",
+    "detail": "详细信息：包括完整的 API 请求/响应、错误信息、操作步骤等上下文"
+  }'
+```
+
+**反馈类型说明**：
+
+| 类型 | 值 | 适用场景 |
+|------|-----|---------|
+| 使用问题 | `usageProblem` | API 调用失败、功能异常、界面问题 |
+| 业务受损 | `businessImpaired` | 核心功能部分不可用但业务仍可继续 |
+| 业务不可用 | `businessUnavailable` | 核心功能完全不可用，业务中断 |
+
+**上下文信息最佳实践**：提交 feedback 时务必在 `detail` 字段中附上：
+- 完整的错误码和错误消息
+- 调用的 API 路径和请求体
+- 用户角色（`ur check` 输出）
+- 操作步骤（如何触发的问题）
+- 相关的对话上下文或排查过程
+- 环境信息（`UR_BASE_URL`、`UR_APP_ID` 等）
+
 ## 各域 API 概览
 
 详细 API 端点和业务场景见各子域 SKILL.md：
@@ -548,6 +590,8 @@ ur api /api/v1/system/user/self/access-token/create \
 | 告警规则列表 | POST /api/v1/things/alarm/info/get-list | `{"page":{"page":1,"size":10}}` |
 | 文件上传 | POST /api/v1/system/common/upload-file | multipart/form-data |
 | 批量接口调用 | POST /api/v1/system/common/api/batch-agg | `{"apis":[{"path":"/api/v1/system/user/self/get-one","body":{}}]}` |
+| 提交问题反馈 | POST /api/v1/system/ops/feedback/create | `{"feedbackType":"usageProblem","issueDesc":"...","contactInformation":"...","detail":"..."}` |
+| 查询反馈列表 | POST /api/v1/system/ops/feedback/get-list | `{"page":{"page":1,"size":10}}` |
 
 ---
 

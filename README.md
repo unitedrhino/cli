@@ -390,23 +390,44 @@ go test -cover ./...
 
 ## 发布（维护者）
 
-使用封装好的 release 脚本：
+### 前置条件
+
+需要 GitHub 和 Gitee 的 API token，写入项目根目录的 `.env` 文件（已被 `.gitignore` 忽略，不会提交）：
 
 ```bash
-bash scripts/release.sh v0.3.4
+# .env 文件内容
+GITHUB_TOKEN="ghp_xxxxxxxx"    # GitHub Personal Access Token（需要 repo 权限）
+GITEE_TOKEN="xxxxxxxx"         # Gitee 私人令牌
+```
+
+`release.sh` 启动时会自动加载 `.env`，无需手动 export。
+
+### 一键发布
+
+```bash
+# 语法：bash scripts/release.sh <版本号>
+bash scripts/release.sh v0.3.7
 ```
 
 脚本会自动完成：
-1. 构建 5 个平台的二进制（Linux amd64/arm64、Windows amd64、macOS amd64/arm64）
-2. 复制 skill 资源到 dist/
-3. 打包 tar.gz / zip
-4. 创建 GitHub Release
-5. 上传构建产物
+1. 构建 39 个平台的二进制（Linux/macOS/Windows/FreeBSD/OpenBSD/NetBSD/Plan9/Solaris/Illumos/DragonFly/AIX × amd64/arm64/386/arm/mips/riscv64 等）
+2. 复制 skill 资源到每个平台的发布目录，写入版本元数据 `_meta.json`
+3. 打包 tar.gz（Unix）或 zip（Windows）
+4. 生成 SHA256 校验和文件 `sha256sums.txt`
+5. 创建 GitHub Release 并上传所有资产
+6. 创建 Gitee Release 并上传所有资产
 
-如需手动执行，需配置环境变量：
+### 手动发布（仅某个平台）
+
+如果只需要发布单个平台，可手动运行对应步骤：
 
 ```bash
+# 临时设置 token
 export GITHUB_TOKEN="ghp_xxxxxxxx"
+export GITEE_TOKEN="xxxxxxxx"
+
+# 仅构建和发布
+bash scripts/release.sh v0.3.7
 ```
 
 ---

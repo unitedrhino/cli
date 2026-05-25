@@ -111,8 +111,11 @@ func doAPIOnce(ctx context.Context, req APIRequest) (APIResponse, error) {
 	if req.Debug {
 		logDebugResponse(resp, rawResp)
 	}
-	if reqTraceparent := httpReq.Header.Get("traceparent"); reqTraceparent != "" || resp.Header.Get("traceparent") != "" {
-		log.Printf("ur-api trace path=%s reqTraceparent=%s respTraceparent=%s status=%d", req.Path, reqTraceparent, resp.Header.Get("traceparent"), resp.StatusCode)
+	// traceparent 日志仅在 debug 模式下输出，避免泄露到 stderr 被 sandbox runtime 捕获后暴露给 LLM
+	if req.Debug {
+		if reqTraceparent := httpReq.Header.Get("traceparent"); reqTraceparent != "" || resp.Header.Get("traceparent") != "" {
+			log.Printf("ur-api trace path=%s reqTraceparent=%s respTraceparent=%s status=%d", req.Path, reqTraceparent, resp.Header.Get("traceparent"), resp.StatusCode)
+		}
 	}
 	var out APIResponse
 	if err := json.Unmarshal(rawResp, &out); err != nil {

@@ -29,149 +29,15 @@ metadata:
 
 | 功能组 | 说明 | 参考文档 |
 |--------|------|---------|
-| 物模型管理 | 查询/创建/更新/删除物模型，TSL导入/读取，API浏览 | [schema.md](references/schema.md) |
-| OTA固件管理 | 固件查询/创建/更新/删除 | [ota.md](references/ota.md) |
-| OTA任务管理 | OTA升级任务查询/创建/更新 | [ota.md](references/ota.md) |
-| OTA模块管理 | 模块查询/创建/更新/删除 | [ota.md](references/ota.md) |
-| 物模型模板 | 模板生成/结构验证/脚本生成 | [model.md](references/model.md) |
-| 协议脚本 | 脚本验证/模板生成 | [script.md](references/script.md) |
-| 聚合查询 | 设备属性聚合值查询 | [agg.md](references/agg.md) |
+| 物模型管理 | 查询/创建/更新/删除物模型，TSL导入/读取，API浏览 | [schema.md](references/product-schema.md) |
+| OTA固件管理 | 固件查询/创建/更新/删除 | [ota.md](references/product-ota.md) |
+| OTA任务管理 | OTA升级任务查询/创建/更新 | [ota.md](references/product-ota.md) |
+| OTA模块管理 | 模块查询/创建/更新/删除 | [ota.md](references/product-ota.md) |
+| 物模型模板 | 模板生成/结构验证/脚本生成 | [model.md](references/product-model.md) |
+| 协议脚本 | 脚本验证/模板生成 | [script.md](references/product-script.md) |
+| 聚合查询 | 设备属性聚合值查询 | [agg.md](references/product-agg.md) |
 
 > 完整命令帮助：`ur things help`
-
-## API 参考
-
-<!-- API_LIST:ur-product -->
-
-| 方法 | 端点 | 说明 | 权限 |
-|------|------|------|------|
-| POST | `/api/v1/things/product/category/batch-export` | 批量导出产品品类 | admin |
-| POST | `/api/v1/things/product/category/batch-import` | 批量导入产品品类 | admin |
-| POST | `/api/v1/things/product/category/create` | 新增产品品类 | admin |
-| POST | `/api/v1/things/product/category/delete` | 删除产品品类 | admin |
-| POST | `/api/v1/things/product/category/get-list` | 获取产品品类列表 | admin |
-| POST | `/api/v1/things/product/category/get-one` | 获取产品品类详情 | admin |
-| POST | `/api/v1/things/product/category/schema/batch-create` | 批量新增产品品类物模型 | admin |
-| POST | `/api/v1/things/product/category/schema/batch-delete` | 批量删除产品品类物模型 | admin |
-| POST | `/api/v1/things/product/category/schema/batch-update` | 批量更新产品品类物模型 | admin |
-| POST | `/api/v1/things/product/category/schema/get-list` | 获取产品品类物模型列表 | admin |
-| POST | `/api/v1/things/product/category/update` | 更新产品品类 | admin |
-| POST | `/api/v1/things/product/config/update` | 更新配置 | admin |
-| POST | `/api/v1/things/product/custom/get-one` | 获取产品自定义信息详情 | admin |
-| POST | `/api/v1/things/product/custom/update` | 更新产品自定义信息 | admin |
-| POST | `/api/v1/things/product/info/batch-export` | 批量导出产品 | admin |
-| POST | `/api/v1/things/product/info/batch-import` | 批量导入产品 | admin |
-| POST | `/api/v1/things/product/info/create` | 新增产品 | admin |
-| POST | `/api/v1/things/product/info/delete` | 删除产品 | admin |
-| POST | `/api/v1/things/product/info/get-list` | 获取产品信息列表 | admin |
-| POST | `/api/v1/things/product/info/get-one` | 获取产品详情 | admin |
-| POST | `/api/v1/things/product/info/init` | 初始化产品 | admin |
-| POST | `/api/v1/things/product/info/update` | 更新产品 | admin |
-| POST | `/api/v1/things/product/remote-config/create` | 创建配置 | admin |
-| POST | `/api/v1/things/product/remote-config/get-list` | 获取配置列表 | admin |
-| POST | `/api/v1/things/product/remote-config/lastest-read` | 获取最新配置 | admin |
-| POST | `/api/v1/things/product/remote-config/push-all` | 推送配置 | admin |
-| POST | `/api/v1/things/product/schema/batch-create` | 批量创建产品物模型 | admin |
-| POST | `/api/v1/things/product/schema/create` | 创建产品物模型 | admin |
-| POST | `/api/v1/things/product/schema/delete` | 删除产品物模型 | admin |
-| POST | `/api/v1/things/product/schema/get-list` | 获取产品物模型 | admin |
-| POST | `/api/v1/things/product/schema/tsl-import` | 导入产品物模型tsl | admin |
-| POST | `/api/v1/things/product/schema/tsl-read` | 获取产品物模型tsl | admin |
-| POST | `/api/v1/things/product/schema/update` | 更新产品物模型 | admin |
-
-<!-- END_API_LIST -->
-
-权限: 管理员
-
-| 端点 | 说明 | 权限 |
-|---|------|------|
-| POST /api/v1/things/ota/firmware/device/cancel | 取消指定任务下的升级 | 管理员 |
-| POST /api/v1/things/ota/firmware/device/confirm | 确认升级设备 | 管理员 |
-| POST /api/v1/things/ota/firmware/device/get-list | 查询升级设备列表 | 管理员 |
-| POST /api/v1/things/ota/firmware/device/retry | 重试设备升级 | 管理员 |
-| POST /api/v1/things/ota/firmware/info/create | 添加升级包 | 管理员 |
-| POST /api/v1/things/ota/firmware/info/delete | 删除升级包 | 管理员 |
-| POST /api/v1/things/ota/firmware/info/get-list | 升级包列表 | 管理员 |
-| POST /api/v1/things/ota/firmware/info/get-one | 查询升级包 | 管理员 |
-| POST /api/v1/things/ota/firmware/info/update | 修改升级包 | 管理员 |
-| POST /api/v1/things/ota/firmware/job/create | 创建升级任务 | 管理员 |
-| POST /api/v1/things/ota/firmware/job/get-list | 获取升级包下的升级任务批次列表 | 管理员 |
-| POST /api/v1/things/ota/firmware/job/get-one | 查询指定升级批次的详情 | 管理员 |
-| POST /api/v1/things/ota/firmware/job/update | 更新升级批次 | 管理员 |
-| POST /api/v1/things/ota/module/info/create | 创建模块 | 管理员 |
-| POST /api/v1/things/ota/module/info/delete | 删除模块 | 管理员 |
-| POST /api/v1/things/ota/module/info/get-list | 获取模块列表 | 管理员 |
-| POST /api/v1/things/ota/module/info/get-one | 查询模块详情 | 管理员 |
-| POST /api/v1/things/ota/module/info/update | 更新模块 | 管理员 |
-| POST /api/v1/things/product/category/batch-export | 批量导出产品品类 | 管理员 |
-| POST /api/v1/things/product/category/batch-import | 批量导入产品品类 | 管理员 |
-| POST /api/v1/things/product/category/create | 新增产品品类 | 管理员 |
-| POST /api/v1/things/product/category/delete | 删除产品品类 | 管理员 |
-| POST /api/v1/things/product/category/get-list | 获取产品品类列表 | 管理员 |
-| POST /api/v1/things/product/category/get-one | 获取产品品类详情 | 管理员 |
-| POST /api/v1/things/product/category/schema/batch-create | 批量新增产品品类物模型 | 管理员 |
-| POST /api/v1/things/product/category/schema/batch-delete | 批量删除产品品类物模型 | 管理员 |
-| POST /api/v1/things/product/category/schema/batch-update | 批量更新产品品类物模型 | 管理员 |
-| POST /api/v1/things/product/category/schema/get-list | 获取产品品类物模型列表 | 管理员 |
-| POST /api/v1/things/product/category/update | 更新产品品类 | 管理员 |
-| POST /api/v1/things/product/config/update | 更新配置 | 管理员 |
-| POST /api/v1/things/product/custom/get-one | 获取产品自定义信息详情 | 管理员 |
-| POST /api/v1/things/product/custom/update | 更新产品自定义信息 | 管理员 |
-| POST /api/v1/things/product/info/batch-export | 批量导出产品 | 管理员 |
-| POST /api/v1/things/product/info/batch-import | 批量导入产品 | 管理员 |
-| POST /api/v1/things/product/info/create | 新增产品 | 管理员 |
-| POST /api/v1/things/product/info/delete | 删除产品 | 管理员 |
-| POST /api/v1/things/product/info/get-list | 获取产品信息列表 | 管理员 |
-| POST /api/v1/things/product/info/get-one | 获取产品详情 | 管理员 |
-| POST /api/v1/things/product/info/init | 初始化产品 | 管理员 |
-| POST /api/v1/things/product/info/update | 更新产品 | 管理员 |
-| POST /api/v1/things/product/remote-config/create | 创建配置 | 管理员 |
-| POST /api/v1/things/product/remote-config/get-list | 获取配置列表 | 管理员 |
-| POST /api/v1/things/product/remote-config/lastest-read | 获取最新配置 | 管理员 |
-| POST /api/v1/things/product/remote-config/push-all | 推送配置 | 管理员 |
-| POST /api/v1/things/product/schema/batch-create | 批量创建产品物模型 | 管理员 |
-| POST /api/v1/things/product/schema/create | 创建产品物模型 | 管理员 |
-| POST /api/v1/things/product/schema/delete | 删除产品物模型 | 管理员 |
-| POST /api/v1/things/product/schema/get-list | 获取产品物模型 | 管理员 |
-| POST /api/v1/things/product/schema/tsl-import | 导入产品物模型tsl | 管理员 |
-| POST /api/v1/things/product/schema/tsl-read | 获取产品物模型tsl | 管理员 |
-| POST /api/v1/things/product/schema/update | 更新产品物模型 | 管理员 |
-| POST /api/v1/things/protocol/config/create | 创建协议配置 | 管理员 |
-| POST /api/v1/things/protocol/config/delete | 删除协议配置 | 管理员 |
-| POST /api/v1/things/protocol/config/get-list | 获取协议配置列表 | 管理员 |
-| POST /api/v1/things/protocol/config/get-one | 获取协议配置详情 | 管理员 |
-| POST /api/v1/things/protocol/config/update | 更新协议配置 | 管理员 |
-| POST /api/v1/things/protocol/info/create | 新增自定义协议 | 管理员 |
-| POST /api/v1/things/protocol/info/delete | 删除自定义协议 | 管理员 |
-| POST /api/v1/things/protocol/info/get-list | 获取自定义协议信息列表 | 管理员 |
-| POST /api/v1/things/protocol/info/get-one | 获取自定义协议详情 | 管理员 |
-| POST /api/v1/things/protocol/info/update | 更新自定义协议 | 管理员 |
-| POST /api/v1/things/protocol/script/batch-export | 批量导出协议脚本 | 管理员 |
-| POST /api/v1/things/protocol/script/batch-import | 批量导入协议脚本 | 管理员 |
-| POST /api/v1/things/protocol/script/create | 新增协议脚本 | 管理员 |
-| POST /api/v1/things/protocol/script/debug | 协议脚本调试 | 管理员 |
-| POST /api/v1/things/protocol/script/delete | 删除协议脚本 | 管理员 |
-| POST /api/v1/things/protocol/script/device/create | 新增协议脚本设备 | 管理员 |
-| POST /api/v1/things/protocol/script/device/delete | 删除协议脚本设备 | 管理员 |
-| POST /api/v1/things/protocol/script/device/get-list | 获取协议脚本设备列表 | 管理员 |
-| POST /api/v1/things/protocol/script/device/get-one | 获取协议脚本设备详情 | 管理员 |
-| POST /api/v1/things/protocol/script/device/update | 更新协议脚本设备 | 管理员 |
-| POST /api/v1/things/protocol/script/get-list | 获取协议脚本列表 | 管理员 |
-| POST /api/v1/things/protocol/script/get-one | 获取协议脚本详情 | 管理员 |
-| POST /api/v1/things/protocol/script/update | 更新协议脚本 | 管理员 |
-| POST /api/v1/things/protocol/service/delete | 删除自定义协议服务器 | 管理员 |
-| POST /api/v1/things/protocol/service/get-list | 获取自定义协议服务器信息列表 | 管理员 |
-| POST /api/v1/things/protocol/sync/device | 设备同步(如果该协议不支持会返回不支持) | 管理员 |
-| POST /api/v1/things/protocol/sync/product | 产品同步(如果该协议不支持会返回不支持) | 管理员 |
-| POST /api/v1/things/schema/common/batch-export | 批量导出通用物模型 | 管理员 |
-| POST /api/v1/things/schema/common/batch-import | 批量导入通用物模型 | 管理员 |
-| POST /api/v1/things/schema/common/create | 新增通用物模型 | 管理员 |
-| POST /api/v1/things/schema/common/delete | 删除通用物模型 | 管理员 |
-| POST /api/v1/things/schema/common/get-list | 获取通用物模型列表 | 管理员 |
-| POST /api/v1/things/schema/common/init | 初始化通用物模型 | 管理员 |
-| POST /api/v1/things/schema/common/mock-gen | 从参数生成物模型定义 | 管理员 |
-| POST /api/v1/things/schema/common/update | 更新通用物模型 | 管理员 |
-
 
 ## 典型业务场景
 
@@ -180,12 +46,12 @@ metadata:
 **场景描述**：创建新产品 / 定义物模型 / 配置协议
 
 **前置条件**：
-- 品类 ID 可选（从 /api/v1/things/product/category/get-list 查询，不传则为无品类产品）
+- 品类 ID 可选（通过 `ur things product category get-list` 查询，不传则为无品类产品）
 
-**涉及 API**：
-- `/api/v1/things/product/info/create`
-- `/api/v1/things/schema/create`
-- `/api/v1/things/protocol/script/create`
+**涉及 CLI**：
+- `ur things product info create`
+- `ur things product info get-list`
+- `ur things schema get-list`
 
 **工作流**：
 1. 创建产品（protocolCode 填 urMqtt，deviceType: 1=直连/2=网关/3=子设备）
@@ -205,11 +71,10 @@ metadata:
 
 **场景描述**：查看/修改产品物模型（属性mode: r/rw，事件type: info/alert/fault，行为dir: up/down）
 
-**涉及 API**：
-- `/api/v1/things/schema/get-list`
-- `/api/v1/things/schema/create`
-- `/api/v1/things/schema/update`
-- `/api/v1/things/schema/delete`
+**涉及 CLI**：
+- `ur things schema get-list`
+- `ur things schema create`
+- `ur things schema update`
 
 **工作流**：
 1. 查询现有物模型
@@ -221,9 +86,9 @@ metadata:
 
 **场景描述**：设备与平台物模型交互（Topic: $thing/up/property, $thing/down/property）
 
-**涉及 API**：
-- `/api/v1/things/device/interact/property-control-send`
-- `/api/v1/things/device/msg/property-latest/get-list`
+**涉及 CLI**：
+- `ur things device info get-list`
+- `ur things device info create`
 
 **工作流**：
 1. 属性上报: $thing/up/property, method: report
@@ -235,10 +100,10 @@ metadata:
 
 **场景描述**：自定义Go脚本处理设备消息（yaegi解释器，支持json/gjson/utils/deviceMsg/dm包）
 
-**涉及 API**：
-- `/api/v1/things/protocol/script/create`
-- `/api/v1/things/protocol/script/update`
-- `/api/v1/things/protocol/script/debug`
+**涉及 CLI**：
+- `ur things protocol script create`
+- `ur things protocol script update`
+- `ur things protocol script get-list`
 
 **工作流**：
 1. 选择触发模式: UpBefore/UpAfter/DownBefore/DownAfter
@@ -250,10 +115,10 @@ metadata:
 
 **场景描述**：上传固件 / 创建升级任务 / 监控升级进度（step: 1-100百分比, -1~-4错误码）
 
-**涉及 API**：
-- `/api/v1/things/ota/firmware/info/create`
-- `/api/v1/things/ota/firmware/job/create`
-- `/api/v1/things/ota/firmware/device/get-list`
+**涉及 CLI**：
+- `ur things ota info create`
+- `ur things ota info get-list`
+- `ur things device info get-list`
 
 **工作流**：
 1. 上传固件包（差分/全量）
@@ -262,17 +127,17 @@ metadata:
 
 ### 通用物模型批量导入
 
-**场景描述**：批量导入通用物模型定义（Excel → JSON → ZIP → OSS → API导入）
+**场景描述**：批量导入通用物模型定义（Excel → JSON → ZIP → OSS → CLI导入）
 
-**涉及 API**：
-- `/api/v1/system/common/upload-file`
-- `/api/v1/things/schema/common/batch-import`
+**涉及 CLI**：
+- `ur things schema common batch-import`
+- `ur things schema common get-list`
 
 **工作流**：
 1. 准备Excel模板（identifier/name/define）
 2. 转换为CommonSchemaInfo JSON格式
 3. 打包ZIP并上传OSS
-4. 调用batch-import API导入
+4. 调用 batch-import CLI 导入
 
 
 ## 常用工作流
@@ -280,15 +145,13 @@ metadata:
 ### 查询产品列表
 
 ```bash
-ur api /api/v1/things/product/info/get-list \
-  --body '{"page":{"page":1,"size":10}}'
+ur things product info get-list
 ```
 
 ### 查询物模型列表
 
 ```bash
-ur api /api/v1/things/schema/get-list \
-  --body '{"productID":"xxx"}'
+ur things schema get-list
 ```
 
 

@@ -50,14 +50,14 @@ metadata:
 
 创建全局应用（tenantCode='common'），定义菜单树形结构
 
-- 涉及 API: `/api/v1/system/app/info/create`, `/api/v1/system/app/menu/create`
+- 涉及 CLI: `ur app info create`, `ur app menu create`
 - 工作流: 创建应用 → 定义菜单树 → 配置登录方式
 
 **管理应用上下架**
 
 控制应用的启用/禁用状态
 
-- 涉及 API: `/api/v1/system/app/info/update`
+- 涉及 CLI: `ur app info update`
 - 工作流: 选择应用 → 更新状态
 
 
@@ -71,14 +71,14 @@ metadata:
 
 为租户启用应用，自定义菜单配置
 
-- 涉及 API: `/api/v1/system/tenant/app/create`, `/api/v1/system/tenant/app/menu/update`
+- 涉及 CLI: `ur tenant app create`, `ur tenant app menu update`
 - 工作流: 选择要启用的应用 → 自定义菜单（名称、图标、排序） → 配置登录方式
 
 **文件上传**
 
 上传文件到 OSS，获取访问路径
 
-- 涉及 API: `/api/v1/system/common/upload-file`
+- 涉及 CLI: `ur system upload upload-file`
 - 工作流: 选择文件 → 上传 → 返回文件路径
 
 
@@ -92,14 +92,14 @@ metadata:
 
 上传文件 / 获取上传地址
 
-- 涉及 API: `/api/v1/system/common/upload-file`, `/api/v1/system/common/upload-url/create`
+- 涉及 CLI: `ur system upload upload-file`, `ur system upload upload-url create`
 - 工作流: 获取上传 URL 或直接上传 → 返回文件访问路径
 
 **批量接口调用**
 
 一次请求调用多个 API，减少网络开销
 
-- 涉及 API: `/api/v1/system/common/api/batch-agg`
+- 涉及 CLI: `ur system batch-agg`
 - 工作流: 构造批量请求体 → 一次请求获取多个接口数据
 
 
@@ -114,149 +114,6 @@ metadata:
 
 > 完整命令帮助：`ur system help`
 
-## API 参考
-
-<!-- API_LIST:ur-system -->
-
-| 方法 | 端点 | 说明 | 权限 |
-|------|------|------|------|
-| POST | `/api/v1/system/agreement/create` | 创建协议 | platform |
-| POST | `/api/v1/system/agreement/delete` | 删除协议 | platform |
-| POST | `/api/v1/system/agreement/get-list` | 获取协议列表 | platform |
-| POST | `/api/v1/system/agreement/get-one` | 获取协议详情 | platform |
-| POST | `/api/v1/system/agreement/preview-render` | 预览渲染协议 | platform |
-| POST | `/api/v1/system/agreement/update` | 更新协议 | platform |
-| POST | `/api/v1/system/app/agreement/bind-batch-update` | 批量更新应用协议绑定 | platform |
-| POST | `/api/v1/system/app/agreement/get-bind-list` | 获取应用协议绑定列表 | platform |
-| POST | `/api/v1/system/app/core/get-one` | 无需登录获取应用信息 | public |
-| POST | `/api/v1/system/app/info/create` | 添加应用 | platform |
-| POST | `/api/v1/system/app/info/delete` | 删除应用 | platform |
-| POST | `/api/v1/system/app/info/get-list` | 获取应用列表 | platform |
-| POST | `/api/v1/system/app/info/get-one` | 获取应用详情 | platform |
-| POST | `/api/v1/system/app/info/update` | 更新应用 | platform |
-| POST | `/api/v1/system/app/menu/create` | 添加菜单 | platform |
-| POST | `/api/v1/system/app/menu/delete` | 删除菜单 | platform |
-| POST | `/api/v1/system/app/menu/get-list` | 获取菜单列表 | platform |
-| POST | `/api/v1/system/app/menu/update` | 更新菜单 | platform |
-| POST | `/api/v1/system/check-in/do` | 用户签到 | admin |
-| POST | `/api/v1/system/check-in/get-list` | 签到记录列表 | admin |
-| POST | `/api/v1/system/check-in/point-balance/get` | 获取当前用户积分余额 | admin |
-| POST | `/api/v1/system/check-in/point-log/adjust` | 管理员调整积分 | admin |
-| POST | `/api/v1/system/check-in/point-log/get-list` | 积分流水列表 | admin |
-| POST | `/api/v1/system/common/api/batch-agg` | 批量聚合接口请求 | all |
-| GET | `/api/v1/system/common/debug` | 调试接口GET | public |
-| POST | `/api/v1/system/common/debug` | 调试接口POST | public |
-| GET | `/api/v1/system/common/debug-tencent` | 腾讯云调试接口 | public |
-| GET | `/api/v1/system/common/download-file` | 下载本地文件 | public |
-| POST | `/api/v1/system/common/init-upload-file` | 初始化上传文件 | public |
-| POST | `/api/v1/system/common/ntp/get-one` | ntp时间同步 | public |
-| POST | `/api/v1/system/common/qr-code/get-one` | 获取小程序二维码 | all |
-| POST | `/api/v1/system/common/sys-config/core/get-one` | 读取系统配置信息(无需登录) | public |
-| POST | `/api/v1/system/common/sys-config/info/get-one` | 读取系统配置信息 | platform |
-| POST | `/api/v1/system/common/sys-config/info/update` | 更新系统配置信息 | platform |
-| POST | `/api/v1/system/common/system/init` | 初始化系统 | public |
-| POST | `/api/v1/system/common/third/dept/get-list` | 获取第三方部门列表 | all |
-| POST | `/api/v1/system/common/third/dept/get-one` | 获取第三方部门详情 | all |
-| POST | `/api/v1/system/common/upload-file` | 文件直传 | all |
-| POST | `/api/v1/system/common/upload-url/create` | 获取文件上传地址 | all |
-| POST | `/api/v1/system/common/weather/get-one` | 获取天气情况 | all |
-| GET | `/api/v1/system/common/websocket/connect` | websocket连接 | all |
-| POST | `/api/v1/system/hook/capability/create` | 新增Hook能力 | platform |
-| POST | `/api/v1/system/hook/capability/delete` | 删除Hook能力 | platform |
-| POST | `/api/v1/system/hook/capability/get-list` | 获取Hook能力列表 | platform |
-| POST | `/api/v1/system/hook/capability/update` | 更新Hook能力 | platform |
-| POST | `/api/v1/system/hook/server/create` | 新增Hook服务 | platform |
-| POST | `/api/v1/system/hook/server/delete` | 删除Hook服务 | platform |
-| POST | `/api/v1/system/hook/server/get-list` | 获取Hook服务列表 | platform |
-| POST | `/api/v1/system/hook/server/get-one` | 获取Hook服务详情 | platform |
-| POST | `/api/v1/system/hook/server/update` | 更新Hook服务 | platform |
-| POST | `/api/v1/system/job/task/cancel` | 取消执行任务 | platform |
-| POST | `/api/v1/system/job/task/group/create` | 新建任务分组 | platform |
-| POST | `/api/v1/system/job/task/group/delete` | 删除任务分组 | platform |
-| POST | `/api/v1/system/job/task/group/get-list` | 获取任务分组列表 | platform |
-| POST | `/api/v1/system/job/task/group/get-one` | 获取任务分组详情 | platform |
-| POST | `/api/v1/system/job/task/group/update` | 更新任务分组 | platform |
-| POST | `/api/v1/system/job/task/info/create` | 创建任务 | platform |
-| POST | `/api/v1/system/job/task/info/delete` | 删除任务 | platform |
-| POST | `/api/v1/system/job/task/info/get-list` | 获取任务列表 | platform |
-| POST | `/api/v1/system/job/task/info/get-one` | 获取任务详情 | platform |
-| POST | `/api/v1/system/job/task/info/start` | 启动任务 | platform |
-| POST | `/api/v1/system/job/task/info/stop` | 停止任务 | platform |
-| POST | `/api/v1/system/job/task/info/update` | 更新任务 | platform |
-| POST | `/api/v1/system/job/task/send` | 发送延时请求 | platform |
-| POST | `/api/v1/system/mall/license/batch-create` | 批量创建授权码 | platform |
-| POST | `/api/v1/system/mall/license/create` | 创建授权码 | platform |
-| POST | `/api/v1/system/mall/license/get-list` | 授权码列表 | admin |
-| POST | `/api/v1/system/mall/license/get-one` | 授权码详情 | admin |
-| POST | `/api/v1/system/mall/license/revoke` | 撤销授权码 | platform |
-| POST | `/api/v1/system/mall/package/create` | 创建套餐 | platform |
-| POST | `/api/v1/system/mall/package/delete` | 删除套餐 | platform |
-| POST | `/api/v1/system/mall/package/get-list` | 获取套餐列表 | admin |
-| POST | `/api/v1/system/mall/package/get-one` | 获取套餐详情 | admin |
-| POST | `/api/v1/system/mall/package/update` | 更新套餐 | platform |
-| POST | `/api/v1/system/mall/product/create` | 创建商品 | platform |
-| POST | `/api/v1/system/mall/product/delete` | 删除商品 | platform |
-| POST | `/api/v1/system/mall/product/get-list` | 获取商品列表 | admin |
-| POST | `/api/v1/system/mall/product/get-one` | 获取商品详情 | admin |
-| POST | `/api/v1/system/mall/product/update` | 更新商品 | platform |
-| POST | `/api/v1/system/ops/feedback/create` | 添加帮助与反馈 | all |
-| POST | `/api/v1/system/ops/feedback/get-list` | 获取帮助与反馈 | all |
-| POST | `/api/v1/system/ops/feedback/update` | 更新帮助与反馈 | all |
-| POST | `/api/v1/system/ops/work-order/create` | 添加工单 | all |
-| POST | `/api/v1/system/ops/work-order/get-list` | 获取工单列表 | all |
-| POST | `/api/v1/system/ops/work-order/update` | 更新工单 | all |
-| POST | `/api/v1/system/resource/api/create` | 添加接口 | platform |
-| POST | `/api/v1/system/resource/api/delete` | 删除接口 | platform |
-| POST | `/api/v1/system/resource/api/get-list` | 获取接口列表 | platform |
-| POST | `/api/v1/system/resource/api/update` | 更新接口 | platform |
-
-<!-- END_API_LIST -->
-
-权限: mixed
-
-| 端点 | 说明 | 权限 |
-|---|------|------|
-| POST /api/v1/system/app/core/get-one | 无需登录获取应用信息 | 平台管理员 |
-| POST /api/v1/system/agreement/create | 创建协议 | 平台管理员 |
-| POST /api/v1/system/agreement/get-list | 获取协议列表 | 平台管理员 |
-| POST /api/v1/system/agreement/get-one | 获取协议详情 | 平台管理员 |
-| POST /api/v1/system/agreement/update | 更新协议 | 平台管理员 |
-| POST /api/v1/system/agreement/delete | 删除协议 | 平台管理员 |
-| POST /api/v1/system/agreement/preview-render | 预览渲染协议 | 平台管理员 |
-| POST /api/v1/system/app/info/create | 添加应用 | 平台管理员 |
-| POST /api/v1/system/app/info/delete | 删除应用 | 平台管理员 |
-| POST /api/v1/system/app/info/get-list | 获取应用列表 | 平台管理员 |
-| POST /api/v1/system/app/info/get-one | 获取应用详情 | 平台管理员 |
-| POST /api/v1/system/app/info/update | 更新应用 | 平台管理员 |
-| POST /api/v1/system/app/agreement/get-bind-list | 获取应用协议绑定列表 | 平台管理员 |
-| POST /api/v1/system/app/agreement/bind-batch-update | 批量更新应用协议绑定 | 平台管理员 |
-| POST /api/v1/system/app/menu/create | 添加菜单 | 平台管理员 |
-| POST /api/v1/system/app/menu/delete | 删除菜单 | 平台管理员 |
-| POST /api/v1/system/app/menu/get-list | 获取菜单列表 | 管理员 |
-| POST /api/v1/system/app/menu/update | 更新菜单 | 平台管理员 |
-| POST /api/v1/system/common/api/batch-agg | 批量聚合接口请求 | 所有用户 |
-| POST /api/v1/system/common/debug | 调试接口POST | 所有用户 |
-| POST /api/v1/system/common/debug-tencent | 腾讯云调试接口 | 所有用户 |
-| POST /api/v1/system/common/download-file | 下载本地文件 | 所有用户 |
-| POST /api/v1/system/common/init-upload-file | 初始化上传文件 | 所有用户 |
-| POST /api/v1/system/common/ntp/get-one | ntp时间同步 | 所有用户 |
-| POST /api/v1/system/common/qr-code/get-one | 获取小程序二维码 | 所有用户 |
-| POST /api/v1/system/common/sys-config/core/get-one | 读取系统配置信息(无需登录) | 所有用户 |
-| POST /api/v1/system/common/sys-config/info/get-one | 读取系统配置信息 | 平台管理员 |
-| POST /api/v1/system/common/sys-config/info/update | 更新系统配置信息 | 平台管理员 |
-| POST /api/v1/system/common/system/init | 初始化系统 | 所有用户 |
-| POST /api/v1/system/common/third/dept/get-list | 获取第三方部门列表 | 所有用户 |
-| POST /api/v1/system/common/third/dept/get-one | 获取第三方部门详情 | 所有用户 |
-| POST /api/v1/system/common/upload-file | 文件直传 | 所有用户 |
-| POST /api/v1/system/common/upload-url/create | 获取文件上传地址 | 所有用户 |
-| POST /api/v1/system/common/weather/get-one | 获取天气情况 | 所有用户 |
-| POST /api/v1/system/common/websocket/connect | websocket连接 | 所有用户 |
-| POST /api/v1/system/hook/capability/create | 新增Hook能力 | 平台管理员 |
-| POST /api/v1/system/hook/capability/delete | 删除Hook能力 | 平台管理员 |
-| POST /api/v1/system/hook/capability/get-list | 获取Hook能力列表 | 平台管理员 |
-| POST /api/v1/system/hook/capability/update | 更新Hook能力 | 平台管理员 |
-| POST /api/v1/system/hook/server/create | 新增Hook服务 | 平台管理员 |
-| POST /api/v1/system/hook/server/delete | 删除Hook服务 | 平台管理员 |
 
 ## 协议与登录页场景
 
@@ -281,37 +138,15 @@ metadata:
 ```
 
 从 `agreementsMap` 中按 code 读取协议内容。
-| POST /api/v1/system/hook/server/get-list | 获取Hook服务列表 | 平台管理员 |
-| POST /api/v1/system/hook/server/get-one | 获取Hook服务详情 | 平台管理员 |
-| POST /api/v1/system/hook/server/update | 更新Hook服务 | 平台管理员 |
-| POST /api/v1/system/license/info/batch-create | 批量创建授权码 | 平台管理员 |
-| POST /api/v1/system/license/info/create | 创建授权码 | 平台管理员 |
-| POST /api/v1/system/license/info/get-list | 授权码列表 | 管理员 |
-| POST /api/v1/system/license/info/get-one | 授权码详情 | 管理员 |
-| POST /api/v1/system/license/info/revoke | 撤销授权码 | 平台管理员 |
-| POST /api/v1/system/license/info/update | 更新授权码 | 平台管理员 |
-| POST /api/v1/system/license/info/use | 使用授权码 | 管理员 |
-| POST /api/v1/system/license/info/verify | 验证授权码 | 管理员 |
-| POST /api/v1/system/license/package/create | 创建套餐 | 平台管理员 |
-| POST /api/v1/system/license/package/delete | 删除套餐 | 平台管理员 |
-| POST /api/v1/system/license/package/get-list | 获取套餐列表 | 管理员 |
-| POST /api/v1/system/license/package/get-one | 获取套餐详情 | 管理员 |
-| POST /api/v1/system/license/package/update | 更新套餐 | 平台管理员 |
-| POST /api/v1/system/license/record/get-list | 授权记录列表 | 管理员 |
-| POST /api/v1/system/license/record/get-one | 授权记录详情 | 管理员 |
-| POST /api/v1/system/tenant/core/get-list | 搜索租户信息 | public |
-| POST /api/v1/system/tenant/core/get-one | 获取租户信息 | public |
-
-
 ## 典型业务场景
 
 ### 访问令牌管理
 
 **场景描述**：创建 API 访问令牌用于第三方集成
 
-**涉及 API**：
-- `/api/v1/system/user/self/access-token/create`
-- `/api/v1/system/user/self/access-token/get-list`
+**涉及 CLI**：
+- `ur user self access-token create`
+- `ur user self access-token get-list`
 
 **工作流**：
 1. 创建令牌获取 AccessKey/Secret
@@ -322,8 +157,8 @@ metadata:
 
 **场景描述**：连接 WebSocket 获取实时数据推送
 
-**涉及 API**：
-- `/api/v1/system/common/websocket/connect`
+**涉及 CLI**：
+- `ur system websocket connect`
 
 **工作流**：
 1. 携带 token 连接 WebSocket
@@ -335,9 +170,9 @@ metadata:
 
 **场景描述**：配置 Webhook 处理平台事件
 
-**涉及 API**：
-- `/api/v1/system/hook/capability/create`
-- `/api/v1/system/hook/server/create`
+**涉及 CLI**：
+- `ur hook capability create`
+- `ur hook server create`
 
 **工作流**：
 1. 创建 Hook 能力
@@ -350,7 +185,7 @@ metadata:
 ### 批量聚合接口
 
 ```bash
-ur api /api/v1/system/common/api/batch-agg \
+ur system batch-agg \
   --body '{"apis":[{"path":"/api/v1/system/user/self/get-one","body":{}}]}'
 ```
 

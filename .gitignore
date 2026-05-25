@@ -16,3 +16,7 @@ bin/
 # OS
 .DS_Store
 Thumbs.db
+
+# Build artifacts
+ur
+generate

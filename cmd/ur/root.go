@@ -6,12 +6,11 @@ import (
 	"io"
 	"os"
 
-	"gitee.com/unitedrhino/cli/cmd/shared"
+	"gitee.com/unitedrhino/cli/cmd"
 	"gitee.com/unitedrhino/cli/internal/config"
 )
 
-// Execute 是统一 CLI 入口，支持通过 --app 参数或 UR_APP 环境变量切换应用上下文。
-// 优先级：--app 参数 > UR_APP 环境变量 > 默认 org-manage
+// Execute 是 ur 二进制入口
 func Execute(ctx context.Context, version string, args []string, stdout, stderr io.Writer) int {
 	// 再次检查 --version（处理 ur --app iot --version 场景）
 	for _, arg := range args {
@@ -20,13 +19,11 @@ func Execute(ctx context.Context, version string, args []string, stdout, stderr 
 			return 0
 		}
 	}
+
 	app, filtered := resolveApp(args)
-	return shared.Execute(app, ctx, version, filtered, stdout, stderr)
+	return cmd.Execute(app, version, filtered, stdout, stderr)
 }
 
-// resolveApp 解析应用上下文并过滤掉 --app 参数。
-// 先查 --app 参数，再查 UR_APP 环境变量，默认 org-manage。
-// 解析成功后，将 appID 和默认 tenantCode 写入环境变量，确保后续 API 请求携带正确的 header。
 func resolveApp(args []string) (config.CLIApp, []string) {
 	filtered := make([]string, 0, len(args))
 	var app config.CLIApp
@@ -50,14 +47,5 @@ func resolveApp(args []string) (config.CLIApp, []string) {
 	if app == "" {
 		app = config.AppOrgManage
 	}
-
-	// 将 app 对应的 appID 和 tenantCode 注入环境变量，供 client.DoAPI 读取
-	if appID := app.AppID(); appID != "" {
-		os.Setenv("UR_APP_ID", appID)
-	}
-	if tc := app.DefaultTenantCode(); tc != "" {
-		os.Setenv("UR_TENANT_CODE", tc)
-	}
-
 	return app, filtered
 }

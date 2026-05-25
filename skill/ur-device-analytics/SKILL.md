@@ -32,8 +32,7 @@ metadata:
 查询某产品下定义的所有属性、事件、行为：
 
 ```bash
-ur api /api/v1/things/product/schema/get-list \
-  --body '{"productID":"xxx"}'
+ur things schema get-list -p xxx
 ```
 
 响应中的 `identifier` 字段即为数据查询时使用的 `dataID`。
@@ -43,8 +42,7 @@ ur api /api/v1/things/product/schema/get-list \
 查询具体设备的物模型（含设备级覆盖）：
 
 ```bash
-ur api /api/v1/things/device/schema/get-list \
-  --body '{"productID":"xxx","deviceName":"yyy"}'
+ur things schema get-list -p xxx -d yyy
 ```
 
 ### 物模型响应关键字段
@@ -57,116 +55,15 @@ ur api /api/v1/things/device/schema/get-list \
 | `define.type` | 数据类型：bool/int/float/string/enum/struct/array/timestamp |
 | `define.unit` | 单位（如 `kW·h`、`℃`、`%`） |
 
-## 数据查询 API
+## CLI 命令参考
 
-<!-- API_LIST:ur-device-analytics -->
+| 功能组 | 说明 | 参考文档 |
+|--------|------|---------|
+| 聚合查询 | 设备属性聚合（avg/max/min/sum等） | [cli/agg.md](references/analytics-agg.md) |
+| 属性历史 | 查询属性历史（底层也走这个） | 见 `ur-device-debug/cli/device-log.md` |
 
-| 方法 | 端点 | 说明 | 权限 |
-|------|------|------|------|
-| POST | `/api/v1/things/device/msg/abnormal-log/get-list` | 获取设备异常日志 | admin |
-| POST | `/api/v1/things/device/msg/event-log/get-list` | 获取事件历史记录 | admin |
-| POST | `/api/v1/things/device/msg/gateway-can-bind/get-list` | 获取网关可以绑定的子设备列表 | admin |
-| POST | `/api/v1/things/device/msg/hub-log/get-list` | 获取云端诊断日志 | admin |
-| POST | `/api/v1/things/device/msg/property-agg/by-device/get-list` | 弃用 | admin |
-| POST | `/api/v1/things/device/msg/property-agg/get-list` | 弃用 | admin |
-| POST | `/api/v1/things/device/msg/property-latest-agg/get-list` | 聚合属性最新值 | admin |
-| POST | `/api/v1/things/device/msg/property-latest/get-list` | 获取最新属性记录 | admin |
-| POST | `/api/v1/things/device/msg/property-log-agg/by-device/get-list` | 聚合属性历史记录,设备维度 | admin |
-| POST | `/api/v1/things/device/msg/property-log-agg/get-list` | 聚合属性历史记录 | admin |
-| POST | `/api/v1/things/device/msg/property-log-latest/get-list` | 弃用 | admin |
-| POST | `/api/v1/things/device/msg/property-log/batch-get-list` | 批量获取单个id属性历史记录 | admin |
-| POST | `/api/v1/things/device/msg/property-log/get-list` | 获取单个id属性历史记录 | admin |
-| POST | `/api/v1/things/device/msg/sdk-log/get-list` | 获取设备sdk日志 | admin |
-| POST | `/api/v1/things/device/msg/send-log/get-list` | 获取设备命令日志 | admin |
-| POST | `/api/v1/things/device/msg/shadow/get-list` | 获取设备影子列表 | admin |
-| POST | `/api/v1/things/device/msg/status-log/get-list` | 获取设备状态日志 | admin |
-
-<!-- END_API_LIST -->
-
-### API 1：单属性历史查询
-
-```bash
-ur api /api/v1/things/device/msg/property-log/get-list \
-  --body '{
-    "productID": "xxx",
-    "deviceName": "yyy",
-    "dataID": "Temperature",
-    "timeStart": "1715500800000",
-    "timeEnd": "1715587199999",
-    "interval": 1,
-    "intervalUnit": "h",
-    "argFunc": "avg",
-    "fill": "LINEAR"
-  }'
-```
-
-### API 2：批量属性历史查询
-
-同时查询多个属性或多个时间段：
-
-```bash
-ur api /api/v1/things/device/msg/property-log/batch-get-list \
-  --body '{
-    "reqs": [
-      {
-        "productID": "xxx", "deviceName": "yyy",
-        "dataID": "TotalEnergyChange",
-        "timeStart": "1715500800000", "timeEnd": "1715587199999",
-        "interval": 1, "intervalUnit": "h", "argFunc": "sum"
-      },
-      {
-        "productID": "xxx", "deviceName": "yyy",
-        "dataID": "P",
-        "timeStart": "1715500800000", "timeEnd": "1715587199999",
-        "interval": 1, "intervalUnit": "h", "argFunc": "avg"
-      }
-    ]
-  }'
-```
-
-响应格式：
-```json
-{
-  "code": 200,
-  "data": {
-    "lists": [
-      [{"timestamp": 1715500800000, "value": "12.5", "dataID": "TotalEnergyChange"}],
-      [{"timestamp": 1715500800000, "value": "3.2", "dataID": "P"}]
-    ]
-  }
-}
-```
-
-### API 3：聚合查询（多指标）
-
-同时查询多个属性，支持不同聚合函数：
-
-```bash
-ur api /api/v1/things/device/msg/property-log-agg/get-list \
-  --body '{
-    "productID": "xxx",
-    "deviceName": "yyy",
-    "dataIDs": ["P", "TotalEnergyChange"],
-    "timeStart": "1715500800000",
-    "timeEnd": "1715587199999",
-    "interval": 1,
-    "intervalUnit": "h",
-    "argFunc": ["avg", "sum"]
-  }'
-```
-
-### API 4：最新值聚合查询
-
-获取多个属性的当前最新值：
-
-```bash
-ur api /api/v1/things/device/msg/property-latest-agg/get-list \
-  --body '{
-    "productID": "xxx",
-    "deviceName": "yyy",
-    "dataIDs": ["Temperature", "Humidity", "P"]
-  }'
-```
+> 说明：数据分析主要通过 `things agg` 和 `things device log property` 实现。
+> 完整命令帮助：`ur things help`
 
 ## 查询参数速查
 
@@ -259,29 +156,21 @@ ur api /api/v1/things/device/msg/property-latest-agg/get-list \
 
 ```bash
 # 1. 查询物模型，确认可用属性
-ur api /api/v1/things/product/schema/get-list \
-  --body '{"productID":"p_thermometer_01"}' \
-  --fields data.list
+ur things schema get-list -p p_thermometer_01
 
 # 2. 查询历史数据（以 Temperature 为例）
-ur api /api/v1/things/device/msg/property-log/get-list \
-  --body '{
-    "productID": "p_thermometer_01",
-    "deviceName": "room-101",
-    "dataID": "Temperature",
-    "timeStart": "1715500800000",
-    "timeEnd": "1715587199999",
-    "interval": 1,
-    "intervalUnit": "h",
-    "argFunc": "avg",
-    "fill": "LINEAR"
-  }'
+ur things device log property -p p_thermometer_01 -d room-101 \
+  --data-id Temperature \
+  --time-start 1715500800000 --time-end 1715587199999 \
+  --interval 1 --interval-unit h \
+  --arg-func avg --fill LINEAR
 ```
 
 ### 工作流 2：批量对比多个设备的能耗
 
 ```bash
 # 批量查询多个设备的 TotalEnergyChange
+# 注：batch-get-list 暂无 CLI 封装，需使用 ur api 直接调用
 ur api /api/v1/things/device/msg/property-log/batch-get-list \
   --body '{
     "reqs": [
@@ -296,6 +185,7 @@ ur api /api/v1/things/device/msg/property-log/batch-get-list \
 
 ```bash
 # 同时查询功率和能耗（不同聚合函数）
+# 注：property-log-agg 暂无 CLI 封装，需使用 ur api 直接调用
 ur api /api/v1/things/device/msg/property-log-agg/get-list \
   --body '{
     "productID": "p_meter_01",
@@ -357,7 +247,7 @@ ur api /api/v1/things/device/msg/property-log-agg/get-list \
 
 ## 注意事项
 
-1. **必须先查物模型**：不要假设任何设备有固定属性，始终先调用 schema API 确认
+1. **必须先查物模型**：不要假设任何设备有固定属性，始终先查询物模型确认
 2. **时间戳为毫秒**：`timeStart` / `timeEnd` 是 Unix 毫秒时间戳
 3. **value 为字符串**：响应中 `value` 字段是字符串类型，需根据物模型 `define.type` 转换
 4. **品类过滤**：能源管理页面统一过滤 `productCategoryCode: dianbiao`，通用分析可不传

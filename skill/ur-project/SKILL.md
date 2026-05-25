@@ -32,105 +32,10 @@ metadata:
 | 项目管理 | 项目查询/创建/更新/删除 | [project-info.md](references/project-info.md) |
 | 项目配置 | 项目配置查询/更新 | [project-profile.md](references/project-profile.md) |
 | 项目分组 | 分组查询/创建/删除，设备批量添加 | [project-group.md](references/project-group.md) |
-| 区域管理 | 区域查询/创建/更新/删除 | [area.md](references/area.md) |
-| 区域配置 | 区域配置查询/更新 | [area.md](references/area.md) |
+| 区域管理 | 区域查询/创建/更新/删除 | [area.md](references/project-area.md) |
+| 区域配置 | 区域配置查询/更新 | [area.md](references/project-area.md) |
 
 > 完整命令帮助：`ur things project help`
-
-## API 参考
-
-<!-- API_LIST:ur-project -->
-
-| 方法 | 端点 | 说明 | 权限 |
-|------|------|------|------|
-| POST | `/api/v1/things/area/info/create` | 新增项目区域 | admin |
-| POST | `/api/v1/things/area/info/delete` | 删除项目区域 | admin |
-| POST | `/api/v1/things/area/info/get-list` | 获取项目区域列表 | all |
-| POST | `/api/v1/things/area/info/get-one` | 获取项目区域详情 | all |
-| POST | `/api/v1/things/area/info/update` | 更新项目区域 | admin |
-| POST | `/api/v1/things/area/profile/get-list` | 获取区域配置列表 | admin |
-| POST | `/api/v1/things/area/profile/get-one` | 获取区域配置详情 | admin |
-| POST | `/api/v1/things/area/profile/update` | 更新区域配置 | admin |
-| POST | `/api/v1/things/data/area/batch-delete` | 删除授权区域权限 | admin |
-| POST | `/api/v1/things/data/area/batch-update` | 更新授权区域权限 | admin |
-| POST | `/api/v1/things/data/area/get-list` | 获取区域权限列表 | admin |
-| POST | `/api/v1/things/data/area/user/apply/deal` | 授权区域权限 | admin |
-| POST | `/api/v1/things/data/area/user/apply/get-list` | 获取区域权限列表 | admin |
-| POST | `/api/v1/things/data/project/batch-create` | 批量创建授权项目权限 | admin |
-| POST | `/api/v1/things/data/project/batch-delete` | 批量删除授权项目权限 | admin |
-| POST | `/api/v1/things/data/project/create` | 创建授权项目权限 | admin |
-| POST | `/api/v1/things/data/project/delete` | 删除授权项目权限 | admin |
-| POST | `/api/v1/things/data/project/get-list` | 获取项目权限列表 | admin |
-| POST | `/api/v1/things/group/device/batch-create` | 添加分组设备 | admin |
-| POST | `/api/v1/things/group/device/batch-delete` | 删除分组设备 | admin |
-| POST | `/api/v1/things/group/device/batch-update` | 更新分组设备 | admin |
-| POST | `/api/v1/things/group/info/create` | 创建分组 | admin |
-| POST | `/api/v1/things/group/info/delete` | 删除分组 | admin |
-| POST | `/api/v1/things/group/info/get-list` | 获取分组列表 | admin |
-| POST | `/api/v1/things/group/info/get-one` | 获取分组详情信息 | admin |
-| POST | `/api/v1/things/group/info/update` | 更新分组信息 | admin |
-| POST | `/api/v1/things/project/crud/create` | 新增项目crud | admin |
-| POST | `/api/v1/things/project/crud/delete` | 删除项目crud | admin |
-| POST | `/api/v1/things/project/crud/get-list` | 获取项目crud列表 | admin |
-| POST | `/api/v1/things/project/crud/get-one` | 获取项目crud详情 | admin |
-| POST | `/api/v1/things/project/crud/update` | 更新项目crud | admin |
-| POST | `/api/v1/things/project/info/create` | 新增项目 | admin |
-| POST | `/api/v1/things/project/info/delete` | 删除项目 | admin |
-| POST | `/api/v1/things/project/info/get-list` | 获取项目列表 | all |
-| POST | `/api/v1/things/project/info/get-one` | 获取项目详情 | all |
-| POST | `/api/v1/things/project/info/update` | 更新项目 | admin |
-| POST | `/api/v1/things/project/profile/get-list` | 获取项目配置列表 | admin |
-| POST | `/api/v1/things/project/profile/get-one` | 获取项目配置详情 | admin |
-| POST | `/api/v1/things/project/profile/update` | 更新项目配置 | admin |
-
-<!-- END_API_LIST -->
-
-权限: 管理员
-
-| 端点 | 说明 | 权限 |
-|---|------|------|
-| POST /api/v1/things/area/info/create | 新增项目区域 | 管理员 |
-| POST /api/v1/things/area/info/delete | 删除项目区域 | 管理员 |
-| POST /api/v1/things/area/info/get-list | 获取项目区域列表 | 所有用户 |
-| POST /api/v1/things/area/info/get-one | 获取项目区域详情 | 所有用户 |
-| POST /api/v1/things/area/info/update | 更新项目区域 | 管理员 |
-| POST /api/v1/things/area/profile/get-list | 获取区域配置列表 | 管理员 |
-| POST /api/v1/things/area/profile/get-one | 获取区域配置详情 | 管理员 |
-| POST /api/v1/things/area/profile/update | 更新区域配置 | 管理员 |
-| POST /api/v1/things/data/area/batch-delete | 删除授权区域权限 | 管理员 |
-| POST /api/v1/things/data/area/batch-update | 更新授权区域权限 | 管理员 |
-| POST /api/v1/things/data/area/get-list | 获取区域权限列表 | 管理员 |
-| POST /api/v1/things/data/area/user/apply/deal | 授权区域权限 | 管理员 |
-| POST /api/v1/things/data/area/user/apply/get-list | 获取区域权限列表 | 管理员 |
-| POST /api/v1/things/data/project/batch-create | 批量创建授权项目权限 | 管理员 |
-| POST /api/v1/things/data/project/batch-delete | 批量删除授权项目权限 | 管理员 |
-| POST /api/v1/things/data/project/create | 创建授权项目权限 | 管理员 |
-| POST /api/v1/things/data/project/delete | 删除授权项目权限 | 管理员 |
-| POST /api/v1/things/data/project/get-list | 获取项目权限列表 | 管理员 |
-| POST /api/v1/things/group/device/batch-create | 添加分组设备 | 管理员 |
-| POST /api/v1/things/group/device/batch-delete | 删除分组设备 | 管理员 |
-| POST /api/v1/things/group/device/batch-update | 更新分组设备 | 管理员 |
-| POST /api/v1/things/group/info/create | 创建分组 | 管理员 |
-| POST /api/v1/things/group/info/delete | 删除分组 | 管理员 |
-| POST /api/v1/things/group/info/get-list | 获取分组列表 | 管理员 |
-| POST /api/v1/things/group/info/get-one | 获取分组详情信息 | 管理员 |
-| POST /api/v1/things/group/info/update | 更新分组信息 | 管理员 |
-| POST /api/v1/things/hook/ | Hook扩展统一入口 | public |
-| POST /api/v1/things/project/crud/create | 新增项目crud | 管理员 |
-| POST /api/v1/things/project/crud/delete | 删除项目crud | 管理员 |
-| POST /api/v1/things/project/crud/get-list | 获取项目crud列表 | 管理员 |
-| POST /api/v1/things/project/crud/get-one | 获取项目crud详情 | 管理员 |
-| POST /api/v1/things/project/crud/update | 更新项目crud | 管理员 |
-| POST /api/v1/things/project/info/create | 新增项目 | 管理员 |
-| POST /api/v1/things/project/info/delete | 删除项目 | 管理员 |
-| POST /api/v1/things/project/info/get-list | 获取项目列表 | 所有用户 |
-| POST /api/v1/things/project/info/get-one | 获取项目详情 | 所有用户 |
-| POST /api/v1/things/project/info/update | 更新项目 | 管理员 |
-| POST /api/v1/things/project/profile/get-list | 获取项目配置列表 | 管理员 |
-| POST /api/v1/things/project/profile/get-one | 获取项目配置详情 | 管理员 |
-| POST /api/v1/things/project/profile/update | 更新项目配置 | 管理员 |
-| POST /api/v1/things/user/area/apply/create | 申请用户区域权限 | 所有用户 |
-
 
 ## 典型业务场景
 
@@ -138,10 +43,10 @@ metadata:
 
 **场景描述**：创建项目 / 划分区域 / 分配设备
 
-**涉及 API**：
-- `/api/v1/things/project/crud/create`
-- `/api/v1/things/area/info/create`
-- `/api/v1/things/area/profile/update`
+**涉及 CLI**：
+- `ur things project info create`
+- `ur things area info create`
+- `ur things area info get-list`
 
 **工作流**：
 1. 创建项目
@@ -153,9 +58,9 @@ metadata:
 
 **场景描述**：创建分组 / 添加设备到分组（跨区域归类）
 
-**涉及 API**：
-- `/api/v1/things/group/info/create`
-- `/api/v1/things/group/device/batch-create`
+**涉及 CLI**：
+- `ur things group info create`
+- `ur things group info get-list`
 
 **工作流**：
 1. 创建分组
@@ -166,10 +71,10 @@ metadata:
 
 **场景描述**：申请区域权限 / 审批申请 / 权限等级：AuthAdmin(1)/AuthReadWrite(2)/AuthRead(3)
 
-**涉及 API**：
-- `/api/v1/things/user/area/apply/create`
-- `/api/v1/things/data/area/user/apply/deal`
-- `/api/v1/things/data/area/user/get-list`
+**涉及 CLI**：
+- `ur things device info get-list`（查看设备数据权限）
+- `ur things project info get-list`（查看项目列表）
+- `ur things area info get-list`（查看区域列表）
 
 **工作流**：
 1. 用户提交区域权限申请
@@ -184,8 +89,7 @@ metadata:
 ### 查询项目列表
 
 ```bash
-ur api /api/v1/things/project/crud/get-list \
-  --body '{"page":{"page":1,"size":10}}'
+ur things project info get-list
 ```
 
 

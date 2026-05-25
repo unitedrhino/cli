@@ -17,9 +17,9 @@ description: "Use when generating, validating, or troubleshooting 联犀 IoT sce
 6. **校验**：使用校验脚本验证 JSON 合法性
 7. **输出**：返回校验通过的场景联动 JSON
 
-## 重要说明：API 中的字符串 JSON 字段
+## 重要说明：CLI 中的字符串 JSON 字段
 
-后端 API 接口（如 `scene-info.ts`）中 `if`/`when`/`then` 字段类型为 `string`，但这些字符串内部是**JSON 序列化后的对象**。实际构造和解析时按以下结构处理：
+使用 CLI 命令（如 `ur things scene info create`）时，`if`/`when`/`then` 字段在 `--body` 参数中作为**JSON 序列化后的字符串**传入。实际构造和解析时按以下结构处理：
 
 ```json
 {
@@ -31,7 +31,7 @@ description: "Use when generating, validating, or troubleshooting 联犀 IoT sce
 }
 ```
 
-**AI 生成时应输出结构化的 JSON 对象，由调用方自行 `JSON.stringify` 后填入 API 字段。**
+**AI 生成时应输出结构化的 JSON 对象，由调用方自行 `JSON.stringify` 后填入 CLI 的 `--body` 参数。**
 
 ## Info（场景顶层结构）
 
@@ -437,19 +437,16 @@ description: "Use when generating, validating, or troubleshooting 联犀 IoT sce
 | CmpType | `eq`, `not`, `btw`, `gt`, `gte`, `lt`, `lte`, `in`, `all` |
 | StateKeepType | `duration`, `repeat` |
 
-<!-- API_LIST:scene-linkage -->
+## CLI 命令参考
 
-| 方法 | 端点 | 说明 | 权限 |
-|------|------|------|------|
-| POST | `/api/v1/things/scene/info/create` | 新增场景 | admin |
-| POST | `/api/v1/things/scene/info/delete` | 删除场景 | admin |
-| POST | `/api/v1/things/scene/info/get-list` | 获取场景信息列表 | admin |
-| POST | `/api/v1/things/scene/info/get-one` | 获取场景信息详情 | admin |
-| POST | `/api/v1/things/scene/info/manually-trigger` | 手动触发场景 | admin |
-| POST | `/api/v1/things/scene/info/update` | 更新场景 | admin |
-| POST | `/api/v1/things/scene/log/get-list` | 获取场景日志列表 | admin |
+| 功能组 | 说明 | 参考文档 |
+|--------|------|---------|
+| `ur things scene info` | 场景查询/创建/更新/删除/触发 | [scene.md](references/scene.md) |
+| `ur things scene log` | 场景执行日志查询 | [scene.md](references/scene.md) |
+| `ur scene validate` | 场景JSON校验 | [scene.md](references/scene.md) |
+| `ur scene template` | 场景模板生成 | [scene.md](references/scene.md) |
 
-<!-- END_API_LIST -->
+> 完整命令帮助：`ur things scene help`、`ur scene help`
 
 ## 实战案例
 
@@ -841,7 +838,7 @@ ur scene template manual   # 生成手动触发场景模板
 
 | 文件 | 用途 |
 |------|------|
-| `apps/web/packages/api/src/things-api/models/scene-info.ts` | API 接口 SceneInfo 定义 |
+| `apps/web/packages/api/src/things-api/models/scene-info.ts` | SceneInfo 模型定义 |
 
 ## 常见错误排查
 

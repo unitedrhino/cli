@@ -60,7 +60,8 @@ ur ai-tool run --id 5 --inputs '{"timeRange":"24h","line":"Line 01"}'
 ### 新建工具
 
 ```bash
-# 1. 通过 API 创建工具（草稿）
+# 1. 创建工具（草稿）
+# 注：create 暂无 CLI 封装，需使用 ur api 直接调用
 ur api /api/v1/ai/tool/create \
   --body '{"agentGroupID":"1","code":"oee-analysis","name":"OEE分析"}'
 
@@ -74,6 +75,7 @@ ur ai-tool validate --id <new_id>
 ur ai-tool run --id <new_id> --inputs '{"timeRange":"24h"}'
 
 # 5. 发布
+# 注：publish 暂无 CLI 封装，需使用 ur api 直接调用
 ur api /api/v1/ai/tool/publish --body '{"id":"<id>"}'
 ```
 
@@ -160,25 +162,14 @@ ur ai-tool run --id 5 --inputs '{}'
 - `{{obj.key}}` — 从 state 读取嵌套字段（暂未实现）
 - 变量在 executor.js 中通过 `runtime.set("varName", value)` 写入
 
-## API 索引
+## CLI 命令缺口
 
-<!-- API_LIST:ai-tool -->
+以下操作暂无对应的 CLI 命令，仍需使用 `ur api` 直接调用：
 
-| 方法 | 端点 | 说明 | 权限 |
-|------|------|------|------|
-| POST | `/api/v1/ai/tool/get-list` | 获取工具列表 | admin |
-| POST | `/api/v1/ai/tool/get-one` | 获取工具详情（含三件套）| admin |
-| POST | `/api/v1/ai/tool/create` | 创建工具 | admin |
-| POST | `/api/v1/ai/tool/update` | 更新工具 | admin |
-| POST | `/api/v1/ai/tool/delete` | 删除工具 | admin |
-| POST | `/api/v1/ai/tool/publish` | 发布工具 | admin |
-| POST | `/api/v1/ai/tool/disable` | 停用工具 | admin |
-| POST | `/api/v1/ai/tool/save-artifact` | 保存三件套 | admin |
-| POST | `/api/v1/ai/tool/run` | 运行工具 | admin |
-| POST | `/api/v1/ai/tool/run-status` | 查询运行状态 | admin |
-| POST | `/api/v1/ai/tool/run-history` | 运行历史 | admin |
-
-<!-- END_API_LIST -->
+| API | 说明 |
+|-----|------|
+| `/api/v1/ai/tool/create` | 创建工具 |
+| `/api/v1/ai/tool/publish` | 发布工具 |
 
 ## 注意事项
 
@@ -187,4 +178,4 @@ ur ai-tool run --id 5 --inputs '{}'
 - executor.js 禁止使用 eval、Function、require
 - 组件标签使用 kebab-case，属性使用双引号
 - 校验命令本地执行，不消耗平台资源
-- AI 编辑通过 `/api/v1/ai/chat/completions` 实现
+- AI 编辑通过 LLM 接口实现

@@ -103,6 +103,17 @@ metadata:
 - 工作流: 构造批量请求体 → 一次请求获取多个接口数据
 
 
+## CLI 命令参考
+
+| 功能组 | 说明 | 参考文档 |
+|--------|------|---------|
+| 文件上传 | 上传文件到 OSS | [system-upload.md](references/system-upload.md) |
+| 批量聚合 | 批量聚合接口调用 | [system-batch-agg.md](references/system-batch-agg.md) |
+
+另有 `ur user`、`ur dept`、`ur alarm` 等根命令也归属系统管理范畴，详见对应 Skill。
+
+> 完整命令帮助：`ur system help`
+
 ## API 参考
 
 <!-- API_LIST:ur-system -->

@@ -97,6 +97,16 @@ metadata:
 - 工作流: 查看可用应用列表 → 启用应用 → 配置应用菜单
 
 
+## CLI 命令参考
+
+| 功能组 | 说明 | 参考文档 |
+|--------|------|---------|
+| 租户用户管理 | 查询/创建/更新/删除租户用户 | [tenant-user.md](references/tenant-user.md) |
+| 邀请管理 | 邀请用户/发送邀请/邀请码/待处理邀请 | [tenant-invite.md](references/tenant-invite.md) |
+| 角色管理 | 查询/批量更新用户角色 | [tenant-role.md](references/tenant-role.md) |
+
+> 完整命令帮助：`ur tenant help`
+
 ## API 参考
 
 <!-- API_LIST:ur-tenant -->

@@ -25,6 +25,20 @@ metadata:
 | **OTA** | 固件升级管理，支持差分/全量升级，进度码1-100/-1~-4 |
 | **三元组** | ProductID + DeviceName + DeviceSecret，设备身份凭证 |
 
+## CLI 命令参考
+
+| 功能组 | 说明 | 参考文档 |
+|--------|------|---------|
+| 物模型管理 | 查询/创建/更新/删除物模型，TSL导入/读取，API浏览 | [schema.md](references/schema.md) |
+| OTA固件管理 | 固件查询/创建/更新/删除 | [ota.md](references/ota.md) |
+| OTA任务管理 | OTA升级任务查询/创建/更新 | [ota.md](references/ota.md) |
+| OTA模块管理 | 模块查询/创建/更新/删除 | [ota.md](references/ota.md) |
+| 物模型模板 | 模板生成/结构验证/脚本生成 | [model.md](references/model.md) |
+| 协议脚本 | 脚本验证/模板生成 | [script.md](references/script.md) |
+| 聚合查询 | 设备属性聚合值查询 | [agg.md](references/agg.md) |
+
+> 完整命令帮助：`ur things help`
+
 ## API 参考
 
 <!-- API_LIST:ur-product -->

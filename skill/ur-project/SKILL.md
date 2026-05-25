@@ -25,6 +25,18 @@ metadata:
 | **AuthType等级** | 1=管理权限（可授权），2=读写权限，3=只读权限，4=区域管理员 |
 | **权限继承规则** | 用户必须先有项目权限才能申请区域权限，区域权限不能超过项目权限等级 |
 
+## CLI 命令参考
+
+| 功能组 | 说明 | 参考文档 |
+|--------|------|---------|
+| 项目管理 | 项目查询/创建/更新/删除 | [project-info.md](references/project-info.md) |
+| 项目配置 | 项目配置查询/更新 | [project-profile.md](references/project-profile.md) |
+| 项目分组 | 分组查询/创建/删除，设备批量添加 | [project-group.md](references/project-group.md) |
+| 区域管理 | 区域查询/创建/更新/删除 | [area.md](references/area.md) |
+| 区域配置 | 区域配置查询/更新 | [area.md](references/area.md) |
+
+> 完整命令帮助：`ur things project help`
+
 ## API 参考
 
 <!-- API_LIST:ur-project -->

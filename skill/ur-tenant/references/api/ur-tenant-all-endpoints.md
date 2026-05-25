@@ -1,0 +1,42 @@
+# 全部端点速查
+
+| 方法 | 端点 | 说明 | 权限 |
+|------|------|------|------|
+| POST | `/api/v1/system/tenant/agreement/create` | 添加协议 | admin |
+| POST | `/api/v1/system/tenant/agreement/delete` | 删除协议 | admin |
+| POST | `/api/v1/system/tenant/agreement/get-list` | 获取协议列表 | admin |
+| POST | `/api/v1/system/tenant/agreement/get-one` | 获取协议详情 | public |
+| POST | `/api/v1/system/tenant/agreement/update` | 更新协议 | admin |
+| POST | `/api/v1/system/tenant/app/create` | 绑定租户应用 | all |
+| POST | `/api/v1/system/tenant/app/delete` | 解绑租户应用 | platform |
+| POST | `/api/v1/system/tenant/app/get-list` | 获取租户应用列表 | admin |
+| POST | `/api/v1/system/tenant/app/get-one` | 获取应用信息 | platform |
+| POST | `/api/v1/system/tenant/app/update` | 更新租户应用 | platform |
+| POST | `/api/v1/system/tenant/app/menu/get-list` | 获取租户应用菜单列表 | admin |
+| POST | `/api/v1/system/tenant/app/menu/update` | 更新租户应用菜单 | admin |
+| POST | `/api/v1/system/tenant/config/get-one` | 获取租户配置 | admin |
+| POST | `/api/v1/system/tenant/config/update` | 更新租户配置 | admin |
+| POST | `/api/v1/system/tenant/core/get-list` | 搜索租户信息 | public |
+| POST | `/api/v1/system/tenant/core/get-one` | 获取租户信息 | public |
+| POST | `/api/v1/system/tenant/info/create` | 添加租户 | all |
+| POST | `/api/v1/system/tenant/info/delete` | 删除租户 | platform |
+| POST | `/api/v1/system/tenant/info/get-list` | 获取租户列表 | platform |
+| POST | `/api/v1/system/tenant/info/get-one` | 获取租户详情 | admin |
+| POST | `/api/v1/system/tenant/info/transfer` | 转让租户（仅租户所有者） | admin |
+| POST | `/api/v1/system/tenant/info/update` | 更新租户 | admin |
+| POST | `/api/v1/system/tenant/renewal/direct-grant` | 直接授权 | platform |
+| POST | `/api/v1/system/tenant/renewal/get-list` | 获取续期列表 | admin |
+| POST | `/api/v1/system/tenant/renewal/renew` | 续费 | admin |
+| POST | `/api/v1/system/tenant/user/batch-create` | 批量添加用户加入租户 | admin |
+| POST | `/api/v1/system/tenant/user/delete` | 删除租户用户 | admin |
+| POST | `/api/v1/system/tenant/user/get-list` | 获取租户用户列表 | admin |
+| POST | `/api/v1/system/tenant/user/get-one` | 获取租户用户详情,会同时返回所拥有的角色列表 | admin |
+| POST | `/api/v1/system/tenant/user/invite` | 邀请用户加入租户 | admin |
+| POST | `/api/v1/system/tenant/user/invite-code/gen` | 生成租户用户邀请码 | admin |
+| POST | `/api/v1/system/tenant/user/invite-code/get-one` | 获取当前有效的租户用户邀请码 | admin |
+| POST | `/api/v1/system/tenant/user/invite-pending/delete` | 删除待处理邀请 | admin |
+| POST | `/api/v1/system/tenant/user/invite-pending/get-list` | 获取待处理邀请列表 | admin |
+| POST | `/api/v1/system/tenant/user/invite-send` | 发送邀请（支持邮件和手机号） | admin |
+| POST | `/api/v1/system/tenant/user/update` | 更新租户用户 | admin |
+| POST | `/api/v1/system/tenant/user/role/batch-update` | 更新租户用户的角色列表 | admin |
+| POST | `/api/v1/system/tenant/user/role/get-list` | 获取租户用户角色列表 | admin |

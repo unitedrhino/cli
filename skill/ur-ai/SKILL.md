@@ -30,6 +30,19 @@ metadata:
 | **场景** | 自动化场景，触发器+条件+动作 |
 | **Agent-设备绑定** | 产品defaultAgentID→设备绑定Agent→自动创建Clone |
 
+## CLI 命令参考
+
+| 功能组 | 说明 | 参考文档 |
+|--------|------|---------|
+| 告警规则 | 告警规则查询/创建/更新/删除 | [alarm-info.md](references/alarm-info.md) |
+| 告警记录 | 告警记录查询/处理 | [alarm-record.md](references/alarm-record.md) |
+| 告警场景 | 告警场景查询/批量创建/删除 | [alarm-scene.md](references/alarm-scene.md) |
+| 场景联动 | 场景查询/创建/更新/删除/触发 | [scene.md](references/scene.md) |
+| 场景日志 | 场景执行日志查询 | [scene.md](references/scene.md) |
+| 场景模板 | 场景JSON校验/模板生成 | [scene.md](references/scene.md) |
+
+> 完整命令帮助：`ur alarm help`、`ur scene help`
+
 ## API 参考
 
 <!-- API_LIST:ur-ai -->

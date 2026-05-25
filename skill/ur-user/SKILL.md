@@ -107,6 +107,23 @@ metadata:
 - 工作流: 创建令牌获取 AccessKey/Secret → 使用令牌调用 API
 
 
+## CLI 命令参考
+
+| 功能组 | 说明 | 参考文档 |
+|--------|------|---------|
+| 用户管理 | 查询/创建/更新/删除用户 | [user-info.md](references/user-info.md) |
+| 个人中心 | 登录/注册/信息/密码 | [user-self.md](references/user-self.md) |
+| 访问令牌 | 查询/创建/更新/删除访问令牌 | [user-access-token.md](references/user-access-token.md) |
+| 租户管理 | 查询/更新/删除/加入租户 | [user-tenant.md](references/user-tenant.md) |
+| 应用与菜单 | 查询应用列表/详情、查询菜单列表 | [user-app-menu.md](references/user-app-menu.md) |
+| 消息管理 | 查询/处理/标记消息 | [user-message.md](references/user-message.md) |
+| 通知偏好 | 读取/更新通知偏好 | [user-notify.md](references/user-notify.md) |
+| CLI 绑定 | 检查/完成 CLI 绑定 | [user-openclaw.md](references/user-openclaw.md) |
+| 部门用户管理 | 批量创建/删除部门用户 | [user-dept.md](references/user-dept.md) |
+| 数据权限 | 查询项目/区域权限列表 | [user-data.md](references/user-data.md) |
+
+> 完整命令帮助：`ur user help`
+
 ## API 参考
 
 <!-- API_LIST:ur-user -->

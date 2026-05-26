@@ -63,11 +63,16 @@ func resolveAppAndInject(defaultApp config.CLIApp) {
 			app = parsed
 		}
 	}
+	// 仅在环境变量未设置时注入默认值，避免覆盖 sandbox 等外部注入的配置
 	if appID := app.AppID(); appID != "" {
-		os.Setenv("UR_APP_ID", appID)
+		if os.Getenv("UR_APP_ID") == "" {
+			os.Setenv("UR_APP_ID", appID)
+		}
 	}
 	if tc := app.DefaultTenantCode(); tc != "" {
-		os.Setenv("UR_TENANT_CODE", tc)
+		if os.Getenv("UR_TENANT_CODE") == "" {
+			os.Setenv("UR_TENANT_CODE", tc)
+		}
 	}
 }
 

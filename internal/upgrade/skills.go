@@ -50,10 +50,6 @@ func FindSkillsDir(binaryPath string) string {
 			return dir
 		}
 	}
-	// Docker 镜像中的标准路径
-	if fi, err := os.Stat("/opt/skills-store"); err == nil && fi.IsDir() {
-		return "/opt/skills-store"
-	}
 	return ""
 }
 

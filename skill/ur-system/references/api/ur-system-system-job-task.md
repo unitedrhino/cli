@@ -144,9 +144,8 @@ ur api /api/v1/system/job/task/group/delete \
 |------|------|------|------|
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 1:启用 2:禁用 (格式: int64) |
 
 **请求示例**:
@@ -154,14 +153,8 @@ ur api /api/v1/system/job/task/group/delete \
 {
   "name": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1
 }
@@ -193,7 +186,7 @@ ur api /api/v1/system/job/task/group/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/group/get-list \
-  --body '{"name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1}'
+  --body '{"name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/group/get-one`
@@ -379,12 +372,12 @@ ur api /api/v1/system/job/task/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -399,7 +392,7 @@ ur api /api/v1/system/job/task/info/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/info/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/info/get-list`
@@ -415,9 +408,8 @@ ur api /api/v1/system/job/task/info/delete \
 | `groupCode` | string | 是 |  关联分组编码 |
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  按状态过滤 (格式: int64) |
 | `type` | integer | 否 |  按类型过滤 1:定时 2:延时 (格式: int64) |
 
@@ -427,14 +419,8 @@ ur api /api/v1/system/job/task/info/delete \
   "groupCode": "string",
   "name": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "type": 1
@@ -480,7 +466,7 @@ ur api /api/v1/system/job/task/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/info/get-list \
-  --body '{"groupCode": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "type": 1}'
+  --body '{"groupCode": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1, "type": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/info/get-one`
@@ -493,12 +479,12 @@ ur api /api/v1/system/job/task/info/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -534,7 +520,7 @@ ur api /api/v1/system/job/task/info/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/info/get-one \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/info/start`
@@ -547,12 +533,12 @@ ur api /api/v1/system/job/task/info/get-one \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -567,7 +553,7 @@ ur api /api/v1/system/job/task/info/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/info/start \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/info/stop`
@@ -580,12 +566,12 @@ ur api /api/v1/system/job/task/info/start \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -600,7 +586,7 @@ ur api /api/v1/system/job/task/info/start \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/info/stop \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/info/update`

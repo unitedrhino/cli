@@ -639,9 +639,8 @@ ur api /api/v1/system/user/self/menu/get-list \
 | `isRead` | integer | 否 | 是否已读 1:已读 2:未读 (格式: int64) |
 | `notifyCode` | string | 否 | 通知编码 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `str1` | string | 否 |  |
 | `str2` | string | 否 |  |
 | `str3` | string | 否 |  |
@@ -656,14 +655,8 @@ ur api /api/v1/system/user/self/menu/get-list \
   "isRead": 1,
   "notifyCode": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "str1": "string",
   "str2": "string",
@@ -728,7 +721,7 @@ ur api /api/v1/system/user/self/menu/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/self/message/get-list \
-  --body '{"createdTime": "2026-01-01T00:00:00Z", "group": "string", "isHandled": 1, "isRead": 1, "notifyCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "str1": "string", "str2": "string", "str3": "string", "type": "string"}'
+  --body '{"createdTime": "2026-01-01T00:00:00Z", "group": "string", "isHandled": 1, "isRead": 1, "notifyCode": "string", "page": {"page": 1, "pageSize": 1}, "str1": "string", "str2": "string", "str3": "string", "type": "string"}'
 ```
 
 ### POST `/api/v1/system/user/self/message/get-pending`
@@ -742,22 +735,15 @@ ur api /api/v1/system/user/self/message/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   }
 }
 ```
@@ -818,7 +804,7 @@ ur api /api/v1/system/user/self/message/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/self/message/get-pending \
-  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
+  --body '{"page": {"page": 1, "pageSize": 1}}'
 ```
 
 ### POST `/api/v1/system/user/self/message/handle`
@@ -831,12 +817,12 @@ ur api /api/v1/system/user/self/message/get-pending \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -851,7 +837,7 @@ ur api /api/v1/system/user/self/message/get-pending \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/self/message/handle \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/user/self/message/mark-all-read`

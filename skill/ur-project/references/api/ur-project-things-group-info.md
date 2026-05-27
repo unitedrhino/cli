@@ -122,7 +122,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -144,12 +144,12 @@ ur api /api/v1/things/group/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -164,7 +164,7 @@ ur api /api/v1/things/group/info/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/info/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/things/group/info/get-list`
@@ -180,9 +180,8 @@ ur api /api/v1/things/group/info/delete \
 | `areaID` | string | 否 | 区域ID |
 | `name` | string | 否 | 分组名称 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父组ID |
 | `productID` | string | 否 | 产品ID |
 | `purpose` | string | 否 | 用途 不填默认为default |
@@ -194,14 +193,8 @@ ur api /api/v1/things/group/info/delete \
   "areaID": "string",
   "name": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "parentID": "string",
   "productID": "string",
@@ -273,7 +266,7 @@ ur api /api/v1/things/group/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/info/get-list \
-  --body '{"areaID": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "productID": "string", "purpose": "string", "tags": {}}'
+  --body '{"areaID": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "productID": "string", "purpose": "string", "tags": {}}'
 ```
 
 ### POST `/api/v1/things/group/info/get-one`

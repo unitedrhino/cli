@@ -75,7 +75,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -97,12 +97,12 @@ ur api /api/v1/system/tenant/agreement/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -117,7 +117,7 @@ ur api /api/v1/system/tenant/agreement/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/agreement/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/tenant/agreement/get-list`
@@ -131,22 +131,15 @@ ur api /api/v1/system/tenant/agreement/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   }
 }
 ```
@@ -176,7 +169,7 @@ ur api /api/v1/system/tenant/agreement/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/agreement/get-list \
-  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
+  --body '{"page": {"page": 1, "pageSize": 1}}'
 ```
 
 ### POST `/api/v1/system/tenant/agreement/get-one`
@@ -348,9 +341,8 @@ ur api /api/v1/system/tenant/app/delete \
 | `appIDs` | array[string] | 否 |  |
 | `notAppID` | string | 否 | 排除某个应用ID |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  应用状态 1 正常(默认)，2 禁用，3 过期 (格式: int64) |
 | `subType` | string | 否 | 子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
 | `tenantCode` | string | 否 | 指定租户,租户下只能过滤 common或他自己的  common的是通用应用,非common的是租户应用 |
@@ -367,14 +359,8 @@ ur api /api/v1/system/tenant/app/delete \
   ],
   "notAppID": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "subType": "string",
@@ -475,7 +461,7 @@ ur api /api/v1/system/tenant/app/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/app/get-list \
-  --body '{"appID": "string", "appIDs": ["string"], "notAppID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "subType": "string", "tenantCode": "string", "type": "string", "useBy": "string", "withApp": true}'
+  --body '{"appID": "string", "appIDs": ["string"], "notAppID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "subType": "string", "tenantCode": "string", "type": "string", "useBy": "string", "withApp": true}'
 ```
 
 ### POST `/api/v1/system/tenant/app/get-one`
@@ -1079,7 +1065,7 @@ ur api /api/v1/system/tenant/app/menu/get-list \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -1180,9 +1166,8 @@ ur api /api/v1/system/tenant/config/update \
 | `code` | string | 否 |  编号 |
 | `name` | string | 否 |  租户名称 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -1191,14 +1176,8 @@ ur api /api/v1/system/tenant/config/update \
   "code": "string",
   "name": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   }
 }
 ```
@@ -1253,7 +1232,7 @@ ur api /api/v1/system/tenant/config/update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/core/get-list \
-  --body '{"appID": "string", "code": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
+  --body '{"appID": "string", "code": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}}'
 ```
 
 ### POST `/api/v1/system/tenant/core/get-one`
@@ -1496,9 +1475,8 @@ ur api /api/v1/system/tenant/info/delete \
 | `name` | string | 否 |  租户名称 |
 | `ownerUserID` | string | 否 |  超级管理员id,只有平台管理员有权限 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 租户状态 (格式: int64) |
 | `tenantCodes` | array[string] | 否 |  指定租户编码列表，非空时按编码精确返回 |
 | `withOwnerUser` | boolean | 否 | 同时获取管理员核心信息 (格式: boolean) |
@@ -1511,14 +1489,8 @@ ur api /api/v1/system/tenant/info/delete \
   "name": "示例名称",
   "ownerUserID": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "tenantCodes": [
@@ -1595,7 +1567,7 @@ ur api /api/v1/system/tenant/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/info/get-list \
-  --body '{"code": "string", "isGetAll": true, "name": "示例名称", "ownerUserID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "tenantCodes": ["string"], "withOwnerUser": true}'
+  --body '{"code": "string", "isGetAll": true, "name": "示例名称", "ownerUserID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "tenantCodes": ["string"], "withOwnerUser": true}'
 ```
 
 ### POST `/api/v1/system/tenant/info/get-one`
@@ -1902,9 +1874,8 @@ ur api /api/v1/system/tenant/renewal/direct-grant \
 | `expireWithinDays` | integer | 否 |  到期天数筛选，传 30 表示仅返回 30 天内到期数据 (格式: int64) |
 | `keyword` | string | 否 |  关键字，按企业名、应用名或租户编码模糊匹配 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  到期状态：all 全部 normal 正常 expiring 即将到期 expired 已过期 |
 | `targetType` | string | 否 |  续期对象类型：all 全部 tenant 企业 app 应用 |
 | `tenantCode` | string | 否 |  指定租户编码，仅平台管理员可传 |
@@ -1915,14 +1886,8 @@ ur api /api/v1/system/tenant/renewal/direct-grant \
   "expireWithinDays": 1,
   "keyword": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": "string",
   "targetType": "string",
@@ -1975,7 +1940,7 @@ ur api /api/v1/system/tenant/renewal/direct-grant \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/renewal/get-list \
-  --body '{"expireWithinDays": 1, "keyword": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string", "targetType": "string", "tenantCode": "string"}'
+  --body '{"expireWithinDays": 1, "keyword": "string", "page": {"page": 1, "pageSize": 1}, "status": "string", "targetType": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/system/tenant/renewal/renew`
@@ -2128,9 +2093,8 @@ ur api /api/v1/system/tenant/user/delete \
 | `hasAccessAreas` | array[integer] | 否 |  拥有访问权限的区域 |
 | `nickName` | string | 否 |  昵称 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `phone` | string | 否 |  手机号 |
 | `roleCode` | string | 否 |  角色编码 |
 | `status` | integer | 否 |  租户状态（1:启用，2:禁用） (格式: int64) |
@@ -2150,14 +2114,8 @@ ur api /api/v1/system/tenant/user/delete \
   ],
   "nickName": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "phone": "string",
   "roleCode": "string",
@@ -2256,7 +2214,7 @@ ur api /api/v1/system/tenant/user/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/user/get-list \
-  --body '{"account": "string", "deptID": "string", "email": "string", "hasAccessAreas": [1], "nickName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "phone": "string", "roleCode": "string", "status": 1, "tenantCode": "string", "userIDs": ["string"], "userName": "string", "withRole": true}'
+  --body '{"account": "string", "deptID": "string", "email": "string", "hasAccessAreas": [1], "nickName": "string", "page": {"page": 1, "pageSize": 1}, "phone": "string", "roleCode": "string", "status": 1, "tenantCode": "string", "userIDs": ["string"], "userName": "string", "withRole": true}'
 ```
 
 ### POST `/api/v1/system/tenant/user/get-one`

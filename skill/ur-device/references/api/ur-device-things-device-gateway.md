@@ -111,9 +111,8 @@ ur api /api/v1/things/device/gateway/batch-delete \
 | `gateWayProductID` | string | 是 | 产品ID |
 | `gateWaydeviceName` | string | 是 | 设备名称 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -121,14 +120,8 @@ ur api /api/v1/things/device/gateway/batch-delete \
   "gateWayProductID": "string",
   "gateWaydeviceName": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   }
 }
 ```
@@ -630,5 +623,5 @@ ur api /api/v1/things/device/gateway/batch-delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/gateway/get-list \
-  --body '{"gateWayProductID": "string", "gateWaydeviceName": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
+  --body '{"gateWayProductID": "string", "gateWaydeviceName": "示例名称", "page": {"page": 1, "pageSize": 1}}'
 ```

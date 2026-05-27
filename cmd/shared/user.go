@@ -1965,7 +1965,7 @@ func runUserSelfOpenclawSetupCheck(ctx context.Context, args []string, stdout, s
 	}
 
 	resp, err := client.DoAPI(ctx, client.APIRequest{
-		Path: "/api/v1/system/user/self/setup-check",
+		Path: "/api/v1/system/user/self/openclaw/setup-check",
 		Body: reqBody,
 	})
 	if err != nil {
@@ -2003,7 +2003,7 @@ func runUserSelfOpenclawSetupComplete(ctx context.Context, args []string, stdout
 	}
 
 	resp, err := client.DoAPI(ctx, client.APIRequest{
-		Path: "/api/v1/system/user/self/setup-complete",
+		Path: "/api/v1/system/user/self/openclaw/setup-complete",
 		Body: reqBody,
 	})
 	if err != nil {

@@ -121,9 +121,8 @@ ur api /api/v1/system/mall/license/create \
 | `boundTargetID` | string | 否 |  |
 | `licenseCode` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `skuCode` | string | 否 |  |
 | `sourceID` | string | 否 |  |
 | `sourceType` | string | 否 |  |
@@ -136,14 +135,8 @@ ur api /api/v1/system/mall/license/create \
   "boundTargetID": "string",
   "licenseCode": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "skuCode": "string",
   "sourceID": "string",
@@ -226,7 +219,7 @@ ur api /api/v1/system/mall/license/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/license/get-list \
-  --body '{"boundTargetID": "string", "licenseCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "skuCode": "string", "sourceID": "string", "sourceType": "string", "status": "string", "withSource": true}'
+  --body '{"boundTargetID": "string", "licenseCode": "string", "page": {"page": 1, "pageSize": 1}, "skuCode": "string", "sourceID": "string", "sourceType": "string", "status": "string", "withSource": true}'
 ```
 
 ### POST `/api/v1/system/mall/license/get-one`

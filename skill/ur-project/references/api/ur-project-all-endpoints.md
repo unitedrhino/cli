@@ -880,9 +880,8 @@ ur api /api/v1/things/area/info/delete \
 | `groupCount.value` | string | 是 |  |
 | `isRetTopLevel` | boolean | 否 | 如果该参数为true则返回除了root节点的有权限的最高层的区域列表 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentAreaID` | string | 否 |  |
 | `projectID` | string | 否 | 项目id |
 | `tenantCode` | string | 否 |  |
@@ -904,14 +903,8 @@ ur api /api/v1/things/area/info/delete \
   },
   "isRetTopLevel": true,
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "parentAreaID": "string",
   "projectID": "string",
@@ -1158,7 +1151,7 @@ ur api /api/v1/things/area/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/area/info/get-list \
-  --body '{"areaIDs": ["string"], "deviceCount": {"cmpType": "string", "value": "string"}, "groupCount": {"cmpType": "string", "value": "string"}, "isRetTopLevel": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentAreaID": "string", "projectID": "string", "tenantCode": "string", "withDevices": true}'
+  --body '{"areaIDs": ["string"], "deviceCount": {"cmpType": "string", "value": "string"}, "groupCount": {"cmpType": "string", "value": "string"}, "isRetTopLevel": true, "page": {"page": 1, "pageSize": 1}, "parentAreaID": "string", "projectID": "string", "tenantCode": "string", "withDevices": true}'
 ```
 
 ### POST `/api/v1/things/area/info/get-one`
@@ -2929,9 +2922,8 @@ ur api /api/v1/things/data/area/batch-update \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 项目id |
 | `targetID` | string | 否 | 用户ID |
 | `targetType` | string | 否 |  |
@@ -2940,14 +2932,8 @@ ur api /api/v1/things/data/area/batch-update \
 ```json
 {
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "projectID": "string",
   "targetID": "string",
@@ -3107,7 +3093,7 @@ ur api /api/v1/things/data/area/batch-update \
 **调用示例**:
 ```bash
 ur api /api/v1/things/data/area/get-list \
-  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectID": "string", "targetID": "string", "targetType": "string"}'
+  --body '{"page": {"page": 1, "pageSize": 1}, "projectID": "string", "targetID": "string", "targetType": "string"}'
 ```
 
 ### POST `/api/v1/things/data/area/user/apply/deal`
@@ -3160,9 +3146,8 @@ ur api /api/v1/things/data/area/user/apply/deal \
 | `areaID` | string | 否 | 项目id |
 | `authTypes` | array[integer] | 否 | 权限类型 1:读权限,只能读,不能写 4:管理权限,可以修改别人的权限 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `withAreaInfo` | boolean | 否 | 把区域信息附带上 (格式: boolean) |
 | `withUserInfo` | boolean | 否 | 把用户信息带上 (格式: boolean) |
 
@@ -3174,14 +3159,8 @@ ur api /api/v1/things/data/area/user/apply/deal \
     1
   ],
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "withAreaInfo": true,
   "withUserInfo": true
@@ -3337,7 +3316,7 @@ ur api /api/v1/things/data/area/user/apply/deal \
 **调用示例**:
 ```bash
 ur api /api/v1/things/data/area/user/apply/get-list \
-  --body '{"areaID": "string", "authTypes": [1], "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "withAreaInfo": true, "withUserInfo": true}'
+  --body '{"areaID": "string", "authTypes": [1], "page": {"page": 1, "pageSize": 1}, "withAreaInfo": true, "withUserInfo": true}'
 ```
 
 ### POST `/api/v1/things/data/project/batch-create`
@@ -3524,9 +3503,8 @@ ur api /api/v1/things/data/project/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 权限数据ID |
 | `targetID` | string | 否 | 用户ID |
 | `targetType` | string | 是 |  |
@@ -3535,14 +3513,8 @@ ur api /api/v1/things/data/project/delete \
 ```json
 {
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "projectID": "string",
   "targetID": "string",
@@ -3585,7 +3557,7 @@ ur api /api/v1/things/data/project/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/data/project/get-list \
-  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectID": "string", "targetID": "string", "targetType": "string"}'
+  --body '{"page": {"page": 1, "pageSize": 1}, "projectID": "string", "targetID": "string", "targetType": "string"}'
 ```
 
 ### POST `/api/v1/things/group/device/batch-create`
@@ -3819,7 +3791,7 @@ ur api /api/v1/things/group/device/batch-update \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -3841,12 +3813,12 @@ ur api /api/v1/things/group/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -3861,7 +3833,7 @@ ur api /api/v1/things/group/info/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/info/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/things/group/info/get-list`
@@ -3877,9 +3849,8 @@ ur api /api/v1/things/group/info/delete \
 | `areaID` | string | 否 | 区域ID |
 | `name` | string | 否 | 分组名称 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父组ID |
 | `productID` | string | 否 | 产品ID |
 | `purpose` | string | 否 | 用途 不填默认为default |
@@ -3891,14 +3862,8 @@ ur api /api/v1/things/group/info/delete \
   "areaID": "string",
   "name": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "parentID": "string",
   "productID": "string",
@@ -3970,7 +3935,7 @@ ur api /api/v1/things/group/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/info/get-list \
-  --body '{"areaID": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "productID": "string", "purpose": "string", "tags": {}}'
+  --body '{"areaID": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "productID": "string", "purpose": "string", "tags": {}}'
 ```
 
 ### POST `/api/v1/things/group/info/get-one`
@@ -4327,9 +4292,8 @@ ur api /api/v1/things/project/crud/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `params` | object | 否 | params过滤查询,key 是params的key, value是对象,说明: {"cmpType":"比较类型(如=、>、like)","value":"比较值(需与类型匹配)","castTo":"数据类型(int/float/string,选填，填则转换)"}，其中 like 仅支持 string 类型，value 需以字符串格式传入 示例: {"aaa":{"cmpType":">","castTo":"int","value":"100"} |
 | `purpose` | string | 是 | 用途必填 |
 
@@ -4337,14 +4301,8 @@ ur api /api/v1/things/project/crud/delete \
 ```json
 {
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "params": {},
   "purpose": "string"
@@ -4376,7 +4334,7 @@ ur api /api/v1/things/project/crud/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/project/crud/get-list \
-  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "params": {}, "purpose": "string"}'
+  --body '{"page": {"page": 1, "pageSize": 1}, "params": {}, "purpose": "string"}'
 ```
 
 ### POST `/api/v1/things/project/crud/get-one`
@@ -4541,12 +4499,12 @@ ur api /api/v1/things/project/info/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
+| `adminUserID` | string | 否 | 过滤负责人用户id |
 | `alarmStatus` | integer | 否 | 报警状态(只读) （1正常 2提醒 3一般 4严重 5紧急 6超紧急） (格式: int64) |
 | `isGetAll` | boolean | 否 | 是否返回所有,只有平台管理员有权限 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `projectIDs` | array[string] | 否 | 过滤项目id列表 |
 | `projectName` | string | 否 | 过滤项目名称 |
 | `status` | integer | 否 | 项目状态  1 正常，2-禁用，3-过期 (格式: int64) |
@@ -4558,17 +4516,12 @@ ur api /api/v1/things/project/info/delete \
 **请求示例**:
 ```json
 {
+  "adminUserID": "string",
   "alarmStatus": 1,
   "isGetAll": true,
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "projectIDs": [
     "string"
@@ -4675,7 +4628,7 @@ ur api /api/v1/things/project/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/project/info/get-list \
-  --body '{"alarmStatus": 1, "isGetAll": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectIDs": ["string"], "projectName": "示例名称", "status": 1, "tenantCode": "string", "type": "string", "withAdminUser": true, "withTopAreas": true}'
+  --body '{"adminUserID": "string", "alarmStatus": 1, "isGetAll": true, "page": {"page": 1, "pageSize": 1}, "projectIDs": ["string"], "projectName": "示例名称", "status": 1, "tenantCode": "string", "type": "string", "withAdminUser": true, "withTopAreas": true}'
 ```
 
 ### POST `/api/v1/things/project/info/get-one`

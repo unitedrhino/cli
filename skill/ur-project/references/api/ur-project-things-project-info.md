@@ -136,12 +136,12 @@ ur api /api/v1/things/project/info/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
+| `adminUserID` | string | 否 | 过滤负责人用户id |
 | `alarmStatus` | integer | 否 | 报警状态(只读) （1正常 2提醒 3一般 4严重 5紧急 6超紧急） (格式: int64) |
 | `isGetAll` | boolean | 否 | 是否返回所有,只有平台管理员有权限 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `projectIDs` | array[string] | 否 | 过滤项目id列表 |
 | `projectName` | string | 否 | 过滤项目名称 |
 | `status` | integer | 否 | 项目状态  1 正常，2-禁用，3-过期 (格式: int64) |
@@ -153,17 +153,12 @@ ur api /api/v1/things/project/info/delete \
 **请求示例**:
 ```json
 {
+  "adminUserID": "string",
   "alarmStatus": 1,
   "isGetAll": true,
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "projectIDs": [
     "string"
@@ -270,7 +265,7 @@ ur api /api/v1/things/project/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/project/info/get-list \
-  --body '{"alarmStatus": 1, "isGetAll": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectIDs": ["string"], "projectName": "示例名称", "status": 1, "tenantCode": "string", "type": "string", "withAdminUser": true, "withTopAreas": true}'
+  --body '{"adminUserID": "string", "alarmStatus": 1, "isGetAll": true, "page": {"page": 1, "pageSize": 1}, "projectIDs": ["string"], "projectName": "示例名称", "status": 1, "tenantCode": "string", "type": "string", "withAdminUser": true, "withTopAreas": true}'
 ```
 
 ### POST `/api/v1/things/project/info/get-one`

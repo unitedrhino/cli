@@ -35,5 +35,5 @@ ur user self openclaw setup-complete --body '{"deviceCode":"xxx","userCode":"yyy
 
 | 子命令 | API 端点 |
 |--------|----------|
-| setup-check | `POST /api/v1/system/user/self/setup-check` |
-| setup-complete | `POST /api/v1/system/user/self/setup-complete` |
+| setup-check | `POST /api/v1/system/user/self/openclaw/setup-check` |
+| setup-complete | `POST /api/v1/system/user/self/openclaw/setup-complete` |

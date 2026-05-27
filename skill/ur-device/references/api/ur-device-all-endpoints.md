@@ -490,9 +490,8 @@ ur api /api/v1/things/device/gateway/batch-delete \
 | `gateWayProductID` | string | 是 | 产品ID |
 | `gateWaydeviceName` | string | 是 | 设备名称 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -500,14 +499,8 @@ ur api /api/v1/things/device/gateway/batch-delete \
   "gateWayProductID": "string",
   "gateWaydeviceName": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   }
 }
 ```
@@ -1009,7 +1002,7 @@ ur api /api/v1/things/device/gateway/batch-delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/gateway/get-list \
-  --body '{"gateWayProductID": "string", "gateWaydeviceName": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
+  --body '{"gateWayProductID": "string", "gateWaydeviceName": "示例名称", "page": {"page": 1, "pageSize": 1}}'
 ```
 
 ### POST `/api/v1/things/device/group/batch-create`
@@ -1575,9 +1568,8 @@ ur api /api/v1/things/device/info/delete \
 | `notGroupID` | string | 否 |  |
 | `notVersion` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentGroupID` | string | 否 |  |
 | `position` | object | 否 |  |
 | `position.latitude` | number | 是 | 纬度 (格式: double) |
@@ -1666,14 +1658,8 @@ ur api /api/v1/things/device/info/delete \
   "notGroupID": "string",
   "notVersion": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "parentGroupID": "string",
   "position": {
@@ -2224,7 +2210,7 @@ ur api /api/v1/things/device/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/info/get-list \
-  --body '{"areaID": "string", "areaIDPath": "string", "areaIDPaths": ["string"], "areaIDs": ["string"], "deviceAlias": "示例名称", "deviceName": "string", "deviceNameOrAlias": "示例名称", "deviceNames": ["string"], "deviceTypes": [1], "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "expTime": {"cmpType": "string", "value": "string"}, "gateway": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "groupID": "string", "groupIDPath": "string", "groupIDPaths": ["string"], "groupIDs": ["string"], "groupName": "string", "groupPurpose": "string", "hasOwner": 1, "iccid": "string", "isOnline": 1, "isOnlyCore": true, "netType": 1, "notAreaID": "string", "notGroupID": "string", "notVersion": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentGroupID": "string", "position": {"latitude": 1, "longitude": 1}, "productCategoryCode": "string", "productCategoryID": "string", "productCategoryIDs": [1], "productID": "string", "productIDs": ["string"], "property": {}, "propertyIgnoreEmpty": true, "range": 1, "ratedPower": {"cmpType": "string", "value": "string"}, "rssi": {"cmpType": "string", "value": "string"}, "status": 1, "statuses": [1], "tags": {}, "tenantCode": "string", "userID": "string", "versions": ["string"], "withArea": true, "withCollect": 1, "withGateway": true, "withGroups": ["string"], "withOwner": true, "withProfiles": ["string"], "withProperties": ["string"], "withShared": 1}'
+  --body '{"areaID": "string", "areaIDPath": "string", "areaIDPaths": ["string"], "areaIDs": ["string"], "deviceAlias": "示例名称", "deviceName": "string", "deviceNameOrAlias": "示例名称", "deviceNames": ["string"], "deviceTypes": [1], "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "expTime": {"cmpType": "string", "value": "string"}, "gateway": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "groupID": "string", "groupIDPath": "string", "groupIDPaths": ["string"], "groupIDs": ["string"], "groupName": "string", "groupPurpose": "string", "hasOwner": 1, "iccid": "string", "isOnline": 1, "isOnlyCore": true, "netType": 1, "notAreaID": "string", "notGroupID": "string", "notVersion": "string", "page": {"page": 1, "pageSize": 1}, "parentGroupID": "string", "position": {"latitude": 1, "longitude": 1}, "productCategoryCode": "string", "productCategoryID": "string", "productCategoryIDs": [1], "productID": "string", "productIDs": ["string"], "property": {}, "propertyIgnoreEmpty": true, "range": 1, "ratedPower": {"cmpType": "string", "value": "string"}, "rssi": {"cmpType": "string", "value": "string"}, "status": 1, "statuses": [1], "tags": {}, "tenantCode": "string", "userID": "string", "versions": ["string"], "withArea": true, "withCollect": 1, "withGateway": true, "withGroups": ["string"], "withOwner": true, "withProfiles": ["string"], "withProperties": ["string"], "withShared": 1}'
 ```
 
 ### POST `/api/v1/things/device/info/get-one`
@@ -7348,9 +7334,8 @@ ur api /api/v1/things/device/schema/create \
 | `isCanSceneLinkage` | integer | 否 | 是否可以场景联动 (格式: int64) |
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 是 | 产品id |
 | `propertyMode` | string | 否 | 属性类型可用 读写类型: 1:r(只读) 2:rw(可读可写) |
 | `tag` | integer | 否 | 过滤条件: 物模型标签 1:自定义 2:可选 3:必选 (格式: int64) |
@@ -7370,14 +7355,8 @@ ur api /api/v1/things/device/schema/create \
   "isCanSceneLinkage": 1,
   "name": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productID": "string",
   "propertyMode": "string",
@@ -7423,7 +7402,7 @@ ur api /api/v1/things/device/schema/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/schema/get-list \
-  --body '{"controlMode": 1, "deviceName": "string", "funcGroup": 1, "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "propertyMode": "string", "tag": 1, "type": 1, "types": [1], "withProductSchema": true}'
+  --body '{"controlMode": 1, "deviceName": "string", "funcGroup": 1, "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string", "propertyMode": "string", "tag": 1, "type": 1, "types": [1], "withProductSchema": true}'
 ```
 
 ### POST `/api/v1/things/device/schema/tsl-read`
@@ -7533,9 +7512,8 @@ ur api /api/v1/things/device/schema/update \
 |------|------|------|------|
 | `moduleCode` | integer | 否 | 格式: int64 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 | 产品id 只读 |
 | `productName` | string | 否 |  |
 
@@ -7544,14 +7522,8 @@ ur api /api/v1/things/device/schema/update \
 {
   "moduleCode": 1,
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productID": "string",
   "productName": "string"
@@ -7583,7 +7555,7 @@ ur api /api/v1/things/device/schema/update \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/version/get-list \
-  --body '{"moduleCode": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "productName": "string"}'
+  --body '{"moduleCode": 1, "page": {"page": 1, "pageSize": 1}, "productID": "string", "productName": "string"}'
 ```
 
 ### POST `/api/v1/things/device/version/get-one`

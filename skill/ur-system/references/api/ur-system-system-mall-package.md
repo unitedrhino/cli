@@ -57,7 +57,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -79,12 +79,12 @@ ur api /api/v1/system/mall/package/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -99,7 +99,7 @@ ur api /api/v1/system/mall/package/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/package/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/mall/package/get-list`
@@ -116,9 +116,8 @@ ur api /api/v1/system/mall/package/delete \
 | `packageCode` | string | 否 |  |
 | `packageName` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int32 |
 
 **请求示例**:
@@ -128,14 +127,8 @@ ur api /api/v1/system/mall/package/delete \
   "packageCode": "string",
   "packageName": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1
 }
@@ -175,7 +168,7 @@ ur api /api/v1/system/mall/package/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/package/get-list \
-  --body '{"category": "string", "packageCode": "string", "packageName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1}'
+  --body '{"category": "string", "packageCode": "string", "packageName": "string", "page": {"page": 1, "pageSize": 1}, "status": 1}'
 ```
 
 ### POST `/api/v1/system/mall/package/get-one`
@@ -188,12 +181,12 @@ ur api /api/v1/system/mall/package/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -226,7 +219,7 @@ ur api /api/v1/system/mall/package/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/package/get-one \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/mall/package/update`

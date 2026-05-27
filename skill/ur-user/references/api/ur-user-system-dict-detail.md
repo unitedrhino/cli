@@ -368,7 +368,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -390,12 +390,12 @@ ur api /api/v1/system/dict/detail/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -410,7 +410,7 @@ ur api /api/v1/system/dict/detail/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/detail/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/dict/detail/get-list`
@@ -426,9 +426,8 @@ ur api /api/v1/system/dict/detail/delete \
 | `dictCode` | string | 是 |  |
 | `label` | string | 否 |  展示值 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父节点 |
 | `status` | integer | 否 |  状态  1:启用,2:禁用 (格式: int64) |
 | `value` | string | 否 |  字典值 |
@@ -440,14 +439,8 @@ ur api /api/v1/system/dict/detail/delete \
   "dictCode": "string",
   "label": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "parentID": "string",
   "status": 1,
@@ -579,7 +572,7 @@ ur api /api/v1/system/dict/detail/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/detail/get-list \
-  --body '{"dictCode": "string", "label": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "status": 1, "value": "string", "values": ["string"]}'
+  --body '{"dictCode": "string", "label": "string", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "status": 1, "value": "string", "values": ["string"]}'
 ```
 
 ### POST `/api/v1/system/dict/detail/get-one`

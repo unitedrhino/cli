@@ -118,7 +118,7 @@ ur check
 
 **不确定时**：用 schema 命令确认路径归属：
 ```bash
-ur schema /api/v1/things/device/
+ur schema /api/v1/things/device/info/get-list
 ```
 
 ---

@@ -74,10 +74,17 @@ func runGenerateSkills(app config.CLIApp, args []string, stdout, stderr io.Write
 // hermesTags 映射：CLI app → Hermes tags
 var hermesTags = map[string]string{
 	"ur-platform-manage": "[platform, admin, tenant, user, auth, system]",
-	"ur-iot":             "[iot, device, product, project, ota, protocol, thing-model]",
+	"ur-iot":             "[iot, device, product, project, ota, protocol, thing-model, rule, schema]",
 	"ur-org-manage":      "[org, user, role, ai, agent, department]",
 	"ur-org-energy":      "[energy, power, prepaid, device, consumption, automation]",
 	"ur-console":         "[console, profile, token, settings, personal]",
+	"ur-protocol":        "[protocol, gateway, script, container, image]",
+	"ur-ota":             "[ota, firmware, upgrade, module]",
+	"ur-rule":            "[rule, alarm, scene, automation]",
+	"ur-schema":          "[schema, thing-model, tsl]",
+	"ur-iot-user":        "[device-share, device-collect, user-device]",
+	"ur-iot-config":      "[config, iot-settings]",
+	"ur-iot-hook":        "[hook, webhook]",
 }
 
 func generateSkillMD(app config.CLIApp, endpoints []swagger.Endpoint) string {

@@ -59,23 +59,16 @@ ur api /api/v1/things/product/remote-config/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 是 | 产品id |
 
 **请求示例**:
 ```json
 {
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productID": "string"
 }
@@ -104,7 +97,7 @@ ur api /api/v1/things/product/remote-config/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/product/remote-config/get-list \
-  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string"}'
+  --body '{"page": {"page": 1, "pageSize": 1}, "productID": "string"}'
 ```
 
 ### POST `/api/v1/things/product/remote-config/lastest-read`

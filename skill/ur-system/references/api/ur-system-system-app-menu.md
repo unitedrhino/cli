@@ -109,7 +109,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -131,12 +131,12 @@ ur api /api/v1/system/app/menu/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -151,7 +151,7 @@ ur api /api/v1/system/app/menu/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/menu/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/app/menu/get-list`

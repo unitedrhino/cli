@@ -380,9 +380,8 @@ ur api /api/v1/system/dept/info/delete \
 | `dingTalkIDs` | array[string] | 否 | 钉钉的部门ID |
 | `name` | string | 否 |  名称 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父节点 |
 | `status` | integer | 否 |  状态  1:启用,2:禁用 (格式: int64) |
 | `tenantCode` | string | 否 |  |
@@ -395,14 +394,8 @@ ur api /api/v1/system/dept/info/delete \
   ],
   "name": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "parentID": "string",
   "status": 1,
@@ -517,7 +510,7 @@ ur api /api/v1/system/dept/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dept/info/get-list \
-  --body '{"dingTalkIDs": ["string"], "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "status": 1, "tenantCode": "string"}'
+  --body '{"dingTalkIDs": ["string"], "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "status": 1, "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/system/dept/info/get-one`

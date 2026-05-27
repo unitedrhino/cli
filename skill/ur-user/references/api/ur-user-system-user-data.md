@@ -22,9 +22,8 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 项目id |
 | `userID` | string | 是 | 用户ID |
 
@@ -32,14 +31,8 @@
 ```json
 {
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "projectID": "string",
   "userID": "string"
@@ -198,7 +191,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/data/area/get-list \
-  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectID": "string", "userID": "string"}'
+  --body '{"page": {"page": 1, "pageSize": 1}, "projectID": "string", "userID": "string"}'
 ```
 
 ### POST `/api/v1/system/user/data/project/get-list`
@@ -212,23 +205,16 @@ ur api /api/v1/system/user/data/area/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `userID` | string | 是 | 用户ID |
 
 **请求示例**:
 ```json
 {
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "userID": "string"
 }
@@ -330,5 +316,5 @@ ur api /api/v1/system/user/data/area/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/data/project/get-list \
-  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "userID": "string"}'
+  --body '{"page": {"page": 1, "pageSize": 1}, "userID": "string"}'
 ```

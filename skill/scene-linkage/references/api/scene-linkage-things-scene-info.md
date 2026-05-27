@@ -89,7 +89,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -111,12 +111,12 @@ ur api /api/v1/things/scene/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -131,7 +131,7 @@ ur api /api/v1/things/scene/info/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/scene/info/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/things/scene/info/get-list`
@@ -154,9 +154,8 @@ ur api /api/v1/things/scene/info/delete \
 | `isOnlyCore` | integer | 否 | 不返回if,when和then (格式: int64) |
 | `name` | string | 否 | 场景名模糊查询 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 | 产品id |
 | `sceneIDs` | array[integer] | 否 | 根据场景ID来过滤 |
 | `status` | integer | 否 | 状态（1启用 2禁用 3异常） (格式: int64) |
@@ -176,14 +175,8 @@ ur api /api/v1/things/scene/info/delete \
   "isOnlyCore": 1,
   "name": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productID": "string",
   "sceneIDs": [
@@ -244,7 +237,7 @@ ur api /api/v1/things/scene/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/scene/info/get-list \
-  --body '{"alarmID": "string", "areaID": "string", "deviceFilterMode": 1, "deviceMode": "string", "deviceName": "string", "hasActionType": "string", "isCommon": 1, "isOnlyCore": 1, "name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "sceneIDs": [1], "status": 1, "tag": "string", "type": "string"}'
+  --body '{"alarmID": "string", "areaID": "string", "deviceFilterMode": 1, "deviceMode": "string", "deviceName": "string", "hasActionType": "string", "isCommon": 1, "isOnlyCore": 1, "name": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string", "sceneIDs": [1], "status": 1, "tag": "string", "type": "string"}'
 ```
 
 ### POST `/api/v1/things/scene/info/get-one`
@@ -257,12 +250,12 @@ ur api /api/v1/things/scene/info/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -308,7 +301,7 @@ ur api /api/v1/things/scene/info/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/scene/info/get-one \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/things/scene/info/manually-trigger`
@@ -321,12 +314,12 @@ ur api /api/v1/things/scene/info/get-one \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -341,7 +334,7 @@ ur api /api/v1/things/scene/info/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/things/scene/info/manually-trigger \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/things/scene/info/update`

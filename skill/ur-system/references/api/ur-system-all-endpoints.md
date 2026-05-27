@@ -134,7 +134,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -156,12 +156,12 @@ ur api /api/v1/system/agreement/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -176,7 +176,7 @@ ur api /api/v1/system/agreement/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/agreement/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/agreement/get-list`
@@ -193,9 +193,8 @@ ur api /api/v1/system/agreement/delete \
 | `code` | string | 否 |  |
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int64 |
 | `title` | string | 否 |  |
 
@@ -206,14 +205,8 @@ ur api /api/v1/system/agreement/delete \
   "code": "string",
   "name": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "title": "string"
@@ -249,7 +242,7 @@ ur api /api/v1/system/agreement/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/agreement/get-list \
-  --body '{"appID": "string", "code": "string", "name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "title": "string"}'
+  --body '{"appID": "string", "code": "string", "name": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "title": "string"}'
 ```
 
 ### POST `/api/v1/system/agreement/get-one`
@@ -262,12 +255,12 @@ ur api /api/v1/system/agreement/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -293,7 +286,7 @@ ur api /api/v1/system/agreement/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/agreement/get-one \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/agreement/preview-render`
@@ -520,9 +513,8 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
 | `agreementID` | string | 否 |  |
 | `appID` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int64 |
 | `type` | string | 否 |  |
 | `withAgreement` | boolean | 否 | 格式: boolean |
@@ -534,14 +526,8 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
   "agreementID": "string",
   "appID": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "type": "string",
@@ -650,7 +636,7 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/agreement/get-bind-list \
-  --body '{"agreementID": "string", "appID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "type": "string", "withAgreement": true, "withApp": true}'
+  --body '{"agreementID": "string", "appID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "type": "string", "withAgreement": true, "withApp": true}'
 ```
 
 ### POST `/api/v1/system/app/core/get-one`
@@ -888,7 +874,7 @@ ur api /api/v1/system/app/core/get-one \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -910,12 +896,12 @@ ur api /api/v1/system/app/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -930,7 +916,7 @@ ur api /api/v1/system/app/info/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/info/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/app/info/get-list`
@@ -948,9 +934,8 @@ ur api /api/v1/system/app/info/delete \
 | `name` | string | 否 |  应用名称 |
 | `notID` | string | 否 |  排除某个应用ID |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 应用状态 1 上架 2 下架 (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
 | `tenantIsBind` | integer | 否 |  过滤租户是否已绑定的应用 1-是 2-否,如果要过滤指定租户,通过http头里指定 (格式: int64) |
@@ -968,14 +953,8 @@ ur api /api/v1/system/app/info/delete \
   "name": "示例名称",
   "notID": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "subType": "string",
@@ -1069,7 +1048,7 @@ ur api /api/v1/system/app/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/info/get-list \
-  --body '{"ids": ["string"], "isSysCreated": 1, "name": "示例名称", "notID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "subType": "string", "tenantIsBind": 1, "type": "string", "useBy": "string", "withAgreementCodes": ["string"]}'
+  --body '{"ids": ["string"], "isSysCreated": 1, "name": "示例名称", "notID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "subType": "string", "tenantIsBind": 1, "type": "string", "useBy": "string", "withAgreementCodes": ["string"]}'
 ```
 
 ### POST `/api/v1/system/app/info/get-one`
@@ -1412,7 +1391,7 @@ ur api /api/v1/system/app/info/update \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -1434,12 +1413,12 @@ ur api /api/v1/system/app/menu/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -1454,7 +1433,7 @@ ur api /api/v1/system/app/menu/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/menu/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/app/menu/get-list`
@@ -1686,9 +1665,8 @@ ur api /api/v1/system/check-in/do \
 |------|------|------|------|
 | `endTime` | string | 否 |  结束时间(Unix毫秒) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `startTime` | string | 否 |  开始时间(Unix毫秒) |
 | `userID` | string | 否 |  管理员可指定用户ID |
 
@@ -1697,14 +1675,8 @@ ur api /api/v1/system/check-in/do \
 {
   "endTime": "2026-01-01T00:00:00Z",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "startTime": "2026-01-01T00:00:00Z",
   "userID": "string"
@@ -1737,7 +1709,7 @@ ur api /api/v1/system/check-in/do \
 **调用示例**:
 ```bash
 ur api /api/v1/system/check-in/get-list \
-  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
+  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"page": 1, "pageSize": 1}, "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
 ```
 
 ### POST `/api/v1/system/check-in/point-balance/get`
@@ -1812,9 +1784,8 @@ ur api /api/v1/system/check-in/point-log/adjust \
 |------|------|------|------|
 | `endTime` | string | 否 |  结束时间(Unix毫秒) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `source` | string | 否 |  来源过滤: checkIn/admin |
 | `startTime` | string | 否 |  开始时间(Unix毫秒) |
 | `userID` | string | 否 |  管理员可指定用户ID |
@@ -1824,14 +1795,8 @@ ur api /api/v1/system/check-in/point-log/adjust \
 {
   "endTime": "2026-01-01T00:00:00Z",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "source": "string",
   "startTime": "2026-01-01T00:00:00Z",
@@ -1866,7 +1831,7 @@ ur api /api/v1/system/check-in/point-log/adjust \
 **调用示例**:
 ```bash
 ur api /api/v1/system/check-in/point-log/get-list \
-  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "source": "string", "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
+  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"page": 1, "pageSize": 1}, "source": "string", "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
 ```
 
 ### POST `/api/v1/system/common/api/batch-agg`
@@ -2399,9 +2364,8 @@ ur api /api/v1/system/common/sys-config/info/update \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父节点 |
 | `thirdConfig` | object | 是 |  |
 | `thirdConfig.appID` | string | 否 |  |
@@ -2413,14 +2377,8 @@ ur api /api/v1/system/common/sys-config/info/update \
 ```json
 {
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "parentID": "string",
   "thirdConfig": {
@@ -2539,7 +2497,7 @@ ur api /api/v1/system/common/sys-config/info/update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/common/third/dept/get-list \
-  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "thirdConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "thirdType": "string"}'
+  --body '{"page": {"page": 1, "pageSize": 1}, "parentID": "string", "thirdConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "thirdType": "string"}'
 ```
 
 ### POST `/api/v1/system/common/third/dept/get-one`
@@ -3315,7 +3273,7 @@ ur api /api/v1/system/common/system/init \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -3337,12 +3295,12 @@ ur api /api/v1/system/hook/capability/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -3357,7 +3315,7 @@ ur api /api/v1/system/hook/capability/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/capability/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/hook/capability/get-list`
@@ -3372,9 +3330,8 @@ ur api /api/v1/system/hook/capability/delete \
 |------|------|------|------|
 | `code` | string | 否 |  能力编码筛选 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `serverID` | integer | 否 |  服务ID筛选 (格式: int64) |
 | `subCode` | string | 否 |  子编码筛选 |
 
@@ -3383,14 +3340,8 @@ ur api /api/v1/system/hook/capability/delete \
 {
   "code": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "serverID": 1,
   "subCode": "string"
@@ -3422,7 +3373,7 @@ ur api /api/v1/system/hook/capability/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/capability/get-list \
-  --body '{"code": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "serverID": 1, "subCode": "string"}'
+  --body '{"code": "string", "page": {"page": 1, "pageSize": 1}, "serverID": 1, "subCode": "string"}'
 ```
 
 ### POST `/api/v1/system/hook/capability/update`
@@ -3518,7 +3469,7 @@ ur api /api/v1/system/hook/capability/update \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -3540,12 +3491,12 @@ ur api /api/v1/system/hook/server/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -3560,7 +3511,7 @@ ur api /api/v1/system/hook/server/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/server/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/hook/server/get-list`
@@ -3575,9 +3526,8 @@ ur api /api/v1/system/hook/server/delete \
 |------|------|------|------|
 | `name` | string | 否 |  服务名称筛选 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  状态筛选 (格式: int64) |
 
 **请求示例**:
@@ -3585,14 +3535,8 @@ ur api /api/v1/system/hook/server/delete \
 {
   "name": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1
 }
@@ -3637,7 +3581,7 @@ ur api /api/v1/system/hook/server/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/server/get-list \
-  --body '{"name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1}'
+  --body '{"name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1}'
 ```
 
 ### POST `/api/v1/system/hook/server/get-one`
@@ -3650,12 +3594,12 @@ ur api /api/v1/system/hook/server/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -3691,7 +3635,7 @@ ur api /api/v1/system/hook/server/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/server/get-one \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/hook/server/update`
@@ -3876,9 +3820,8 @@ ur api /api/v1/system/job/task/group/delete \
 |------|------|------|------|
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 1:启用 2:禁用 (格式: int64) |
 
 **请求示例**:
@@ -3886,14 +3829,8 @@ ur api /api/v1/system/job/task/group/delete \
 {
   "name": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1
 }
@@ -3925,7 +3862,7 @@ ur api /api/v1/system/job/task/group/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/group/get-list \
-  --body '{"name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1}'
+  --body '{"name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/group/get-one`
@@ -4111,12 +4048,12 @@ ur api /api/v1/system/job/task/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -4131,7 +4068,7 @@ ur api /api/v1/system/job/task/info/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/info/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/info/get-list`
@@ -4147,9 +4084,8 @@ ur api /api/v1/system/job/task/info/delete \
 | `groupCode` | string | 是 |  关联分组编码 |
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  按状态过滤 (格式: int64) |
 | `type` | integer | 否 |  按类型过滤 1:定时 2:延时 (格式: int64) |
 
@@ -4159,14 +4095,8 @@ ur api /api/v1/system/job/task/info/delete \
   "groupCode": "string",
   "name": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "type": 1
@@ -4212,7 +4142,7 @@ ur api /api/v1/system/job/task/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/info/get-list \
-  --body '{"groupCode": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "type": 1}'
+  --body '{"groupCode": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1, "type": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/info/get-one`
@@ -4225,12 +4155,12 @@ ur api /api/v1/system/job/task/info/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -4266,7 +4196,7 @@ ur api /api/v1/system/job/task/info/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/info/get-one \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/info/start`
@@ -4279,12 +4209,12 @@ ur api /api/v1/system/job/task/info/get-one \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -4299,7 +4229,7 @@ ur api /api/v1/system/job/task/info/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/info/start \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/info/stop`
@@ -4312,12 +4242,12 @@ ur api /api/v1/system/job/task/info/start \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -4332,7 +4262,7 @@ ur api /api/v1/system/job/task/info/start \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/info/stop \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/info/update`
@@ -4563,9 +4493,8 @@ ur api /api/v1/system/mall/license/create \
 | `boundTargetID` | string | 否 |  |
 | `licenseCode` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `skuCode` | string | 否 |  |
 | `sourceID` | string | 否 |  |
 | `sourceType` | string | 否 |  |
@@ -4578,14 +4507,8 @@ ur api /api/v1/system/mall/license/create \
   "boundTargetID": "string",
   "licenseCode": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "skuCode": "string",
   "sourceID": "string",
@@ -4668,7 +4591,7 @@ ur api /api/v1/system/mall/license/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/license/get-list \
-  --body '{"boundTargetID": "string", "licenseCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "skuCode": "string", "sourceID": "string", "sourceType": "string", "status": "string", "withSource": true}'
+  --body '{"boundTargetID": "string", "licenseCode": "string", "page": {"page": 1, "pageSize": 1}, "skuCode": "string", "sourceID": "string", "sourceType": "string", "status": "string", "withSource": true}'
 ```
 
 ### POST `/api/v1/system/mall/license/get-one`
@@ -4841,7 +4764,7 @@ ur api /api/v1/system/mall/license/revoke \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -4863,12 +4786,12 @@ ur api /api/v1/system/mall/package/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -4883,7 +4806,7 @@ ur api /api/v1/system/mall/package/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/package/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/mall/package/get-list`
@@ -4900,9 +4823,8 @@ ur api /api/v1/system/mall/package/delete \
 | `packageCode` | string | 否 |  |
 | `packageName` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int32 |
 
 **请求示例**:
@@ -4912,14 +4834,8 @@ ur api /api/v1/system/mall/package/delete \
   "packageCode": "string",
   "packageName": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1
 }
@@ -4959,7 +4875,7 @@ ur api /api/v1/system/mall/package/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/package/get-list \
-  --body '{"category": "string", "packageCode": "string", "packageName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1}'
+  --body '{"category": "string", "packageCode": "string", "packageName": "string", "page": {"page": 1, "pageSize": 1}, "status": 1}'
 ```
 
 ### POST `/api/v1/system/mall/package/get-one`
@@ -4972,12 +4888,12 @@ ur api /api/v1/system/mall/package/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -5010,7 +4926,7 @@ ur api /api/v1/system/mall/package/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/package/get-one \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/mall/package/update`
@@ -5111,7 +5027,7 @@ ur api /api/v1/system/mall/package/update \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -5133,12 +5049,12 @@ ur api /api/v1/system/mall/product/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -5153,7 +5069,7 @@ ur api /api/v1/system/mall/product/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/product/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/mall/product/get-list`
@@ -5167,9 +5083,8 @@ ur api /api/v1/system/mall/product/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productCode` | string | 否 |  |
 | `productName` | string | 否 |  |
 | `productType` | string | 否 |  |
@@ -5179,14 +5094,8 @@ ur api /api/v1/system/mall/product/delete \
 ```json
 {
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productCode": "string",
   "productName": "string",
@@ -5232,7 +5141,7 @@ ur api /api/v1/system/mall/product/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/product/get-list \
-  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productCode": "string", "productName": "string", "productType": "string", "status": 1}'
+  --body '{"page": {"page": 1, "pageSize": 1}, "productCode": "string", "productName": "string", "productType": "string", "status": 1}'
 ```
 
 ### POST `/api/v1/system/mall/product/get-one`
@@ -5245,12 +5154,12 @@ ur api /api/v1/system/mall/product/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -5286,7 +5195,7 @@ ur api /api/v1/system/mall/product/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/product/get-one \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/mall/product/update`
@@ -5413,7 +5322,7 @@ ur api /api/v1/system/mall/product/update \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -5439,9 +5348,8 @@ ur api /api/v1/system/ops/feedback/create \
 | `feedbackType` | string | 否 | 按问题反馈类型过滤 |
 | `isAllTenant` | boolean | 否 | default租户获取所有租户的信息 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 所属项目 |
 | `status` | integer | 否 |  状态（1 待处理 2:处理中 3:已完成） (格式: int64) |
 | `tenantCode` | string | 否 | 过滤所属租户,isAllTenant为true有效 |
@@ -5454,14 +5362,8 @@ ur api /api/v1/system/ops/feedback/create \
   "feedbackType": "string",
   "isAllTenant": true,
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "projectID": "string",
   "status": 1,
@@ -5514,7 +5416,7 @@ ur api /api/v1/system/ops/feedback/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/ops/feedback/get-list \
-  --body '{"appID": "string", "feedbackType": "string", "isAllTenant": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectID": "string", "status": 1, "tenantCode": "string", "type": "string"}'
+  --body '{"appID": "string", "feedbackType": "string", "isAllTenant": true, "page": {"page": 1, "pageSize": 1}, "projectID": "string", "status": 1, "tenantCode": "string", "type": "string"}'
 ```
 
 ### POST `/api/v1/system/ops/feedback/update`
@@ -5586,7 +5488,7 @@ ur api /api/v1/system/ops/feedback/get-list \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -5642,7 +5544,7 @@ ur api /api/v1/system/ops/feedback/update \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -5667,9 +5569,8 @@ ur api /api/v1/system/ops/work-order/create \
 | `areaID` | string | 否 | 区域ID过滤 |
 | `number` | string | 否 | 编号 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int64 |
 | `type` | string | 否 | 工单类型: deviceMaintenance:设备维修工单 |
 
@@ -5679,14 +5580,8 @@ ur api /api/v1/system/ops/work-order/create \
   "areaID": "string",
   "number": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "type": "string"
@@ -5724,7 +5619,7 @@ ur api /api/v1/system/ops/work-order/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/ops/work-order/get-list \
-  --body '{"areaID": "string", "number": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "type": "string"}'
+  --body '{"areaID": "string", "number": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "type": "string"}'
 ```
 
 ### POST `/api/v1/system/ops/work-order/update`
@@ -5820,7 +5715,7 @@ ur api /api/v1/system/ops/work-order/update \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -5842,12 +5737,12 @@ ur api /api/v1/system/resource/api/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -5862,7 +5757,7 @@ ur api /api/v1/system/resource/api/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/resource/api/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/resource/api/get-list`
@@ -5883,9 +5778,8 @@ ur api /api/v1/system/resource/api/delete \
 | `name` | string | 否 |  接口名称 |
 | `operTypeCode` | string | 否 |  操作类型编码 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `resource` | string | 否 |  资源标识 |
 | `route` | string | 否 |  接口路由 |
 
@@ -5900,14 +5794,8 @@ ur api /api/v1/system/resource/api/delete \
   "name": "示例名称",
   "operTypeCode": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "resource": "string",
   "route": "string"
@@ -5958,7 +5846,7 @@ ur api /api/v1/system/resource/api/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/resource/api/get-list \
-  --body '{"accessCode": "string", "authType": 1, "authTypeCode": "string", "groupCode": "string", "method": "string", "name": "示例名称", "operTypeCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "resource": "string", "route": "string"}'
+  --body '{"accessCode": "string", "authType": 1, "authTypeCode": "string", "groupCode": "string", "method": "string", "name": "示例名称", "operTypeCode": "string", "page": {"page": 1, "pageSize": 1}, "resource": "string", "route": "string"}'
 ```
 
 ### POST `/api/v1/system/resource/api/update`

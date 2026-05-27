@@ -149,7 +149,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -171,12 +171,12 @@ ur api /api/v1/system/app/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -191,7 +191,7 @@ ur api /api/v1/system/app/info/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/info/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/app/info/get-list`
@@ -209,9 +209,8 @@ ur api /api/v1/system/app/info/delete \
 | `name` | string | 否 |  应用名称 |
 | `notID` | string | 否 |  排除某个应用ID |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 应用状态 1 上架 2 下架 (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
 | `tenantIsBind` | integer | 否 |  过滤租户是否已绑定的应用 1-是 2-否,如果要过滤指定租户,通过http头里指定 (格式: int64) |
@@ -229,14 +228,8 @@ ur api /api/v1/system/app/info/delete \
   "name": "示例名称",
   "notID": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "subType": "string",
@@ -330,7 +323,7 @@ ur api /api/v1/system/app/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/info/get-list \
-  --body '{"ids": ["string"], "isSysCreated": 1, "name": "示例名称", "notID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "subType": "string", "tenantIsBind": 1, "type": "string", "useBy": "string", "withAgreementCodes": ["string"]}'
+  --body '{"ids": ["string"], "isSysCreated": 1, "name": "示例名称", "notID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "subType": "string", "tenantIsBind": 1, "type": "string", "useBy": "string", "withAgreementCodes": ["string"]}'
 ```
 
 ### POST `/api/v1/system/app/info/get-one`

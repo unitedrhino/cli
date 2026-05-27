@@ -555,9 +555,8 @@ ur api /api/v1/system/common/sys-config/info/update \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父节点 |
 | `thirdConfig` | object | 是 |  |
 | `thirdConfig.appID` | string | 否 |  |
@@ -569,14 +568,8 @@ ur api /api/v1/system/common/sys-config/info/update \
 ```json
 {
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "parentID": "string",
   "thirdConfig": {
@@ -695,7 +688,7 @@ ur api /api/v1/system/common/sys-config/info/update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/common/third/dept/get-list \
-  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "thirdConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "thirdType": "string"}'
+  --body '{"page": {"page": 1, "pageSize": 1}, "parentID": "string", "thirdConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "thirdType": "string"}'
 ```
 
 ### POST `/api/v1/system/common/third/dept/get-one`

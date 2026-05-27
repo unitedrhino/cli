@@ -199,7 +199,7 @@ ur things schema browse [路径] [选项]
 
 | 参数 | 简写 | 必填 | 类型 | 说明 |
 |------|------|------|------|------|
-| path |  | 否 | string | API路径过滤（如 /api/v1/things/device） |
+| path |  | 否 | string | API路径过滤（如 /api/v1/things/device/info/...） |
 | --auth-type |  | 否 | string | 认证类型过滤 |
 | --json | -j | 否 | bool | 输出JSON格式 |
 
@@ -212,12 +212,12 @@ ur things schema browse
 
 #### 示例2：按路径过滤
 ```bash
-ur things schema browse /api/v1/things/device
+ur things schema browse /api/v1/things/device/info/...
 ```
 
 #### 示例3：JSON输出
 ```bash
-ur things schema browse /api/v1/things/device -j
+ur things schema browse /api/v1/things/device/info/... -j
 ```
 
 ### 说明

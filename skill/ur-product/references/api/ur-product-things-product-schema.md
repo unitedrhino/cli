@@ -176,9 +176,8 @@ ur api /api/v1/things/product/schema/delete \
 | `isCanSceneLinkage` | integer | 否 | 是否可以场景联动 (格式: int64) |
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 是 | 产品id |
 | `propertyMode` | string | 否 | 属性类型可用 读写类型: 1:r(只读) 2:rw(可读可写) |
 | `tag` | integer | 否 | 过滤条件: 物模型标签 1:自定义 2:可选 3:必选 (格式: int64) |
@@ -196,14 +195,8 @@ ur api /api/v1/things/product/schema/delete \
   "isCanSceneLinkage": 1,
   "name": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productID": "string",
   "propertyMode": "string",
@@ -247,7 +240,7 @@ ur api /api/v1/things/product/schema/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/product/schema/get-list \
-  --body '{"controlMode": 1, "funcGroup": 1, "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "propertyMode": "string", "tag": 1, "type": 1, "types": [1]}'
+  --body '{"controlMode": 1, "funcGroup": 1, "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string", "propertyMode": "string", "tag": 1, "type": 1, "types": [1]}'
 ```
 
 ### POST `/api/v1/things/product/schema/tsl-import`

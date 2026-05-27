@@ -65,9 +65,8 @@ ur api /api/v1/things/alarm/record/deal \
 | `deviceAlias` | string | 否 | 触发设备名称 |
 | `deviceName` | string | 否 | 触发设备ID |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `timeRange` | object | 否 |  |
 | `timeRange.end` | integer | 否 | 结束时间 unix时间戳 (格式: int64) |
 | `timeRange.start` | integer | 否 | 开始时间 unix时间戳 (格式: int64) |
@@ -86,14 +85,8 @@ ur api /api/v1/things/alarm/record/deal \
   "deviceAlias": "示例名称",
   "deviceName": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "timeRange": {
     "end": 1,
@@ -137,5 +130,5 @@ ur api /api/v1/things/alarm/record/deal \
 **调用示例**:
 ```bash
 ur api /api/v1/things/alarm/record/get-list \
-  --body '{"alarmCode": "string", "alarmID": "string", "alarmName": "string", "areaID": "string", "areaIDPath": "string", "dealStatus": [1], "deviceAlias": "示例名称", "deviceName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "timeRange": {"end": 1, "start": 1}}'
+  --body '{"alarmCode": "string", "alarmID": "string", "alarmName": "string", "areaID": "string", "areaIDPath": "string", "dealStatus": [1], "deviceAlias": "示例名称", "deviceName": "string", "page": {"page": 1, "pageSize": 1}, "timeRange": {"end": 1, "start": 1}}'
 ```

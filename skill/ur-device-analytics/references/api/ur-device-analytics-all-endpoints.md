@@ -39,9 +39,8 @@
 | `belongGroup` | object | 否 | key是group的purpose, value是里面包含的分组id 只有partitionBy 传该参数的时候才会返回 |
 | `deviceName` | string | 否 | 设备名 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productCategoryCode` | string | 否 | 品类编码 |
 | `productCategoryID` | string | 否 | 只有管理员有权限 |
 | `productID` | string | 否 | 产品id |
@@ -72,14 +71,8 @@
   "belongGroup": {},
   "deviceName": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productCategoryCode": "string",
   "productCategoryID": "string",
@@ -129,7 +122,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/msg/abnormal-log/get-list \
-  --body '{"action": 1, "areaID": "string", "areaIDPath": "string", "areaIDs": ["string"], "belongGroup": {}, "deviceName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productCategoryCode": "string", "productCategoryID": "string", "productID": "string", "projectID": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z", "type": "string", "user": {"avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "email": "string", "lastIP": "string", "nickName": "string", "phone": "string", "regIP": "string", "userID": "string", "userName": "string"}}'
+  --body '{"action": 1, "areaID": "string", "areaIDPath": "string", "areaIDs": ["string"], "belongGroup": {}, "deviceName": "string", "page": {"page": 1, "pageSize": 1}, "productCategoryCode": "string", "productCategoryID": "string", "productID": "string", "projectID": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z", "type": "string", "user": {"avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "email": "string", "lastIP": "string", "nickName": "string", "phone": "string", "regIP": "string", "userID": "string", "userName": "string"}}'
 ```
 
 ### POST `/api/v1/things/device/msg/event-log/get-list`
@@ -145,9 +138,8 @@ ur api /api/v1/things/device/msg/abnormal-log/get-list \
 | `dataID` | string | 否 | 获取的具体标识符的数据 如果不指定则获取所有属性数据,一个属性一条,如果没有获取到的不会返回值 |
 | `deviceNames` | array[string] | 否 | 设备名(不填获取产品下所有设备) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 | 产品id 获取产品id下的所有设备信息 |
 | `timeEnd` | string | 否 | 时间的结束(毫秒时间戳) |
 | `timeStart` | string | 否 | 获取时间的开始(毫秒时间戳) |
@@ -161,14 +153,8 @@ ur api /api/v1/things/device/msg/abnormal-log/get-list \
     "string"
   ],
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productID": "string",
   "timeEnd": "2026-01-01T00:00:00Z",
@@ -203,7 +189,7 @@ ur api /api/v1/things/device/msg/abnormal-log/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/msg/event-log/get-list \
-  --body '{"dataID": "string", "deviceNames": ["string"], "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z", "types": ["string"]}'
+  --body '{"dataID": "string", "deviceNames": ["string"], "page": {"page": 1, "pageSize": 1}, "productID": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z", "types": ["string"]}'
 ```
 
 ### POST `/api/v1/things/device/msg/gateway-can-bind/get-list`
@@ -270,9 +256,8 @@ ur api /api/v1/things/device/msg/gateway-can-bind/get-list \
 | `content` | string | 否 | 过滤内容 |
 | `deviceName` | string | 否 | 设备名 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 | 产品id 获取产品id下的所有设备信息 |
 | `requestID` | string | 否 | 过滤请求ID |
 | `timeEnd` | string | 否 | 时间的结束(毫秒时间戳) |
@@ -288,14 +273,8 @@ ur api /api/v1/things/device/msg/gateway-can-bind/get-list \
   "content": "string",
   "deviceName": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productID": "string",
   "requestID": "string",
@@ -335,7 +314,7 @@ ur api /api/v1/things/device/msg/gateway-can-bind/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/msg/hub-log/get-list \
-  --body '{"actions": ["string"], "content": "string", "deviceName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "requestID": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z", "topics": ["string"]}'
+  --body '{"actions": ["string"], "content": "string", "deviceName": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string", "requestID": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z", "topics": ["string"]}'
 ```
 
 ### POST `/api/v1/things/device/msg/property-agg/by-device/get-list`
@@ -958,14 +937,8 @@ ur api /api/v1/things/device/msg/property-log-latest/get-list \
       "noFirstTs": true,
       "order": 1,
       "page": {
-        "orders": [
-          {
-            "field": "...",
-            "sort": "..."
-          }
-        ],
         "page": 1,
-        "size": 1
+        "pageSize": 1
       },
       "partitionBy": "string",
       "productCategoryCode": "string",
@@ -998,7 +971,7 @@ ur api /api/v1/things/device/msg/property-log-latest/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/msg/property-log/batch-get-list \
-  --body '{"reqs": [{"areaID": "string", "areaIDPath": "string", "areaIDs": ["string"], "argFunc": "2026-01-01T00:00:00Z", "belongGroup": {}, "dataID": "string", "deviceName": "string", "deviceNames": ["string"], "fill": "string", "interval": 1, "intervalUnit": "2026-01-01T00:00:00Z", "noFirstTs": true, "order": 1, "page": {"orders": [{"field": "...", "sort": "..."}], "page": 1, "size": 1}, "partitionBy": "string", "productCategoryCode": "string", "productCategoryID": "string", "productID": "string", "projectID": "string", "tenantCode": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z"}]}'
+  --body '{"reqs": [{"areaID": "string", "areaIDPath": "string", "areaIDs": ["string"], "argFunc": "2026-01-01T00:00:00Z", "belongGroup": {}, "dataID": "string", "deviceName": "string", "deviceNames": ["string"], "fill": "string", "interval": 1, "intervalUnit": "2026-01-01T00:00:00Z", "noFirstTs": true, "order": 1, "page": {"page": 1, "pageSize": 1}, "partitionBy": "string", "productCategoryCode": "string", "productCategoryID": "string", "productID": "string", "projectID": "string", "tenantCode": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z"}]}'
 ```
 
 ### POST `/api/v1/things/device/msg/property-log/get-list`
@@ -1025,9 +998,8 @@ ur api /api/v1/things/device/msg/property-log/batch-get-list \
 | `noFirstTs` | boolean | 否 | 时间戳填充不填充最早的值,聚合模式使用 (格式: boolean) |
 | `order` | integer | 否 | 时间排序 1:aes(默认,从久到近排序) 2:desc(时间从近到久排序) (格式: int64) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `partitionBy` | string | 否 | 切分数据,可以填写deviceName |
 | `productCategoryCode` | string | 否 | 品类编码 |
 | `productCategoryID` | string | 否 | 产品品类id,通用物模型有效 |
@@ -1058,14 +1030,8 @@ ur api /api/v1/things/device/msg/property-log/batch-get-list \
   "noFirstTs": true,
   "order": 1,
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "partitionBy": "string",
   "productCategoryCode": "string",
@@ -1111,7 +1077,7 @@ ur api /api/v1/things/device/msg/property-log/batch-get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/msg/property-log/get-list \
-  --body '{"areaID": "string", "areaIDPath": "string", "areaIDs": ["string"], "argFunc": "2026-01-01T00:00:00Z", "belongGroup": {}, "dataID": "string", "deviceName": "string", "deviceNames": ["string"], "fill": "string", "interval": 1, "intervalUnit": "2026-01-01T00:00:00Z", "noFirstTs": true, "order": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "partitionBy": "string", "productCategoryCode": "string", "productCategoryID": "string", "productID": "string", "projectID": "string", "tenantCode": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z"}'
+  --body '{"areaID": "string", "areaIDPath": "string", "areaIDs": ["string"], "argFunc": "2026-01-01T00:00:00Z", "belongGroup": {}, "dataID": "string", "deviceName": "string", "deviceNames": ["string"], "fill": "string", "interval": 1, "intervalUnit": "2026-01-01T00:00:00Z", "noFirstTs": true, "order": 1, "page": {"page": 1, "pageSize": 1}, "partitionBy": "string", "productCategoryCode": "string", "productCategoryID": "string", "productID": "string", "projectID": "string", "tenantCode": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z"}'
 ```
 
 ### POST `/api/v1/things/device/msg/sdk-log/get-list`
@@ -1127,9 +1093,8 @@ ur api /api/v1/things/device/msg/property-log/get-list \
 | `deviceName` | string | 否 | 设备名 |
 | `logLevel` | integer | 否 | 等级 (格式: int32) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 | 产品id 获取产品id下的所有设备信息 |
 | `timeEnd` | string | 否 | 时间的结束(毫秒时间戳) |
 | `timeStart` | string | 否 | 获取时间的开始(毫秒时间戳) |
@@ -1140,14 +1105,8 @@ ur api /api/v1/things/device/msg/property-log/get-list \
   "deviceName": "string",
   "logLevel": 1,
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productID": "string",
   "timeEnd": "2026-01-01T00:00:00Z",
@@ -1178,7 +1137,7 @@ ur api /api/v1/things/device/msg/property-log/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/msg/sdk-log/get-list \
-  --body '{"deviceName": "string", "logLevel": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z"}'
+  --body '{"deviceName": "string", "logLevel": 1, "page": {"page": 1, "pageSize": 1}, "productID": "string", "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z"}'
 ```
 
 ### POST `/api/v1/things/device/msg/send-log/get-list`
@@ -1201,9 +1160,8 @@ ur api /api/v1/things/device/msg/sdk-log/get-list \
 | `groupIDPaths` | array[string] | 否 | 只有管理员有权限 |
 | `groupIDs` | array[string] | 否 | 只有管理员有权限 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productCategoryCode` | string | 否 | 品类编码 |
 | `productCategoryID` | string | 否 | 只有管理员有权限 |
 | `productID` | string | 否 | 产品id |
@@ -1237,14 +1195,8 @@ ur api /api/v1/things/device/msg/sdk-log/get-list \
     "string"
   ],
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productCategoryCode": "string",
   "productCategoryID": "string",
@@ -1299,7 +1251,7 @@ ur api /api/v1/things/device/msg/sdk-log/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/msg/send-log/get-list \
-  --body '{"actions": ["string"], "areaID": "string", "areaIDPath": "string", "areaIDs": ["string"], "dataID": "string", "dataIDs": ["string"], "deviceName": "string", "groupIDPaths": ["string"], "groupIDs": ["string"], "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productCategoryCode": "string", "productCategoryID": "string", "productID": "string", "projectID": "string", "resultCode": 1, "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z", "userID": "string", "withUser": true}'
+  --body '{"actions": ["string"], "areaID": "string", "areaIDPath": "string", "areaIDs": ["string"], "dataID": "string", "dataIDs": ["string"], "deviceName": "string", "groupIDPaths": ["string"], "groupIDs": ["string"], "page": {"page": 1, "pageSize": 1}, "productCategoryCode": "string", "productCategoryID": "string", "productID": "string", "projectID": "string", "resultCode": 1, "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z", "userID": "string", "withUser": true}'
 ```
 
 ### POST `/api/v1/things/device/msg/shadow/get-list`
@@ -1364,9 +1316,8 @@ ur api /api/v1/things/device/msg/shadow/get-list \
 |------|------|------|------|
 | `deviceName` | string | 否 | 设备名 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 | 产品id |
 | `status` | integer | 否 | 在线状态 (格式: int64) |
 | `timeEnd` | string | 否 | 时间的结束(毫秒时间戳) |
@@ -1377,14 +1328,8 @@ ur api /api/v1/things/device/msg/shadow/get-list \
 {
   "deviceName": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "productID": "string",
   "status": 1,
@@ -1417,5 +1362,5 @@ ur api /api/v1/things/device/msg/shadow/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/msg/status-log/get-list \
-  --body '{"deviceName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "status": 1, "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z"}'
+  --body '{"deviceName": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string", "status": 1, "timeEnd": "2026-01-01T00:00:00Z", "timeStart": "2026-01-01T00:00:00Z"}'
 ```

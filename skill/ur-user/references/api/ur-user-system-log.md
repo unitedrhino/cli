@@ -29,9 +29,8 @@
 | `ipAddr` | string | 否 | 按ip地址查找 |
 | `loginLocation` | string | 否 | 按登录地址查找 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `userID` | string | 否 |  用户id |
 | `userName` | string | 否 |  登录账号 |
 
@@ -47,14 +46,8 @@
   "ipAddr": "string",
   "loginLocation": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "userID": "string",
   "userName": "string"
@@ -91,7 +84,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/system/log/login/get-list \
-  --body '{"appID": "string", "code": "string", "dateRange": {"end": "2026-01-01T00:00:00Z", "start": "2026-01-01T00:00:00Z"}, "ipAddr": "string", "loginLocation": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "userID": "string", "userName": "string"}'
+  --body '{"appID": "string", "code": "string", "dateRange": {"end": "2026-01-01T00:00:00Z", "start": "2026-01-01T00:00:00Z"}, "ipAddr": "string", "loginLocation": "string", "page": {"page": 1, "pageSize": 1}, "userID": "string", "userName": "string"}'
 ```
 
 ### POST `/api/v1/system/log/oper/get-list`
@@ -113,9 +106,8 @@ ur api /api/v1/system/log/login/get-list \
 | `operUserID` | string | 否 |  操作用户id |
 | `operUserName` | string | 否 | 按操作人员名称查找 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -129,14 +121,8 @@ ur api /api/v1/system/log/login/get-list \
   "operUserID": "string",
   "operUserName": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   }
 }
 ```
@@ -176,5 +162,5 @@ ur api /api/v1/system/log/login/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/log/oper/get-list \
-  --body '{"accessKey": "string", "appID": "string", "authType": "string", "code": "string", "operName": "示例名称", "operType": "string", "operUserID": "string", "operUserName": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
+  --body '{"accessKey": "string", "appID": "string", "authType": "string", "code": "string", "operName": "示例名称", "operType": "string", "operUserID": "string", "operUserName": "示例名称", "page": {"page": 1, "pageSize": 1}}'
 ```

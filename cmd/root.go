@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"gitee.com/unitedrhino/cli/cmd/ai"
+	"gitee.com/unitedrhino/cli/cmd/generated"
 	"gitee.com/unitedrhino/cli/cmd/things"
 	"gitee.com/unitedrhino/cli/internal/cmdutil"
 	"gitee.com/unitedrhino/cli/internal/config"
@@ -35,6 +36,10 @@ func init() {
 	// 注册命名空间父命令
 	RootCmd.AddCommand(things.ThingsCmd)
 	RootCmd.AddCommand(ai.AICmd)
+
+	// 注册 Layer 2 自动生成命令
+	generated.RegisterSystemCommands(RootCmd)
+	generated.RegisterThingsCommands(RootCmd)
 }
 
 // Execute 执行根命令，返回退出码

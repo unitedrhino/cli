@@ -61,9 +61,8 @@ ur api /api/v1/things/data/area/user/apply/deal \
 | `areaID` | string | 否 | 项目id |
 | `authTypes` | array[integer] | 否 | 权限类型 1:读权限,只能读,不能写 4:管理权限,可以修改别人的权限 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `withAreaInfo` | boolean | 否 | 把区域信息附带上 (格式: boolean) |
 | `withUserInfo` | boolean | 否 | 把用户信息带上 (格式: boolean) |
 
@@ -75,14 +74,8 @@ ur api /api/v1/things/data/area/user/apply/deal \
     1
   ],
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "withAreaInfo": true,
   "withUserInfo": true
@@ -238,5 +231,5 @@ ur api /api/v1/things/data/area/user/apply/deal \
 **调用示例**:
 ```bash
 ur api /api/v1/things/data/area/user/apply/get-list \
-  --body '{"areaID": "string", "authTypes": [1], "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "withAreaInfo": true, "withUserInfo": true}'
+  --body '{"areaID": "string", "authTypes": [1], "page": {"page": 1, "pageSize": 1}, "withAreaInfo": true, "withUserInfo": true}'
 ```

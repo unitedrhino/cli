@@ -344,7 +344,7 @@ ur api /api/v1/system/tenant/app/menu/get-list \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }

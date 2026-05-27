@@ -56,9 +56,8 @@ ur api /api/v1/system/check-in/do \
 |------|------|------|------|
 | `endTime` | string | 否 |  结束时间(Unix毫秒) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `startTime` | string | 否 |  开始时间(Unix毫秒) |
 | `userID` | string | 否 |  管理员可指定用户ID |
 
@@ -67,14 +66,8 @@ ur api /api/v1/system/check-in/do \
 {
   "endTime": "2026-01-01T00:00:00Z",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "startTime": "2026-01-01T00:00:00Z",
   "userID": "string"
@@ -107,7 +100,7 @@ ur api /api/v1/system/check-in/do \
 **调用示例**:
 ```bash
 ur api /api/v1/system/check-in/get-list \
-  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
+  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"page": 1, "pageSize": 1}, "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
 ```
 
 ### POST `/api/v1/system/check-in/point-balance/get`
@@ -182,9 +175,8 @@ ur api /api/v1/system/check-in/point-log/adjust \
 |------|------|------|------|
 | `endTime` | string | 否 |  结束时间(Unix毫秒) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `source` | string | 否 |  来源过滤: checkIn/admin |
 | `startTime` | string | 否 |  开始时间(Unix毫秒) |
 | `userID` | string | 否 |  管理员可指定用户ID |
@@ -194,14 +186,8 @@ ur api /api/v1/system/check-in/point-log/adjust \
 {
   "endTime": "2026-01-01T00:00:00Z",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "source": "string",
   "startTime": "2026-01-01T00:00:00Z",
@@ -236,5 +222,5 @@ ur api /api/v1/system/check-in/point-log/adjust \
 **调用示例**:
 ```bash
 ur api /api/v1/system/check-in/point-log/get-list \
-  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "source": "string", "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
+  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"page": 1, "pageSize": 1}, "source": "string", "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
 ```

@@ -27,12 +27,19 @@ DOMAIN_PREFIXES = {
     "ur-device-analytics": ["/api/v1/things/device/msg/"],
     "ur-device-debug": ["/api/v1/things/device/interact/"],
     "ur-device": ["/api/v1/things/device/"],
-    "ur-product": ["/api/v1/things/product/", "/api/v1/things/device/ota/"],
+    "ur-product": ["/api/v1/things/product/"],
+    "ur-ota": ["/api/v1/things/ota/"],
+    "ur-protocol": ["/api/v1/things/protocol/"],
+    "ur-rule": ["/api/v1/things/rule/"],
+    "ur-schema": ["/api/v1/things/schema/"],
     "ur-project": ["/api/v1/things/project/", "/api/v1/things/area/", "/api/v1/things/group/", "/api/v1/things/data/"],
+    "ur-iot-user": ["/api/v1/things/user/"],
+    "ur-iot-config": ["/api/v1/things/config/"],
+    "ur-iot-hook": ["/api/v1/things/hook/"],
     "ur-user": ["/api/v1/system/user/", "/api/v1/system/role/", "/api/v1/system/dept/", "/api/v1/system/dict/", "/api/v1/system/notify/", "/api/v1/system/log/"],
     "ur-tenant": ["/api/v1/system/tenant/"],
     "ur-system": ["/api/v1/system/"],
-    "ur-ai": ["/api/v1/ai/", "/api/v1/things/alarm/", "/api/v1/things/scene/"],
+    "ur-ai": ["/api/v1/ai/", "/api/v1/things/ai/", "/api/v1/things/alarm/", "/api/v1/things/scene/"],
 }
 
 # 反向映射：路径前缀 -> domain
@@ -77,7 +84,7 @@ def find_swagger_dir():
 def load_swagger(swagger_dir):
     """加载并合并所有 swagger 数据"""
     all_data = {}
-    for filename in ["core-api.json", "things-api.json"]:
+    for filename in ["core-api.json", "things-api.json", "core-ai.json", "things-ai.json"]:
         path = Path(swagger_dir) / filename
         if not path.exists():
             print(f"警告: 找不到 {path}", file=sys.stderr)
@@ -91,7 +98,7 @@ def load_swagger(swagger_dir):
 def load_endpoints(swagger_dir):
     """加载并合并所有 swagger 端点"""
     endpoints = []
-    for filename in ["core-api.json", "things-api.json"]:
+    for filename in ["core-api.json", "things-api.json", "core-ai.json", "things-ai.json"]:
         path = Path(swagger_dir) / filename
         if not path.exists():
             print(f"警告: 找不到 {path}", file=sys.stderr)

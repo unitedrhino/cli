@@ -56,7 +56,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -78,12 +78,12 @@ ur api /api/v1/system/notify/news/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -98,7 +98,7 @@ ur api /api/v1/system/notify/news/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/news/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/notify/news/info`
@@ -111,12 +111,12 @@ ur api /api/v1/system/notify/news/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -143,7 +143,7 @@ ur api /api/v1/system/notify/news/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/news/info \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/notify/news/list`
@@ -159,9 +159,8 @@ ur api /api/v1/system/notify/news/info \
 | `notifyTimeEnd` | integer | 否 |  发布时间结束 (格式: int64) |
 | `notifyTimeStart` | integer | 否 |  发布时间开始 (格式: int64) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  状态筛选 |
 | `title` | string | 否 |  标题模糊搜索 |
 
@@ -171,14 +170,8 @@ ur api /api/v1/system/notify/news/info \
   "notifyTimeEnd": 1,
   "notifyTimeStart": 1,
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": "string",
   "title": "string"
@@ -215,7 +208,7 @@ ur api /api/v1/system/notify/news/info \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/news/list \
-  --body '{"notifyTimeEnd": 1, "notifyTimeStart": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string", "title": "string"}'
+  --body '{"notifyTimeEnd": 1, "notifyTimeStart": 1, "page": {"page": 1, "pageSize": 1}, "status": "string", "title": "string"}'
 ```
 
 ### POST `/api/v1/system/notify/news/update`

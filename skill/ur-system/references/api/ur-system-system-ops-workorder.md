@@ -56,7 +56,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -81,9 +81,8 @@ ur api /api/v1/system/ops/work-order/create \
 | `areaID` | string | 否 | 区域ID过滤 |
 | `number` | string | 否 | 编号 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int64 |
 | `type` | string | 否 | 工单类型: deviceMaintenance:设备维修工单 |
 
@@ -93,14 +92,8 @@ ur api /api/v1/system/ops/work-order/create \
   "areaID": "string",
   "number": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "type": "string"
@@ -138,7 +131,7 @@ ur api /api/v1/system/ops/work-order/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/ops/work-order/get-list \
-  --body '{"areaID": "string", "number": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "type": "string"}'
+  --body '{"areaID": "string", "number": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "type": "string"}'
 ```
 
 ### POST `/api/v1/system/ops/work-order/update`

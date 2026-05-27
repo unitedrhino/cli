@@ -100,9 +100,8 @@ ur api /api/v1/system/tenant/app/delete \
 | `appIDs` | array[string] | 否 |  |
 | `notAppID` | string | 否 | 排除某个应用ID |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  应用状态 1 正常(默认)，2 禁用，3 过期 (格式: int64) |
 | `subType` | string | 否 | 子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
 | `tenantCode` | string | 否 | 指定租户,租户下只能过滤 common或他自己的  common的是通用应用,非common的是租户应用 |
@@ -119,14 +118,8 @@ ur api /api/v1/system/tenant/app/delete \
   ],
   "notAppID": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "subType": "string",
@@ -227,7 +220,7 @@ ur api /api/v1/system/tenant/app/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/app/get-list \
-  --body '{"appID": "string", "appIDs": ["string"], "notAppID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "subType": "string", "tenantCode": "string", "type": "string", "useBy": "string", "withApp": true}'
+  --body '{"appID": "string", "appIDs": ["string"], "notAppID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "subType": "string", "tenantCode": "string", "type": "string", "useBy": "string", "withApp": true}'
 ```
 
 ### POST `/api/v1/system/tenant/app/get-one`

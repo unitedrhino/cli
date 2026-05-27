@@ -235,7 +235,7 @@ ur api /api/v1/system/dict/info/batch-import \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -257,12 +257,12 @@ ur api /api/v1/system/dict/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -277,7 +277,7 @@ ur api /api/v1/system/dict/info/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/info/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/dict/info/get-list`
@@ -293,9 +293,8 @@ ur api /api/v1/system/dict/info/delete \
 | `group` | string | 否 |  |
 | `name` | string | 否 |  名称 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int64 |
 | `withDetail` | boolean | 否 |  true 时每条 DictInfo 附带 details（仅当前页字典分类） (格式: boolean) |
 
@@ -305,14 +304,8 @@ ur api /api/v1/system/dict/info/delete \
   "group": "string",
   "name": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "withDetail": true
@@ -377,7 +370,7 @@ ur api /api/v1/system/dict/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/info/get-list \
-  --body '{"group": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "withDetail": true}'
+  --body '{"group": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1, "withDetail": true}'
 ```
 
 ### POST `/api/v1/system/dict/info/get-one`

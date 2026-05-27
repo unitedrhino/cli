@@ -53,7 +53,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -75,12 +75,12 @@ ur api /api/v1/system/resource/api/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -95,7 +95,7 @@ ur api /api/v1/system/resource/api/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/resource/api/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/resource/api/get-list`
@@ -116,9 +116,8 @@ ur api /api/v1/system/resource/api/delete \
 | `name` | string | 否 |  接口名称 |
 | `operTypeCode` | string | 否 |  操作类型编码 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `resource` | string | 否 |  资源标识 |
 | `route` | string | 否 |  接口路由 |
 
@@ -133,14 +132,8 @@ ur api /api/v1/system/resource/api/delete \
   "name": "示例名称",
   "operTypeCode": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "resource": "string",
   "route": "string"
@@ -191,7 +184,7 @@ ur api /api/v1/system/resource/api/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/resource/api/get-list \
-  --body '{"accessCode": "string", "authType": 1, "authTypeCode": "string", "groupCode": "string", "method": "string", "name": "示例名称", "operTypeCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "resource": "string", "route": "string"}'
+  --body '{"accessCode": "string", "authType": 1, "authTypeCode": "string", "groupCode": "string", "method": "string", "name": "示例名称", "operTypeCode": "string", "page": {"page": 1, "pageSize": 1}, "resource": "string", "route": "string"}'
 ```
 
 ### POST `/api/v1/system/resource/api/update`

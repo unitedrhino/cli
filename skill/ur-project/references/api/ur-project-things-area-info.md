@@ -850,9 +850,8 @@ ur api /api/v1/things/area/info/delete \
 | `groupCount.value` | string | 是 |  |
 | `isRetTopLevel` | boolean | 否 | 如果该参数为true则返回除了root节点的有权限的最高层的区域列表 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentAreaID` | string | 否 |  |
 | `projectID` | string | 否 | 项目id |
 | `tenantCode` | string | 否 |  |
@@ -874,14 +873,8 @@ ur api /api/v1/things/area/info/delete \
   },
   "isRetTopLevel": true,
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "parentAreaID": "string",
   "projectID": "string",
@@ -1128,7 +1121,7 @@ ur api /api/v1/things/area/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/area/info/get-list \
-  --body '{"areaIDs": ["string"], "deviceCount": {"cmpType": "string", "value": "string"}, "groupCount": {"cmpType": "string", "value": "string"}, "isRetTopLevel": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentAreaID": "string", "projectID": "string", "tenantCode": "string", "withDevices": true}'
+  --body '{"areaIDs": ["string"], "deviceCount": {"cmpType": "string", "value": "string"}, "groupCount": {"cmpType": "string", "value": "string"}, "isRetTopLevel": true, "page": {"page": 1, "pageSize": 1}, "parentAreaID": "string", "projectID": "string", "tenantCode": "string", "withDevices": true}'
 ```
 
 ### POST `/api/v1/things/area/info/get-one`

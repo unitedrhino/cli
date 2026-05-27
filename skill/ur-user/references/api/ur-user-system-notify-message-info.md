@@ -23,12 +23,12 @@
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 否 |  id |
+| `id` | integer | 是 |  资源ID (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -43,7 +43,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/message/info/delete \
-  --body '{"id": "string"}'
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/notify/message/info/get-list`
@@ -61,9 +61,8 @@ ur api /api/v1/system/notify/message/info/delete \
 | `notificationID` | string | 否 | 关联手动通知ID |
 | `notifyCode` | string | 否 | 通知编码 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -73,14 +72,8 @@ ur api /api/v1/system/notify/message/info/delete \
   "notificationID": "string",
   "notifyCode": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   }
 }
 ```
@@ -131,7 +124,7 @@ ur api /api/v1/system/notify/message/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/message/info/get-list \
-  --body '{"group": "string", "isGlobal": 1, "notificationID": "string", "notifyCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
+  --body '{"group": "string", "isGlobal": 1, "notificationID": "string", "notifyCode": "string", "page": {"page": 1, "pageSize": 1}}'
 ```
 
 ### POST `/api/v1/system/notify/message/info/send`

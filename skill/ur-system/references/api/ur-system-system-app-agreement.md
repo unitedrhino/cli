@@ -144,9 +144,8 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
 | `agreementID` | string | 否 |  |
 | `appID` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int64 |
 | `type` | string | 否 |  |
 | `withAgreement` | boolean | 否 | 格式: boolean |
@@ -158,14 +157,8 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
   "agreementID": "string",
   "appID": "string",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "status": 1,
   "type": "string",
@@ -274,5 +267,5 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/agreement/get-bind-list \
-  --body '{"agreementID": "string", "appID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "type": "string", "withAgreement": true, "withApp": true}'
+  --body '{"agreementID": "string", "appID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "type": "string", "withAgreement": true, "withApp": true}'
 ```

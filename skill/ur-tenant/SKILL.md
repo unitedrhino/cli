@@ -11,7 +11,7 @@ metadata:
 
 > **本文件由 `ur generate-skills` 自动生成，请勿手动编辑**
 >
-> 如需更新，修改 `scripts/lib/swagger.ts` 中的域名定义后重新生成。
+> 如需更新，修改 `scripts/generate-api-lists.py` 中的域名定义后重新生成。
 
 ## 核心概念
 

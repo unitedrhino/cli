@@ -155,9 +155,8 @@ ur api /api/v1/system/dept/sync-job/execute \
 | `direction` | integer | 否 |  同步的方向,1上游同步到联犀(默认),2联犀同步到下游 (格式: int64) |
 | `name` | string | 否 |  名称 |
 | `page` | object | 否 |  |
-| `page.orders` | array[OrderBy] | 否 | 排序 |
-| `page.page` | integer | 否 |  页码 (格式: int64) |
-| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
+| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父节点 |
 | `status` | integer | 否 |  状态  1:启用,2:禁用 (格式: int64) |
 
@@ -167,14 +166,8 @@ ur api /api/v1/system/dept/sync-job/execute \
   "direction": 1,
   "name": "示例名称",
   "page": {
-    "orders": [
-      {
-        "field": "string",
-        "sort": 1
-      }
-    ],
     "page": 1,
-    "size": 1
+    "pageSize": 1
   },
   "parentID": "string",
   "status": 1
@@ -216,7 +209,7 @@ ur api /api/v1/system/dept/sync-job/execute \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dept/sync-job/get-list \
-  --body '{"direction": 1, "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "status": 1}'
+  --body '{"direction": 1, "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "status": 1}'
 ```
 
 ### POST `/api/v1/system/dept/sync-job/get-one`

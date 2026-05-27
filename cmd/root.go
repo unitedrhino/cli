@@ -21,7 +21,7 @@ AI 工具开发、API 调用等功能。
 
 通过访问令牌认证，支持多租户、多应用切换。`,
 	SilenceUsage:  true,
-	SilenceErrors: true,
+	SilenceErrors: false,
 }
 
 var (

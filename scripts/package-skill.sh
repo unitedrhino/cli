@@ -126,15 +126,13 @@ build_for_arch() {
     return
   fi
 
-  # 生成每个应用的 skill 文档（使用本地 go run，不跨架构运行）
-  for app in platform-manage iot org-manage org-energy console; do
-    local app_skill_dir="${skill_dir}/ur-${app}"
-    mkdir -p "${app_skill_dir}"
-    (cd "${ROOT}" && go run "./cmd/ur-${app}" generate-skills --output "${app_skill_dir}")
-    cp -R "${ROOT}/references" "${app_skill_dir}/references" 2>/dev/null || true
-  done
+  # 生成统一的 ur-api skill 文档（包含所有应用的所有端点）
+  local api_skill_dir="${skill_dir}/ur-api"
+  mkdir -p "${api_skill_dir}"
+  (cd "${ROOT}" && go run . generate-skills --all --output "${api_skill_dir}")
+  cp -R "${ROOT}/references" "${api_skill_dir}/references" 2>/dev/null || true
 
-  # 生成顶层 SKILL.md 索引
+  # 保留顶层 SKILL.md 作为向后兼容的入口（内容指向 ur-api）
   cat > "${skill_dir}/SKILL.md" <<'INDEX'
 ---
 name: ur-api
@@ -274,14 +272,6 @@ CLI 支持两种认证机制：
 2. 如果是**设备/产品/项目管理/OTA** → 平台管理员和租户管理员都用 `ur-iot`
 3. 如果是**协议开发**（协议网关、通用物模型、产品品类）→ 必须用 `ur-iot`（且需平台管理员权限）
 
-## 各应用详细文档
-
-- [ur-platform-manage](ur-platform-manage/SKILL.md) — 平台管理
-- [ur-iot](ur-iot/SKILL.md) — 物联网
-- [ur-org-manage](ur-org-manage/SKILL.md) — 组织管理
-- [ur-org-energy](ur-org-energy/SKILL.md) — 能源管理
-- [ur-console](ur-console/SKILL.md) — 控制台
-
 ## 通用用法
 
 ```bash
@@ -300,19 +290,19 @@ ur-iot token --decode
 INDEX
 
   # 生成 Docker 场景 wrapper 脚本（直接调用 /usr/local/bin/ur-xxx）
+  local api_skill_dir="${skill_dir}/ur-api"
+  mkdir -p "${api_skill_dir}/scripts"
   for app in platform-manage iot org-manage org-energy console; do
-    local app_skill_dir="${skill_dir}/ur-${app}"
-    mkdir -p "${app_skill_dir}/scripts"
     for cmd in api check schema token login config setup generate-skills; do
-      cat > "${app_skill_dir}/scripts/${cmd}.sh" <<EOF
+      cat > "${api_skill_dir}/scripts/${cmd}-${app}.sh" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
 exec /usr/local/bin/ur-${app} ${cmd} "\$@"
 EOF
-      chmod +x "${app_skill_dir}/scripts/${cmd}.sh"
+      chmod +x "${api_skill_dir}/scripts/${cmd}-${app}.sh"
       # Windows 备用：生成 .cmd 包装脚本
       if [[ "${goos}" == "windows" ]]; then
-        cat > "${app_skill_dir}/scripts/${cmd}.cmd" <<EOFCMD
+        cat > "${api_skill_dir}/scripts/${cmd}-${app}.cmd" <<EOFCMD
 @echo off
 "C:\Program Files\ur\ur-${app}.exe" ${cmd} %*
 EOFCMD

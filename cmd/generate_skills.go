@@ -6,6 +6,7 @@ import (
 )
 
 var generateSkillsOutputFlag string
+var generateSkillsAllFlag bool
 
 var generateSkillsCmd = &cobra.Command{
 	Use:   "generate-skills",
@@ -16,6 +17,9 @@ var generateSkillsCmd = &cobra.Command{
 		// 将 cobra flag 重新组装为 RunGenerateSkills 期望的 args 格式
 		if generateSkillsOutputFlag != "" {
 			args = append(args, "--output", generateSkillsOutputFlag)
+		}
+		if generateSkillsAllFlag {
+			args = append(args, "--all")
 		}
 		code := shared.CobraBridge{}.RunGenerateSkills(app, args, cmd.OutOrStdout(), cmd.ErrOrStderr())
 		if code != 0 {
@@ -28,4 +32,5 @@ var generateSkillsCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(generateSkillsCmd)
 	generateSkillsCmd.Flags().StringVarP(&generateSkillsOutputFlag, "output", "o", "", "指定输出目录")
+	generateSkillsCmd.Flags().BoolVar(&generateSkillsAllFlag, "all", false, "生成包含所有端点的统一 skill（ur-api），不过滤应用权限")
 }

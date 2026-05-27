@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-var requiredFiles = []string{"core-api.json", "things-api.json"}
+var requiredFiles = []string{"core-api.json", "things-api.json", "core-ai.json", "things-ai.json"}
 
 func ResolveFiles() ([]string, error) {
 	roots := candidateRoots()

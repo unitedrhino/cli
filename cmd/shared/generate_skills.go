@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"gitee.com/unitedrhino/cli/internal/config"
@@ -76,42 +77,104 @@ func runGenerateSkills(app config.CLIApp, args []string, stdout, stderr io.Write
 	}
 	fmt.Fprintf(stdout, "generated %s\n", indexPath)
 
-	// 当 allEndpoints=true 时，按路径前缀拆分为多个引用文件，避免单个文档过大
+	// 当 allEndpoints=true 时，按多级目录结构拆分为引用文件：
+	// Tier 2: 领域索引文件（只含 group 名称和数量）
+	// Tier 3: group 详细文件（每个 group 的端点列表）
 	if allEndpoints {
 		refDir := filepath.Join(outputDir, "references")
 		if err := os.MkdirAll(refDir, 0o755); err != nil {
 			fmt.Fprintln(stderr, err.Error())
 			return 1
 		}
-		prefixes := map[string]string{
-			"system-apis.md":  "/api/v1/system/",
-			"things-apis.md":  "/api/v1/things/",
-			"ai-apis.md":      "/api/v1/ai/",
+		groupsDir := filepath.Join(refDir, "groups")
+		if err := os.MkdirAll(groupsDir, 0o755); err != nil {
+			fmt.Fprintln(stderr, err.Error())
+			return 1
 		}
+
+		// 按路径前缀和 group 分组
+		prefixes := map[string]string{
+			"system-index.md": "/api/v1/system/",
+			"things-index.md": "/api/v1/things/",
+			"ai-index.md":     "/api/v1/ai/",
+		}
+
+		// 先全局按 group 分组（用于生成 group 详细文件）
+		allGroups := map[string][]swagger.Endpoint{}
+		for _, item := range filtered {
+			allGroups[item.Group] = append(allGroups[item.Group], item)
+		}
+
+		// 生成 Tier 3: 每个 group 一个详细文件
+		groupFileCount := 0
+		for group, eps := range allGroups {
+			if len(eps) == 0 {
+				continue
+			}
+			groupFile := strings.ReplaceAll(group, "/", "-") + ".md"
+			if groupFile == "" || groupFile == "-.md" {
+				groupFile = "uncategorized.md"
+			}
+			var gb strings.Builder
+			gb.WriteString(fmt.Sprintf("# %s\n\n", group))
+			gb.WriteString(fmt.Sprintf("> 该 group 共 %d 个端点。\n\n", len(eps)))
+			for _, ep := range eps {
+				summary := ep.Summary
+				if summary == "" {
+					summary = ep.Description
+				}
+				gb.WriteString(fmt.Sprintf("- `%s %s` [%s] %s\n", ep.Method, ep.Path, ep.AuthType, summary))
+			}
+			groupPath := filepath.Join(groupsDir, groupFile)
+			if err := os.WriteFile(groupPath, []byte(gb.String()), 0o644); err != nil {
+				fmt.Fprintln(stderr, err.Error())
+				return 1
+			}
+			groupFileCount++
+		}
+		fmt.Fprintf(stdout, "generated %d group files in %s\n", groupFileCount, groupsDir)
+
+		// 生成 Tier 2: 领域索引文件（只含 group 名称 + 数量 + 指引）
 		for filename, prefix := range prefixes {
-			var refBuilder strings.Builder
-			refBuilder.WriteString(fmt.Sprintf("# %s API Index\n\n", strings.TrimSuffix(filename, ".md")))
-			refBuilder.WriteString(fmt.Sprintf("> 路径前缀 `%s` 的端点列表。\n\n", prefix))
-			count := 0
+			groups := map[string][]swagger.Endpoint{}
 			for _, item := range filtered {
 				if !strings.HasPrefix(item.Path, prefix) {
 					continue
 				}
-				summary := item.Summary
-				if summary == "" {
-					summary = item.Description
-				}
-				refBuilder.WriteString(fmt.Sprintf("- `%s %s` [%s] %s\n", item.Method, item.Path, item.AuthType, summary))
-				count++
+				groups[item.Group] = append(groups[item.Group], item)
 			}
-			if count > 0 {
-				refPath := filepath.Join(refDir, filename)
-				if err := os.WriteFile(refPath, []byte(refBuilder.String()), 0o644); err != nil {
-					fmt.Fprintln(stderr, err.Error())
-					return 1
-				}
-				fmt.Fprintf(stdout, "generated %s (%d endpoints)\n", refPath, count)
+			if len(groups) == 0 {
+				continue
 			}
+
+			var groupNames []string
+			for g := range groups {
+				groupNames = append(groupNames, g)
+			}
+			sort.Strings(groupNames)
+
+			var idxBuilder strings.Builder
+			domain := strings.TrimSuffix(filename, "-index.md")
+			idxBuilder.WriteString(fmt.Sprintf("# %s 领域索引\n\n", domain))
+			idxBuilder.WriteString(fmt.Sprintf("> 路径前缀 `%s` 下的所有 group。如需查看某个 group 的详细端点，调用 `skill_view(name=\"ur-api\", filePath=\"references/groups/{group文件名}.md\")`。\n\n", prefix))
+			idxBuilder.WriteString("| Group | 端点数量 | 对应文件 |\n")
+			idxBuilder.WriteString("|-------|---------|---------|\n")
+			for _, group := range groupNames {
+				eps := groups[group]
+				groupFile := strings.ReplaceAll(group, "/", "-") + ".md"
+				if groupFile == "" || groupFile == "-.md" {
+					groupFile = "uncategorized.md"
+				}
+				idxBuilder.WriteString(fmt.Sprintf("| `%s` | %d | `references/groups/%s` |\n", group, len(eps), groupFile))
+			}
+			idxBuilder.WriteString("\n")
+
+			idxPath := filepath.Join(refDir, filename)
+			if err := os.WriteFile(idxPath, []byte(idxBuilder.String()), 0o644); err != nil {
+				fmt.Fprintln(stderr, err.Error())
+				return 1
+			}
+			fmt.Fprintf(stdout, "generated %s (%d groups)\n", idxPath, len(groups))
 		}
 	}
 
@@ -178,16 +241,19 @@ func generateSkillMD(app config.CLIApp, endpoints []swagger.Endpoint, allEndpoin
 
 		// 常见查询速查：当子 skill 不可用时，LLM 可直接从主文档获取常用 API
 		b.WriteString("## 常见查询速查\n\n")
-		b.WriteString("以下是最常用的查询场景及对应 API。优先尝试这些接口，无需查阅子 skill：\n\n")
-		b.WriteString("| 查询场景 | 推荐 CLI | API 命令示例 |\n")
-		b.WriteString("|---------|---------|-------------|\n")
-		b.WriteString("| 查询【我的】应用列表 | `ur-console` | `api /api/v1/system/user/self/app/get-list` |\n")
-		b.WriteString("| 查询【我的】菜单列表 | `ur-console` | `api /api/v1/system/user/self/menu/get-list` |\n")
-		b.WriteString("| 查询当前用户信息 | `ur-console` | `api /api/v1/system/user/self/get-one` |\n")
-		b.WriteString("| 查询设备列表 | `ur-iot` | `api /api/v1/things/device/info/get-list` |\n")
-		b.WriteString("| 查询产品列表 | `ur-iot` | `api /api/v1/things/product/info/get-list` |\n")
-		b.WriteString("| 查询项目列表 | `ur-iot` | `api /api/v1/things/project/info/get-list` |\n")
+		b.WriteString("以下是最常用的查询场景及对应 API。**优先尝试这些接口，无需查阅子 skill**。\n\n")
+		b.WriteString("| 查询场景 | 推荐 CLI | API 命令示例 | 权限 |\n")
+		b.WriteString("|---------|---------|-------------|------|\n")
+		b.WriteString("| 查询【我的】应用列表 | `ur-console` | `api /api/v1/system/user/self/app/get-list` | all（任何登录用户） |\n")
+		b.WriteString("| 查询【我的】菜单列表 | `ur-console` | `api /api/v1/system/user/self/menu/get-list` | all（任何登录用户） |\n")
+		b.WriteString("| 查询当前用户信息 | `ur-console` | `api /api/v1/system/user/self/get-one` | all（任何登录用户） |\n")
+		b.WriteString("| 查询设备列表 | `ur-iot` | `api /api/v1/things/device/info/get-list` | admin/tenant |\n")
+		b.WriteString("| 查询产品列表 | `ur-iot` | `api /api/v1/things/product/info/get-list` | admin/tenant |\n")
+		b.WriteString("| 查询项目列表 | `ur-iot` | `api /api/v1/things/project/info/get-list` | admin/tenant |\n")
 		b.WriteString("\n")
+		b.WriteString("> **空结果说明**：如果 `user/self/app/get-list` 返回空列表（`list: []`），表示**当前用户没有任何应用权限**。\n")
+		b.WriteString("> 此时应直接告知用户『您当前没有分配任何应用』，**不要**再去 `system/app/info/get-list`（platform 权限）查找。\n")
+		b.WriteString("> `system/app/info/get-list` 是平台管理员专属接口，普通用户调用会返回权限不足。\n\n")
 	} else {
 		// 应用信息
 		b.WriteString("## 应用信息\n\n")
@@ -219,11 +285,14 @@ func generateSkillMD(app config.CLIApp, endpoints []swagger.Endpoint, allEndpoin
 	if allEndpoints {
 		b.WriteString(fmt.Sprintf("共 %d 个可调用端点（涵盖所有应用）。\n\n", len(endpoints)))
 		b.WriteString("> **注意**：本 skill 为统一索引。上方「常见查询速查」已列出最常用 API，**优先尝试速查表中的接口**。\n")
-		b.WriteString("> 如需查看更多端点，按需调用以下文件（比完整索引更小）：\n")
-		b.WriteString("> - `skill_view(name=\"ur-api\", filePath=\"references/system-apis.md\")` — system 相关接口\n")
-		b.WriteString("> - `skill_view(name=\"ur-api\", filePath=\"references/things-apis.md\")` — things 相关接口\n")
-		b.WriteString("> - `skill_view(name=\"ur-api\", filePath=\"references/ai-apis.md\")` — AI 相关接口\n")
-		b.WriteString("> 如需查看全部端点，调用 `skill_view(name=\"ur-api\", filePath=\"swagger-index.md\")`。\n\n")
+		b.WriteString("> 如需查看更多端点，按以下三级渐进式查阅（文档越小越优先）：\n")
+		b.WriteString("> 1. 查阅领域索引（只含 group 名称和数量，约 2KB）：\n")
+		b.WriteString(">    - `skill_view(name=\"ur-api\", filePath=\"references/system-index.md\")` — system 领域\n")
+		b.WriteString(">    - `skill_view(name=\"ur-api\", filePath=\"references/things-index.md\")` — things 领域\n")
+		b.WriteString(">    - `skill_view(name=\"ur-api\", filePath=\"references/ai-index.md\")` — AI 领域\n")
+		b.WriteString("> 2. 从索引中找到目标 group，查阅 group 详细文件（约 0.5-3KB）：\n")
+		b.WriteString(">    - `skill_view(name=\"ur-api\", filePath=\"references/groups/{group文件名}.md\")`\n")
+		b.WriteString("> 3. 如需查看全部端点，调用 `skill_view(name=\"ur-api\", filePath=\"swagger-index.md\")`。\n\n")
 		b.WriteString("### 分类索引\n\n")
 		b.WriteString("| 分类 | 端点数量 |\n")
 		b.WriteString("|------|---------|\n")

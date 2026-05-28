@@ -38,6 +38,35 @@ metadata:
 | 租户管理员 | 订阅应用到租户、自定义菜单配置、使用通用接口 | 订阅应用到租户、文件上传 |
 | 普通用户 | 文件上传、WebSocket 连接、批量接口调用 | 文件上传、批量接口调用 |
 
+## 平台专属接口说明
+
+本 Skill 涵盖的接口中，以下子域仅限 **平台管理员**（`platform` 权限）调用：
+
+| 子域 | 路径前缀 | 说明 |
+|------|---------|------|
+| 应用管理 | `/api/v1/system/app/info/*` | 创建/更新/删除/查询全局应用 |
+| 菜单管理 | `/api/v1/system/app/menu/*` | 创建/更新/删除/查询应用菜单 |
+| 协议库 | `/api/v1/system/agreement/*` | 协议模板 CRUD、预览渲染 |
+| 应用协议绑定 | `/api/v1/system/app/agreement/*` | 应用与协议绑定关系管理 |
+| Hook 管理 | `/api/v1/system/hook/*` | Hook 能力与服务器配置 |
+| 定时任务 | `/api/v1/system/job/task/*` | 任务分组与任务实例管理 |
+| 资源管理 | `/api/v1/system/resource/api/*` | API 接口资源管理 |
+| 系统配置 | `/api/v1/system/common/sys-config/*` | 系统级配置读写 |
+| License/套餐 | `/api/v1/system/mall/*` | 授权码、套餐、商品管理 |
+
+> **权限不足排查**：如果调用上述接口返回【权限不足:只允许管理员操作】，说明当前用户不是平台管理员。请确认：
+> 1. 是否调用了正确的接口（普通用户请使用 `all`/`admin` 权限的接口替代）
+> 2. 当前认证方式（OpenAuth/Web Session）是否具备 platform 租户权限
+
+### 普通用户替代接口对照
+
+| 平台专属场景 | 平台接口 | 普通用户/租户管理员替代接口 |
+|-------------|---------|------------------------|
+| 查询【我的】应用列表 | `POST /api/v1/system/app/info/get-list` | `POST /api/v1/system/user/self/app/get-list` |
+| 查询应用详情 | `POST /api/v1/system/app/info/get-one` | `POST /api/v1/system/user/self/app/get-one` |
+| 查询菜单列表 | `POST /api/v1/system/app/menu/get-list` | `POST /api/v1/system/user/self/menu/get-list` |
+| 查询协议 | `POST /api/v1/system/agreement/*` | `POST /api/v1/system/app/core/get-one`（公开） |
+
 ---
 
 ### 平台管理员视角
@@ -51,6 +80,7 @@ metadata:
 创建全局应用（tenantCode='common'），定义菜单树形结构
 
 - 涉及 CLI: `ur app info create`, `ur app menu create`
+- 对应 API: `POST /api/v1/system/app/info/*`（权限: platform）
 - 工作流: 创建应用 → 定义菜单树 → 配置登录方式
 
 **管理应用上下架**
@@ -58,7 +88,10 @@ metadata:
 控制应用的启用/禁用状态
 
 - 涉及 CLI: `ur app info update`
+- 对应 API: `POST /api/v1/system/app/info/update`（权限: platform）
 - 工作流: 选择应用 → 更新状态
+
+⚠️ **平台接口与普通用户接口区分**: `system/app/info/*` 系列接口仅平台管理员可用。查询【当前用户可用应用】请使用 `ur user self app get-list`（对应 `POST /api/v1/system/user/self/app/get-list`，权限: all）。
 
 
 ### 租户管理员视角

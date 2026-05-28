@@ -35,6 +35,24 @@ metadata:
 | 租户管理员 | 用户CRUD、角色分配、部门管理、字典管理 | 创建用户、角色与权限管理 |
 | 普通用户 | 个人信息、登录、修改密码、访问令牌 | 用户登录、获取个人信息 |
 
+## 平台专属接口说明
+
+本 Skill 涵盖的接口中，以下子域仅限 **平台管理员**（`platform` 权限）调用：
+
+| 子域 | 路径前缀 | 说明 |
+|------|---------|------|
+| 字典管理 | `/api/v1/system/dict/*` | 字典类型与字典项的 CRUD、批量导入导出 |
+| 通知配置 | `/api/v1/system/notify/config/*` | 通知事件配置、通知模板绑定 |
+| 通知模板 | `/api/v1/system/notify/template/*` | 通知模板 CRUD |
+| 手动通知 | `/api/v1/system/notify/notification/*` | 手动通知/公告的创建、发送、撤回 |
+| 资讯管理 | `/api/v1/system/notify/news/*` | 资讯/新闻的 CRUD |
+| 消息管理 | `/api/v1/system/notify/message/info/*` | 平台级消息发送与管理 |
+
+> **权限说明**：
+> - 上述 `system/notify/*` 和 `system/dict/*` 接口为**平台级管理接口**，仅平台管理员可调用
+> - 普通用户/租户管理员**查询字典**请使用公开接口或前端内置字典缓存
+> - 普通用户**接收通知/消息**无需调用上述管理接口，由系统根据事件自动推送
+
 ---
 
 ### 租户管理员视角
@@ -92,6 +110,15 @@ metadata:
 - 涉及 CLI: `ur user self get-one`
 - 工作流: 无需参数，从 token 解析用户ID → 返回用户详细信息
 
+**查询我的应用列表**
+
+获取当前登录用户可访问的应用列表（区别于平台管理员的应用管理接口）
+
+- 涉及 CLI: `ur user self app get-list`
+- 对应 API: `POST /api/v1/system/user/self/app/get-list`
+- 工作流: 无需参数，根据用户所在租户的应用开通情况自动过滤
+- ⚠️ 注意: 查询【我的应用】请使用此接口，不要使用 `/api/v1/system/app/info/get-list`（后者仅平台管理员可用）
+
 **修改密码**
 
 修改当前用户的登录密码
@@ -115,7 +142,7 @@ metadata:
 | 个人中心 | 登录/注册/信息/密码 | [user-self.md](references/user-self.md) |
 | 访问令牌 | 查询/创建/更新/删除访问令牌 | [user-access-token.md](references/user-access-token.md) |
 | 租户管理 | 查询/更新/删除/加入租户 | [user-tenant.md](references/user-tenant.md) |
-| 应用与菜单 | 查询应用列表/详情、查询菜单列表 | [user-app-menu.md](references/user-app-menu.md) |
+| 应用与菜单 | **查询当前用户可用应用列表**（`ur user self app get-list`）/详情、查询菜单列表 | [user-app-menu.md](references/user-app-menu.md) |
 | 消息管理 | 查询/处理/标记消息 | [user-message.md](references/user-message.md) |
 | 通知偏好 | 读取/更新通知偏好 | [user-notify.md](references/user-notify.md) |
 | CLI 绑定 | 检查/完成 CLI 绑定 | [user-openclaw.md](references/user-openclaw.md) |

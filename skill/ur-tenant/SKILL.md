@@ -32,6 +32,22 @@ metadata:
 | 平台管理员 | 创建/删除租户、查看所有租户、管理租户配置 | 创建新租户、查看所有租户 |
 | 租户管理员 | 管理本租户信息、邀请用户、配置权限 | 查看本租户信息、邀请用户加入租户 |
 
+## 平台专属接口说明
+
+本 Skill 涵盖的接口中，以下接口仅限 **平台管理员**（`platform` 权限）调用：
+
+| 子域 | 路径前缀 | 说明 |
+|------|---------|------|
+| 租户列表 | `/api/v1/system/tenant/info/get-list` | 查询平台下所有租户 |
+| 删除租户 | `/api/v1/system/tenant/info/delete` | 删除指定租户 |
+| 租户续费授权 | `/api/v1/system/tenant/renewal/*` | 租户续费与直接授权 |
+| 租户应用管理 | `/api/v1/system/tenant/app/*` | 平台视角管理租户应用绑定 |
+
+> **权限说明**：
+> - `system/tenant/info/get-list` 是**平台视角**的租户列表，仅平台管理员可调用
+> - 租户管理员查看**本租户信息**请使用 `ur tenant info get-one`（权限 `admin`）
+> - 租户管理员管理**本租户用户**请使用 `ur tenant user get-list`（权限 `admin`）
+
 ---
 
 ### 平台管理员视角

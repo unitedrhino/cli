@@ -57,8 +57,17 @@ ur user self menu get-list --app-id 100
 
 ## 对应 API
 
-| 功能 | 子命令 | API 端点 |
-|------|--------|----------|
-| 应用 | get-list | `POST /api/v1/system/user/self/app/get-list` |
-| 应用 | get-one | `POST /api/v1/system/user/self/app/get-one` |
-| 菜单 | get-list | `POST /api/v1/system/user/self/menu/get-list` |
+| 功能 | 子命令 | API 端点 | 权限 |
+|------|--------|----------|------|
+| 应用 | get-list | `POST /api/v1/system/user/self/app/get-list` | all（所有登录用户） |
+| 应用 | get-one | `POST /api/v1/system/user/self/app/get-one` | all（所有登录用户） |
+| 菜单 | get-list | `POST /api/v1/system/user/self/menu/get-list` | all（所有登录用户） |
+
+## 接口区分说明
+
+| 场景 | 使用接口 | 权限 |
+|------|---------|------|
+| 查询【当前用户】可访问的应用列表 | `POST /api/v1/system/user/self/app/get-list` | all |
+| 查询【平台】所有应用（管理用） | `POST /api/v1/system/app/info/get-list` | platform（仅平台管理员） |
+
+> 当用户询问【我的应用】【我有哪些应用】等涉及当前用户可用应用的场景时，**必须使用** `/api/v1/system/user/self/app/get-list`，不可使用 `/api/v1/system/app/info/get-list`（后者仅平台管理员可调用）。

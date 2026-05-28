@@ -58,7 +58,7 @@ func runGenerateSkills(app config.CLIApp, args []string, stdout, stderr io.Write
 	}
 	fmt.Fprintf(stdout, "generated %s\n", skillPath)
 
-	// 生成 swagger-index.md
+	// 生成 swagger-index.md（始终生成完整索引）
 	indexPath := filepath.Join(outputDir, "swagger-index.md")
 	var builder strings.Builder
 	builder.WriteString("# Swagger Index\n\n")
@@ -75,6 +75,45 @@ func runGenerateSkills(app config.CLIApp, args []string, stdout, stderr io.Write
 		return 1
 	}
 	fmt.Fprintf(stdout, "generated %s\n", indexPath)
+
+	// 当 allEndpoints=true 时，按路径前缀拆分为多个引用文件，避免单个文档过大
+	if allEndpoints {
+		refDir := filepath.Join(outputDir, "references")
+		if err := os.MkdirAll(refDir, 0o755); err != nil {
+			fmt.Fprintln(stderr, err.Error())
+			return 1
+		}
+		prefixes := map[string]string{
+			"system-apis.md":  "/api/v1/system/",
+			"things-apis.md":  "/api/v1/things/",
+			"ai-apis.md":      "/api/v1/ai/",
+		}
+		for filename, prefix := range prefixes {
+			var refBuilder strings.Builder
+			refBuilder.WriteString(fmt.Sprintf("# %s API Index\n\n", strings.TrimSuffix(filename, ".md")))
+			refBuilder.WriteString(fmt.Sprintf("> 路径前缀 `%s` 的端点列表。\n\n", prefix))
+			count := 0
+			for _, item := range filtered {
+				if !strings.HasPrefix(item.Path, prefix) {
+					continue
+				}
+				summary := item.Summary
+				if summary == "" {
+					summary = item.Description
+				}
+				refBuilder.WriteString(fmt.Sprintf("- `%s %s` [%s] %s\n", item.Method, item.Path, item.AuthType, summary))
+				count++
+			}
+			if count > 0 {
+				refPath := filepath.Join(refDir, filename)
+				if err := os.WriteFile(refPath, []byte(refBuilder.String()), 0o644); err != nil {
+					fmt.Fprintln(stderr, err.Error())
+					return 1
+				}
+				fmt.Fprintf(stdout, "generated %s (%d endpoints)\n", refPath, count)
+			}
+		}
+	}
 
 	return 0
 }
@@ -136,6 +175,19 @@ func generateSkillMD(app config.CLIApp, endpoints []swagger.Endpoint, allEndpoin
 			b.WriteString(fmt.Sprintf("| `%s` | %s | %s | %s | %s |\n", a.BinaryName(), a.DisplayName(), a.AppID(), tc, strings.Join(a.AllowedAuthTypes(), ", ")))
 		}
 		b.WriteString("\n")
+
+		// 常见查询速查：当子 skill 不可用时，LLM 可直接从主文档获取常用 API
+		b.WriteString("## 常见查询速查\n\n")
+		b.WriteString("以下是最常用的查询场景及对应 API。优先尝试这些接口，无需查阅子 skill：\n\n")
+		b.WriteString("| 查询场景 | 推荐 CLI | API 命令示例 |\n")
+		b.WriteString("|---------|---------|-------------|\n")
+		b.WriteString("| 查询【我的】应用列表 | `ur-console` | `api /api/v1/system/user/self/app/get-list` |\n")
+		b.WriteString("| 查询【我的】菜单列表 | `ur-console` | `api /api/v1/system/user/self/menu/get-list` |\n")
+		b.WriteString("| 查询当前用户信息 | `ur-console` | `api /api/v1/system/user/self/get-one` |\n")
+		b.WriteString("| 查询设备列表 | `ur-iot` | `api /api/v1/things/device/info/get-list` |\n")
+		b.WriteString("| 查询产品列表 | `ur-iot` | `api /api/v1/things/product/info/get-list` |\n")
+		b.WriteString("| 查询项目列表 | `ur-iot` | `api /api/v1/things/project/info/get-list` |\n")
+		b.WriteString("\n")
 	} else {
 		// 应用信息
 		b.WriteString("## 应用信息\n\n")
@@ -156,29 +208,42 @@ func generateSkillMD(app config.CLIApp, endpoints []swagger.Endpoint, allEndpoin
 		}
 	}
 
-	// API 端点统计
-	b.WriteString("## API 端点\n\n")
-	if allEndpoints {
-		b.WriteString(fmt.Sprintf("共 %d 个可调用端点（涵盖所有应用）。\n\n", len(endpoints)))
-	} else {
-		b.WriteString(fmt.Sprintf("共 %d 个可调用端点（按 %s 权限过滤）。\n\n", len(endpoints), strings.Join(app.AllowedAuthTypes(), "/")))
-	}
-
-	// 按 group 分组
+	// 按 group 分组（后续共用）
 	groups := map[string][]swagger.Endpoint{}
 	for _, ep := range endpoints {
 		groups[ep.Group] = append(groups[ep.Group], ep)
 	}
-	for group, eps := range groups {
-		b.WriteString(fmt.Sprintf("### %s\n\n", group))
-		for _, ep := range eps {
-			summary := ep.Summary
-			if summary == "" {
-				summary = ep.Description
-			}
-			b.WriteString(fmt.Sprintf("- `%s %s` — %s\n", ep.Method, ep.Path, summary))
+
+	// API 端点统计
+	b.WriteString("## API 端点\n\n")
+	if allEndpoints {
+		b.WriteString(fmt.Sprintf("共 %d 个可调用端点（涵盖所有应用）。\n\n", len(endpoints)))
+		b.WriteString("> **注意**：本 skill 为统一索引。上方「常见查询速查」已列出最常用 API，**优先尝试速查表中的接口**。\n")
+		b.WriteString("> 如需查看更多端点，按需调用以下文件（比完整索引更小）：\n")
+		b.WriteString("> - `skill_view(name=\"ur-api\", filePath=\"references/system-apis.md\")` — system 相关接口\n")
+		b.WriteString("> - `skill_view(name=\"ur-api\", filePath=\"references/things-apis.md\")` — things 相关接口\n")
+		b.WriteString("> - `skill_view(name=\"ur-api\", filePath=\"references/ai-apis.md\")` — AI 相关接口\n")
+		b.WriteString("> 如需查看全部端点，调用 `skill_view(name=\"ur-api\", filePath=\"swagger-index.md\")`。\n\n")
+		b.WriteString("### 分类索引\n\n")
+		b.WriteString("| 分类 | 端点数量 |\n")
+		b.WriteString("|------|---------|\n")
+		for group, eps := range groups {
+			b.WriteString(fmt.Sprintf("| %s | %d |\n", group, len(eps)))
 		}
 		b.WriteString("\n")
+	} else {
+		b.WriteString(fmt.Sprintf("共 %d 个可调用端点（按 %s 权限过滤）。\n\n", len(endpoints), strings.Join(app.AllowedAuthTypes(), "/")))
+		for group, eps := range groups {
+			b.WriteString(fmt.Sprintf("### %s\n\n", group))
+			for _, ep := range eps {
+				summary := ep.Summary
+				if summary == "" {
+					summary = ep.Description
+				}
+				b.WriteString(fmt.Sprintf("- `%s %s` — %s\n", ep.Method, ep.Path, summary))
+			}
+			b.WriteString("\n")
+		}
 	}
 
 	// 使用示例

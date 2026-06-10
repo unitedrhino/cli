@@ -34,6 +34,7 @@ metadata:
 
 | 功能组 | 说明 | 参考文档 |
 |--------|------|---------|
+| AI 对话 | 裸 LLM 调用（agentID=0，无上下文注入） | 本文"裸 LLM 调用"章节 |
 | 告警规则 | 告警规则查询/创建/更新/删除 | [alarm-info.md](references/alarm-info.md) |
 | 告警记录 | 告警记录查询/处理 | [alarm-record.md](references/alarm-record.md) |
 | 告警场景 | 告警场景查询/批量创建/删除 | [alarm-scene.md](references/alarm-scene.md) |
@@ -59,6 +60,46 @@ metadata:
 2. 设备绑定Agent
 3. 系统自动创建Clone（一设备一Clone）
 4. 设备通过MQTT或API与AI交互
+
+### 裸 LLM 调用（agentID=0）
+
+**场景描述**：urcli / 外部代码调用 AI，不需要 Agent 上下文注入（无提示词、无 Skill、无知识库、无记忆、无会话记录）
+
+**涉及 API**：`POST /api/v1/ai/chat/completions`（agentID=0 或不传）
+
+**行为特征**：
+- 不注入 Agent/Group 系统提示词
+- 不加载 Skill 索引
+- 不检索知识库
+- 不加载 Clone 人格/记忆
+- 不加载会话历史
+- 不注入页面上下文
+- 不记录会话摘要、不触发记忆提取
+- **参与租户 token 计费**（与现有接口走同一套计费链路）
+
+**请求参数**：
+```json
+{
+  "agentID": 0,
+  "messages": [{"role": "user", "contents": [{"type": "text", "text": "你好"}]}],
+  "modelType": "small",
+  "stream": false
+}
+```
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| agentID | 可选 | 0 或不传 = 裸 LLM 调用 |
+| messages | 必填 | 对话消息列表 |
+| modelType | 可选 | LLM 模型类型，默认 "small" |
+| stream | 可选 | 是否流式返回（SSE），默认 false |
+
+**CLI 用法**：
+```bash
+ur ai chat -m "帮我写一个 Go 的 hello world"
+ur ai chat -m "解释 IoT 协议" --model-type large
+ur ai chat -m "写一首诗" --stream
+```
 
 ### AI MQTT 交互协议
 

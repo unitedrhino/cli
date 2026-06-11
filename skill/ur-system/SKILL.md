@@ -104,7 +104,7 @@ metadata:
 
 为租户启用应用，自定义菜单配置
 
-- 涉及 CLI: `ur tenant app create`, `ur tenant app menu update`
+- 涉及 CLI: `ur system/tenant/app create`, `ur system/tenant/app/menu update`
 - 工作流: 选择要启用的应用 → 自定义菜单（名称、图标、排序） → 配置登录方式
 
 **文件上传**

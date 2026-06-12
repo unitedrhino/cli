@@ -110,7 +110,7 @@ ur api /api/v1/things/protocol/script/batch-import \
 | `name` | string | 否 |  |
 | `script` | string | 否 | 脚本内容 |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
 | `triggerTimer` | integer | 否 | 收到前处理1:before 2:after (格式: int64) |
@@ -405,7 +405,7 @@ ur api /api/v1/things/protocol/script/get-one \
 | `name` | string | 否 |  |
 | `script` | string | 否 | 脚本内容 |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
 | `triggerTimer` | integer | 否 | 收到前处理1:before 2:after (格式: int64) |

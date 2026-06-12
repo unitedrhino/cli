@@ -52,7 +52,7 @@
 | `isUseMenu` | integer | 否 |  是否使用菜单 1-是 2-否 (格式: int64) |
 | `isUseProxy` | integer | 否 |  是否使用代理 1-是 2-否 (格式: int64) |
 | `loginTypes` | array[string] | 否 | 选项取决于 app里是否配置了 支持的登录类型(不填支持全部登录方式):    "email":邮箱(系统配置里配置了才能开启) "phone":手机号(系统配置里配置了才能开启)  "wxMiniP":微信小程序(app里配置了微信小程序才能开启)  "wxOpen": 微信开放平台登录(app里配置了微信开放才能开启)   "ding":钉钉应用(包含小程序,h5等方式,app里配置了钉钉才能开启)  "pwd":账号密码注册 |
-| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-租户管理员 |
+| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-企业管理员 |
 | `name` | string | 否 |  应用名称 |
 | `nativeConfig` | object | 否 |  |
 | `nativeConfig.filePath` | string | 否 |  文件路径,拿来下载文件 |
@@ -62,8 +62,8 @@
 | `sort` | integer | 否 | 排序,不能小于等于0 (格式: int64) |
 | `status` | integer | 否 |  应用状态 1:上架, 2:下架(默认) (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
-| `tenantCode` | string | 否 |  租户编码,common的是通用应用,非common的是租户应用 |
-| `tenantName` | string | 否 |  租户名称 |
+| `tenantCode` | string | 否 |  企业编码,common的是通用应用,非common的是企业应用 |
+| `tenantName` | string | 否 |  企业名称 |
 | `trialTime` | integer | 否 | 试用时间(单位为天,为0不限制,如果为0,是免费使用的,如果为-1 则不允许自己创建) (格式: int64) |
 | `type` | string | 否 |  应用类型 web:web页面  native:原生  mini:小程序 |
 | `url` | string | 否 |  应用地址 |
@@ -213,7 +213,7 @@ ur api /api/v1/system/app/info/delete \
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 应用状态 1 上架 2 下架 (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
-| `tenantIsBind` | integer | 否 |  过滤租户是否已绑定的应用 1-是 2-否,如果要过滤指定租户,通过http头里指定 (格式: int64) |
+| `tenantIsBind` | integer | 否 |  过滤企业是否已绑定的应用 1-是 2-否,如果要过滤指定企业,通过http头里指定 (格式: int64) |
 | `type` | string | 否 |  应用类型 web:web页面  native:原生  mini:小程序 |
 | `useBy` | string | 否 |  使用对象 client:登录直接授权该应用 admin:管理员使用,需要邀请 |
 | `withAgreementCodes` | array[string] | 否 |  非空时按 code 回填已绑定协议 |
@@ -464,7 +464,7 @@ ur api /api/v1/system/app/info/get-one \
 | `isUseMenu` | integer | 否 |  是否使用菜单 1-是 2-否 (格式: int64) |
 | `isUseProxy` | integer | 否 |  是否使用代理 1-是 2-否 (格式: int64) |
 | `loginTypes` | array[string] | 否 | 选项取决于 app里是否配置了 支持的登录类型(不填支持全部登录方式):    "email":邮箱(系统配置里配置了才能开启) "phone":手机号(系统配置里配置了才能开启)  "wxMiniP":微信小程序(app里配置了微信小程序才能开启)  "wxOpen": 微信开放平台登录(app里配置了微信开放才能开启)   "ding":钉钉应用(包含小程序,h5等方式,app里配置了钉钉才能开启)  "pwd":账号密码注册 |
-| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-租户管理员 |
+| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-企业管理员 |
 | `name` | string | 否 |  应用名称 |
 | `nativeConfig` | object | 否 |  |
 | `nativeConfig.filePath` | string | 否 |  文件路径,拿来下载文件 |
@@ -474,8 +474,8 @@ ur api /api/v1/system/app/info/get-one \
 | `sort` | integer | 否 | 排序,不能小于等于0 (格式: int64) |
 | `status` | integer | 否 |  应用状态 1:上架, 2:下架(默认) (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
-| `tenantCode` | string | 否 |  租户编码,common的是通用应用,非common的是租户应用 |
-| `tenantName` | string | 否 |  租户名称 |
+| `tenantCode` | string | 否 |  企业编码,common的是通用应用,非common的是企业应用 |
+| `tenantName` | string | 否 |  企业名称 |
 | `trialTime` | integer | 否 | 试用时间(单位为天,为0不限制,如果为0,是免费使用的,如果为-1 则不允许自己创建) (格式: int64) |
 | `type` | string | 否 |  应用类型 web:web页面  native:原生  mini:小程序 |
 | `url` | string | 否 |  应用地址 |

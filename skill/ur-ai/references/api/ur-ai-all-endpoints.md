@@ -155,7 +155,7 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `asrConfigID` | string | 否 |  共享默认ASR配置ID |
-| `code` | string | 是 |  助手组编码（租户内唯一） |
+| `code` | string | 是 |  助手组编码（企业内唯一） |
 | `createdTime` | integer | 否 |  创建时间 (格式: int64) |
 | `defaultAgentId` | integer | 否 |  默认决策AgentID（0=未设置） (格式: int64) |
 | `desc` | string | 否 |  描述 |
@@ -168,7 +168,7 @@
 | `skillIds` | string | 否 |  平台分发Skill ID列表（JSON字符串，供组内Agent复用，不表示Group或Clone拥有learned skills） |
 | `status` | string | 否 |  状态 1-启用 2-禁用 |
 | `systemPrompt` | string | 否 |  共享系统提示词模板（供组内Agent决策时继承） |
-| `tenantCode` | string | 否 |  租户编码，"common"=平台级 |
+| `tenantCode` | string | 否 |  企业编码，"common"=平台级 |
 | `ttsConfigID` | string | 否 |  共享默认TTS配置ID |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 
@@ -260,7 +260,7 @@ ur api /api/v1/ai/agent/group/delete \
 | `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `purpose` | string | 否 |  用途分类过滤 |
-| `tenantCode` | string | 否 |  租户编码过滤 |
+| `tenantCode` | string | 否 |  企业编码过滤 |
 
 **请求示例**:
 ```json
@@ -376,7 +376,7 @@ ur api /api/v1/ai/agent/group/get-one \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `asrConfigID` | string | 否 |  共享默认ASR配置ID |
-| `code` | string | 是 |  助手组编码（租户内唯一） |
+| `code` | string | 是 |  助手组编码（企业内唯一） |
 | `createdTime` | integer | 否 |  创建时间 (格式: int64) |
 | `defaultAgentId` | integer | 否 |  默认决策AgentID（0=未设置） (格式: int64) |
 | `desc` | string | 否 |  描述 |
@@ -389,7 +389,7 @@ ur api /api/v1/ai/agent/group/get-one \
 | `skillIds` | string | 否 |  平台分发Skill ID列表（JSON字符串，供组内Agent复用，不表示Group或Clone拥有learned skills） |
 | `status` | string | 否 |  状态 1-启用 2-禁用 |
 | `systemPrompt` | string | 否 |  共享系统提示词模板（供组内Agent决策时继承） |
-| `tenantCode` | string | 否 |  租户编码，"common"=平台级 |
+| `tenantCode` | string | 否 |  企业编码，"common"=平台级 |
 | `ttsConfigID` | string | 否 |  共享默认TTS配置ID |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 
@@ -444,7 +444,7 @@ ur api /api/v1/ai/agent/group/update \
 | `asrSpeed` | string | 否 |  ASR语速（旧版，兼容保留） |
 | `avatar` | string | 否 |  助手头像URL |
 | `capabilities` | array[string] | 否 |  能力列表 |
-| `code` | string | 否 |  助手编码（租户内唯一） |
+| `code` | string | 否 |  助手编码（企业内唯一） |
 | `customPrompt` | string | 否 |  自定义提示词（旧版，兼容保留） |
 | `description` | string | 否 |  助手描述 |
 | `groupID` | integer | 否 |  所属助手组ID (格式: int64) |
@@ -463,7 +463,7 @@ ur api /api/v1/ai/agent/group/update \
 | `sort` | integer | 否 |  排序权重 (格式: int64) |
 | `status` | string | 否 |  助手状态 1-启用 2-禁用 |
 | `systemPrompt` | string | 否 |  系统提示词 |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 | `ttsConfigID` | string | 否 |  TTS配置ID |
 | `userID` | integer | 否 |  用户ID (格式: int64) |
 | `visionConfigID` | string | 否 |  视觉配置ID |
@@ -535,7 +535,7 @@ ur api /api/v1/ai/agent/info/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  助手ID (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -575,7 +575,7 @@ ur api /api/v1/ai/agent/info/delete \
 | `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  状态过滤 |
-| `tenantCode` | string | 否 |  租户编码过滤 |
+| `tenantCode` | string | 否 |  企业编码过滤 |
 
 **请求示例**:
 ```json
@@ -654,7 +654,7 @@ ur api /api/v1/ai/agent/info/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  助手ID (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -725,7 +725,7 @@ ur api /api/v1/ai/agent/info/get-one \
 | `asrSpeed` | string | 否 |  ASR语速（旧版，兼容保留） |
 | `avatar` | string | 否 |  助手头像URL |
 | `capabilities` | array[string] | 否 |  能力列表 |
-| `code` | string | 否 |  助手编码（租户内唯一） |
+| `code` | string | 否 |  助手编码（企业内唯一） |
 | `customPrompt` | string | 否 |  自定义提示词（旧版，兼容保留） |
 | `description` | string | 否 |  助手描述 |
 | `groupID` | integer | 否 |  所属助手组ID (格式: int64) |
@@ -744,7 +744,7 @@ ur api /api/v1/ai/agent/info/get-one \
 | `sort` | integer | 否 |  排序权重 (格式: int64) |
 | `status` | string | 否 |  助手状态 1-启用 2-禁用 |
 | `systemPrompt` | string | 否 |  系统提示词 |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 | `ttsConfigID` | string | 否 |  TTS配置ID |
 | `userID` | integer | 否 |  用户ID (格式: int64) |
 | `visionConfigID` | string | 否 |  视觉配置ID |
@@ -2239,7 +2239,7 @@ ur api /api/v1/ai/user/completions \
 | `name` | string | 是 |  分身名称 |
 | `personaPrompt` | string | 否 |  人设补充提示词 |
 | `status` | integer | 否 |  状态 1-启用 2-禁用 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 
 **请求示例**:
@@ -2326,7 +2326,7 @@ ur api /api/v1/ai/clone/delete \
 | `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码过滤 |
+| `tenantCode` | string | 否 |  企业编码过滤 |
 
 **请求示例**:
 ```json
@@ -2440,7 +2440,7 @@ ur api /api/v1/ai/clone/get-one \
 | `name` | string | 是 |  分身名称 |
 | `personaPrompt` | string | 否 |  人设补充提示词 |
 | `status` | integer | 否 |  状态 1-启用 2-禁用 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 
 **请求示例**:
@@ -3036,7 +3036,7 @@ ur api /api/v1/ai/clone/memory/traces/get-list \
 | `modelType` | string | 否 |  模型级别：small/medium/large/xlarge |
 | `name` | string | 否 |  配置名称 |
 | `outputModalities` | string | 否 |  输出模态（JSON字符串） |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -3083,7 +3083,7 @@ ur api /api/v1/ai/config/info/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  配置ID (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -3118,7 +3118,7 @@ ur api /api/v1/ai/config/info/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `cfgType` | string | 是 |  配置类型 |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -3170,7 +3170,7 @@ ur api /api/v1/ai/config/info/get-default \
 | `page` | object | 否 |  |
 | `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -3228,7 +3228,7 @@ ur api /api/v1/ai/config/info/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  配置ID (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -3283,7 +3283,7 @@ ur api /api/v1/ai/config/info/get-one \
 | `modelType` | string | 否 |  模型级别 |
 | `name` | string | 否 |  配置名称，仅用于调试展示 |
 | `outputModalities` | string | 否 |  输出模态（JSON字符串） |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -3428,7 +3428,7 @@ ur api /api/v1/ai/config/info/test \
 | `modelType` | string | 否 |  模型级别：small/medium/large/xlarge |
 | `name` | string | 否 |  配置名称 |
 | `outputModalities` | string | 否 |  输出模态（JSON字符串） |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -5010,7 +5010,7 @@ ur api /api/v1/ai/knowledge/tool/search \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `name` | string | 是 |  服务名称 |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -5058,7 +5058,7 @@ ur api /api/v1/ai/mcp/resolve/resolve \
 | `endpoint` | string | 是 |  服务端点URL |
 | `id` | integer | 否 |  MCP服务ID (格式: int64) |
 | `name` | string | 是 |  服务名称 |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 | `tools` | string | 否 |  工具列表（JSON字符串） |
 
 **请求示例**:
@@ -5104,7 +5104,7 @@ ur api /api/v1/ai/mcp/service/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  MCP服务ID (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -5143,7 +5143,7 @@ ur api /api/v1/ai/mcp/service/delete \
 | `page` | object | 否 |  |
 | `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -5199,7 +5199,7 @@ ur api /api/v1/ai/mcp/service/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  MCP服务ID (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -5245,7 +5245,7 @@ ur api /api/v1/ai/mcp/service/get-one \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  MCP服务ID (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -5289,7 +5289,7 @@ ur api /api/v1/ai/mcp/service/refresh-tools \
 | `endpoint` | string | 是 |  服务端点URL |
 | `id` | integer | 否 |  MCP服务ID (格式: int64) |
 | `name` | string | 是 |  服务名称 |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 | `tools` | string | 否 |  工具列表（JSON字符串） |
 
 **请求示例**:
@@ -5332,7 +5332,7 @@ ur api /api/v1/ai/mcp/service/update \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `sessionID` | string | 是 |  会话ID |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -5680,7 +5680,7 @@ ur api /api/v1/ai/session/archive \
 | `agentID` | integer | 是 |  关联Agent ID (格式: int64) |
 | `channel` | string | 否 |  渠道 text/voice |
 | `cloneID` | integer | 否 |  关联Clone ID（0=无分身） (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 | `userID` | integer | 否 |  用户ID (格式: int64) |
 
 **请求示例**:
@@ -5722,7 +5722,7 @@ ur api /api/v1/ai/session/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `sessionID` | string | 是 |  会话ID |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -5800,7 +5800,7 @@ ur api /api/v1/ai/session/end \
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `startTime` | integer | 否 |  开始时间戳 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码过滤 |
+| `tenantCode` | string | 否 |  企业编码过滤 |
 | `userID` | integer | 否 |  按用户ID过滤 (格式: int64) |
 
 **请求示例**:
@@ -5957,7 +5957,7 @@ ur api /api/v1/ai/session/inject \
 | `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `sessionID` | string | 是 |  会话ID |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -6017,10 +6017,10 @@ ur api /api/v1/ai/session/messages \
 | `parentID` | integer | 否 |  父技能ID（0=顶级） (格式: int64) |
 | `publishStatus` | string | 否 |  发布状态：draft/uploaded/validated/review_done/test_passed/approved/published/deprecated |
 | `reviewResult` | string | 否 |  AI审阅结果（JSON） |
-| `scope` | string | 否 |  范围：tenant=租户级 platform=平台级 |
+| `scope` | string | 否 |  范围：tenant=企业级 platform=平台级 |
 | `sort` | integer | 否 |  排序 (格式: int64) |
 | `status` | integer | 否 |  状态 1-启用 2-禁用 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码，"common"=平台级 |
+| `tenantCode` | string | 否 |  企业编码，"common"=平台级 |
 | `testResult` | string | 否 |  测试结果（JSON） |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 | `version` | string | 否 |  版本号 |
@@ -6151,7 +6151,7 @@ ur api /api/v1/ai/skill/download \
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | integer | 否 |  父技能ID过滤 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码过滤 |
+| `tenantCode` | string | 否 |  企业编码过滤 |
 
 **请求示例**:
 ```json
@@ -6312,10 +6312,10 @@ ur api /api/v1/ai/skill/publish \
 | `parentID` | integer | 否 |  父技能ID（0=顶级） (格式: int64) |
 | `publishStatus` | string | 否 |  发布状态：draft/uploaded/validated/review_done/test_passed/approved/published/deprecated |
 | `reviewResult` | string | 否 |  AI审阅结果（JSON） |
-| `scope` | string | 否 |  范围：tenant=租户级 platform=平台级 |
+| `scope` | string | 否 |  范围：tenant=企业级 platform=平台级 |
 | `sort` | integer | 否 |  排序 (格式: int64) |
 | `status` | integer | 否 |  状态 1-启用 2-禁用 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码，"common"=平台级 |
+| `tenantCode` | string | 否 |  企业编码，"common"=平台级 |
 | `testResult` | string | 否 |  测试结果（JSON） |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 | `version` | string | 否 |  版本号 |
@@ -6370,7 +6370,7 @@ ur api /api/v1/ai/skill/update \
 | `code` | string | 是 |  技能编码 |
 | `name` | string | 是 |  技能名称 |
 | `parentID` | integer | 否 |  父技能ID (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 | `zipData` | string | 是 |  Base64编码的zip包数据 |
 
 **请求示例**:

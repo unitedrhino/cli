@@ -151,7 +151,7 @@ func runLoginPoll(ctx context.Context, baseURL, setupCode string, jsonMode bool,
 		fmt.Fprintln(stdout, string(b))
 	} else {
 		fmt.Fprintf(stdout, "\n✓ 授权成功！\n")
-		fmt.Fprintf(stdout, "租户:       %s\n", result.TenantCode)
+		fmt.Fprintf(stdout, "企业:       %s\n", result.TenantCode)
 		fmt.Fprintf(stdout, "AccessKey:  %s...（已保存）\n", result.AccessKey[:6])
 		fmt.Fprintln(stdout, "✓ 连接验证成功！")
 		fmt.Fprintln(stdout, "\n初始化完成，您现在可以使用 ur-api 命令了。")

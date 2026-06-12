@@ -36,7 +36,7 @@
 | `modelType` | string | 否 |  模型级别：small/medium/large/xlarge |
 | `name` | string | 否 |  配置名称 |
 | `outputModalities` | string | 否 |  输出模态（JSON字符串） |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -83,7 +83,7 @@ ur api /api/v1/ai/config/info/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  配置ID (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -118,7 +118,7 @@ ur api /api/v1/ai/config/info/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `cfgType` | string | 是 |  配置类型 |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -170,7 +170,7 @@ ur api /api/v1/ai/config/info/get-default \
 | `page` | object | 否 |  |
 | `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -228,7 +228,7 @@ ur api /api/v1/ai/config/info/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  配置ID (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -283,7 +283,7 @@ ur api /api/v1/ai/config/info/get-one \
 | `modelType` | string | 否 |  模型级别 |
 | `name` | string | 否 |  配置名称，仅用于调试展示 |
 | `outputModalities` | string | 否 |  输出模态（JSON字符串） |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json
@@ -428,7 +428,7 @@ ur api /api/v1/ai/config/info/test \
 | `modelType` | string | 否 |  模型级别：small/medium/large/xlarge |
 | `name` | string | 否 |  配置名称 |
 | `outputModalities` | string | 否 |  输出模态（JSON字符串） |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json

@@ -14,6 +14,11 @@
 | POST | `/api/v1/things/user/device/share/delete` | 取消分享设备 | all |
 | POST | `/api/v1/things/user/device/share/get-list` | 获取分享设备列表 | all |
 | POST | `/api/v1/things/user/device/share/get-one` | 获取分享设备详情 | all |
+| POST | `/api/v1/things/user/device/share/share-code-accept` | 通过分享码接受设备 | all |
+| POST | `/api/v1/things/user/device/share/share-code-delete` | 删除分享码 | all |
+| POST | `/api/v1/things/user/device/share/share-code-gen` | 生成设备分享码 | all |
+| POST | `/api/v1/things/user/device/share/share-code-get-info` | 通过分享码查询分享信息 | public |
+| POST | `/api/v1/things/user/device/share/share-code-get-list` | 获取分享码列表 | all |
 | POST | `/api/v1/things/user/device/share/update` | 更新分享设备信息 | all |
 
 ## 详细说明
@@ -481,6 +486,237 @@ ur api /api/v1/things/user/device/share/get-list \
 ```bash
 ur api /api/v1/things/user/device/share/get-one \
   --body '{"device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "id": "string", "useBy": "string"}'
+```
+
+### POST `/api/v1/things/user/device/share/share-code-accept`
+
+**说明**: 通过分享码接受设备
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `code` | string | 是 | 分享码 |
+
+**请求示例**:
+```json
+{
+  "code": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "devices": [
+      {
+        "deviceAlias": "示例名称",
+        "deviceName": "示例名称",
+        "productID": "string",
+        "productImg": "string",
+        "productName": "string",
+        "useBy": "string"
+      }
+    ]
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/user/device/share/share-code-accept \
+  --body '{"code": "string"}'
+```
+
+### POST `/api/v1/things/user/device/share/share-code-delete`
+
+**说明**: 删除分享码
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `code` | string | 是 | 要删除的分享码 |
+
+**请求示例**:
+```json
+{
+  "code": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/user/device/share/share-code-delete \
+  --body '{"code": "string"}'
+```
+
+### POST `/api/v1/things/user/device/share/share-code-gen`
+
+**说明**: 生成设备分享码
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `accessPerm` | object | 否 | 系统功能权限 |
+| `authType` | integer | 否 | 授权类型:1全部授权 2部分授权 (格式: int64) |
+| `devices` | array[DeviceCore] | 是 | 要分享的设备列表（至少1个） |
+| `expTime` | string | 否 | 分享过期时间（0表示不限制） |
+| `schemaPerm` | object | 否 | 物模型权限 |
+| `useBy` | string | 否 | 用途 |
+| `validHours` | integer | 否 | 分享码有效时长（小时），默认24，最大72（3天） (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "accessPerm": {},
+  "authType": 1,
+  "devices": [
+    {
+      "deviceName": "示例名称",
+      "productID": "string",
+      "productName": "string"
+    }
+  ],
+  "expTime": "2026-01-01T00:00:00Z",
+  "schemaPerm": {},
+  "useBy": "string",
+  "validHours": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "code": "string",
+    "deviceCount": "string",
+    "validUntilTime": "2026-01-01T00:00:00Z"
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/user/device/share/share-code-gen \
+  --body '{"accessPerm": {}, "authType": 1, "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "expTime": "2026-01-01T00:00:00Z", "schemaPerm": {}, "useBy": "string", "validHours": 1}'
+```
+
+### POST `/api/v1/things/user/device/share/share-code-get-info`
+
+**说明**: 通过分享码查询分享信息
+
+**权限**: public
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `code` | string | 是 | 分享码 |
+
+**请求示例**:
+```json
+{
+  "code": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "accessPerm": {},
+    "authType": 1,
+    "deviceCount": "string",
+    "devices": [
+      {
+        "deviceAlias": "示例名称",
+        "deviceName": "示例名称",
+        "productID": "string",
+        "productImg": "string",
+        "productName": "string",
+        "useBy": "string"
+      }
+    ],
+    "expTime": 1,
+    "schemaPerm": {},
+    "validUntilTime": "2026-01-01T00:00:00Z"
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/user/device/share/share-code-get-info \
+  --body '{"code": "string"}'
+```
+
+### POST `/api/v1/things/user/device/share/share-code-get-list`
+
+**说明**: 获取分享码列表
+
+**权限**: all
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "accessPerm": {},
+        "authType": 1,
+        "code": "string",
+        "createdTime": "2026-01-01T00:00:00Z",
+        "deviceCount": "string",
+        "devices": [
+          {
+            "deviceAlias": "示例名称",
+            "deviceName": "示例名称",
+            "productID": "string",
+            "productImg": "string",
+            "productName": "string",
+            "useBy": "string"
+          }
+        ],
+        "expTime": 1,
+        "schemaPerm": {},
+        "useBy": "string",
+        "validUntilTime": "2026-01-01T00:00:00Z"
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/user/device/share/share-code-get-list \
+  --body '{}'
 ```
 
 ### POST `/api/v1/things/user/device/share/update`

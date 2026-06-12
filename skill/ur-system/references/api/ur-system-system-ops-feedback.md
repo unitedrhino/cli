@@ -105,13 +105,13 @@ ur api /api/v1/system/ops/feedback/create \
 |------|------|------|------|
 | `appID` | string | 否 | 按应用过滤 |
 | `feedbackType` | string | 否 | 按问题反馈类型过滤 |
-| `isAllTenant` | boolean | 否 | default租户获取所有租户的信息 (格式: boolean) |
+| `isAllTenant` | boolean | 否 | default企业获取所有企业的信息 (格式: boolean) |
 | `page` | object | 否 |  |
 | `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 所属项目 |
 | `status` | integer | 否 |  状态（1 待处理 2:处理中 3:已完成） (格式: int64) |
-| `tenantCode` | string | 否 | 过滤所属租户,isAllTenant为true有效 |
+| `tenantCode` | string | 否 | 过滤所属企业,isAllTenant为true有效 |
 | `type` | string | 否 | 反馈类型 设备问题:thingsDevice 智能场景:thingsScene 体验问题: experience 其他: other |
 
 **请求示例**:

@@ -46,7 +46,7 @@
 | `projectID` | string | 否 | 项目id（只读） |
 | `sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `tags` | object | 否 | 自定义标签 |
-| `tenantCode` | string | 否 | 租户编码（只读） |
+| `tenantCode` | string | 否 | 企业编码（只读） |
 | `useBy` | string | 否 | 用途: commonSpace default |
 
 **请求示例**:
@@ -1923,7 +1923,7 @@ ur api /api/v1/things/area/info/get-one \
 | `projectID` | string | 否 | 项目id（只读） |
 | `sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `tags` | object | 否 | 自定义标签 |
-| `tenantCode` | string | 否 | 租户编码（只读） |
+| `tenantCode` | string | 否 | 企业编码（只读） |
 | `useBy` | string | 否 | 用途: commonSpace default |
 
 **请求示例**:

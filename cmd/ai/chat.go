@@ -30,7 +30,7 @@ var chatCmd = &cobra.Command{
 
 适用场景：urcli 命令辅助、外部代码调用、调试。
 
-参与租户 token 计费。`,
+参与企业 token 计费。`,
 	Example: `  ur ai chat -m "帮我写一个 Go 的 hello world"
   ur ai chat -m "解释 IoT 协议" --model-type large
   ur ai chat -m "写一首诗" --stream

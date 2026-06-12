@@ -37,10 +37,10 @@
 | `parentID` | integer | 否 |  父技能ID（0=顶级） (格式: int64) |
 | `publishStatus` | string | 否 |  发布状态：draft/uploaded/validated/review_done/test_passed/approved/published/deprecated |
 | `reviewResult` | string | 否 |  AI审阅结果（JSON） |
-| `scope` | string | 否 |  范围：tenant=租户级 platform=平台级 |
+| `scope` | string | 否 |  范围：tenant=企业级 platform=平台级 |
 | `sort` | integer | 否 |  排序 (格式: int64) |
 | `status` | integer | 否 |  状态 1-启用 2-禁用 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码，"common"=平台级 |
+| `tenantCode` | string | 否 |  企业编码，"common"=平台级 |
 | `testResult` | string | 否 |  测试结果（JSON） |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 | `version` | string | 否 |  版本号 |
@@ -171,7 +171,7 @@ ur api /api/v1/ai/skill/download \
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | integer | 否 |  父技能ID过滤 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码过滤 |
+| `tenantCode` | string | 否 |  企业编码过滤 |
 
 **请求示例**:
 ```json
@@ -332,10 +332,10 @@ ur api /api/v1/ai/skill/publish \
 | `parentID` | integer | 否 |  父技能ID（0=顶级） (格式: int64) |
 | `publishStatus` | string | 否 |  发布状态：draft/uploaded/validated/review_done/test_passed/approved/published/deprecated |
 | `reviewResult` | string | 否 |  AI审阅结果（JSON） |
-| `scope` | string | 否 |  范围：tenant=租户级 platform=平台级 |
+| `scope` | string | 否 |  范围：tenant=企业级 platform=平台级 |
 | `sort` | integer | 否 |  排序 (格式: int64) |
 | `status` | integer | 否 |  状态 1-启用 2-禁用 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码，"common"=平台级 |
+| `tenantCode` | string | 否 |  企业编码，"common"=平台级 |
 | `testResult` | string | 否 |  测试结果（JSON） |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 | `version` | string | 否 |  版本号 |
@@ -390,7 +390,7 @@ ur api /api/v1/ai/skill/update \
 | `code` | string | 是 |  技能编码 |
 | `name` | string | 是 |  技能名称 |
 | `parentID` | integer | 否 |  父技能ID (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 | `zipData` | string | 是 |  Base64编码的zip包数据 |
 
 **请求示例**:

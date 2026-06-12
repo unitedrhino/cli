@@ -49,7 +49,7 @@
 | `device.area.projectID` | string | 否 | 项目id（只读） |
 | `device.area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `device.area.tags` | object | 否 | 自定义标签 |
-| `device.area.tenantCode` | string | 否 | 租户编码（只读） |
+| `device.area.tenantCode` | string | 否 | 企业编码（只读） |
 | `device.area.useBy` | string | 否 | 用途: commonSpace default |
 | `device.areaID` | string | 否 | 项目区域id 只读 |
 | `device.categoryID` | string | 否 | 产品品类 |
@@ -246,7 +246,7 @@
 | `product.subProtocolCode` | string | 否 | 子协议,主协议和子协议传输类型必须不相同, 设备控制下发只会发送给主协议, 当设备是音视频设备但是控制协议需要单独走的时候就可以把主协议定义为普通协议,子协议定义为音视频协议,这样就能实现音视频走音视频协议,控制走子协议 |
 | `product.subProtocolConf` | object | 否 | 子协议协议配置 |
 | `product.tags` | object | 否 |  产品tag |
-| `product.tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `product.tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `product.trialTime` | string | 否 | 试用时间(单位为天,为0不限制) |
 | `productID` | string | 否 |  |
 | `script` | object | 否 |  |
@@ -256,14 +256,14 @@
 | `script.name` | string | 否 |  |
 | `script.script` | string | 否 | 脚本内容 |
 | `script.status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `script.tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `script.tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `script.triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `script.triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
 | `script.triggerTimer` | integer | 否 | 收到前处理1:before 2:after (格式: int64) |
 | `script.triggerType` | string | 否 |  操作类型 从topic中提取 物模型下就是   property属性 event事件 action行为 |
 | `scriptID` | string | 否 |  |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `triggerSrc` | integer | 否 | product:1 device:2 (格式: int64) |
 
 **请求示例**:
@@ -2703,7 +2703,7 @@ ur api /api/v1/things/protocol/script/device/get-one \
 | `device.area.projectID` | string | 否 | 项目id（只读） |
 | `device.area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `device.area.tags` | object | 否 | 自定义标签 |
-| `device.area.tenantCode` | string | 否 | 租户编码（只读） |
+| `device.area.tenantCode` | string | 否 | 企业编码（只读） |
 | `device.area.useBy` | string | 否 | 用途: commonSpace default |
 | `device.areaID` | string | 否 | 项目区域id 只读 |
 | `device.categoryID` | string | 否 | 产品品类 |
@@ -2900,7 +2900,7 @@ ur api /api/v1/things/protocol/script/device/get-one \
 | `product.subProtocolCode` | string | 否 | 子协议,主协议和子协议传输类型必须不相同, 设备控制下发只会发送给主协议, 当设备是音视频设备但是控制协议需要单独走的时候就可以把主协议定义为普通协议,子协议定义为音视频协议,这样就能实现音视频走音视频协议,控制走子协议 |
 | `product.subProtocolConf` | object | 否 | 子协议协议配置 |
 | `product.tags` | object | 否 |  产品tag |
-| `product.tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `product.tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `product.trialTime` | string | 否 | 试用时间(单位为天,为0不限制) |
 | `productID` | string | 否 |  |
 | `script` | object | 否 |  |
@@ -2910,14 +2910,14 @@ ur api /api/v1/things/protocol/script/device/get-one \
 | `script.name` | string | 否 |  |
 | `script.script` | string | 否 | 脚本内容 |
 | `script.status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `script.tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `script.tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `script.triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `script.triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
 | `script.triggerTimer` | integer | 否 | 收到前处理1:before 2:after (格式: int64) |
 | `script.triggerType` | string | 否 |  操作类型 从topic中提取 物模型下就是   property属性 event事件 action行为 |
 | `scriptID` | string | 否 |  |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `triggerSrc` | integer | 否 | product:1 device:2 (格式: int64) |
 
 **请求示例**:

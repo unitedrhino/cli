@@ -33,7 +33,7 @@
 | `name` | string | 是 |  分身名称 |
 | `personaPrompt` | string | 否 |  人设补充提示词 |
 | `status` | integer | 否 |  状态 1-启用 2-禁用 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 
 **请求示例**:
@@ -120,7 +120,7 @@ ur api /api/v1/ai/clone/delete \
 | `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码过滤 |
+| `tenantCode` | string | 否 |  企业编码过滤 |
 
 **请求示例**:
 ```json
@@ -234,7 +234,7 @@ ur api /api/v1/ai/clone/get-one \
 | `name` | string | 是 |  分身名称 |
 | `personaPrompt` | string | 否 |  人设补充提示词 |
 | `status` | integer | 否 |  状态 1-启用 2-禁用 (格式: int64) |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 
 **请求示例**:

@@ -7,8 +7,8 @@ import (
 
 var tenantCmd = &cobra.Command{
 	Use:   "tenant <subcommand>",
-	Short: "租户管理",
-	Long:  `租户相关操作：租户用户管理、角色管理、邀请管理等。`,
+	Short: "企业管理",
+	Long:  `企业相关操作：企业用户管理、角色管理、邀请管理等。`,
 	RunE:  wrapOldCommand(shared.CobraBridge{}.RunTenant),
 }
 

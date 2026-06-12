@@ -10,7 +10,7 @@
 | 产品物模型 | POST /api/v1/things/product/schema/get-list | `{"productID":"x"}` |
 | 项目列表 | POST /api/v1/things/project/crud/get-list | `{"page":{"page":1,"size":10}}` |
 | 创建访问令牌 | POST /api/v1/system/user/self/access-token/create | `{"name":"my-token","expTime":86400}` |
-| 租户列表（平台管理员）| POST /api/v1/system/tenant/info/get-list | `{"page":{"page":1,"size":10}}` |
+| 企业列表（平台管理员）| POST /api/v1/system/tenant/info/get-list | `{"page":{"page":1,"size":10}}` |
 | 场景列表 | POST /api/v1/things/scene/info/get-list | `{"page":{"page":1,"size":10}}` |
 | 手动触发场景 | POST /api/v1/things/scene/info/manually-trigger | `{"id":"<sceneID>"}` |
 | 告警规则列表 | POST /api/v1/things/alarm/info/get-list | `{"page":{"page":1,"size":10}}` |

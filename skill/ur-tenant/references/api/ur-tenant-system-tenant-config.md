@@ -1,19 +1,19 @@
 # ur-tenant system/tenant/config
 
-获取租户配置 等
+获取企业配置 等
 
 ## 端点概览
 
 | 方法 | 端点 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/api/v1/system/tenant/config/get-one` | 获取租户配置 | admin |
-| POST | `/api/v1/system/tenant/config/update` | 更新租户配置 | admin |
+| POST | `/api/v1/system/tenant/config/get-one` | 获取企业配置 | admin |
+| POST | `/api/v1/system/tenant/config/update` | 更新企业配置 | admin |
 
 ## 详细说明
 
 ### POST `/api/v1/system/tenant/config/get-one`
 
-**说明**: 获取租户配置
+**说明**: 获取企业配置
 
 **权限**: admin
 
@@ -51,7 +51,7 @@ ur api /api/v1/system/tenant/config/get-one \
 
 ### POST `/api/v1/system/tenant/config/update`
 
-**说明**: 更新租户配置
+**说明**: 更新企业配置
 
 **权限**: admin
 
@@ -61,7 +61,7 @@ ur api /api/v1/system/tenant/config/get-one \
 |------|------|------|------|
 | `id` | string | 否 |  |
 | `registerRoleID` | string | 否 | 注册分配的角色id |
-| `tenantCode` | string | 否 | 租户编码 |
+| `tenantCode` | string | 否 | 企业编码 |
 
 **请求示例**:
 ```json

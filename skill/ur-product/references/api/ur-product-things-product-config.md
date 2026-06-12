@@ -24,7 +24,7 @@
 | `devInit.areaID` | string | 否 | 设备创建默认分配给的区域ID |
 | `devInit.deptID` | string | 否 | 设备创建默认分配给的部门 |
 | `devInit.projectID` | string | 否 | 设备创建默认分配给的项目 |
-| `devInit.tenantCode` | string | 否 | 设备创建默认分配给的租户 |
+| `devInit.tenantCode` | string | 否 | 设备创建默认分配给的企业 |
 | `productID` | string | 是 |  |
 
 **请求示例**:

@@ -88,7 +88,7 @@ ur api /api/v1/system/notify/notification/copy \
 | `showAsModal` | string | 否 |  message/news专属：是否弹窗 1=是 2=否 |
 | `status` | integer | 否 | 状态 1:草稿 2:已计划 3:发送中 4:已发送 5:已撤回 (格式: int64) |
 | `targetUserIDs` | array[string] | 否 | 目标用户ID列表 |
-| `tenantCode` | string | 否 | 租户编码,空=平台级 |
+| `tenantCode` | string | 否 | 企业编码,空=平台级 |
 | `title` | string | 是 | 标题 |
 | `videoUrl` | string | 否 |  news专属：视频URL |
 
@@ -231,7 +231,7 @@ ur api /api/v1/system/notify/notification/estimate-users \
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `priority` | integer | 否 | 优先级筛选 (格式: int64) |
 | `status` | integer | 否 | 状态筛选 (格式: int64) |
-| `tenantCode` | string | 否 | 租户编码筛选 |
+| `tenantCode` | string | 否 | 企业编码筛选 |
 | `title` | string | 否 | 标题模糊搜索 |
 
 **请求示例**:
@@ -471,7 +471,7 @@ ur api /api/v1/system/notify/notification/send \
 | `showAsModal` | string | 否 |  message/news专属：是否弹窗 1=是 2=否 |
 | `status` | integer | 否 | 状态 1:草稿 2:已计划 3:发送中 4:已发送 5:已撤回 (格式: int64) |
 | `targetUserIDs` | array[string] | 否 | 目标用户ID列表 |
-| `tenantCode` | string | 否 | 租户编码,空=平台级 |
+| `tenantCode` | string | 否 | 企业编码,空=平台级 |
 | `title` | string | 是 | 标题 |
 | `videoUrl` | string | 否 |  news专属：视频URL |
 

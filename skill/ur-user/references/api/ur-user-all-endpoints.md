@@ -119,12 +119,12 @@
 | POST | `/api/v1/system/user/self/user/search` | 精准搜索用户 | all |
 | POST | `/api/v1/system/user/self/openclaw/setup-check` | 查询 CLI 绑定状态 | public |
 | POST | `/api/v1/system/user/self/openclaw/setup-complete` | 完成 CLI 绑定 | all |
-| POST | `/api/v1/system/user/self/tenant/delete` | 退出当前租户 | all |
-| POST | `/api/v1/system/user/self/tenant/get-list` | 获取用户所处的租户列表 | all |
-| POST | `/api/v1/system/user/self/tenant/get-one` | 获取当前用户在当前租户的详情 | all |
-| POST | `/api/v1/system/user/self/tenant/join` | 用户加入租户（通过邀请码、邮件或手机邀请） | all |
-| POST | `/api/v1/system/user/self/tenant/update` | 更新当前用户在当前租户的信息 | all |
-| POST | `/api/v1/system/user/tenant/get-list` | 用户所处的租户列表 | all |
+| POST | `/api/v1/system/user/self/tenant/delete` | 退出当前企业 | all |
+| POST | `/api/v1/system/user/self/tenant/get-list` | 获取用户所处的企业列表 | all |
+| POST | `/api/v1/system/user/self/tenant/get-one` | 获取当前用户在当前企业的详情 | all |
+| POST | `/api/v1/system/user/self/tenant/join` | 用户加入企业（通过邀请码、邮件或手机邀请） | all |
+| POST | `/api/v1/system/user/self/tenant/update` | 更新当前用户在当前企业的信息 | all |
+| POST | `/api/v1/system/user/tenant/get-list` | 用户所处的企业列表 | all |
 
 ## 端点详情
 
@@ -4862,7 +4862,7 @@ ur api /api/v1/system/notify/notification/copy \
 | `showAsModal` | string | 否 |  message/news专属：是否弹窗 1=是 2=否 |
 | `status` | integer | 否 | 状态 1:草稿 2:已计划 3:发送中 4:已发送 5:已撤回 (格式: int64) |
 | `targetUserIDs` | array[string] | 否 | 目标用户ID列表 |
-| `tenantCode` | string | 否 | 租户编码,空=平台级 |
+| `tenantCode` | string | 否 | 企业编码,空=平台级 |
 | `title` | string | 是 | 标题 |
 | `videoUrl` | string | 否 |  news专属：视频URL |
 
@@ -5005,7 +5005,7 @@ ur api /api/v1/system/notify/notification/estimate-users \
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `priority` | integer | 否 | 优先级筛选 (格式: int64) |
 | `status` | integer | 否 | 状态筛选 (格式: int64) |
-| `tenantCode` | string | 否 | 租户编码筛选 |
+| `tenantCode` | string | 否 | 企业编码筛选 |
 | `title` | string | 否 | 标题模糊搜索 |
 
 **请求示例**:
@@ -5245,7 +5245,7 @@ ur api /api/v1/system/notify/notification/send \
 | `showAsModal` | string | 否 |  message/news专属：是否弹窗 1=是 2=否 |
 | `status` | integer | 否 | 状态 1:草稿 2:已计划 3:发送中 4:已发送 5:已撤回 (格式: int64) |
 | `targetUserIDs` | array[string] | 否 | 目标用户ID列表 |
-| `tenantCode` | string | 否 | 租户编码,空=平台级 |
+| `tenantCode` | string | 否 | 企业编码,空=平台级 |
 | `title` | string | 是 | 标题 |
 | `videoUrl` | string | 否 |  news专属：视频URL |
 
@@ -6653,7 +6653,7 @@ ur api /api/v1/system/user/info/update \
 |------|------|------|------|
 | `desc` | string | 否 |  令牌描述 |
 | `expTime` | string | 否 |  到期时间 |
-| `tenantCodes` | array[string] | 否 |  可访问的租户列表 |
+| `tenantCodes` | array[string] | 否 |  可访问的企业列表 |
 
 **请求示例**:
 ```json
@@ -6842,7 +6842,7 @@ ur api /api/v1/system/user/self/access-token/get-one \
 | `desc` | string | 否 |  令牌描述 |
 | `expTime` | string | 否 |  到期时间 |
 | `id` | string | 是 |  令牌ID |
-| `tenantCodes` | array[string] | 否 |  可访问的租户列表 |
+| `tenantCodes` | array[string] | 否 |  可访问的企业列表 |
 
 **请求示例**:
 ```json
@@ -7836,7 +7836,7 @@ ur api /api/v1/system/user/self/notify-preference/read \
 | `quietEndTime` | string | 否 | 免打扰结束时间 HH:MM |
 | `quietStartTime` | string | 否 | 免打扰开始时间 HH:MM |
 | `subscriptions` | array[UserNotifySubscription] | 否 | 订阅控制列表 |
-| `tenantCode` | string | 否 | 租户编码,只读 |
+| `tenantCode` | string | 否 | 企业编码,只读 |
 | `userID` | string | 否 | 用户ID,只读 |
 
 **请求示例**:
@@ -8476,7 +8476,7 @@ ur api /api/v1/system/user/self/openclaw/setup-complete \
 
 ### POST `/api/v1/system/user/self/tenant/delete`
 
-**说明**: 退出当前租户
+**说明**: 退出当前企业
 
 **权限**: all
 
@@ -8499,7 +8499,7 @@ ur api /api/v1/system/user/self/tenant/delete \
 
 ### POST `/api/v1/system/user/self/tenant/get-list`
 
-**说明**: 获取用户所处的租户列表
+**说明**: 获取用户所处的企业列表
 
 **权限**: all
 
@@ -8611,7 +8611,7 @@ ur api /api/v1/system/user/self/tenant/get-list \
 
 ### POST `/api/v1/system/user/self/tenant/get-one`
 
-**说明**: 获取当前用户在当前租户的详情
+**说明**: 获取当前用户在当前企业的详情
 
 **权限**: all
 
@@ -8713,7 +8713,7 @@ ur api /api/v1/system/user/self/tenant/get-one \
 
 ### POST `/api/v1/system/user/self/tenant/join`
 
-**说明**: 用户加入租户（通过邀请码、邮件或手机邀请）
+**说明**: 用户加入企业（通过邀请码、邮件或手机邀请）
 
 **权限**: all
 
@@ -8723,7 +8723,7 @@ ur api /api/v1/system/user/self/tenant/get-one \
 |------|------|------|------|
 | `code` | string | 是 |  邀请码（使用邀请码加入时填写） |
 | `method` | string | 否 |  加入方法：code（邀请码）、email（邮件邀请）、phone（手机邀请） |
-| `tenantCode` | string | 否 |  租户编码（可选，某些场景可能需要明确指定） |
+| `tenantCode` | string | 否 |  企业编码（可选，某些场景可能需要明确指定） |
 
 **请求示例**:
 ```json
@@ -8753,7 +8753,7 @@ ur api /api/v1/system/user/self/tenant/join \
 
 ### POST `/api/v1/system/user/self/tenant/update`
 
-**说明**: 更新当前用户在当前租户的信息
+**说明**: 更新当前用户在当前企业的信息
 
 **权限**: all
 
@@ -8764,23 +8764,23 @@ ur api /api/v1/system/user/self/tenant/join \
 | `createdTime` | string | 否 |  创建时间,只读 |
 | `deptIDs` | array[string] | 否 | 部门ID列表,默认展示第一个 |
 | `deviceCount` | integer | 否 | 用户所拥有的设备数量统计,只读 (格式: int64) |
-| `isTenantOwner` | integer | 否 | 是否是租户管理员,只读 (格式: int64) |
+| `isTenantOwner` | integer | 否 | 是否是企业管理员,只读 (格式: int64) |
 | `pubTags` | object | 否 |  公共的标签,用户自己可以修改 |
 | `roles` | array[RoleInfo] | 否 |  角色列表 |
 | `status` | integer | 否 | 用户状态(管理员才可修改): 1启用 2禁用 (格式: int64) |
 | `tags` | object | 否 |  管理员才可修改的标签 |
 | `tenant` | object | 否 |  |
-| `tenant.appIDs` | array[string] | 否 |  租户拥有的应用ID列表 |
+| `tenant.appIDs` | array[string] | 否 |  企业拥有的应用ID列表 |
 | `tenant.avatar` | string | 否 |  头像,更新时传filePath |
-| `tenant.code` | string | 否 |  租户编码,创建的时候自动生成 |
+| `tenant.code` | string | 否 |  企业编码,创建的时候自动生成 |
 | `tenant.desc` | string | 否 |  应用描述 |
 | `tenant.id` | string | 否 |  id编号 |
-| `tenant.name` | string | 否 |  租户名称 |
+| `tenant.name` | string | 否 |  企业名称 |
 | `tenant.resource` | object | 否 |  |
 | `tenant.resource.package` | object | 否 |  |
 | `tenant.resource.quota` | object | 否 |  |
 | `tenant.resource.usage` | object | 否 |  |
-| `tenantCode` | string | 否 |  租户编码,只读 |
+| `tenantCode` | string | 否 |  企业编码,只读 |
 | `user` | object | 否 |  |
 | `user.avatar` | string | 否 |  用户头像 |
 | `user.createdTime` | string | 否 |  创建时间 |
@@ -8883,7 +8883,7 @@ ur api /api/v1/system/user/self/tenant/update \
 
 ### POST `/api/v1/system/user/tenant/get-list`
 
-**说明**: 用户所处的租户列表
+**说明**: 用户所处的企业列表
 
 **权限**: all
 

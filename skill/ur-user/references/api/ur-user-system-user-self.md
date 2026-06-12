@@ -1005,7 +1005,7 @@ ur api /api/v1/system/user/self/notify-preference/read \
 | `quietEndTime` | string | 否 | 免打扰结束时间 HH:MM |
 | `quietStartTime` | string | 否 | 免打扰开始时间 HH:MM |
 | `subscriptions` | array[UserNotifySubscription] | 否 | 订阅控制列表 |
-| `tenantCode` | string | 否 | 租户编码,只读 |
+| `tenantCode` | string | 否 | 企业编码,只读 |
 | `userID` | string | 否 | 用户ID,只读 |
 
 **请求示例**:

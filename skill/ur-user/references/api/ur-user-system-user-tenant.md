@@ -1,18 +1,18 @@
 # ur-user system/user/tenant
 
-用户所处的租户列表
+用户所处的企业列表
 
 ## 端点概览
 
 | 方法 | 端点 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/api/v1/system/user/tenant/get-list` | 用户所处的租户列表 | all |
+| POST | `/api/v1/system/user/tenant/get-list` | 用户所处的企业列表 | all |
 
 ## 详细说明
 
 ### POST `/api/v1/system/user/tenant/get-list`
 
-**说明**: 用户所处的租户列表
+**说明**: 用户所处的企业列表
 
 **权限**: all
 

@@ -46,7 +46,7 @@
 | `area.projectID` | string | 否 | 项目id（只读） |
 | `area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `area.tags` | object | 否 | 自定义标签 |
-| `area.tenantCode` | string | 否 | 租户编码（只读） |
+| `area.tenantCode` | string | 否 | 企业编码（只读） |
 | `area.useBy` | string | 否 | 用途: commonSpace default |
 | `areaID` | string | 否 | 项目区域id 只读 |
 | `categoryID` | string | 否 | 产品品类 |
@@ -89,7 +89,7 @@
 | `gateway.area.projectID` | string | 否 | 项目id（只读） |
 | `gateway.area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `gateway.area.tags` | object | 否 | 自定义标签 |
-| `gateway.area.tenantCode` | string | 否 | 租户编码（只读） |
+| `gateway.area.tenantCode` | string | 否 | 企业编码（只读） |
 | `gateway.area.useBy` | string | 否 | 用途: commonSpace default |
 | `gateway.areaID` | string | 否 | 项目区域id 只读 |
 | `gateway.categoryID` | string | 否 | 产品品类 |
@@ -1623,7 +1623,7 @@ ur api /api/v1/things/device/info/create \
 | `area.projectID` | string | 否 | 项目id（只读） |
 | `area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `area.tags` | object | 否 | 自定义标签 |
-| `area.tenantCode` | string | 否 | 租户编码（只读） |
+| `area.tenantCode` | string | 否 | 企业编码（只读） |
 | `area.useBy` | string | 否 | 用途: commonSpace default |
 | `areaID` | string | 否 | 项目区域id 只读 |
 | `categoryID` | string | 否 | 产品品类 |
@@ -1666,7 +1666,7 @@ ur api /api/v1/things/device/info/create \
 | `gateway.area.projectID` | string | 否 | 项目id（只读） |
 | `gateway.area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `gateway.area.tags` | object | 否 | 自定义标签 |
-| `gateway.area.tenantCode` | string | 否 | 租户编码（只读） |
+| `gateway.area.tenantCode` | string | 否 | 企业编码（只读） |
 | `gateway.area.useBy` | string | 否 | 用途: commonSpace default |
 | `gateway.areaID` | string | 否 | 项目区域id 只读 |
 | `gateway.categoryID` | string | 否 | 产品品类 |

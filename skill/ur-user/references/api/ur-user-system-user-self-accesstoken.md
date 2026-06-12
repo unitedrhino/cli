@@ -26,7 +26,7 @@
 |------|------|------|------|
 | `desc` | string | 否 |  令牌描述 |
 | `expTime` | string | 否 |  到期时间 |
-| `tenantCodes` | array[string] | 否 |  可访问的租户列表 |
+| `tenantCodes` | array[string] | 否 |  可访问的企业列表 |
 
 **请求示例**:
 ```json
@@ -215,7 +215,7 @@ ur api /api/v1/system/user/self/access-token/get-one \
 | `desc` | string | 否 |  令牌描述 |
 | `expTime` | string | 否 |  到期时间 |
 | `id` | string | 是 |  令牌ID |
-| `tenantCodes` | array[string] | 否 |  可访问的租户列表 |
+| `tenantCodes` | array[string] | 否 |  可访问的企业列表 |
 
 **请求示例**:
 ```json

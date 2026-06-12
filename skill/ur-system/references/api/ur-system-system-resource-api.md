@@ -109,7 +109,7 @@ ur api /api/v1/system/resource/api/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `accessCode` | string | 否 |  应用编号 |
-| `authType` | integer | 否 |   1(all) 全部人可以操作 2(admin) 默认授予租户管理员权限 3(superAdmin,supper) default租户才可以操作(超管是跨租户的) (格式: int64) |
+| `authType` | integer | 否 |   1(all) 全部人可以操作 2(admin) 默认授予企业管理员权限 3(superAdmin,supper) default企业才可以操作(超管是跨企业的) (格式: int64) |
 | `authTypeCode` | string | 否 |  权限层级编码 |
 | `groupCode` | string | 否 |  分组标识 |
 | `method` | string | 否 |  接口请求方式: （1 GET 2 POST 3 HEAD 4 OPTIONS 5 PUT 6 DELETE 7 TRACE 8 CONNECT 9 其它） |

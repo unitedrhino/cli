@@ -1,22 +1,22 @@
 # ur-user system/user/self/tenant
 
-退出当前租户 等
+退出当前企业 等
 
 ## 端点概览
 
 | 方法 | 端点 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/api/v1/system/user/self/tenant/delete` | 退出当前租户 | all |
-| POST | `/api/v1/system/user/self/tenant/get-list` | 获取用户所处的租户列表 | all |
-| POST | `/api/v1/system/user/self/tenant/get-one` | 获取当前用户在当前租户的详情 | all |
-| POST | `/api/v1/system/user/self/tenant/join` | 用户加入租户（通过邀请码、邮件或手机邀请） | all |
-| POST | `/api/v1/system/user/self/tenant/update` | 更新当前用户在当前租户的信息 | all |
+| POST | `/api/v1/system/user/self/tenant/delete` | 退出当前企业 | all |
+| POST | `/api/v1/system/user/self/tenant/get-list` | 获取用户所处的企业列表 | all |
+| POST | `/api/v1/system/user/self/tenant/get-one` | 获取当前用户在当前企业的详情 | all |
+| POST | `/api/v1/system/user/self/tenant/join` | 用户加入企业（通过邀请码、邮件或手机邀请） | all |
+| POST | `/api/v1/system/user/self/tenant/update` | 更新当前用户在当前企业的信息 | all |
 
 ## 详细说明
 
 ### POST `/api/v1/system/user/self/tenant/delete`
 
-**说明**: 退出当前租户
+**说明**: 退出当前企业
 
 **权限**: all
 
@@ -39,7 +39,7 @@ ur api /api/v1/system/user/self/tenant/delete \
 
 ### POST `/api/v1/system/user/self/tenant/get-list`
 
-**说明**: 获取用户所处的租户列表
+**说明**: 获取用户所处的企业列表
 
 **权限**: all
 
@@ -151,7 +151,7 @@ ur api /api/v1/system/user/self/tenant/get-list \
 
 ### POST `/api/v1/system/user/self/tenant/get-one`
 
-**说明**: 获取当前用户在当前租户的详情
+**说明**: 获取当前用户在当前企业的详情
 
 **权限**: all
 
@@ -253,7 +253,7 @@ ur api /api/v1/system/user/self/tenant/get-one \
 
 ### POST `/api/v1/system/user/self/tenant/join`
 
-**说明**: 用户加入租户（通过邀请码、邮件或手机邀请）
+**说明**: 用户加入企业（通过邀请码、邮件或手机邀请）
 
 **权限**: all
 
@@ -263,7 +263,7 @@ ur api /api/v1/system/user/self/tenant/get-one \
 |------|------|------|------|
 | `code` | string | 是 |  邀请码（使用邀请码加入时填写） |
 | `method` | string | 否 |  加入方法：code（邀请码）、email（邮件邀请）、phone（手机邀请） |
-| `tenantCode` | string | 否 |  租户编码（可选，某些场景可能需要明确指定） |
+| `tenantCode` | string | 否 |  企业编码（可选，某些场景可能需要明确指定） |
 
 **请求示例**:
 ```json
@@ -293,7 +293,7 @@ ur api /api/v1/system/user/self/tenant/join \
 
 ### POST `/api/v1/system/user/self/tenant/update`
 
-**说明**: 更新当前用户在当前租户的信息
+**说明**: 更新当前用户在当前企业的信息
 
 **权限**: all
 
@@ -304,23 +304,23 @@ ur api /api/v1/system/user/self/tenant/join \
 | `createdTime` | string | 否 |  创建时间,只读 |
 | `deptIDs` | array[string] | 否 | 部门ID列表,默认展示第一个 |
 | `deviceCount` | integer | 否 | 用户所拥有的设备数量统计,只读 (格式: int64) |
-| `isTenantOwner` | integer | 否 | 是否是租户管理员,只读 (格式: int64) |
+| `isTenantOwner` | integer | 否 | 是否是企业管理员,只读 (格式: int64) |
 | `pubTags` | object | 否 |  公共的标签,用户自己可以修改 |
 | `roles` | array[RoleInfo] | 否 |  角色列表 |
 | `status` | integer | 否 | 用户状态(管理员才可修改): 1启用 2禁用 (格式: int64) |
 | `tags` | object | 否 |  管理员才可修改的标签 |
 | `tenant` | object | 否 |  |
-| `tenant.appIDs` | array[string] | 否 |  租户拥有的应用ID列表 |
+| `tenant.appIDs` | array[string] | 否 |  企业拥有的应用ID列表 |
 | `tenant.avatar` | string | 否 |  头像,更新时传filePath |
-| `tenant.code` | string | 否 |  租户编码,创建的时候自动生成 |
+| `tenant.code` | string | 否 |  企业编码,创建的时候自动生成 |
 | `tenant.desc` | string | 否 |  应用描述 |
 | `tenant.id` | string | 否 |  id编号 |
-| `tenant.name` | string | 否 |  租户名称 |
+| `tenant.name` | string | 否 |  企业名称 |
 | `tenant.resource` | object | 否 |  |
 | `tenant.resource.package` | object | 否 |  |
 | `tenant.resource.quota` | object | 否 |  |
 | `tenant.resource.usage` | object | 否 |  |
-| `tenantCode` | string | 否 |  租户编码,只读 |
+| `tenantCode` | string | 否 |  企业编码,只读 |
 | `user` | object | 否 |  |
 | `user.avatar` | string | 否 |  用户头像 |
 | `user.createdTime` | string | 否 |  创建时间 |

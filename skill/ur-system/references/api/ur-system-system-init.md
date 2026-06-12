@@ -63,7 +63,7 @@
 | `config.user.ownerUserID` | string | 否 |  平台超级管理员ID 非平台超管不返回该参数,不可修改 |
 | `config.user.passLevel` | integer | 是 |  用户密码强度级别 1:长度大于等于8位即可 2:包含数字,大写字母,小写字母,特殊字符起码两种  3:包含数字,大写字母,小写字母,特殊字符起码3种 4:包含数字,大写字母,小写字母,特殊字符   特殊字符: !@#~$%^&*()+\|_ (格式: int64) |
 | `config.user.remindSetPassword` | integer | 是 |  是否提醒未设置密码的用户设置密码(1:是，2:否) (格式: int64) 可选: ['1', '2'] |
-| `config.user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费租户数量，0表示不可直接创建免费租户，需提供授权码 (格式: int64) |
+| `config.user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费企业数量，0表示不可直接创建免费企业，需提供授权码 (格式: int64) |
 | `config.weather` | object | 否 |  |
 | `config.weather.apiHost` | string | 是 |  天气API主机地址 |
 | `config.weather.apiKey` | string | 是 |  天气API密钥 |

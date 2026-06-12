@@ -145,7 +145,7 @@ ur api /api/v1/things/project/info/delete \
 | `projectIDs` | array[string] | 否 | 过滤项目id列表 |
 | `projectName` | string | 否 | 过滤项目名称 |
 | `status` | integer | 否 | 项目状态  1 正常，2-禁用，3-过期 (格式: int64) |
-| `tenantCode` | string | 否 | 指定租户(只有default租户下的管理员才有效) |
+| `tenantCode` | string | 否 | 指定企业(只有default企业下的管理员才有效) |
 | `type` | string | 否 | 项目类型 |
 | `withAdminUser` | boolean | 否 | 同时获取管理员核心信息 (格式: boolean) |
 | `withTopAreas` | boolean | 否 | 同时返回顶层的区域列表 (格式: boolean) |
@@ -615,7 +615,7 @@ ur api /api/v1/things/project/info/get-one \
 | `sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `status` | integer | 否 | 项目状态  1 正常，2-禁用，3-过期 (格式: int64) |
 | `tags` | object | 否 | 自定义标签 |
-| `tenantCode` | string | 否 | 租户编码（只读） |
+| `tenantCode` | string | 否 | 企业编码（只读） |
 | `type` | string | 否 | 项目类型 |
 | `userCount` | integer | 否 | 项目下的用户统计(只读) (格式: int64) |
 

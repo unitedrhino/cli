@@ -32,7 +32,7 @@ metadata:
 | **告警管理** | 告警配置、告警记录处理、告警与场景关联 | `ur-ai` | `ur alarm` |
 | **AI 能力** | AI Agent、MCP 协议、设备智能绑定 | `ur-ai` | `ur ai` |
 | **用户管理** | 登录注册、角色权限、部门、字典、消息 | `ur-user` | `ur user` |
-| **租户管理** | 租户CRUD、用户邀请、应用绑定、续费 | `ur-tenant` | `ur tenant` |
+| **企业管理** | 企业CRUD、用户邀请、应用绑定、续费 | `ur-tenant` | `ur tenant` |
 | **系统管理** | 应用/菜单、文件上传、Hook、批量聚合 | `ur-system` | `ur system` |
 | **物模型** | 物模型规范、TSL导入导出、Mock数据生成 | `thing-model` | `ur things schema` |
 | **协议脚本** | 协议网关、协议容器、协议脚本管理 | `protocol-script` | - |
@@ -87,7 +87,7 @@ ur things area info get-list --page 1 --size 10
 ur things group info get-list --page 1 --size 10
 ```
 
-### 用户与租户
+### 用户与企业
 
 ```bash
 # 登录
@@ -96,10 +96,10 @@ ur user self login --userName <账号> --password <密码>
 # 获取当前用户信息
 ur user self get-one
 
-# 查询租户用户列表
+# 查询企业用户列表
 ur tenant user get-list --page 1 --size 10
 
-# 邀请用户加入租户
+# 邀请用户加入企业
 ur tenant user invite --userID <用户ID>
 ```
 

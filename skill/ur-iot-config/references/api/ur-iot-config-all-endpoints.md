@@ -60,7 +60,7 @@ ur api /api/v1/things/config/info/get-one \
 | `modelType` | string | 否 |  模型级别：small/medium/large/xlarge |
 | `name` | string | 否 |  配置名称 |
 | `outputModalities` | string | 否 |  输出模态（JSON字符串） |
-| `tenantCode` | string | 否 |  租户编码 |
+| `tenantCode` | string | 否 |  企业编码 |
 
 **请求示例**:
 ```json

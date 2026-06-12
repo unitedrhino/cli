@@ -107,7 +107,7 @@ func runLoginPoll(cmd *cobra.Command, ctx context.Context, baseURL, setupCode st
 		cmd.Printf(`{"event":"authorization_complete","tenant_code":"%s","access_key":"%s"}`+"\n", result.TenantCode, result.AccessKey)
 	} else {
 		cmd.Printf("\n✓ 授权成功！\n")
-		cmd.Printf("租户:       %s\n", result.TenantCode)
+		cmd.Printf("企业:       %s\n", result.TenantCode)
 		cmd.Printf("AccessKey:  %s...（已保存）\n", result.AccessKey[:6])
 		cmd.Println("✓ 连接验证成功！")
 	}

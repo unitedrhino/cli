@@ -777,7 +777,7 @@ ur api /api/v1/system/app/core/get-one \
 | `isUseMenu` | integer | 否 |  是否使用菜单 1-是 2-否 (格式: int64) |
 | `isUseProxy` | integer | 否 |  是否使用代理 1-是 2-否 (格式: int64) |
 | `loginTypes` | array[string] | 否 | 选项取决于 app里是否配置了 支持的登录类型(不填支持全部登录方式):    "email":邮箱(系统配置里配置了才能开启) "phone":手机号(系统配置里配置了才能开启)  "wxMiniP":微信小程序(app里配置了微信小程序才能开启)  "wxOpen": 微信开放平台登录(app里配置了微信开放才能开启)   "ding":钉钉应用(包含小程序,h5等方式,app里配置了钉钉才能开启)  "pwd":账号密码注册 |
-| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-租户管理员 |
+| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-企业管理员 |
 | `name` | string | 否 |  应用名称 |
 | `nativeConfig` | object | 否 |  |
 | `nativeConfig.filePath` | string | 否 |  文件路径,拿来下载文件 |
@@ -787,8 +787,8 @@ ur api /api/v1/system/app/core/get-one \
 | `sort` | integer | 否 | 排序,不能小于等于0 (格式: int64) |
 | `status` | integer | 否 |  应用状态 1:上架, 2:下架(默认) (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
-| `tenantCode` | string | 否 |  租户编码,common的是通用应用,非common的是租户应用 |
-| `tenantName` | string | 否 |  租户名称 |
+| `tenantCode` | string | 否 |  企业编码,common的是通用应用,非common的是企业应用 |
+| `tenantName` | string | 否 |  企业名称 |
 | `trialTime` | integer | 否 | 试用时间(单位为天,为0不限制,如果为0,是免费使用的,如果为-1 则不允许自己创建) (格式: int64) |
 | `type` | string | 否 |  应用类型 web:web页面  native:原生  mini:小程序 |
 | `url` | string | 否 |  应用地址 |
@@ -938,7 +938,7 @@ ur api /api/v1/system/app/info/delete \
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 应用状态 1 上架 2 下架 (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
-| `tenantIsBind` | integer | 否 |  过滤租户是否已绑定的应用 1-是 2-否,如果要过滤指定租户,通过http头里指定 (格式: int64) |
+| `tenantIsBind` | integer | 否 |  过滤企业是否已绑定的应用 1-是 2-否,如果要过滤指定企业,通过http头里指定 (格式: int64) |
 | `type` | string | 否 |  应用类型 web:web页面  native:原生  mini:小程序 |
 | `useBy` | string | 否 |  使用对象 client:登录直接授权该应用 admin:管理员使用,需要邀请 |
 | `withAgreementCodes` | array[string] | 否 |  非空时按 code 回填已绑定协议 |
@@ -1189,7 +1189,7 @@ ur api /api/v1/system/app/info/get-one \
 | `isUseMenu` | integer | 否 |  是否使用菜单 1-是 2-否 (格式: int64) |
 | `isUseProxy` | integer | 否 |  是否使用代理 1-是 2-否 (格式: int64) |
 | `loginTypes` | array[string] | 否 | 选项取决于 app里是否配置了 支持的登录类型(不填支持全部登录方式):    "email":邮箱(系统配置里配置了才能开启) "phone":手机号(系统配置里配置了才能开启)  "wxMiniP":微信小程序(app里配置了微信小程序才能开启)  "wxOpen": 微信开放平台登录(app里配置了微信开放才能开启)   "ding":钉钉应用(包含小程序,h5等方式,app里配置了钉钉才能开启)  "pwd":账号密码注册 |
-| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-租户管理员 |
+| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-企业管理员 |
 | `name` | string | 否 |  应用名称 |
 | `nativeConfig` | object | 否 |  |
 | `nativeConfig.filePath` | string | 否 |  文件路径,拿来下载文件 |
@@ -1199,8 +1199,8 @@ ur api /api/v1/system/app/info/get-one \
 | `sort` | integer | 否 | 排序,不能小于等于0 (格式: int64) |
 | `status` | integer | 否 |  应用状态 1:上架, 2:下架(默认) (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
-| `tenantCode` | string | 否 |  租户编码,common的是通用应用,非common的是租户应用 |
-| `tenantName` | string | 否 |  租户名称 |
+| `tenantCode` | string | 否 |  企业编码,common的是通用应用,非common的是企业应用 |
+| `tenantName` | string | 否 |  企业名称 |
 | `trialTime` | integer | 否 | 试用时间(单位为天,为0不限制,如果为0,是免费使用的,如果为-1 则不允许自己创建) (格式: int64) |
 | `type` | string | 否 |  应用类型 web:web页面  native:原生  mini:小程序 |
 | `url` | string | 否 |  应用地址 |
@@ -1319,8 +1319,8 @@ ur api /api/v1/system/app/info/update \
 | `parentID` | string | 否 |  父菜单ID，一级菜单为1 |
 | `path` | string | 否 |  系统的path |
 | `redirect` | string | 否 |  路由重定向 |
-| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:租户管理员 |
-| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是租户应用 |
+| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:企业管理员 |
+| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是企业应用 |
 | `type` | integer | 否 |  类型 1：菜单或者页面 2：iframe嵌入 3：外链跳转 (格式: int64) |
 
 **请求示例**:
@@ -1542,8 +1542,8 @@ ur api /api/v1/system/app/menu/get-list \
 | `parentID` | string | 否 |  父菜单ID，一级菜单为1 |
 | `path` | string | 否 |  系统的path |
 | `redirect` | string | 否 |  路由重定向 |
-| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:租户管理员 |
-| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是租户应用 |
+| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:企业管理员 |
+| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是企业应用 |
 | `type` | integer | 否 |  类型 1：菜单或者页面 2：iframe嵌入 3：外链跳转 (格式: int64) |
 
 **请求示例**:
@@ -2247,17 +2247,17 @@ ur api /api/v1/system/common/sys-config/info/get-one \
 | `tenant` | object | 否 |  |
 | `tenant.defaultLimit` | object | 是 |  |
 | `tenant.defaultLimit.aiTokenMonthly` | integer | 否 |  默认 AI Token 月配额（单位：token） (格式: int64) |
-| `tenant.defaultLimit.deviceMsgPerDay` | integer | 否 |  默认租户每天设备消息总量上限 (格式: int64) |
-| `tenant.defaultLimit.deviceNum` | integer | 否 |  租户下的设备数量限制,0为不限制 (格式: int64) |
+| `tenant.defaultLimit.deviceMsgPerDay` | integer | 否 |  默认企业每天设备消息总量上限 (格式: int64) |
+| `tenant.defaultLimit.deviceNum` | integer | 否 |  企业下的设备数量限制,0为不限制 (格式: int64) |
 | `tenant.defaultLimit.diskSpaceGB` | integer | 否 |  默认磁盘空间 GB (格式: int64) |
-| `tenant.defaultLimit.userNum` | integer | 否 |  租户下的用户数量限制,0为不限制 (格式: int64) |
+| `tenant.defaultLimit.userNum` | integer | 否 |  企业下的用户数量限制,0为不限制 (格式: int64) |
 | `user` | object | 否 |  |
 | `user.captchaLen` | integer | 是 |  验证码长度 (格式: int32) |
 | `user.forceSetPassword` | integer | 是 |  是否强制未设置密码的用户登录后设置密码(1:是，2:否) (格式: int64) 可选: ['1', '2'] |
 | `user.ownerUserID` | string | 否 |  平台超级管理员ID 非平台超管不返回该参数,不可修改 |
 | `user.passLevel` | integer | 是 |  用户密码强度级别 1:长度大于等于8位即可 2:包含数字,大写字母,小写字母,特殊字符起码两种  3:包含数字,大写字母,小写字母,特殊字符起码3种 4:包含数字,大写字母,小写字母,特殊字符   特殊字符: !@#~$%^&*()+\|_ (格式: int64) |
 | `user.remindSetPassword` | integer | 是 |  是否提醒未设置密码的用户设置密码(1:是，2:否) (格式: int64) 可选: ['1', '2'] |
-| `user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费租户数量，0表示不可直接创建免费租户，需提供授权码 (格式: int64) |
+| `user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费企业数量，0表示不可直接创建免费企业，需提供授权码 (格式: int64) |
 | `weather` | object | 否 |  |
 | `weather.apiHost` | string | 是 |  天气API主机地址 |
 | `weather.apiKey` | string | 是 |  天气API密钥 |
@@ -2855,7 +2855,7 @@ ur api /api/v1/system/common/upload-file \
 | `isPublic` | boolean | 否 | true时使用公开桶上传,返回永久fileUrl。用于通知富文本中的图片、封面图等需长期可访问的资源 (格式: boolean) |
 | `rename` | boolean | 否 | true 文件重命名，false 不重命名(默认) (格式: boolean) |
 | `scene` | string | 是 | 场景(业务定义 如产品图片 productImg) |
-| `useBy` | string | 否 | 公开桶时必填。上传用途: user=用户级, tenant=租户级, platform=平台级(需supper权限) |
+| `useBy` | string | 否 | 公开桶时必填。上传用途: user=用户级, tenant=企业级, platform=平台级(需supper权限) |
 
 **请求示例**:
 ```json
@@ -3127,7 +3127,7 @@ ur api /api/v1/system/common/sys-config/core/get-one \
 | `config.user.ownerUserID` | string | 否 |  平台超级管理员ID 非平台超管不返回该参数,不可修改 |
 | `config.user.passLevel` | integer | 是 |  用户密码强度级别 1:长度大于等于8位即可 2:包含数字,大写字母,小写字母,特殊字符起码两种  3:包含数字,大写字母,小写字母,特殊字符起码3种 4:包含数字,大写字母,小写字母,特殊字符   特殊字符: !@#~$%^&*()+\|_ (格式: int64) |
 | `config.user.remindSetPassword` | integer | 是 |  是否提醒未设置密码的用户设置密码(1:是，2:否) (格式: int64) 可选: ['1', '2'] |
-| `config.user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费租户数量，0表示不可直接创建免费租户，需提供授权码 (格式: int64) |
+| `config.user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费企业数量，0表示不可直接创建免费企业，需提供授权码 (格式: int64) |
 | `config.weather` | object | 否 |  |
 | `config.weather.apiHost` | string | 是 |  天气API主机地址 |
 | `config.weather.apiKey` | string | 是 |  天气API密钥 |
@@ -5346,13 +5346,13 @@ ur api /api/v1/system/ops/feedback/create \
 |------|------|------|------|
 | `appID` | string | 否 | 按应用过滤 |
 | `feedbackType` | string | 否 | 按问题反馈类型过滤 |
-| `isAllTenant` | boolean | 否 | default租户获取所有租户的信息 (格式: boolean) |
+| `isAllTenant` | boolean | 否 | default企业获取所有企业的信息 (格式: boolean) |
 | `page` | object | 否 |  |
 | `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
 | `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 所属项目 |
 | `status` | integer | 否 |  状态（1 待处理 2:处理中 3:已完成） (格式: int64) |
-| `tenantCode` | string | 否 | 过滤所属租户,isAllTenant为true有效 |
+| `tenantCode` | string | 否 | 过滤所属企业,isAllTenant为true有效 |
 | `type` | string | 否 | 反馈类型 设备问题:thingsDevice 智能场景:thingsScene 体验问题: experience 其他: other |
 
 **请求示例**:
@@ -5771,7 +5771,7 @@ ur api /api/v1/system/resource/api/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `accessCode` | string | 否 |  应用编号 |
-| `authType` | integer | 否 |   1(all) 全部人可以操作 2(admin) 默认授予租户管理员权限 3(superAdmin,supper) default租户才可以操作(超管是跨租户的) (格式: int64) |
+| `authType` | integer | 否 |   1(all) 全部人可以操作 2(admin) 默认授予企业管理员权限 3(superAdmin,supper) default企业才可以操作(超管是跨企业的) (格式: int64) |
 | `authTypeCode` | string | 否 |  权限层级编码 |
 | `groupCode` | string | 否 |  分组标识 |
 | `method` | string | 否 |  接口请求方式: （1 GET 2 POST 3 HEAD 4 OPTIONS 5 PUT 6 DELETE 7 TRACE 8 CONNECT 9 其它） |

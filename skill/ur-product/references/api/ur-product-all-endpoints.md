@@ -654,7 +654,7 @@ ur api /api/v1/things/product/category/update \
 | `devInit.areaID` | string | 否 | 设备创建默认分配给的区域ID |
 | `devInit.deptID` | string | 否 | 设备创建默认分配给的部门 |
 | `devInit.projectID` | string | 否 | 设备创建默认分配给的项目 |
-| `devInit.tenantCode` | string | 否 | 设备创建默认分配给的租户 |
+| `devInit.tenantCode` | string | 否 | 设备创建默认分配给的企业 |
 | `productID` | string | 是 |  |
 
 **请求示例**:
@@ -884,7 +884,7 @@ ur api /api/v1/things/product/info/batch-import \
 | `config.devInit.areaID` | string | 否 | 设备创建默认分配给的区域ID |
 | `config.devInit.deptID` | string | 否 | 设备创建默认分配给的部门 |
 | `config.devInit.projectID` | string | 否 | 设备创建默认分配给的项目 |
-| `config.devInit.tenantCode` | string | 否 | 设备创建默认分配给的租户 |
+| `config.devInit.tenantCode` | string | 否 | 设备创建默认分配给的企业 |
 | `config.productID` | string | 是 |  |
 | `createdTime` | string | 否 | 创建时间 只读 |
 | `customUi` | object | 否 | 自定义ui,key是端的类型(web-client  mini-client) value是以下类型的对象{version:123(版本号,只读),isUpdateUi:bool(是否更新ui),path:string(前端路径,如果需要修改,需要将isUpdateUi置为true并在这个参数中传入压缩包的filePath)} |
@@ -925,7 +925,7 @@ ur api /api/v1/things/product/info/batch-import \
 | `subProtocolCode` | string | 否 | 子协议,主协议和子协议传输类型必须不相同, 设备控制下发只会发送给主协议, 当设备是音视频设备但是控制协议需要单独走的时候就可以把主协议定义为普通协议,子协议定义为音视频协议,这样就能实现音视频走音视频协议,控制走子协议 |
 | `subProtocolConf` | object | 否 | 子协议协议配置 |
 | `tags` | object | 否 |  产品tag |
-| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `trialTime` | string | 否 | 试用时间(单位为天,为0不限制) |
 
 **请求示例**:
@@ -1161,7 +1161,7 @@ ur api /api/v1/things/product/info/delete \
 | `status` | integer | 否 | 产品状态 1:启用 2:禁用 3:开发中 (格式: int64) |
 | `statuses` | array[integer] | 否 | 产品状态 1:启用 2:禁用 3:开发中 |
 | `tags` | object | 否 |  key tag过滤查询,非模糊查询 为tag的名,value为tag对应的值 |
-| `tenantCode` | string | 否 | 租户号过滤,common 为公共的产品,公共的大家都可以看 |
+| `tenantCode` | string | 否 | 企业号过滤,common 为公共的产品,公共的大家都可以看 |
 | `withCategory` | boolean | 否 | 同时返回品类详情 (格式: boolean) |
 | `withProtocol` | boolean | 否 | 同时返回协议详情 (格式: boolean) |
 
@@ -1613,7 +1613,7 @@ ur api /api/v1/things/product/info/init \
 | `config.devInit.areaID` | string | 否 | 设备创建默认分配给的区域ID |
 | `config.devInit.deptID` | string | 否 | 设备创建默认分配给的部门 |
 | `config.devInit.projectID` | string | 否 | 设备创建默认分配给的项目 |
-| `config.devInit.tenantCode` | string | 否 | 设备创建默认分配给的租户 |
+| `config.devInit.tenantCode` | string | 否 | 设备创建默认分配给的企业 |
 | `config.productID` | string | 是 |  |
 | `createdTime` | string | 否 | 创建时间 只读 |
 | `customUi` | object | 否 | 自定义ui,key是端的类型(web-client  mini-client) value是以下类型的对象{version:123(版本号,只读),isUpdateUi:bool(是否更新ui),path:string(前端路径,如果需要修改,需要将isUpdateUi置为true并在这个参数中传入压缩包的filePath)} |
@@ -1654,7 +1654,7 @@ ur api /api/v1/things/product/info/init \
 | `subProtocolCode` | string | 否 | 子协议,主协议和子协议传输类型必须不相同, 设备控制下发只会发送给主协议, 当设备是音视频设备但是控制协议需要单独走的时候就可以把主协议定义为普通协议,子协议定义为音视频协议,这样就能实现音视频走音视频协议,控制走子协议 |
 | `subProtocolConf` | object | 否 | 子协议协议配置 |
 | `tags` | object | 否 |  产品tag |
-| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `trialTime` | string | 否 | 试用时间(单位为天,为0不限制) |
 
 **请求示例**:

@@ -146,7 +146,7 @@ ur api /api/v1/things/device/auth/login \
 | `productId` | string | 是 | 产品id 只读 |
 | `retEnc` | string | 否 | 返回使用的加密方式: aes128cbc(默认) aes128ecb |
 | `signature` | string | 是 | 签名信息 |
-| `tenantCode` | string | 否 | 租户号（可选）：产品为common租户或租户号与产品一致时生效 |
+| `tenantCode` | string | 否 | 企业号（可选）：产品为common企业或企业号与产品一致时生效 |
 | `timestamp` | integer | 是 | 秒级时间戳 (格式: int64) |
 
 **请求示例**:
@@ -3851,7 +3851,7 @@ ur api /api/v1/things/device/info/batch-update \
 | `area.projectID` | string | 否 | 项目id（只读） |
 | `area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `area.tags` | object | 否 | 自定义标签 |
-| `area.tenantCode` | string | 否 | 租户编码（只读） |
+| `area.tenantCode` | string | 否 | 企业编码（只读） |
 | `area.useBy` | string | 否 | 用途: commonSpace default |
 | `areaID` | string | 否 | 项目区域id 只读 |
 | `categoryID` | string | 否 | 产品品类 |
@@ -3894,7 +3894,7 @@ ur api /api/v1/things/device/info/batch-update \
 | `gateway.area.projectID` | string | 否 | 项目id（只读） |
 | `gateway.area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `gateway.area.tags` | object | 否 | 自定义标签 |
-| `gateway.area.tenantCode` | string | 否 | 租户编码（只读） |
+| `gateway.area.tenantCode` | string | 否 | 企业编码（只读） |
 | `gateway.area.useBy` | string | 否 | 用途: commonSpace default |
 | `gateway.areaID` | string | 否 | 项目区域id 只读 |
 | `gateway.categoryID` | string | 否 | 产品品类 |
@@ -5428,7 +5428,7 @@ ur api /api/v1/things/device/info/create \
 | `area.projectID` | string | 否 | 项目id（只读） |
 | `area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `area.tags` | object | 否 | 自定义标签 |
-| `area.tenantCode` | string | 否 | 租户编码（只读） |
+| `area.tenantCode` | string | 否 | 企业编码（只读） |
 | `area.useBy` | string | 否 | 用途: commonSpace default |
 | `areaID` | string | 否 | 项目区域id 只读 |
 | `categoryID` | string | 否 | 产品品类 |
@@ -5471,7 +5471,7 @@ ur api /api/v1/things/device/info/create \
 | `gateway.area.projectID` | string | 否 | 项目id（只读） |
 | `gateway.area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `gateway.area.tags` | object | 否 | 自定义标签 |
-| `gateway.area.tenantCode` | string | 否 | 租户编码（只读） |
+| `gateway.area.tenantCode` | string | 否 | 企业编码（只读） |
 | `gateway.area.useBy` | string | 否 | 用途: commonSpace default |
 | `gateway.areaID` | string | 否 | 项目区域id 只读 |
 | `gateway.categoryID` | string | 否 | 产品品类 |

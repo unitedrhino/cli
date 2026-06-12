@@ -133,7 +133,7 @@ func runAiToolValidate(ctx context.Context, args []string, stdout, stderr io.Wri
 		passes++
 	}
 
-	// 4. 变量一致性：document.md 中 {{var}} vs executor.js 中 runtime.set
+	// 4. 变量一致性：skill.md 中 {{var}} vs executor.js 中 runtime.set
 	varErrors, varWarns := validateVariableConsistency(executorJs, documentMd)
 	errors = append(errors, varErrors...)
 	warnings = append(warnings, varWarns...)
@@ -195,7 +195,7 @@ func validateComponentTags(md string) (errors []string, warnings []string) {
 			continue
 		}
 		if !allowedComponents[tag] {
-			errors = append(errors, fmt.Sprintf("document.md 包含未注册组件: <%s>（白名单: %s）",
+			errors = append(errors, fmt.Sprintf("skill.md 包含未注册组件: <%s>（白名单: %s）",
 				tag, strings.Join(allowedComponentNames(), ", ")))
 		}
 	}
@@ -226,7 +226,7 @@ func allowedComponentNames() []string {
 }
 
 func validateVariableConsistency(js string, md string) (errors []string, warnings []string) {
-	// 从 document.md 提取 {{var}} 引用的变量
+	// 从 skill.md 提取 {{var}} 引用的变量
 	varRe := regexp.MustCompile(`\{\{(\w+)\}\}`)
 	mdVars := make(map[string]bool)
 	for _, match := range varRe.FindAllStringSubmatch(md, -1) {
@@ -240,17 +240,17 @@ func validateVariableConsistency(js string, md string) (errors []string, warning
 		jsVars[match[1]] = true
 	}
 
-	// 检查 document.md 中引用的变量是否在 executor.js 中设置
+	// 检查 skill.md 中引用的变量是否在 executor.js 中设置
 	for v := range mdVars {
 		if !jsVars[v] {
-			warnings = append(warnings, fmt.Sprintf("document.md 引用了变量 {{%s}}，但 executor.js 中未找到 runtime.set(\"%s\",...)", v, v))
+			warnings = append(warnings, fmt.Sprintf("skill.md 引用了变量 {{%s}}，但 executor.js 中未找到 runtime.set(\"%s\",...)", v, v))
 		}
 	}
 
-	// 检查 executor.js 中 set 的变量是否在 document.md 中使用
+	// 检查 executor.js 中 set 的变量是否在 skill.md 中使用
 	for v := range jsVars {
 		if !mdVars[v] {
-			warnings = append(warnings, fmt.Sprintf("executor.js 设置了 runtime.set(\"%s\",...)，但 document.md 未引用 {{%s}}", v, v))
+			warnings = append(warnings, fmt.Sprintf("executor.js 设置了 runtime.set(\"%s\",...)，但 skill.md 未引用 {{%s}}", v, v))
 		}
 	}
 

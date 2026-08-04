@@ -1050,7 +1050,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_device_info_view_2Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "是否可以绑定设备",
-		Long:  "检查指定设备是否可以被绑定。验证设备的绑定限制（如是否已被他人绑定、是否属于其他租户、是否在线等）。在绑定操作前调用，提前发现绑定障碍。",
+		Long:  "检查指定设备是否可以被绑定。验证设备的绑定限制（如是否已被他人绑定、是否属于其他企业、是否在线等）。在绑定操作前调用，提前发现绑定障碍。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/device/info/can-bind",
@@ -2643,7 +2643,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_product_config_updateCmd := &cobra.Command{
 		Use:   "update",
 		Short: "更新配置",
-		Long:  "业务说明：更新产品设备初始化配置，设置设备首次接入时自动分配的租户、项目、区域、部门。用于批量设备自动归属配置",
+		Long:  "业务说明：更新产品设备初始化配置，设置设备首次接入时自动分配的企业、项目、区域、部门。用于批量设备自动归属配置",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/product/config/update",
@@ -2806,7 +2806,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_product_info_create_2Cmd := &cobra.Command{
 		Use:   "create",
 		Short: "初始化产品",
-		Long:  "业务说明：批量初始化产品的基础配置，包括设备初始化默认分配的租户、项目、区域等。用于产品首次启用前的快速配置",
+		Long:  "业务说明：批量初始化产品的基础配置，包括设备初始化默认分配的企业、项目、区域等。用于产品首次启用前的快速配置",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/product/info/init",
@@ -3171,7 +3171,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_project_info_viewCmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取项目列表",
-		Long:  "查询用户有权限的项目列表，支持按名称模糊搜索、按状态过滤。平台管理员可通过isGetAll获取所有租户的项目。返回数据包含设备统计和报警状态。",
+		Long:  "查询用户有权限的项目列表，支持按名称模糊搜索、按状态过滤。平台管理员可通过isGetAll获取所有企业的项目。返回数据包含设备统计和报警状态。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/project/info/get-list",

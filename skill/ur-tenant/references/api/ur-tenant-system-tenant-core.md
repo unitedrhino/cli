@@ -25,8 +25,9 @@
 | `code` | string | 否 |  编号 |
 | `name` | string | 否 |  租户名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -35,8 +36,14 @@
   "code": "string",
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -91,7 +98,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/core/get-list \
-  --body '{"appID": "string", "code": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"appID": "string", "code": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/system/tenant/core/get-one`
@@ -105,13 +112,13 @@ ur api /api/v1/system/tenant/core/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `code` | string | 否 |  |
-| `id` | string | 否 |  id |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "code": "string",
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -158,5 +165,5 @@ ur api /api/v1/system/tenant/core/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/core/get-one \
-  --body '{"code": "string", "id": "string"}'
+  --body '{"code": "string", "id": 1}'
 ```

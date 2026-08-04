@@ -76,8 +76,7 @@
       "devices": [
         {
           "deviceName": "示例名称",
-          "productID": "string",
-          "productName": "string"
+          "productID": "string"
         }
       ],
       "files": {},
@@ -99,8 +98,7 @@
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "files": {},
@@ -131,7 +129,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/info/create \
-  --body '{"areaID": "string", "children": [{"areaID": "string", "children": [{"areaID": "string", "children": [], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}'
+  --body '{"areaID": "string", "children": [{"areaID": "string", "children": [{"areaID": "string", "children": [], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}'
 ```
 
 ### POST `/api/v1/things/group/info/delete`
@@ -144,7 +142,7 @@ ur api /api/v1/things/group/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -180,8 +178,9 @@ ur api /api/v1/things/group/info/delete \
 | `areaID` | string | 否 | 区域ID |
 | `name` | string | 否 | 分组名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父组ID |
 | `productID` | string | 否 | 产品ID |
 | `purpose` | string | 否 | 用途 不填默认为default |
@@ -193,8 +192,14 @@ ur api /api/v1/things/group/info/delete \
   "areaID": "string",
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": "string",
   "productID": "string",
@@ -238,8 +243,7 @@ ur api /api/v1/things/group/info/delete \
         "devices": [
           {
             "deviceName": "示例名称",
-            "productID": "string",
-            "productName": "string"
+            "productID": "string"
           }
         ],
         "files": {},
@@ -266,7 +270,7 @@ ur api /api/v1/things/group/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/info/get-list \
-  --body '{"areaID": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "productID": "string", "purpose": "string", "tags": {}}'
+  --body '{"areaID": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "productID": "string", "purpose": "string", "tags": {}}'
 ```
 
 ### POST `/api/v1/things/group/info/get-one`
@@ -328,8 +332,7 @@ ur api /api/v1/things/group/info/get-list \
         "devices": [
           {
             "deviceName": "示例名称",
-            "productID": "string",
-            "productName": "string"
+            "productID": "string"
           }
         ],
         "files": {},
@@ -351,8 +354,7 @@ ur api /api/v1/things/group/info/get-list \
     "devices": [
       {
         "deviceName": "示例名称",
-        "productID": "string",
-        "productName": "string"
+        "productID": "string"
       }
     ],
     "files": {},
@@ -439,8 +441,7 @@ ur api /api/v1/things/group/info/get-one \
       "devices": [
         {
           "deviceName": "示例名称",
-          "productID": "string",
-          "productName": "string"
+          "productID": "string"
         }
       ],
       "files": {},
@@ -462,8 +463,7 @@ ur api /api/v1/things/group/info/get-one \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "files": {},
@@ -491,5 +491,5 @@ ur api /api/v1/things/group/info/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/info/update \
-  --body '{"areaID": "string", "children": [{"areaID": "string", "children": [{"areaID": "string", "children": [], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}'
+  --body '{"areaID": "string", "children": [{"areaID": "string", "children": [{"areaID": "string", "children": [], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}'
 ```

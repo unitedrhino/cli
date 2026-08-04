@@ -20,6 +20,7 @@
 | POST | `/api/v1/things/data/project/create` | 创建授权项目权限 | admin |
 | POST | `/api/v1/things/data/project/delete` | 删除授权项目权限 | admin |
 | POST | `/api/v1/things/data/project/get-list` | 获取项目权限列表 | admin |
+| POST | `/api/v1/things/data/user/get-list` | 获取有区域权限的用户列表 | admin |
 | POST | `/api/v1/things/group/device/batch-create` | 添加分组设备 | admin |
 | POST | `/api/v1/things/group/device/batch-delete` | 删除分组设备 | admin |
 | POST | `/api/v1/things/group/device/batch-update` | 更新分组设备 | admin |
@@ -873,15 +874,16 @@ ur api /api/v1/things/area/info/delete \
 |------|------|------|------|
 | `areaIDs` | array[string] | 否 | 项目区域ids |
 | `deviceCount` | object | 否 |  |
-| `deviceCount.cmpType` | string | 是 | "=":相等 "!=":不相等 ">":大于">=":大于等于"<":小于"<=":小于等于 "like":模糊查询 |
+| `deviceCount.cmpTYpe` | string | 是 | "=":相等 "!=":不相等 ">":大于">=":大于等于"<":小于"<=":小于等于 "like":模糊查询 |
 | `deviceCount.value` | string | 是 |  |
 | `groupCount` | object | 否 |  |
-| `groupCount.cmpType` | string | 是 | "=":相等 "!=":不相等 ">":大于">=":大于等于"<":小于"<=":小于等于 "like":模糊查询 |
+| `groupCount.cmpTYpe` | string | 是 | "=":相等 "!=":不相等 ">":大于">=":大于等于"<":小于"<=":小于等于 "like":模糊查询 |
 | `groupCount.value` | string | 是 |  |
 | `isRetTopLevel` | boolean | 否 | 如果该参数为true则返回除了root节点的有权限的最高层的区域列表 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentAreaID` | string | 否 |  |
 | `projectID` | string | 否 | 项目id |
 | `tenantCode` | string | 否 |  |
@@ -894,17 +896,23 @@ ur api /api/v1/things/area/info/delete \
     "string"
   ],
   "deviceCount": {
-    "cmpType": "string",
+    "cmpTYpe": "string",
     "value": "string"
   },
   "groupCount": {
-    "cmpType": "string",
+    "cmpTYpe": "string",
     "value": "string"
   },
   "isRetTopLevel": true,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentAreaID": "string",
   "projectID": "string",
@@ -1151,7 +1159,7 @@ ur api /api/v1/things/area/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/area/info/get-list \
-  --body '{"areaIDs": ["string"], "deviceCount": {"cmpType": "string", "value": "string"}, "groupCount": {"cmpType": "string", "value": "string"}, "isRetTopLevel": true, "page": {"page": 1, "pageSize": 1}, "parentAreaID": "string", "projectID": "string", "tenantCode": "string", "withDevices": true}'
+  --body '{"areaIDs": ["string"], "deviceCount": {"cmpTYpe": "string", "value": "string"}, "groupCount": {"cmpTYpe": "string", "value": "string"}, "isRetTopLevel": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentAreaID": "string", "projectID": "string", "tenantCode": "string", "withDevices": true}'
 ```
 
 ### POST `/api/v1/things/area/info/get-one`
@@ -2922,8 +2930,9 @@ ur api /api/v1/things/data/area/batch-update \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 项目id |
 | `targetID` | string | 否 | 用户ID |
 | `targetType` | string | 否 |  |
@@ -2932,8 +2941,14 @@ ur api /api/v1/things/data/area/batch-update \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "projectID": "string",
   "targetID": "string",
@@ -3093,7 +3108,7 @@ ur api /api/v1/things/data/area/batch-update \
 **调用示例**:
 ```bash
 ur api /api/v1/things/data/area/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "projectID": "string", "targetID": "string", "targetType": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectID": "string", "targetID": "string", "targetType": "string"}'
 ```
 
 ### POST `/api/v1/things/data/area/user/apply/deal`
@@ -3146,8 +3161,9 @@ ur api /api/v1/things/data/area/user/apply/deal \
 | `areaID` | string | 否 | 项目id |
 | `authTypes` | array[integer] | 否 | 权限类型 1:读权限,只能读,不能写 4:管理权限,可以修改别人的权限 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `withAreaInfo` | boolean | 否 | 把区域信息附带上 (格式: boolean) |
 | `withUserInfo` | boolean | 否 | 把用户信息带上 (格式: boolean) |
 
@@ -3159,8 +3175,14 @@ ur api /api/v1/things/data/area/user/apply/deal \
     1
   ],
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "withAreaInfo": true,
   "withUserInfo": true
@@ -3316,7 +3338,7 @@ ur api /api/v1/things/data/area/user/apply/deal \
 **调用示例**:
 ```bash
 ur api /api/v1/things/data/area/user/apply/get-list \
-  --body '{"areaID": "string", "authTypes": [1], "page": {"page": 1, "pageSize": 1}, "withAreaInfo": true, "withUserInfo": true}'
+  --body '{"areaID": "string", "authTypes": [1], "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "withAreaInfo": true, "withUserInfo": true}'
 ```
 
 ### POST `/api/v1/things/data/project/batch-create`
@@ -3503,8 +3525,9 @@ ur api /api/v1/things/data/project/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 权限数据ID |
 | `targetID` | string | 否 | 用户ID |
 | `targetType` | string | 是 |  |
@@ -3513,8 +3536,14 @@ ur api /api/v1/things/data/project/delete \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "projectID": "string",
   "targetID": "string",
@@ -3557,7 +3586,73 @@ ur api /api/v1/things/data/project/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/data/project/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "projectID": "string", "targetID": "string", "targetType": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectID": "string", "targetID": "string", "targetType": "string"}'
+```
+
+### POST `/api/v1/things/data/user/get-list`
+
+**说明**: 获取有区域权限的用户列表
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `areaIDs` | array[string] | 是 |  区域ID列表（必填） |
+| `page` | object | 否 |  |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `projectID` | string | 否 |  项目ID（可选，不传则用上下文） |
+
+**请求示例**:
+```json
+{
+  "areaIDs": [
+    "string"
+  ],
+  "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
+    "page": 1,
+    "size": 1
+  },
+  "projectID": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "avatar": "string",
+        "email": "string",
+        "nickName": "string",
+        "phone": "string",
+        "userID": "string",
+        "userName": "string"
+      }
+    ],
+    "page": 1,
+    "pageSize": 1,
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/data/user/get-list \
+  --body '{"areaIDs": ["string"], "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectID": "string"}'
 ```
 
 ### POST `/api/v1/things/group/device/batch-create`
@@ -3580,8 +3675,7 @@ ur api /api/v1/things/data/project/get-list \
   "list": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -3598,7 +3692,7 @@ ur api /api/v1/things/data/project/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/device/batch-create \
-  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/group/device/batch-delete`
@@ -3621,8 +3715,7 @@ ur api /api/v1/things/group/device/batch-create \
   "list": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -3639,7 +3732,7 @@ ur api /api/v1/things/group/device/batch-create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/device/batch-delete \
-  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/group/device/batch-update`
@@ -3662,8 +3755,7 @@ ur api /api/v1/things/group/device/batch-delete \
   "list": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -3680,7 +3772,7 @@ ur api /api/v1/things/group/device/batch-delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/device/batch-update \
-  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/group/info/create`
@@ -3745,8 +3837,7 @@ ur api /api/v1/things/group/device/batch-update \
       "devices": [
         {
           "deviceName": "示例名称",
-          "productID": "string",
-          "productName": "string"
+          "productID": "string"
         }
       ],
       "files": {},
@@ -3768,8 +3859,7 @@ ur api /api/v1/things/group/device/batch-update \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "files": {},
@@ -3800,7 +3890,7 @@ ur api /api/v1/things/group/device/batch-update \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/info/create \
-  --body '{"areaID": "string", "children": [{"areaID": "string", "children": [{"areaID": "string", "children": [], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}'
+  --body '{"areaID": "string", "children": [{"areaID": "string", "children": [{"areaID": "string", "children": [], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}'
 ```
 
 ### POST `/api/v1/things/group/info/delete`
@@ -3813,7 +3903,7 @@ ur api /api/v1/things/group/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -3849,8 +3939,9 @@ ur api /api/v1/things/group/info/delete \
 | `areaID` | string | 否 | 区域ID |
 | `name` | string | 否 | 分组名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父组ID |
 | `productID` | string | 否 | 产品ID |
 | `purpose` | string | 否 | 用途 不填默认为default |
@@ -3862,8 +3953,14 @@ ur api /api/v1/things/group/info/delete \
   "areaID": "string",
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": "string",
   "productID": "string",
@@ -3907,8 +4004,7 @@ ur api /api/v1/things/group/info/delete \
         "devices": [
           {
             "deviceName": "示例名称",
-            "productID": "string",
-            "productName": "string"
+            "productID": "string"
           }
         ],
         "files": {},
@@ -3935,7 +4031,7 @@ ur api /api/v1/things/group/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/info/get-list \
-  --body '{"areaID": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "productID": "string", "purpose": "string", "tags": {}}'
+  --body '{"areaID": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "productID": "string", "purpose": "string", "tags": {}}'
 ```
 
 ### POST `/api/v1/things/group/info/get-one`
@@ -3997,8 +4093,7 @@ ur api /api/v1/things/group/info/get-list \
         "devices": [
           {
             "deviceName": "示例名称",
-            "productID": "string",
-            "productName": "string"
+            "productID": "string"
           }
         ],
         "files": {},
@@ -4020,8 +4115,7 @@ ur api /api/v1/things/group/info/get-list \
     "devices": [
       {
         "deviceName": "示例名称",
-        "productID": "string",
-        "productName": "string"
+        "productID": "string"
       }
     ],
     "files": {},
@@ -4108,8 +4202,7 @@ ur api /api/v1/things/group/info/get-one \
       "devices": [
         {
           "deviceName": "示例名称",
-          "productID": "string",
-          "productName": "string"
+          "productID": "string"
         }
       ],
       "files": {},
@@ -4131,8 +4224,7 @@ ur api /api/v1/things/group/info/get-one \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "files": {},
@@ -4160,7 +4252,7 @@ ur api /api/v1/things/group/info/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/info/update \
-  --body '{"areaID": "string", "children": [{"areaID": "string", "children": [{"areaID": "string", "children": [], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}'
+  --body '{"areaID": "string", "children": [{"areaID": "string", "children": [{"areaID": "string", "children": [], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}], "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "deviceCount": 1, "devices": [{"deviceName": "示例名称", "productID": "string"}], "files": {}, "id": "string", "idPath": "string", "isLeaf": 1, "name": "示例名称", "parentID": "string", "productID": "string", "productName": "string", "projectID": "string", "purpose": "string", "tags": {}}'
 ```
 
 ### POST `/api/v1/things/project/crud/create`
@@ -4292,8 +4384,9 @@ ur api /api/v1/things/project/crud/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `params` | object | 否 | params过滤查询,key 是params的key, value是对象,说明: {"cmpType":"比较类型(如=、>、like)","value":"比较值(需与类型匹配)","castTo":"数据类型(int/float/string,选填，填则转换)"}，其中 like 仅支持 string 类型，value 需以字符串格式传入 示例: {"aaa":{"cmpType":">","castTo":"int","value":"100"} |
 | `purpose` | string | 是 | 用途必填 |
 
@@ -4301,8 +4394,14 @@ ur api /api/v1/things/project/crud/delete \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "params": {},
   "purpose": "string"
@@ -4334,7 +4433,7 @@ ur api /api/v1/things/project/crud/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/project/crud/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "params": {}, "purpose": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "params": {}, "purpose": "string"}'
 ```
 
 ### POST `/api/v1/things/project/crud/get-one`
@@ -4387,48 +4486,23 @@ ur api /api/v1/things/project/crud/get-one \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `address` | string | 否 |  可选：项目详细地址 |
-| `adminUserID` | string | 否 |  可选：管理员用户id，默认当前登录用户 |
-| `area` | number | 否 |  可选：建筑面积（单位平米） (格式: float) |
-| `attachments` | array[Attachment] | 否 |  可选：附件列表 |
-| `desc` | string | 否 |  可选：项目备注 |
-| `position` | object | 否 |  |
-| `position.latitude` | number | 是 | 纬度 (格式: double) |
-| `position.longitude` | number | 是 | 经度 (格式: double) |
-| `ppsm` | integer | 否 |  可选：每平方米功耗 (格式: int64) |
-| `projectImg` | string | 否 |  可选：项目图片 |
-| `projectName` | string | 是 |  必填：项目名称 |
-| `sort` | integer | 否 |  可选：排序标记，默认为1 (格式: int64) |
-| `status` | integer | 否 |  可选：项目状态 1:正常 2:禁用 3:过期 (格式: int64) |
-| `tags` | object | 否 |  可选：自定义标签 |
-| `type` | string | 否 |  可选：项目类型 |
+| `desc` | string | 否 |  项目描述 |
+| `indexImage` | string | 否 |  图片地址 |
+| `isSystem` | boolean | 否 |  是否系统模板 (格式: boolean) |
+| `name` | string | 否 |  项目名称 |
+| `projectID` | string | 否 |  归属物联网项目ID |
+| `status` | integer | 否 |  项目状态 1: 已发布 2: 未发布 (格式: int64) |
+| `type` | string | 否 |  screen/template |
 
 **请求示例**:
 ```json
 {
-  "address": "string",
-  "adminUserID": "string",
-  "area": 1,
-  "attachments": [
-    {
-      "fileName": "string",
-      "filePath": "string",
-      "fileUrl": "string",
-      "id": "string",
-      "useBy": "string"
-    }
-  ],
   "desc": "string",
-  "position": {
-    "latitude": 1,
-    "longitude": 1
-  },
-  "ppsm": 1,
-  "projectImg": "string",
-  "projectName": "示例名称",
-  "sort": 1,
+  "indexImage": "string",
+  "isSystem": true,
+  "name": "示例名称",
+  "projectID": "string",
   "status": 1,
-  "tags": {},
   "type": "string"
 }
 ```
@@ -4449,7 +4523,7 @@ ur api /api/v1/things/project/crud/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/things/project/info/create \
-  --body '{"address": "string", "adminUserID": "string", "area": 1, "attachments": [{"fileName": "string", "filePath": "string", "fileUrl": "string", "id": "string", "useBy": "string"}], "desc": "string", "position": {"latitude": 1, "longitude": 1}, "ppsm": 1, "projectImg": "string", "projectName": "示例名称", "sort": 1, "status": 1, "tags": {}, "type": "string"}'
+  --body '{"desc": "string", "indexImage": "string", "isSystem": true, "name": "示例名称", "projectID": "string", "status": 1, "type": "string"}'
 ```
 
 ### POST `/api/v1/things/project/info/delete`
@@ -4503,8 +4577,9 @@ ur api /api/v1/things/project/info/delete \
 | `alarmStatus` | integer | 否 | 报警状态(只读) （1正常 2提醒 3一般 4严重 5紧急 6超紧急） (格式: int64) |
 | `isGetAll` | boolean | 否 | 是否返回所有,只有平台管理员有权限 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `projectIDs` | array[string] | 否 | 过滤项目id列表 |
 | `projectName` | string | 否 | 过滤项目名称 |
 | `status` | integer | 否 | 项目状态  1 正常，2-禁用，3-过期 (格式: int64) |
@@ -4520,8 +4595,14 @@ ur api /api/v1/things/project/info/delete \
   "alarmStatus": 1,
   "isGetAll": true,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "projectIDs": [
     "string"
@@ -4628,7 +4709,7 @@ ur api /api/v1/things/project/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/project/info/get-list \
-  --body '{"adminUserID": "string", "alarmStatus": 1, "isGetAll": true, "page": {"page": 1, "pageSize": 1}, "projectIDs": ["string"], "projectName": "示例名称", "status": 1, "tenantCode": "string", "type": "string", "withAdminUser": true, "withTopAreas": true}'
+  --body '{"adminUserID": "string", "alarmStatus": 1, "isGetAll": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectIDs": ["string"], "projectName": "示例名称", "status": 1, "tenantCode": "string", "type": "string", "withAdminUser": true, "withTopAreas": true}'
 ```
 
 ### POST `/api/v1/things/project/info/get-one`

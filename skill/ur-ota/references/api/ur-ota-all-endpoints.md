@@ -112,8 +112,9 @@ ur api /api/v1/things/ota/firmware/device/confirm \
 | `isOnline` | integer | 否 | 设备是否在线 (格式: int64) |
 | `jobID` | string | 否 |  作业ID |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `srcVersion` | string | 否 |  |
 | `status` | integer | 否 | 设备升级作业状态。1：待确认。 2：待推送。 3：已推送。  4：升级中。 5:升级成功 6: 升级失败. 7:已取消 (格式: int64) |
 
@@ -125,8 +126,14 @@ ur api /api/v1/things/ota/firmware/device/confirm \
   "isOnline": 1,
   "jobID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "srcVersion": "string",
   "status": 1
@@ -167,7 +174,7 @@ ur api /api/v1/things/ota/firmware/device/confirm \
 **调用示例**:
 ```bash
 ur api /api/v1/things/ota/firmware/device/get-list \
-  --body '{"deviceName": "示例名称", "firmwareID": "string", "isOnline": 1, "jobID": "string", "page": {"page": 1, "pageSize": 1}, "srcVersion": "string", "status": 1}'
+  --body '{"deviceName": "示例名称", "firmwareID": "string", "isOnline": 1, "jobID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "srcVersion": "string", "status": 1}'
 ```
 
 ### POST `/api/v1/things/ota/firmware/device/retry`
@@ -277,7 +284,7 @@ ur api /api/v1/things/ota/firmware/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -312,8 +319,9 @@ ur api /api/v1/things/ota/firmware/info/delete \
 |------|------|------|------|
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 |  |
 
 **请求示例**:
@@ -321,8 +329,14 @@ ur api /api/v1/things/ota/firmware/info/delete \
 {
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string"
 }
@@ -369,7 +383,7 @@ ur api /api/v1/things/ota/firmware/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/ota/firmware/info/get-list \
-  --body '{"name": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string"}'
+  --body '{"name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string"}'
 ```
 
 ### POST `/api/v1/things/ota/firmware/info/get-one`
@@ -382,7 +396,7 @@ ur api /api/v1/things/ota/firmware/info/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -566,16 +580,23 @@ ur api /api/v1/things/ota/firmware/job/create \
 |------|------|------|------|
 | `firmwareID` | string | 是 |  固件ID |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "firmwareID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -628,7 +649,7 @@ ur api /api/v1/things/ota/firmware/job/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/ota/firmware/job/get-list \
-  --body '{"firmwareID": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"firmwareID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/things/ota/firmware/job/get-one`
@@ -641,7 +662,7 @@ ur api /api/v1/things/ota/firmware/job/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -831,7 +852,7 @@ ur api /api/v1/things/ota/module/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -866,8 +887,9 @@ ur api /api/v1/things/ota/module/info/delete \
 |------|------|------|------|
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 |  |
 
 **请求示例**:
@@ -875,8 +897,14 @@ ur api /api/v1/things/ota/module/info/delete \
 {
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string"
 }
@@ -908,7 +936,7 @@ ur api /api/v1/things/ota/module/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/ota/module/info/get-list \
-  --body '{"name": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string"}'
+  --body '{"name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string"}'
 ```
 
 ### POST `/api/v1/things/ota/module/info/get-one`
@@ -922,13 +950,13 @@ ur api /api/v1/things/ota/module/info/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `code` | string | 否 |  |
-| `id` | string | 否 |  id |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "code": "string",
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -951,7 +979,7 @@ ur api /api/v1/things/ota/module/info/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/ota/module/info/get-one \
-  --body '{"code": "string", "id": "string"}'
+  --body '{"code": "string", "id": 1}'
 ```
 
 ### POST `/api/v1/things/ota/module/info/update`

@@ -96,7 +96,7 @@
 | `device.gateway.id` | string | 否 |  |
 | `device.gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `device.gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `device.gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `device.gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `device.gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `device.gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `device.gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -138,7 +138,7 @@
 | `device.id` | string | 否 |  |
 | `device.imei` | string | 否 |  IMEI号信息 只读 |
 | `device.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `device.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `device.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `device.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `device.lastIp` | string | 否 | 最后登录的ip地址 |
 | `device.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -1275,8 +1275,9 @@ ur api /api/v1/things/protocol/script/device/delete \
 |------|------|------|------|
 | `deviceName` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 |  |
 | `scriptID` | string | 否 |  |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
@@ -1289,8 +1290,14 @@ ur api /api/v1/things/protocol/script/device/delete \
 {
   "deviceName": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string",
   "scriptID": "string",
@@ -1689,7 +1696,7 @@ ur api /api/v1/things/protocol/script/device/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/script/device/get-list \
-  --body '{"deviceName": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string", "scriptID": "string", "status": 1, "triggerSrc": 1, "withDevice": true, "withScript": true}'
+  --body '{"deviceName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "scriptID": "string", "status": 1, "triggerSrc": 1, "withDevice": true, "withScript": true}'
 ```
 
 ### POST `/api/v1/things/protocol/script/device/get-one`
@@ -2750,7 +2757,7 @@ ur api /api/v1/things/protocol/script/device/get-one \
 | `device.gateway.id` | string | 否 |  |
 | `device.gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `device.gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `device.gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `device.gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `device.gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `device.gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `device.gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -2792,7 +2799,7 @@ ur api /api/v1/things/protocol/script/device/get-one \
 | `device.id` | string | 否 |  |
 | `device.imei` | string | 否 |  IMEI号信息 只读 |
 | `device.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `device.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `device.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `device.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `device.lastIp` | string | 否 | 最后登录的ip地址 |
 | `device.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |

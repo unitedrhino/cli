@@ -1,4 +1,4 @@
-# CLI 命令 — 租户用户管理
+# CLI 命令 — 企业用户管理
 
 ## 命令语法
 ```
@@ -9,11 +9,11 @@ ur tenant user <subcommand> [选项]
 
 | 子命令 | 说明 |
 |--------|------|
-| `get-list` | 查询租户用户列表 |
-| `get-one` | 查询租户用户详情 |
-| `batch-create` | 批量创建租户用户 |
-| `update` | 更新租户用户 |
-| `delete` | 删除租户用户 |
+| `get-list` | 查询企业用户列表 |
+| `get-one` | 查询企业用户详情 |
+| `batch-create` | 批量创建企业用户 |
+| `update` | 更新企业用户 |
+| `delete` | 删除企业用户 |
 
 ## 参数说明
 
@@ -29,32 +29,32 @@ ur tenant user <subcommand> [选项]
 
 ## 使用示例
 
-### 示例 1：查询租户用户列表
+### 示例 1：查询企业用户列表
 ```bash
 ur tenant user get-list --page 1 --size 10
 ```
 
-### 示例 2：按账号筛选租户用户
+### 示例 2：按账号筛选企业用户
 ```bash
 ur tenant user get-list --account admin --page 1 --size 10
 ```
 
-### 示例 3：查询租户用户详情
+### 示例 3：查询企业用户详情
 ```bash
 ur tenant user get-one --id 123456
 ```
 
-### 示例 4：批量创建租户用户
+### 示例 4：批量创建企业用户
 ```bash
 ur tenant user batch-create --body '{"users":[{"account":"user1","roleID":1}]}'
 ```
 
-### 示例 5：更新租户用户
+### 示例 5：更新企业用户
 ```bash
 ur tenant user update --body '{"id":123456,"status":1}'
 ```
 
-### 示例 6：删除租户用户
+### 示例 6：删除企业用户
 ```bash
 ur tenant user delete --id 123456
 ```

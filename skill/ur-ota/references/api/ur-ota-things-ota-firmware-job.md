@@ -109,16 +109,23 @@ ur api /api/v1/things/ota/firmware/job/create \
 |------|------|------|------|
 | `firmwareID` | string | 是 |  固件ID |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "firmwareID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -171,7 +178,7 @@ ur api /api/v1/things/ota/firmware/job/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/ota/firmware/job/get-list \
-  --body '{"firmwareID": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"firmwareID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/things/ota/firmware/job/get-one`
@@ -184,7 +191,7 @@ ur api /api/v1/things/ota/firmware/job/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json

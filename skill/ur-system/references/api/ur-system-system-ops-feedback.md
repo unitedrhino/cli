@@ -107,8 +107,9 @@ ur api /api/v1/system/ops/feedback/create \
 | `feedbackType` | string | 否 | 按问题反馈类型过滤 |
 | `isAllTenant` | boolean | 否 | default租户获取所有租户的信息 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 所属项目 |
 | `status` | integer | 否 |  状态（1 待处理 2:处理中 3:已完成） (格式: int64) |
 | `tenantCode` | string | 否 | 过滤所属租户,isAllTenant为true有效 |
@@ -121,8 +122,14 @@ ur api /api/v1/system/ops/feedback/create \
   "feedbackType": "string",
   "isAllTenant": true,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "projectID": "string",
   "status": 1,
@@ -175,7 +182,7 @@ ur api /api/v1/system/ops/feedback/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/ops/feedback/get-list \
-  --body '{"appID": "string", "feedbackType": "string", "isAllTenant": true, "page": {"page": 1, "pageSize": 1}, "projectID": "string", "status": 1, "tenantCode": "string", "type": "string"}'
+  --body '{"appID": "string", "feedbackType": "string", "isAllTenant": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectID": "string", "status": 1, "tenantCode": "string", "type": "string"}'
 ```
 
 ### POST `/api/v1/system/ops/feedback/update`

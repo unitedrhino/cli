@@ -33,6 +33,7 @@
 | `id` | integer | 否 | 格式: int64 |
 | `lastCompileTime` | integer | 否 | 格式: int64 |
 | `name` | string | 是 |  |
+| `scope` | string | 否 | 归属层级：platform=平台公共库(common)，tenant=租户级库 |
 | `status` | string | 否 |  |
 | `tenantCode` | string | 否 |  |
 | `updatedTime` | integer | 否 | 格式: int64 |
@@ -48,6 +49,7 @@
   "id": 1,
   "lastCompileTime": 1,
   "name": "string",
+  "scope": "string",
   "status": "string",
   "tenantCode": "string",
   "updatedTime": 1
@@ -68,7 +70,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/ai/knowledge/info/create \
-  --body '{"compiledDocumentCount": 1, "createdTime": 1, "desc": "string", "documentCount": 1, "failedDocumentCount": 1, "id": 1, "lastCompileTime": 1, "name": "string", "status": "string", "tenantCode": "string", "updatedTime": 1}'
+  --body '{"compiledDocumentCount": 1, "createdTime": 1, "desc": "string", "documentCount": 1, "failedDocumentCount": 1, "id": 1, "lastCompileTime": 1, "name": "string", "scope": "string", "status": "string", "tenantCode": "string", "updatedTime": 1}'
 ```
 
 ### POST `/api/v1/ai/knowledge/info/delete`
@@ -116,8 +118,10 @@ ur api /api/v1/ai/knowledge/info/delete \
 |------|------|------|------|
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `scope` | string | 否 | 可选过滤：platform=仅平台公共库，tenant=仅本租户库，空=全部可见范围 |
 | `status` | string | 否 |  |
 | `tenantCode` | string | 否 |  |
 
@@ -126,9 +130,16 @@ ur api /api/v1/ai/knowledge/info/delete \
 {
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
+  "scope": "string",
   "status": "string",
   "tenantCode": "string"
 }
@@ -149,6 +160,7 @@ ur api /api/v1/ai/knowledge/info/delete \
         "id": 1,
         "lastCompileTime": 1,
         "name": "string",
+        "scope": "string",
         "status": "string",
         "tenantCode": "string",
         "updatedTime": 1
@@ -163,7 +175,7 @@ ur api /api/v1/ai/knowledge/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/knowledge/info/get-list \
-  --body '{"name": "string", "page": {"page": 1, "pageSize": 1}, "status": "string", "tenantCode": "string"}'
+  --body '{"name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "scope": "string", "status": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/knowledge/info/get-one`
@@ -198,6 +210,7 @@ ur api /api/v1/ai/knowledge/info/get-list \
     "id": 1,
     "lastCompileTime": 1,
     "name": "string",
+    "scope": "string",
     "status": "string",
     "tenantCode": "string",
     "updatedTime": 1
@@ -249,6 +262,7 @@ ur api /api/v1/ai/knowledge/info/get-one \
     "chunks": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -256,6 +270,8 @@ ur api /api/v1/ai/knowledge/info/get-one \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -279,6 +295,7 @@ ur api /api/v1/ai/knowledge/info/get-one \
     "expandedChunks": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -286,6 +303,8 @@ ur api /api/v1/ai/knowledge/info/get-one \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -297,6 +316,7 @@ ur api /api/v1/ai/knowledge/info/get-one \
     "list": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -304,6 +324,8 @@ ur api /api/v1/ai/knowledge/info/get-one \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -345,6 +367,7 @@ ur api /api/v1/ai/knowledge/info/search \
 | `id` | integer | 否 | 格式: int64 |
 | `lastCompileTime` | integer | 否 | 格式: int64 |
 | `name` | string | 是 |  |
+| `scope` | string | 否 | 归属层级：platform=平台公共库(common)，tenant=租户级库 |
 | `status` | string | 否 |  |
 | `tenantCode` | string | 否 |  |
 | `updatedTime` | integer | 否 | 格式: int64 |
@@ -360,6 +383,7 @@ ur api /api/v1/ai/knowledge/info/search \
   "id": 1,
   "lastCompileTime": 1,
   "name": "string",
+  "scope": "string",
   "status": "string",
   "tenantCode": "string",
   "updatedTime": 1
@@ -380,5 +404,5 @@ ur api /api/v1/ai/knowledge/info/search \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/knowledge/info/update \
-  --body '{"compiledDocumentCount": 1, "createdTime": 1, "desc": "string", "documentCount": 1, "failedDocumentCount": 1, "id": 1, "lastCompileTime": 1, "name": "string", "status": "string", "tenantCode": "string", "updatedTime": 1}'
+  --body '{"compiledDocumentCount": 1, "createdTime": 1, "desc": "string", "documentCount": 1, "failedDocumentCount": 1, "id": 1, "lastCompileTime": 1, "name": "string", "scope": "string", "status": "string", "tenantCode": "string", "updatedTime": 1}'
 ```

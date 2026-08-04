@@ -48,7 +48,6 @@
 | `googleConfig.appKey` | string | 否 | 微信小程序无需填写 |
 | `googleConfig.appSecret` | string | 否 |  |
 | `id` | string | 否 |  编号,创建时自动生成(默认),也可以指定 |
-| `isSysCreated` | integer | 否 |  是否系统创建 1-是 2-否（系统创建的应用不允许删除，绑定时自动添加） (格式: int64) |
 | `isUseMenu` | integer | 否 |  是否使用菜单 1-是 2-否 (格式: int64) |
 | `isUseProxy` | integer | 否 |  是否使用代理 1-是 2-否 (格式: int64) |
 | `loginTypes` | array[string] | 否 | 选项取决于 app里是否配置了 支持的登录类型(不填支持全部登录方式):    "email":邮箱(系统配置里配置了才能开启) "phone":手机号(系统配置里配置了才能开启)  "wxMiniP":微信小程序(app里配置了微信小程序才能开启)  "wxOpen": 微信开放平台登录(app里配置了微信开放才能开启)   "ding":钉钉应用(包含小程序,h5等方式,app里配置了钉钉才能开启)  "pwd":账号密码注册 |
@@ -108,7 +107,6 @@
     "appSecret": "string"
   },
   "id": "string",
-  "isSysCreated": 1,
   "isUseMenu": 1,
   "isUseProxy": 1,
   "loginTypes": [
@@ -158,7 +156,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/info/create \
-  --body '{"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isSysCreated": 1, "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}'
+  --body '{"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}'
 ```
 
 ### POST `/api/v1/system/app/info/delete`
@@ -171,7 +169,7 @@ ur api /api/v1/system/app/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -205,12 +203,12 @@ ur api /api/v1/system/app/info/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `ids` | array[string] | 否 |  应用ID列表 |
-| `isSysCreated` | integer | 否 |  是否系统创建过滤 1-是 2-否 (格式: int64) |
 | `name` | string | 否 |  应用名称 |
 | `notID` | string | 否 |  排除某个应用ID |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 应用状态 1 上架 2 下架 (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
 | `tenantIsBind` | integer | 否 |  过滤租户是否已绑定的应用 1-是 2-否,如果要过滤指定租户,通过http头里指定 (格式: int64) |
@@ -224,12 +222,17 @@ ur api /api/v1/system/app/info/delete \
   "ids": [
     "string"
   ],
-  "isSysCreated": 1,
   "name": "示例名称",
   "notID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "subType": "string",
@@ -277,7 +280,6 @@ ur api /api/v1/system/app/info/delete \
           "appSecret": "string"
         },
         "id": "string",
-        "isSysCreated": 1,
         "isUseMenu": 1,
         "isUseProxy": 1,
         "loginTypes": [
@@ -323,7 +325,7 @@ ur api /api/v1/system/app/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/info/get-list \
-  --body '{"ids": ["string"], "isSysCreated": 1, "name": "示例名称", "notID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "subType": "string", "tenantIsBind": 1, "type": "string", "useBy": "string", "withAgreementCodes": ["string"]}'
+  --body '{"ids": ["string"], "name": "示例名称", "notID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "subType": "string", "tenantIsBind": 1, "type": "string", "useBy": "string", "withAgreementCodes": ["string"]}'
 ```
 
 ### POST `/api/v1/system/app/info/get-one`
@@ -382,7 +384,6 @@ ur api /api/v1/system/app/info/get-list \
       "appSecret": "string"
     },
     "id": "string",
-    "isSysCreated": 1,
     "isUseMenu": 1,
     "isUseProxy": 1,
     "loginTypes": [
@@ -460,7 +461,6 @@ ur api /api/v1/system/app/info/get-one \
 | `googleConfig.appKey` | string | 否 | 微信小程序无需填写 |
 | `googleConfig.appSecret` | string | 否 |  |
 | `id` | string | 否 |  编号,创建时自动生成(默认),也可以指定 |
-| `isSysCreated` | integer | 否 |  是否系统创建 1-是 2-否（系统创建的应用不允许删除，绑定时自动添加） (格式: int64) |
 | `isUseMenu` | integer | 否 |  是否使用菜单 1-是 2-否 (格式: int64) |
 | `isUseProxy` | integer | 否 |  是否使用代理 1-是 2-否 (格式: int64) |
 | `loginTypes` | array[string] | 否 | 选项取决于 app里是否配置了 支持的登录类型(不填支持全部登录方式):    "email":邮箱(系统配置里配置了才能开启) "phone":手机号(系统配置里配置了才能开启)  "wxMiniP":微信小程序(app里配置了微信小程序才能开启)  "wxOpen": 微信开放平台登录(app里配置了微信开放才能开启)   "ding":钉钉应用(包含小程序,h5等方式,app里配置了钉钉才能开启)  "pwd":账号密码注册 |
@@ -520,7 +520,6 @@ ur api /api/v1/system/app/info/get-one \
     "appSecret": "string"
   },
   "id": "string",
-  "isSysCreated": 1,
   "isUseMenu": 1,
   "isUseProxy": 1,
   "loginTypes": [
@@ -567,5 +566,5 @@ ur api /api/v1/system/app/info/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/info/update \
-  --body '{"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isSysCreated": 1, "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}'
+  --body '{"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}'
 ```

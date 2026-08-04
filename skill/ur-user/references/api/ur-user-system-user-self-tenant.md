@@ -9,7 +9,7 @@
 | POST | `/api/v1/system/user/self/tenant/delete` | 退出当前租户 | all |
 | POST | `/api/v1/system/user/self/tenant/get-list` | 获取用户所处的租户列表 | all |
 | POST | `/api/v1/system/user/self/tenant/get-one` | 获取当前用户在当前租户的详情 | all |
-| POST | `/api/v1/system/user/self/tenant/join` | 用户加入租户（通过邀请码、邮件或手机邀请） | all |
+| POST | `/api/v1/system/user/self/tenant/join` | 用户加入租户（通过邀请码、邮件、手机或客户端应用） | all |
 | POST | `/api/v1/system/user/self/tenant/update` | 更新当前用户在当前租户的信息 | all |
 
 ## 详细说明
@@ -25,7 +25,7 @@
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -48,16 +48,23 @@ ur api /api/v1/system/user/self/tenant/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `withRole` | boolean | 否 |  同时返回角色信息 (格式: boolean) |
 
 **请求示例**:
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "withRole": true
 }
@@ -146,7 +153,7 @@ ur api /api/v1/system/user/self/tenant/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/self/tenant/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "withRole": true}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "withRole": true}'
 ```
 
 ### POST `/api/v1/system/user/self/tenant/get-one`
@@ -253,7 +260,7 @@ ur api /api/v1/system/user/self/tenant/get-one \
 
 ### POST `/api/v1/system/user/self/tenant/join`
 
-**说明**: 用户加入租户（通过邀请码、邮件或手机邀请）
+**说明**: 用户加入租户（通过邀请码、邮件、手机或客户端应用）
 
 **权限**: all
 
@@ -261,9 +268,9 @@ ur api /api/v1/system/user/self/tenant/get-one \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `code` | string | 是 |  邀请码（使用邀请码加入时填写） |
-| `method` | string | 否 |  加入方法：code（邀请码）、email（邮件邀请）、phone（手机邀请） |
-| `tenantCode` | string | 否 |  租户编码（可选，某些场景可能需要明确指定） |
+| `code` | string | 是 |  邀请码（code/email/phone 方式时填写，client 方式可为空） |
+| `method` | string | 否 |  加入方法：code（邀请码）、email（邮件邀请）、phone（手机邀请）、client（客户端应用直接加入） |
+| `tenantCode` | string | 否 |  租户编码（client 方式时必填，其他方式可选） |
 
 **请求示例**:
 ```json
@@ -279,7 +286,7 @@ ur api /api/v1/system/user/self/tenant/get-one \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -409,7 +416,7 @@ ur api /api/v1/system/user/self/tenant/join \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }

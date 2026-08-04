@@ -44,10 +44,10 @@ metadata:
 | `/api/v1/system/common/` | ur-system | 文件上传/WebSocket/批量接口 |
 | `/api/v1/system/app/` | ur-system | 应用管理 |
 | `/api/v1/system/hook/` | ur-system | Hook 扩展 |
-| `/api/v1/system/tenant/info/` | ur-tenant | 租户 CRUD |
-| `/api/v1/system/tenant/user/` | ur-tenant | 租户用户管理 |
-| `/api/v1/system/tenant/app/` | ur-tenant + ur-system | 租户应用绑定 |
-| `/api/v1/system/tenant/config/` | ur-tenant | 租户配置 |
+| `/api/v1/system/tenant/info/` | ur-tenant | 企业 CRUD |
+| `/api/v1/system/tenant/user/` | ur-tenant | 企业用户管理 |
+| `/api/v1/system/tenant/app/` | ur-tenant + ur-system | 企业应用绑定 |
+| `/api/v1/system/tenant/config/` | ur-tenant | 企业配置 |
 
 ## 关键枚举值速查
 

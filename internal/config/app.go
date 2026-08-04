@@ -45,7 +45,7 @@ func (a CLIApp) AppID() string {
 	}
 }
 
-// DefaultTenantCode 返回默认租户代码，空字符串表示需要用户输入
+// DefaultTenantCode 返回默认企业代码，空字符串表示需要用户输入
 func (a CLIApp) DefaultTenantCode() string {
 	switch a {
 	case AppPlatformManage, AppIoT, AppConsole:
@@ -125,20 +125,20 @@ func platformManageFeatures() []Feature {
 	return []Feature{
 		{
 			Name:        "企业管理",
-			Description: "租户（企业）的全生命周期管理",
+			Description: "企业（企业）的全生命周期管理",
 			APIs:        []string{"/api/v1/system/tenant/info/create", "/api/v1/system/tenant/info/update", "/api/v1/system/tenant/info/delete", "/api/v1/system/tenant/info/get-one", "/api/v1/system/tenant/info/get-list"},
 			SubFeatures: []Feature{
-				{Name: "企业列表", Description: "查看和管理所有租户", APIs: []string{"/api/v1/system/tenant/info/get-list"}},
-				{Name: "企业详情", Description: "查看租户详情、绑定应用、配置", APIs: []string{"/api/v1/system/tenant/info/get-one", "/api/v1/system/tenant/app/get-list", "/api/v1/system/tenant/app/create"}},
+				{Name: "企业列表", Description: "查看和管理所有企业", APIs: []string{"/api/v1/system/tenant/info/get-list"}},
+				{Name: "企业详情", Description: "查看企业详情、绑定应用、配置", APIs: []string{"/api/v1/system/tenant/info/get-one", "/api/v1/system/tenant/app/get-list", "/api/v1/system/tenant/app/create"}},
 			},
 		},
 		{
 			Name:        "用户管理",
-			Description: "平台级用户管理（跨租户）",
+			Description: "平台级用户管理（跨企业）",
 			APIs:        []string{"/api/v1/system/user/info/get-list", "/api/v1/system/user/info/get-one", "/api/v1/system/user/info/create", "/api/v1/system/user/info/update", "/api/v1/system/user/info/delete"},
 			SubFeatures: []Feature{
-				{Name: "用户列表", Description: "查看所有租户下的用户", APIs: []string{"/api/v1/system/user/info/get-list"}},
-				{Name: "用户详情", Description: "查看用户详情和租户绑定", APIs: []string{"/api/v1/system/user/info/get-one"}},
+				{Name: "用户列表", Description: "查看所有企业下的用户", APIs: []string{"/api/v1/system/user/info/get-list"}},
+				{Name: "用户详情", Description: "查看用户详情和企业绑定", APIs: []string{"/api/v1/system/user/info/get-one"}},
 			},
 		},
 		{
@@ -203,10 +203,10 @@ func platformManageFeatures() []Feature {
 		},
 		{
 			Name:        "问题反馈",
-			Description: "查看和处理用户提交的问题反馈（使用问题/业务受损/业务不可用），支持按类型、状态、租户筛选",
+			Description: "查看和处理用户提交的问题反馈（使用问题/业务受损/业务不可用），支持按类型、状态、企业筛选",
 			APIs:        []string{"/api/v1/system/ops/feedback/get-list", "/api/v1/system/ops/feedback/update", "/api/v1/system/ops/feedback/create"},
 			SubFeatures: []Feature{
-				{Name: "反馈列表", Description: "查看所有用户提交的问题反馈，按类型/状态/租户筛选", APIs: []string{"/api/v1/system/ops/feedback/get-list"}},
+				{Name: "反馈列表", Description: "查看所有用户提交的问题反馈，按类型/状态/企业筛选", APIs: []string{"/api/v1/system/ops/feedback/get-list"}},
 				{Name: "反馈详情", Description: "查看反馈完整信息，包含页面URL和AI对话上下文", APIs: []string{"/api/v1/system/ops/feedback/get-list"}},
 				{Name: "状态更新", Description: "更新反馈处理状态（待处理→处理中→已完成）", APIs: []string{"/api/v1/system/ops/feedback/update"}},
 			},
@@ -316,7 +316,7 @@ func orgManageFeatures() []Feature {
 	return []Feature{
 		{
 			Name:        "企业信息",
-			Description: "当前租户的企业信息管理",
+			Description: "当前企业的企业信息管理",
 			APIs:        []string{"/api/v1/system/tenant/info/get-one", "/api/v1/system/tenant/info/update"},
 		},
 		{
@@ -328,21 +328,21 @@ func orgManageFeatures() []Feature {
 			Name:        "AI 管理",
 			Description: "智能体、数字分身、会话管理",
 			SubFeatures: []Feature{
-				{Name: "智能体管理", Description: "租户级 Agent 管理", APIs: []string{"/api/v1/ai/agent/get-list", "/api/v1/ai/agent/create", "/api/v1/ai/agent/update"}},
+				{Name: "智能体管理", Description: "企业级 Agent 管理", APIs: []string{"/api/v1/ai/agent/get-list", "/api/v1/ai/agent/create", "/api/v1/ai/agent/update"}},
 				{Name: "数字分身", Description: "AI 数字分身管理", APIs: []string{"/api/v1/ai/clone/get-list", "/api/v1/ai/clone/create"}},
 				{Name: "会话管理", Description: "AI 会话记录查看", APIs: []string{"/api/v1/ai/session/get-list"}},
 			},
 		},
 		{
 			Name:        "系统管理",
-			Description: "租户内系统管理",
+			Description: "企业内系统管理",
 			SubFeatures: []Feature{
-				{Name: "用户管理", Description: "租户内用户 CRUD", APIs: []string{"/api/v1/system/user/info/get-list", "/api/v1/system/user/info/create", "/api/v1/system/user/info/update"}},
-				{Name: "角色管理", Description: "租户内角色 CRUD", APIs: []string{"/api/v1/system/role/info/get-list", "/api/v1/system/role/info/create"}},
-				{Name: "菜单管理", Description: "租户菜单管理", APIs: []string{"/api/v1/system/app/menu/get-list"}},
-				{Name: "智能体配置", Description: "租户级 Agent 配置", APIs: []string{"/api/v1/system/tenant/agent/get-list"}},
+				{Name: "用户管理", Description: "企业内用户 CRUD", APIs: []string{"/api/v1/system/user/info/get-list", "/api/v1/system/user/info/create", "/api/v1/system/user/info/update"}},
+				{Name: "角色管理", Description: "企业内角色 CRUD", APIs: []string{"/api/v1/system/role/info/get-list", "/api/v1/system/role/info/create"}},
+				{Name: "菜单管理", Description: "企业菜单管理", APIs: []string{"/api/v1/system/app/menu/get-list"}},
+				{Name: "智能体配置", Description: "企业级 Agent 配置", APIs: []string{"/api/v1/system/tenant/agent/get-list"}},
 				{Name: "续期管理", Description: "授权续期", APIs: []string{"/api/v1/system/tenant/renewal"}},
-				{Name: "企业设置", Description: "租户级设置", APIs: []string{"/api/v1/system/tenant/info/update"}},
+				{Name: "企业设置", Description: "企业级设置", APIs: []string{"/api/v1/system/tenant/info/update"}},
 			},
 		},
 		{
@@ -432,7 +432,7 @@ func orgEnergyFeatures() []Feature {
 			SubFeatures: []Feature{
 				{Name: "场景日志", Description: "场景执行日志", APIs: []string{"/api/v1/things/scene/log/get-list"}},
 				{Name: "权限区域", Description: "数据权限区域配置", APIs: []string{"/api/v1/things/area/get-list"}},
-				{Name: "角色管理", Description: "租户角色管理", APIs: []string{"/api/v1/system/role/info/get-list", "/api/v1/system/role/info/create"}},
+				{Name: "角色管理", Description: "企业角色管理", APIs: []string{"/api/v1/system/role/info/get-list", "/api/v1/system/role/info/create"}},
 			},
 		},
 	}
@@ -443,7 +443,7 @@ func consoleFeatures() []Feature {
 	return []Feature{
 		{
 			Name:        "控制台",
-			Description: "应用入口和租户切换",
+			Description: "应用入口和企业切换",
 			APIs:        []string{"/api/v1/system/user/self/app/get-list", "/api/v1/system/tenant/info/get-list"},
 		},
 		{

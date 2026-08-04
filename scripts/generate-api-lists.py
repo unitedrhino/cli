@@ -40,6 +40,7 @@ DOMAIN_PREFIXES = {
     "ur-tenant": ["/api/v1/system/tenant/"],
     "ur-system": ["/api/v1/system/"],
     "ur-ai": ["/api/v1/ai/", "/api/v1/things/ai/", "/api/v1/things/alarm/", "/api/v1/things/scene/"],
+    "ur-view": ["/api/v1/view/"],
 }
 
 # 反向映射：路径前缀 -> domain
@@ -55,6 +56,10 @@ SCENE_LINKAGE_PREFIX = "/api/v1/things/scene/"
 
 # 生成示例 JSON 时的深度限制，防止循环引用
 MAX_EXAMPLE_DEPTH = 4
+
+# 参与生成的 swagger 文件列表（backend/.swagger/ 下）；
+# 新增域时需把对应 swagger 文件加进来，例如大屏域的 view-view.json
+SWAGGER_FILES = ["core-api.json", "things-api.json", "core-ai.json", "things-ai.json", "view-view.json"]
 
 
 def find_swagger_dir():
@@ -84,7 +89,7 @@ def find_swagger_dir():
 def load_swagger(swagger_dir):
     """加载并合并所有 swagger 数据"""
     all_data = {}
-    for filename in ["core-api.json", "things-api.json", "core-ai.json", "things-ai.json"]:
+    for filename in SWAGGER_FILES:
         path = Path(swagger_dir) / filename
         if not path.exists():
             print(f"警告: 找不到 {path}", file=sys.stderr)
@@ -98,7 +103,7 @@ def load_swagger(swagger_dir):
 def load_endpoints(swagger_dir):
     """加载并合并所有 swagger 端点"""
     endpoints = []
-    for filename in ["core-api.json", "things-api.json", "core-ai.json", "things-ai.json"]:
+    for filename in SWAGGER_FILES:
         path = Path(swagger_dir) / filename
         if not path.exists():
             print(f"警告: 找不到 {path}", file=sys.stderr)
@@ -335,8 +340,10 @@ def generate_response_example(responses, schemas):
 
 
 def sanitize_filename(name):
-    """将 group 名转换为合法的文件名"""
-    return re.sub(r'[^a-zA-Z0-9_-]', '-', name).strip('-').lower()
+    """将 group 名转换为合法的文件名；\w 在 Python3 下含中日韩字符，
+    中文分组名（如 view 域的「可视化管理」）可原样保留，纯符号名兜底为 index"""
+    result = re.sub(r'[^\w-]', '-', name).strip('-').lower()
+    return result or "index"
 
 
 def generate_endpoint_detail(ep, schemas):

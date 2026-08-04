@@ -210,7 +210,7 @@ ur api /api/v1/things/product/category/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -247,8 +247,9 @@ ur api /api/v1/things/product/category/delete \
 | `ids` | array[integer] | 否 | id过滤 |
 | `name` | string | 否 | 过滤产品名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 |  |
 | `projectID` | string | 否 | 项目id,只获取项目下有设备的 |
 
@@ -261,8 +262,14 @@ ur api /api/v1/things/product/category/delete \
   ],
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": "string",
   "projectID": "string"
@@ -315,7 +322,7 @@ ur api /api/v1/things/product/category/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/product/category/get-list \
-  --body '{"code": "string", "ids": [1], "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "projectID": "string"}'
+  --body '{"code": "string", "ids": [1], "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "projectID": "string"}'
 ```
 
 ### POST `/api/v1/things/product/category/get-one`
@@ -1149,8 +1156,9 @@ ur api /api/v1/things/product/info/delete \
 | `deviceTypes` | array[integer] | 否 | 设备类型:1:设备,2:网关,3:子设备设备类型:1:设备,2:网关,3:子设备 |
 | `netType` | integer | 否 | 通讯方式:1:其他,2:wi-fi,3:2G/3G/4G,4:5G,5:BLE,6:LoRaWAN,7:wifi+ble,8:有线网,9:4G+BLE (格式: int64) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productIDs` | array[string] | 否 | 过滤产品id列表 |
 | `productName` | string | 否 | 过滤产品名称 |
 | `projectID` | string | 否 | 项目id,只获取项目下有设备的 |
@@ -1179,8 +1187,14 @@ ur api /api/v1/things/product/info/delete \
   ],
   "netType": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productIDs": [
     "string"
@@ -1356,7 +1370,7 @@ ur api /api/v1/things/product/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/product/info/get-list \
-  --body '{"areaID": "string", "areaIDPath": "string", "categoryIDs": [1], "deviceType": 1, "deviceTypes": [1], "netType": 1, "page": {"page": 1, "pageSize": 1}, "productIDs": ["string"], "productName": "示例名称", "projectID": "string", "protocolCode": "string", "protocolType": "string", "sceneMode": "string", "sceneModes": ["string"], "status": 1, "statuses": [1], "tags": {}, "tenantCode": "string", "withCategory": true, "withProtocol": true}'
+  --body '{"areaID": "string", "areaIDPath": "string", "categoryIDs": [1], "deviceType": 1, "deviceTypes": [1], "netType": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productIDs": ["string"], "productName": "示例名称", "projectID": "string", "protocolCode": "string", "protocolType": "string", "sceneMode": "string", "sceneModes": ["string"], "status": 1, "statuses": [1], "tags": {}, "tenantCode": "string", "withCategory": true, "withProtocol": true}'
 ```
 
 ### POST `/api/v1/things/product/info/get-one`
@@ -1871,16 +1885,23 @@ ur api /api/v1/things/product/remote-config/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 是 | 产品id |
 
 **请求示例**:
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string"
 }
@@ -1909,7 +1930,7 @@ ur api /api/v1/things/product/remote-config/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/product/remote-config/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "productID": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string"}'
 ```
 
 ### POST `/api/v1/things/product/remote-config/lastest-read`
@@ -2143,8 +2164,9 @@ ur api /api/v1/things/product/schema/delete \
 | `isCanSceneLinkage` | integer | 否 | 是否可以场景联动 (格式: int64) |
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 是 | 产品id |
 | `propertyMode` | string | 否 | 属性类型可用 读写类型: 1:r(只读) 2:rw(可读可写) |
 | `tag` | integer | 否 | 过滤条件: 物模型标签 1:自定义 2:可选 3:必选 (格式: int64) |
@@ -2162,8 +2184,14 @@ ur api /api/v1/things/product/schema/delete \
   "isCanSceneLinkage": 1,
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string",
   "propertyMode": "string",
@@ -2207,7 +2235,7 @@ ur api /api/v1/things/product/schema/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/product/schema/get-list \
-  --body '{"controlMode": 1, "funcGroup": 1, "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string", "propertyMode": "string", "tag": 1, "type": 1, "types": [1]}'
+  --body '{"controlMode": 1, "funcGroup": 1, "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "propertyMode": "string", "tag": 1, "type": 1, "types": [1]}'
 ```
 
 ### POST `/api/v1/things/product/schema/tsl-import`

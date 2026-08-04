@@ -75,7 +75,7 @@ ur api /api/v1/system/user/self/access-token/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -110,16 +110,23 @@ ur api /api/v1/system/user/self/access-token/delete \
 |------|------|------|------|
 | `accessKey` | string | 否 |  按访问密钥标识过滤 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "accessKey": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -154,7 +161,7 @@ ur api /api/v1/system/user/self/access-token/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/self/access-token/get-list \
-  --body '{"accessKey": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"accessKey": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/system/user/self/access-token/get-one`
@@ -167,7 +174,7 @@ ur api /api/v1/system/user/self/access-token/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json

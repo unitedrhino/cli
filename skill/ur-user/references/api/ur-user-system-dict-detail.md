@@ -28,28 +28,31 @@
 | `desc` | string | 否 |  模块描述 |
 | `dictCode` | string | 是 |  |
 | `expand` | object | 否 |  自定义数据 |
+| `i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `id` | string | 否 |  编号 |
 | `idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `label` | string | 否 |  展示值 |
+| `label` | string | 否 |  展示值（编辑场景使用） |
 | `parent` | object | 否 |  |
 | `parent.children` | array[DictDetail] | 否 |  |
 | `parent.desc` | string | 否 |  模块描述 |
 | `parent.dictCode` | string | 是 |  |
 | `parent.expand` | object | 否 |  自定义数据 |
+| `parent.i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `parent.id` | string | 否 |  编号 |
 | `parent.idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `parent.isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `parent.label` | string | 否 |  展示值 |
+| `parent.label` | string | 否 |  展示值（编辑场景使用） |
 | `parent.parent` | object | 否 |  |
 | `parent.parent.children` | array[DictDetail] | 否 |  |
 | `parent.parent.desc` | string | 否 |  模块描述 |
 | `parent.parent.dictCode` | string | 是 |  |
 | `parent.parent.expand` | object | 否 |  自定义数据 |
+| `parent.parent.i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `parent.parent.id` | string | 否 |  编号 |
 | `parent.parent.idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `parent.parent.isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `parent.parent.label` | string | 否 |  展示值 |
+| `parent.parent.label` | string | 否 |  展示值（编辑场景使用） |
 | `parent.parent.parent` | object | 否 |  |
 | `parent.parent.parentID` | string | 否 | 父节点 |
 | `parent.parent.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
@@ -75,6 +78,7 @@
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -84,6 +88,7 @@
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -103,6 +108,7 @@
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -114,6 +120,7 @@
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -128,6 +135,7 @@
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -137,6 +145,7 @@
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -146,6 +155,7 @@
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -175,6 +185,7 @@
   "desc": "string",
   "dictCode": "string",
   "expand": {},
+  "i18nLabel": "string",
   "id": "string",
   "idPath": "string",
   "isLeaf": 1,
@@ -188,6 +199,7 @@
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -202,6 +214,7 @@
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -211,6 +224,7 @@
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -220,6 +234,7 @@
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -244,6 +259,7 @@
     "desc": "string",
     "dictCode": "string",
     "expand": {},
+    "i18nLabel": "string",
     "id": "string",
     "idPath": "string",
     "isLeaf": 1,
@@ -255,6 +271,7 @@
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -264,6 +281,7 @@
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -283,6 +301,7 @@
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -294,6 +313,7 @@
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -308,6 +328,7 @@
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -317,6 +338,7 @@
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -326,6 +348,7 @@
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -377,7 +400,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/detail/create \
-  --body '{"children": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}'
+  --body '{"children": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}'
 ```
 
 ### POST `/api/v1/system/dict/detail/delete`
@@ -390,7 +413,7 @@ ur api /api/v1/system/dict/detail/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -426,8 +449,9 @@ ur api /api/v1/system/dict/detail/delete \
 | `dictCode` | string | 是 |  |
 | `label` | string | 否 |  展示值 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父节点 |
 | `status` | integer | 否 |  状态  1:启用,2:禁用 (格式: int64) |
 | `value` | string | 否 |  字典值 |
@@ -439,8 +463,14 @@ ur api /api/v1/system/dict/detail/delete \
   "dictCode": "string",
   "label": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": "string",
   "status": 1,
@@ -464,6 +494,7 @@ ur api /api/v1/system/dict/detail/delete \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -473,6 +504,7 @@ ur api /api/v1/system/dict/detail/delete \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -492,6 +524,7 @@ ur api /api/v1/system/dict/detail/delete \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -503,6 +536,7 @@ ur api /api/v1/system/dict/detail/delete \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -517,6 +551,7 @@ ur api /api/v1/system/dict/detail/delete \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -526,6 +561,7 @@ ur api /api/v1/system/dict/detail/delete \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -535,6 +571,7 @@ ur api /api/v1/system/dict/detail/delete \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -572,7 +609,7 @@ ur api /api/v1/system/dict/detail/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/detail/get-list \
-  --body '{"dictCode": "string", "label": "string", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "status": 1, "value": "string", "values": ["string"]}'
+  --body '{"dictCode": "string", "label": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "status": 1, "value": "string", "values": ["string"]}'
 ```
 
 ### POST `/api/v1/system/dict/detail/get-one`
@@ -615,6 +652,7 @@ ur api /api/v1/system/dict/detail/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -624,6 +662,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -643,6 +682,7 @@ ur api /api/v1/system/dict/detail/get-list \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -654,6 +694,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -668,6 +709,7 @@ ur api /api/v1/system/dict/detail/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -677,6 +719,7 @@ ur api /api/v1/system/dict/detail/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -686,6 +729,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -715,6 +759,7 @@ ur api /api/v1/system/dict/detail/get-list \
     "desc": "string",
     "dictCode": "string",
     "expand": {},
+    "i18nLabel": "string",
     "id": "string",
     "idPath": "string",
     "isLeaf": 1,
@@ -728,6 +773,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -742,6 +788,7 @@ ur api /api/v1/system/dict/detail/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -751,6 +798,7 @@ ur api /api/v1/system/dict/detail/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -760,6 +808,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -784,6 +833,7 @@ ur api /api/v1/system/dict/detail/get-list \
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -795,6 +845,7 @@ ur api /api/v1/system/dict/detail/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -804,6 +855,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -823,6 +875,7 @@ ur api /api/v1/system/dict/detail/get-list \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -834,6 +887,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -848,6 +902,7 @@ ur api /api/v1/system/dict/detail/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -857,6 +912,7 @@ ur api /api/v1/system/dict/detail/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -866,6 +922,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -925,28 +982,31 @@ ur api /api/v1/system/dict/detail/get-one \
 | `desc` | string | 否 |  模块描述 |
 | `dictCode` | string | 是 |  |
 | `expand` | object | 否 |  自定义数据 |
+| `i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `id` | string | 否 |  编号 |
 | `idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `label` | string | 否 |  展示值 |
+| `label` | string | 否 |  展示值（编辑场景使用） |
 | `parent` | object | 否 |  |
 | `parent.children` | array[DictDetail] | 否 |  |
 | `parent.desc` | string | 否 |  模块描述 |
 | `parent.dictCode` | string | 是 |  |
 | `parent.expand` | object | 否 |  自定义数据 |
+| `parent.i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `parent.id` | string | 否 |  编号 |
 | `parent.idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `parent.isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `parent.label` | string | 否 |  展示值 |
+| `parent.label` | string | 否 |  展示值（编辑场景使用） |
 | `parent.parent` | object | 否 |  |
 | `parent.parent.children` | array[DictDetail] | 否 |  |
 | `parent.parent.desc` | string | 否 |  模块描述 |
 | `parent.parent.dictCode` | string | 是 |  |
 | `parent.parent.expand` | object | 否 |  自定义数据 |
+| `parent.parent.i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `parent.parent.id` | string | 否 |  编号 |
 | `parent.parent.idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `parent.parent.isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `parent.parent.label` | string | 否 |  展示值 |
+| `parent.parent.label` | string | 否 |  展示值（编辑场景使用） |
 | `parent.parent.parent` | object | 否 |  |
 | `parent.parent.parentID` | string | 否 | 父节点 |
 | `parent.parent.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
@@ -972,6 +1032,7 @@ ur api /api/v1/system/dict/detail/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -981,6 +1042,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1000,6 +1062,7 @@ ur api /api/v1/system/dict/detail/get-one \
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -1011,6 +1074,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1025,6 +1089,7 @@ ur api /api/v1/system/dict/detail/get-one \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -1034,6 +1099,7 @@ ur api /api/v1/system/dict/detail/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -1043,6 +1109,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1072,6 +1139,7 @@ ur api /api/v1/system/dict/detail/get-one \
   "desc": "string",
   "dictCode": "string",
   "expand": {},
+  "i18nLabel": "string",
   "id": "string",
   "idPath": "string",
   "isLeaf": 1,
@@ -1085,6 +1153,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1099,6 +1168,7 @@ ur api /api/v1/system/dict/detail/get-one \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -1108,6 +1178,7 @@ ur api /api/v1/system/dict/detail/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -1117,6 +1188,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1141,6 +1213,7 @@ ur api /api/v1/system/dict/detail/get-one \
     "desc": "string",
     "dictCode": "string",
     "expand": {},
+    "i18nLabel": "string",
     "id": "string",
     "idPath": "string",
     "isLeaf": 1,
@@ -1152,6 +1225,7 @@ ur api /api/v1/system/dict/detail/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -1161,6 +1235,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1180,6 +1255,7 @@ ur api /api/v1/system/dict/detail/get-one \
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -1191,6 +1267,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1205,6 +1282,7 @@ ur api /api/v1/system/dict/detail/get-one \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -1214,6 +1292,7 @@ ur api /api/v1/system/dict/detail/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -1223,6 +1302,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1271,5 +1351,5 @@ ur api /api/v1/system/dict/detail/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/detail/update \
-  --body '{"children": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}'
+  --body '{"children": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}'
 ```

@@ -143,7 +143,7 @@ ur api /api/v1/things/protocol/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -180,8 +180,9 @@ ur api /api/v1/things/protocol/info/delete \
 | `codes` | array[string] | 否 |  |
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `transProtocol` | string | 否 |  传输协议: mqtt,tcp,udp |
 | `type` | string | 否 | 协议类型: 普通设备(默认):normal  音视频:media |
 
@@ -194,8 +195,14 @@ ur api /api/v1/things/protocol/info/delete \
   ],
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "transProtocol": "string",
   "type": "string"
@@ -286,7 +293,7 @@ ur api /api/v1/things/protocol/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/info/get-list \
-  --body '{"code": "string", "codes": ["string"], "name": "string", "page": {"page": 1, "pageSize": 1}, "transProtocol": "string", "type": "string"}'
+  --body '{"code": "string", "codes": ["string"], "name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "transProtocol": "string", "type": "string"}'
 ```
 
 ### POST `/api/v1/things/protocol/info/get-one`
@@ -300,13 +307,13 @@ ur api /api/v1/things/protocol/info/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `code` | string | 否 |  |
-| `id` | string | 否 |  id |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "code": "string",
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -389,7 +396,7 @@ ur api /api/v1/things/protocol/info/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/info/get-one \
-  --body '{"code": "string", "id": "string"}'
+  --body '{"code": "string", "id": 1}'
 ```
 
 ### POST `/api/v1/things/protocol/info/update`

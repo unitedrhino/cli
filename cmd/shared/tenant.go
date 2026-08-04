@@ -8,7 +8,7 @@ import (
 	"gitee.com/unitedrhino/cli/internal/client"
 )
 
-// runTenant 执行租户用户管理命令
+// runTenant 执行企业用户管理命令
 func runTenant(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
 		printTenantHelp(stdout)
@@ -28,7 +28,7 @@ func runTenant(ctx context.Context, args []string, stdout, stderr io.Writer) int
 	}
 }
 
-// printTenantHelp 打印租户管理帮助信息
+// printTenantHelp 打印企业管理帮助信息
 func printTenantHelp(w io.Writer) {
 	fmt.Fprintln(w, "Usage: ur tenant <subcommand> [options]")
 	fmt.Fprintln(w, "")
@@ -39,7 +39,7 @@ func printTenantHelp(w io.Writer) {
 	fmt.Fprintln(w, "  help       Show this help message")
 }
 
-// runTenantUser 执行租户用户管理命令
+// runTenantUser 执行企业用户管理命令
 func runTenantUser(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
 		printTenantUserHelp(stdout)
@@ -77,7 +77,7 @@ func runTenantUser(ctx context.Context, args []string, stdout, stderr io.Writer)
 	}
 }
 
-// printTenantUserHelp 打印租户用户帮助信息
+// printTenantUserHelp 打印企业用户帮助信息
 func printTenantUserHelp(w io.Writer) {
 	fmt.Fprintln(w, "Usage: ur tenant user <subcommand> [options]")
 	fmt.Fprintln(w, "")
@@ -96,7 +96,7 @@ func printTenantUserHelp(w io.Writer) {
 	fmt.Fprintln(w, "  role             User role management")
 }
 
-// runTenantUserGetList 执行查询租户用户列表命令
+// runTenantUserGetList 执行查询企业用户列表命令
 func runTenantUserGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput, page, size, remaining := parseInfoListParams(args)
 	reqBody := map[string]any{
@@ -130,7 +130,7 @@ func runTenantUserGetList(ctx context.Context, args []string, stdout, stderr io.
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-// runTenantUserGetOne 执行查询租户用户详情命令
+// runTenantUserGetOne 执行查询企业用户详情命令
 func runTenantUserGetOne(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput := false
 	userID := ""
@@ -163,7 +163,7 @@ func runTenantUserGetOne(ctx context.Context, args []string, stdout, stderr io.W
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-// runTenantUserBatchCreate 执行批量创建租户用户命令
+// runTenantUserBatchCreate 执行批量创建企业用户命令
 func runTenantUserBatchCreate(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput := false
 	bodyJSON := ""
@@ -202,7 +202,7 @@ func runTenantUserBatchCreate(ctx context.Context, args []string, stdout, stderr
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-// runTenantUserUpdate 执行更新租户用户命令
+// runTenantUserUpdate 执行更新企业用户命令
 func runTenantUserUpdate(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput := false
 	bodyJSON := ""
@@ -241,7 +241,7 @@ func runTenantUserUpdate(ctx context.Context, args []string, stdout, stderr io.W
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-// runTenantUserDelete 执行删除租户用户命令
+// runTenantUserDelete 执行删除企业用户命令
 func runTenantUserDelete(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput := false
 	userID := ""

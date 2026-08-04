@@ -117,8 +117,9 @@ ur api /api/v1/system/tenant/user/delete \
 | `hasAccessAreas` | array[integer] | 否 |  拥有访问权限的区域 |
 | `nickName` | string | 否 |  昵称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `phone` | string | 否 |  手机号 |
 | `roleCode` | string | 否 |  角色编码 |
 | `status` | integer | 否 |  租户状态（1:启用，2:禁用） (格式: int64) |
@@ -138,8 +139,14 @@ ur api /api/v1/system/tenant/user/delete \
   ],
   "nickName": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "phone": "string",
   "roleCode": "string",
@@ -238,7 +245,7 @@ ur api /api/v1/system/tenant/user/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/user/get-list \
-  --body '{"account": "string", "deptID": "string", "email": "string", "hasAccessAreas": [1], "nickName": "string", "page": {"page": 1, "pageSize": 1}, "phone": "string", "roleCode": "string", "status": 1, "tenantCode": "string", "userIDs": ["string"], "userName": "string", "withRole": true}'
+  --body '{"account": "string", "deptID": "string", "email": "string", "hasAccessAreas": [1], "nickName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "phone": "string", "roleCode": "string", "status": 1, "tenantCode": "string", "userIDs": ["string"], "userName": "string", "withRole": true}'
 ```
 
 ### POST `/api/v1/system/tenant/user/get-one`

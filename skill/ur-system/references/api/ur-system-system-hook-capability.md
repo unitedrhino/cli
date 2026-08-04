@@ -26,6 +26,7 @@
 | `code` | string | 否 |  能力编码 |
 | `desc` | string | 否 |  描述 |
 | `id` | string | 否 |  能力ID |
+| `kind` | string | 否 |  能力类型 sync=同步扩展点 async=异步事件通知（说明性元数据，默认 sync） |
 | `serverID` | string | 否 |  关联服务ID |
 | `subCode` | string | 否 |  子编码 |
 
@@ -35,6 +36,7 @@
   "code": "string",
   "desc": "string",
   "id": "string",
+  "kind": "string",
   "serverID": "string",
   "subCode": "string"
 }
@@ -54,7 +56,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/capability/create \
-  --body '{"code": "string", "desc": "string", "id": "string", "serverID": "string", "subCode": "string"}'
+  --body '{"code": "string", "desc": "string", "id": "string", "kind": "string", "serverID": "string", "subCode": "string"}'
 ```
 
 ### POST `/api/v1/system/hook/capability/delete`
@@ -67,7 +69,7 @@ ur api /api/v1/system/hook/capability/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -102,8 +104,9 @@ ur api /api/v1/system/hook/capability/delete \
 |------|------|------|------|
 | `code` | string | 否 |  能力编码筛选 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `serverID` | integer | 否 |  服务ID筛选 (格式: int64) |
 | `subCode` | string | 否 |  子编码筛选 |
 
@@ -112,8 +115,14 @@ ur api /api/v1/system/hook/capability/delete \
 {
   "code": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "serverID": 1,
   "subCode": "string"
@@ -130,6 +139,7 @@ ur api /api/v1/system/hook/capability/delete \
         "code": "string",
         "desc": "string",
         "id": "string",
+        "kind": "string",
         "serverID": "string",
         "subCode": "string"
       }
@@ -145,7 +155,7 @@ ur api /api/v1/system/hook/capability/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/capability/get-list \
-  --body '{"code": "string", "page": {"page": 1, "pageSize": 1}, "serverID": 1, "subCode": "string"}'
+  --body '{"code": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "serverID": 1, "subCode": "string"}'
 ```
 
 ### POST `/api/v1/system/hook/capability/update`
@@ -161,6 +171,7 @@ ur api /api/v1/system/hook/capability/get-list \
 | `code` | string | 否 |  能力编码 |
 | `desc` | string | 否 |  描述 |
 | `id` | string | 否 |  能力ID |
+| `kind` | string | 否 |  能力类型 sync=同步扩展点 async=异步事件通知（说明性元数据，默认 sync） |
 | `serverID` | string | 否 |  关联服务ID |
 | `subCode` | string | 否 |  子编码 |
 
@@ -170,6 +181,7 @@ ur api /api/v1/system/hook/capability/get-list \
   "code": "string",
   "desc": "string",
   "id": "string",
+  "kind": "string",
   "serverID": "string",
   "subCode": "string"
 }
@@ -186,5 +198,5 @@ ur api /api/v1/system/hook/capability/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/capability/update \
-  --body '{"code": "string", "desc": "string", "id": "string", "serverID": "string", "subCode": "string"}'
+  --body '{"code": "string", "desc": "string", "id": "string", "kind": "string", "serverID": "string", "subCode": "string"}'
 ```

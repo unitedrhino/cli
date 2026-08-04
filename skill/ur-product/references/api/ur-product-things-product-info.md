@@ -391,8 +391,9 @@ ur api /api/v1/things/product/info/delete \
 | `deviceTypes` | array[integer] | 否 | 设备类型:1:设备,2:网关,3:子设备设备类型:1:设备,2:网关,3:子设备 |
 | `netType` | integer | 否 | 通讯方式:1:其他,2:wi-fi,3:2G/3G/4G,4:5G,5:BLE,6:LoRaWAN,7:wifi+ble,8:有线网,9:4G+BLE (格式: int64) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productIDs` | array[string] | 否 | 过滤产品id列表 |
 | `productName` | string | 否 | 过滤产品名称 |
 | `projectID` | string | 否 | 项目id,只获取项目下有设备的 |
@@ -421,8 +422,14 @@ ur api /api/v1/things/product/info/delete \
   ],
   "netType": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productIDs": [
     "string"
@@ -598,7 +605,7 @@ ur api /api/v1/things/product/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/product/info/get-list \
-  --body '{"areaID": "string", "areaIDPath": "string", "categoryIDs": [1], "deviceType": 1, "deviceTypes": [1], "netType": 1, "page": {"page": 1, "pageSize": 1}, "productIDs": ["string"], "productName": "示例名称", "projectID": "string", "protocolCode": "string", "protocolType": "string", "sceneMode": "string", "sceneModes": ["string"], "status": 1, "statuses": [1], "tags": {}, "tenantCode": "string", "withCategory": true, "withProtocol": true}'
+  --body '{"areaID": "string", "areaIDPath": "string", "categoryIDs": [1], "deviceType": 1, "deviceTypes": [1], "netType": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productIDs": ["string"], "productName": "示例名称", "projectID": "string", "protocolCode": "string", "protocolType": "string", "sceneMode": "string", "sceneModes": ["string"], "status": 1, "statuses": [1], "tags": {}, "tenantCode": "string", "withCategory": true, "withProtocol": true}'
 ```
 
 ### POST `/api/v1/things/product/info/get-one`

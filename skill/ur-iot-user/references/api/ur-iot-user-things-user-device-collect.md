@@ -30,8 +30,7 @@
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -48,7 +47,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/collect/batch-create \
-  --body '{"devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"devices": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/user/device/collect/batch-delete`
@@ -69,8 +68,7 @@ ur api /api/v1/things/user/device/collect/batch-create \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -87,7 +85,7 @@ ur api /api/v1/things/user/device/collect/batch-create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/collect/batch-delete \
-  --body '{"devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"devices": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/user/device/collect/get-list`

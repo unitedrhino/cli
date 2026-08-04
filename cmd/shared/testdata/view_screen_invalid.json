@@ -1,0 +1,60 @@
+{
+  "editCanvasConfig": {
+    "width": 1920,
+    "height": 1080
+  },
+  "componentList": [
+    {
+      "id": "comp-bad-001",
+      "title": "非法折线图",
+      "key": "LineCommon",
+      "chartKey": "VLineCommon",
+      "conKey": "VCLineCommon",
+      "chartConfig": {
+        "key": "LineCommon",
+        "chartKey": "VLineCommon",
+        "conKey": "VCLineCommon",
+        "category": "Lines",
+        "package": "Charts",
+        "chartFrame": "echarts",
+        "title": "折线图",
+        "image": "line.png"
+      },
+      "attr": {
+        "w": 640,
+        "h": 360,
+        "x": 0,
+        "y": 0,
+        "zIndex": 1
+      },
+      "status": {
+        "lock": false,
+        "hide": false
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 5,
+        "requestIoTDeviceConfig": {
+          "queryType": "latest",
+          "productID": "p_temp_001",
+          "deviceNames": [
+            "sensor-001"
+          ],
+          "dataIDs": [
+            "Temperature"
+          ]
+        }
+      },
+      "option": {
+        "series": []
+      },
+      "styles": {
+        "animations": []
+      }
+    }
+  ]
+}

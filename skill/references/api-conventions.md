@@ -8,5 +8,5 @@
 
 Swagger 中 `x-auth-type` 标注权限层级：
 - `all` — 所有登录用户
-- `admin` — 租户管理员 + 平台管理员
+- `admin` — 企业管理员 + 平台管理员
 - `platform` — 仅平台管理员

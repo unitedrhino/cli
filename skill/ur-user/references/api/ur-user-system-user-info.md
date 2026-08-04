@@ -114,8 +114,9 @@ ur api /api/v1/system/user/info/delete \
 | `email` | string | 否 |  邮箱 |
 | `nickName` | string | 否 |  用户的昵称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `phone` | string | 否 |  手机号 |
 | `userIDs` | array[string] | 否 |  |
 | `userName` | string | 否 | 用户名(唯一) |
@@ -127,8 +128,14 @@ ur api /api/v1/system/user/info/delete \
   "email": "string",
   "nickName": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "phone": "string",
   "userIDs": [
@@ -164,7 +171,7 @@ ur api /api/v1/system/user/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/info/get-list \
-  --body '{"account": "string", "email": "string", "nickName": "string", "page": {"page": 1, "pageSize": 1}, "phone": "string", "userIDs": ["string"], "userName": "string"}'
+  --body '{"account": "string", "email": "string", "nickName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "phone": "string", "userIDs": ["string"], "userName": "string"}'
 ```
 
 ### POST `/api/v1/system/user/info/get-one`

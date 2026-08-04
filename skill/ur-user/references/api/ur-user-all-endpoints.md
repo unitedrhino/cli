@@ -7,6 +7,9 @@
 | POST | `/api/v1/system/dept/info/get-list` | 获取部门列表 | admin |
 | POST | `/api/v1/system/dept/info/get-one` | 获取部门详情 | admin |
 | POST | `/api/v1/system/dept/info/update` | 更新部门 | admin |
+| POST | `/api/v1/system/dept/role/batch-create` | 批量添加部门角色 | admin |
+| POST | `/api/v1/system/dept/role/batch-delete` | 批量移除部门角色 | admin |
+| POST | `/api/v1/system/dept/role/get-list` | 获取部门角色列表 | admin |
 | POST | `/api/v1/system/dept/sync-job/create` | 添加同步任务 | admin |
 | POST | `/api/v1/system/dept/sync-job/delete` | 删除同步任务 | admin |
 | POST | `/api/v1/system/dept/sync-job/execute` | 执行同步任务 | admin |
@@ -122,7 +125,7 @@
 | POST | `/api/v1/system/user/self/tenant/delete` | 退出当前租户 | all |
 | POST | `/api/v1/system/user/self/tenant/get-list` | 获取用户所处的租户列表 | all |
 | POST | `/api/v1/system/user/self/tenant/get-one` | 获取当前用户在当前租户的详情 | all |
-| POST | `/api/v1/system/user/self/tenant/join` | 用户加入租户（通过邀请码、邮件或手机邀请） | all |
+| POST | `/api/v1/system/user/self/tenant/join` | 用户加入租户（通过邀请码、邮件、手机或客户端应用） | all |
 | POST | `/api/v1/system/user/self/tenant/update` | 更新当前用户在当前租户的信息 | all |
 | POST | `/api/v1/system/user/tenant/get-list` | 用户所处的租户列表 | all |
 
@@ -494,8 +497,9 @@ ur api /api/v1/system/dept/info/delete \
 | `dingTalkIDs` | array[string] | 否 | 钉钉的部门ID |
 | `name` | string | 否 |  名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父节点 |
 | `status` | integer | 否 |  状态  1:启用,2:禁用 (格式: int64) |
 | `tenantCode` | string | 否 |  |
@@ -508,8 +512,14 @@ ur api /api/v1/system/dept/info/delete \
   ],
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": "string",
   "status": 1,
@@ -624,7 +634,7 @@ ur api /api/v1/system/dept/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dept/info/get-list \
-  --body '{"dingTalkIDs": ["string"], "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "status": 1, "tenantCode": "string"}'
+  --body '{"dingTalkIDs": ["string"], "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "status": 1, "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/system/dept/info/get-one`
@@ -1238,6 +1248,127 @@ ur api /api/v1/system/dept/info/update \
   --body '{"children": [{"children": [{"children": [], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": "...", "desc": "...", "dingTalkID": "...", "id": "...", "idPath": "...", "name": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "userCount": "..."}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": [{"children": "...", "desc": "...", "dingTalkID": "...", "id": "...", "idPath": "...", "name": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "userCount": "..."}], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": [], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": "...", "desc": "...", "dingTalkID": "...", "id": "...", "idPath": "...", "name": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "userCount": "..."}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": [{"children": [{"children": "...", "desc": "...", "dingTalkID": "...", "id": "...", "idPath": "...", "name": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "userCount": "..."}], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": [], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": "...", "desc": "...", "dingTalkID": "...", "id": "...", "idPath": "...", "name": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "userCount": "..."}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": [{"children": [], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": "...", "desc": "...", "dingTalkID": "...", "id": "...", "idPath": "...", "name": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "userCount": "..."}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": [{"children": "...", "desc": "...", "dingTalkID": "...", "id": "...", "idPath": "...", "name": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "userCount": "..."}], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": [], "desc": "string", "dingTalkID": "string", "id": "string", "idPath": "string", "name": "示例名称", "parent": {"children": "...", "desc": "...", "dingTalkID": "...", "id": "...", "idPath": "...", "name": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "userCount": "..."}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}, "parentID": "string", "sort": 1, "status": 1, "userCount": 1}'
 ```
 
+### POST `/api/v1/system/dept/role/batch-create`
+
+**说明**: 批量添加部门角色
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `deptID` | string | 是 |  部门ID |
+| `roleIDs` | array[string] | 是 |  角色ID列表 |
+
+**请求示例**:
+```json
+{
+  "deptID": "string",
+  "roleIDs": [
+    "string"
+  ]
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/dept/role/batch-create \
+  --body '{"deptID": "string", "roleIDs": ["string"]}'
+```
+
+### POST `/api/v1/system/dept/role/batch-delete`
+
+**说明**: 批量移除部门角色
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `deptID` | string | 是 |  部门ID |
+| `roleIDs` | array[string] | 是 |  角色ID列表 |
+
+**请求示例**:
+```json
+{
+  "deptID": "string",
+  "roleIDs": [
+    "string"
+  ]
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/dept/role/batch-delete \
+  --body '{"deptID": "string", "roleIDs": ["string"]}'
+```
+
+### POST `/api/v1/system/dept/role/get-list`
+
+**说明**: 获取部门角色列表
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `deptID` | string | 是 |  部门ID |
+
+**请求示例**:
+```json
+{
+  "deptID": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "code": "string",
+        "createdTime": "2026-01-01T00:00:00Z",
+        "desc": "string",
+        "id": "string",
+        "isFullAuth": 1,
+        "name": "示例名称",
+        "status": 1
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/dept/role/get-list \
+  --body '{"deptID": "string"}'
+```
+
 ### POST `/api/v1/system/dept/sync-job/create`
 
 **说明**: 添加同步任务
@@ -1378,8 +1509,9 @@ ur api /api/v1/system/dept/sync-job/execute \
 | `direction` | integer | 否 |  同步的方向,1上游同步到联犀(默认),2联犀同步到下游 (格式: int64) |
 | `name` | string | 否 |  名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父节点 |
 | `status` | integer | 否 |  状态  1:启用,2:禁用 (格式: int64) |
 
@@ -1389,8 +1521,14 @@ ur api /api/v1/system/dept/sync-job/execute \
   "direction": 1,
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": "string",
   "status": 1
@@ -1432,7 +1570,7 @@ ur api /api/v1/system/dept/sync-job/execute \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dept/sync-job/get-list \
-  --body '{"direction": 1, "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "status": 1}'
+  --body '{"direction": 1, "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "status": 1}'
 ```
 
 ### POST `/api/v1/system/dept/sync-job/get-one`
@@ -1637,16 +1775,23 @@ ur api /api/v1/system/dept/user/batch-delete \
 |------|------|------|------|
 | `deptID` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "deptID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -1688,7 +1833,7 @@ ur api /api/v1/system/dept/user/batch-delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dept/user/get-list \
-  --body '{"deptID": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"deptID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/system/dict/detail/create`
@@ -1705,28 +1850,31 @@ ur api /api/v1/system/dept/user/get-list \
 | `desc` | string | 否 |  模块描述 |
 | `dictCode` | string | 是 |  |
 | `expand` | object | 否 |  自定义数据 |
+| `i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `id` | string | 否 |  编号 |
 | `idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `label` | string | 否 |  展示值 |
+| `label` | string | 否 |  展示值（编辑场景使用） |
 | `parent` | object | 否 |  |
 | `parent.children` | array[DictDetail] | 否 |  |
 | `parent.desc` | string | 否 |  模块描述 |
 | `parent.dictCode` | string | 是 |  |
 | `parent.expand` | object | 否 |  自定义数据 |
+| `parent.i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `parent.id` | string | 否 |  编号 |
 | `parent.idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `parent.isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `parent.label` | string | 否 |  展示值 |
+| `parent.label` | string | 否 |  展示值（编辑场景使用） |
 | `parent.parent` | object | 否 |  |
 | `parent.parent.children` | array[DictDetail] | 否 |  |
 | `parent.parent.desc` | string | 否 |  模块描述 |
 | `parent.parent.dictCode` | string | 是 |  |
 | `parent.parent.expand` | object | 否 |  自定义数据 |
+| `parent.parent.i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `parent.parent.id` | string | 否 |  编号 |
 | `parent.parent.idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `parent.parent.isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `parent.parent.label` | string | 否 |  展示值 |
+| `parent.parent.label` | string | 否 |  展示值（编辑场景使用） |
 | `parent.parent.parent` | object | 否 |  |
 | `parent.parent.parentID` | string | 否 | 父节点 |
 | `parent.parent.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
@@ -1752,6 +1900,7 @@ ur api /api/v1/system/dept/user/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -1761,6 +1910,7 @@ ur api /api/v1/system/dept/user/get-list \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1780,6 +1930,7 @@ ur api /api/v1/system/dept/user/get-list \
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -1791,6 +1942,7 @@ ur api /api/v1/system/dept/user/get-list \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1805,6 +1957,7 @@ ur api /api/v1/system/dept/user/get-list \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -1814,6 +1967,7 @@ ur api /api/v1/system/dept/user/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -1823,6 +1977,7 @@ ur api /api/v1/system/dept/user/get-list \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1852,6 +2007,7 @@ ur api /api/v1/system/dept/user/get-list \
   "desc": "string",
   "dictCode": "string",
   "expand": {},
+  "i18nLabel": "string",
   "id": "string",
   "idPath": "string",
   "isLeaf": 1,
@@ -1865,6 +2021,7 @@ ur api /api/v1/system/dept/user/get-list \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1879,6 +2036,7 @@ ur api /api/v1/system/dept/user/get-list \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -1888,6 +2046,7 @@ ur api /api/v1/system/dept/user/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -1897,6 +2056,7 @@ ur api /api/v1/system/dept/user/get-list \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1921,6 +2081,7 @@ ur api /api/v1/system/dept/user/get-list \
     "desc": "string",
     "dictCode": "string",
     "expand": {},
+    "i18nLabel": "string",
     "id": "string",
     "idPath": "string",
     "isLeaf": 1,
@@ -1932,6 +2093,7 @@ ur api /api/v1/system/dept/user/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -1941,6 +2103,7 @@ ur api /api/v1/system/dept/user/get-list \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1960,6 +2123,7 @@ ur api /api/v1/system/dept/user/get-list \
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -1971,6 +2135,7 @@ ur api /api/v1/system/dept/user/get-list \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -1985,6 +2150,7 @@ ur api /api/v1/system/dept/user/get-list \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -1994,6 +2160,7 @@ ur api /api/v1/system/dept/user/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -2003,6 +2170,7 @@ ur api /api/v1/system/dept/user/get-list \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -2054,7 +2222,7 @@ ur api /api/v1/system/dept/user/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/detail/create \
-  --body '{"children": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}'
+  --body '{"children": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}'
 ```
 
 ### POST `/api/v1/system/dict/detail/delete`
@@ -2067,7 +2235,7 @@ ur api /api/v1/system/dict/detail/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -2103,8 +2271,9 @@ ur api /api/v1/system/dict/detail/delete \
 | `dictCode` | string | 是 |  |
 | `label` | string | 否 |  展示值 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父节点 |
 | `status` | integer | 否 |  状态  1:启用,2:禁用 (格式: int64) |
 | `value` | string | 否 |  字典值 |
@@ -2116,8 +2285,14 @@ ur api /api/v1/system/dict/detail/delete \
   "dictCode": "string",
   "label": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": "string",
   "status": 1,
@@ -2141,6 +2316,7 @@ ur api /api/v1/system/dict/detail/delete \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -2150,6 +2326,7 @@ ur api /api/v1/system/dict/detail/delete \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -2169,6 +2346,7 @@ ur api /api/v1/system/dict/detail/delete \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -2180,6 +2358,7 @@ ur api /api/v1/system/dict/detail/delete \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -2194,6 +2373,7 @@ ur api /api/v1/system/dict/detail/delete \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -2203,6 +2383,7 @@ ur api /api/v1/system/dict/detail/delete \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -2212,6 +2393,7 @@ ur api /api/v1/system/dict/detail/delete \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -2249,7 +2431,7 @@ ur api /api/v1/system/dict/detail/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/detail/get-list \
-  --body '{"dictCode": "string", "label": "string", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "status": 1, "value": "string", "values": ["string"]}'
+  --body '{"dictCode": "string", "label": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "status": 1, "value": "string", "values": ["string"]}'
 ```
 
 ### POST `/api/v1/system/dict/detail/get-one`
@@ -2292,6 +2474,7 @@ ur api /api/v1/system/dict/detail/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -2301,6 +2484,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -2320,6 +2504,7 @@ ur api /api/v1/system/dict/detail/get-list \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -2331,6 +2516,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -2345,6 +2531,7 @@ ur api /api/v1/system/dict/detail/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -2354,6 +2541,7 @@ ur api /api/v1/system/dict/detail/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -2363,6 +2551,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -2392,6 +2581,7 @@ ur api /api/v1/system/dict/detail/get-list \
     "desc": "string",
     "dictCode": "string",
     "expand": {},
+    "i18nLabel": "string",
     "id": "string",
     "idPath": "string",
     "isLeaf": 1,
@@ -2405,6 +2595,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -2419,6 +2610,7 @@ ur api /api/v1/system/dict/detail/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -2428,6 +2620,7 @@ ur api /api/v1/system/dict/detail/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -2437,6 +2630,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -2461,6 +2655,7 @@ ur api /api/v1/system/dict/detail/get-list \
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -2472,6 +2667,7 @@ ur api /api/v1/system/dict/detail/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -2481,6 +2677,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -2500,6 +2697,7 @@ ur api /api/v1/system/dict/detail/get-list \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -2511,6 +2709,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -2525,6 +2724,7 @@ ur api /api/v1/system/dict/detail/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -2534,6 +2734,7 @@ ur api /api/v1/system/dict/detail/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -2543,6 +2744,7 @@ ur api /api/v1/system/dict/detail/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -2602,28 +2804,31 @@ ur api /api/v1/system/dict/detail/get-one \
 | `desc` | string | 否 |  模块描述 |
 | `dictCode` | string | 是 |  |
 | `expand` | object | 否 |  自定义数据 |
+| `i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `id` | string | 否 |  编号 |
 | `idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `label` | string | 否 |  展示值 |
+| `label` | string | 否 |  展示值（编辑场景使用） |
 | `parent` | object | 否 |  |
 | `parent.children` | array[DictDetail] | 否 |  |
 | `parent.desc` | string | 否 |  模块描述 |
 | `parent.dictCode` | string | 是 |  |
 | `parent.expand` | object | 否 |  自定义数据 |
+| `parent.i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `parent.id` | string | 否 |  编号 |
 | `parent.idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `parent.isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `parent.label` | string | 否 |  展示值 |
+| `parent.label` | string | 否 |  展示值（编辑场景使用） |
 | `parent.parent` | object | 否 |  |
 | `parent.parent.children` | array[DictDetail] | 否 |  |
 | `parent.parent.desc` | string | 否 |  模块描述 |
 | `parent.parent.dictCode` | string | 是 |  |
 | `parent.parent.expand` | object | 否 |  自定义数据 |
+| `parent.parent.i18nLabel` | string | 否 |  按当前请求语言翻译后的展示值 |
 | `parent.parent.id` | string | 否 |  编号 |
 | `parent.parent.idPath` | string | 否 | 1-2-3-的格式记录顶级区域到当前id的路径 |
 | `parent.parent.isLeaf` | integer | 否 |  是否是叶子节点(不可修改) 1:是 2:否 (格式: int64) |
-| `parent.parent.label` | string | 否 |  展示值 |
+| `parent.parent.label` | string | 否 |  展示值（编辑场景使用） |
 | `parent.parent.parent` | object | 否 |  |
 | `parent.parent.parentID` | string | 否 | 父节点 |
 | `parent.parent.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
@@ -2649,6 +2854,7 @@ ur api /api/v1/system/dict/detail/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -2658,6 +2864,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -2677,6 +2884,7 @@ ur api /api/v1/system/dict/detail/get-one \
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -2688,6 +2896,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -2702,6 +2911,7 @@ ur api /api/v1/system/dict/detail/get-one \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -2711,6 +2921,7 @@ ur api /api/v1/system/dict/detail/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -2720,6 +2931,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -2749,6 +2961,7 @@ ur api /api/v1/system/dict/detail/get-one \
   "desc": "string",
   "dictCode": "string",
   "expand": {},
+  "i18nLabel": "string",
   "id": "string",
   "idPath": "string",
   "isLeaf": 1,
@@ -2762,6 +2975,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -2776,6 +2990,7 @@ ur api /api/v1/system/dict/detail/get-one \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -2785,6 +3000,7 @@ ur api /api/v1/system/dict/detail/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -2794,6 +3010,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -2818,6 +3035,7 @@ ur api /api/v1/system/dict/detail/get-one \
     "desc": "string",
     "dictCode": "string",
     "expand": {},
+    "i18nLabel": "string",
     "id": "string",
     "idPath": "string",
     "isLeaf": 1,
@@ -2829,6 +3047,7 @@ ur api /api/v1/system/dict/detail/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -2838,6 +3057,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -2857,6 +3077,7 @@ ur api /api/v1/system/dict/detail/get-one \
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -2868,6 +3089,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -2882,6 +3104,7 @@ ur api /api/v1/system/dict/detail/get-one \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -2891,6 +3114,7 @@ ur api /api/v1/system/dict/detail/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -2900,6 +3124,7 @@ ur api /api/v1/system/dict/detail/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -2948,7 +3173,7 @@ ur api /api/v1/system/dict/detail/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/detail/update \
-  --body '{"children": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}'
+  --body '{"children": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}'
 ```
 
 ### POST `/api/v1/system/dict/info/batch-export`
@@ -3060,6 +3285,7 @@ ur api /api/v1/system/dict/info/batch-import \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -3069,6 +3295,7 @@ ur api /api/v1/system/dict/info/batch-import \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -3088,6 +3315,7 @@ ur api /api/v1/system/dict/info/batch-import \
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -3099,6 +3327,7 @@ ur api /api/v1/system/dict/info/batch-import \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -3113,6 +3342,7 @@ ur api /api/v1/system/dict/info/batch-import \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -3122,6 +3352,7 @@ ur api /api/v1/system/dict/info/batch-import \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -3131,6 +3362,7 @@ ur api /api/v1/system/dict/info/batch-import \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -3179,7 +3411,7 @@ ur api /api/v1/system/dict/info/batch-import \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/info/create \
-  --body '{"code": "string", "desc": "string", "details": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "expand": {}, "group": "string", "id": "string", "name": "示例名称", "structType": 1}'
+  --body '{"code": "string", "desc": "string", "details": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "expand": {}, "group": "string", "id": "string", "name": "示例名称", "structType": 1}'
 ```
 
 ### POST `/api/v1/system/dict/info/delete`
@@ -3192,7 +3424,7 @@ ur api /api/v1/system/dict/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -3228,8 +3460,9 @@ ur api /api/v1/system/dict/info/delete \
 | `group` | string | 否 |  |
 | `name` | string | 否 |  名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int64 |
 | `withDetail` | boolean | 否 |  true 时每条 DictInfo 附带 details（仅当前页字典分类） (格式: boolean) |
 
@@ -3239,8 +3472,14 @@ ur api /api/v1/system/dict/info/delete \
   "group": "string",
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "withDetail": true
@@ -3262,6 +3501,7 @@ ur api /api/v1/system/dict/info/delete \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -3271,6 +3511,7 @@ ur api /api/v1/system/dict/info/delete \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -3305,7 +3546,7 @@ ur api /api/v1/system/dict/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/info/get-list \
-  --body '{"group": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1, "withDetail": true}'
+  --body '{"group": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "withDetail": true}'
 ```
 
 ### POST `/api/v1/system/dict/info/get-one`
@@ -3344,6 +3585,7 @@ ur api /api/v1/system/dict/info/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -3353,6 +3595,7 @@ ur api /api/v1/system/dict/info/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -3372,6 +3615,7 @@ ur api /api/v1/system/dict/info/get-list \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -3383,6 +3627,7 @@ ur api /api/v1/system/dict/info/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -3397,6 +3642,7 @@ ur api /api/v1/system/dict/info/get-list \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -3406,6 +3652,7 @@ ur api /api/v1/system/dict/info/get-list \
             "desc": "string",
             "dictCode": "string",
             "expand": {},
+            "i18nLabel": "string",
             "id": "string",
             "idPath": "string",
             "isLeaf": 1,
@@ -3415,6 +3662,7 @@ ur api /api/v1/system/dict/info/get-list \
               "desc": "...",
               "dictCode": "...",
               "expand": "...",
+              "i18nLabel": "...",
               "id": "...",
               "idPath": "...",
               "isLeaf": "...",
@@ -3489,6 +3737,7 @@ ur api /api/v1/system/dict/info/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -3498,6 +3747,7 @@ ur api /api/v1/system/dict/info/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -3517,6 +3767,7 @@ ur api /api/v1/system/dict/info/get-one \
       "desc": "string",
       "dictCode": "string",
       "expand": {},
+      "i18nLabel": "string",
       "id": "string",
       "idPath": "string",
       "isLeaf": 1,
@@ -3528,6 +3779,7 @@ ur api /api/v1/system/dict/info/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -3542,6 +3794,7 @@ ur api /api/v1/system/dict/info/get-one \
         "desc": "string",
         "dictCode": "string",
         "expand": {},
+        "i18nLabel": "string",
         "id": "string",
         "idPath": "string",
         "isLeaf": 1,
@@ -3551,6 +3804,7 @@ ur api /api/v1/system/dict/info/get-one \
           "desc": "string",
           "dictCode": "string",
           "expand": {},
+          "i18nLabel": "string",
           "id": "string",
           "idPath": "string",
           "isLeaf": 1,
@@ -3560,6 +3814,7 @@ ur api /api/v1/system/dict/info/get-one \
             "desc": "...",
             "dictCode": "...",
             "expand": "...",
+            "i18nLabel": "...",
             "id": "...",
             "idPath": "...",
             "isLeaf": "...",
@@ -3605,7 +3860,7 @@ ur api /api/v1/system/dict/info/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/system/dict/info/update \
-  --body '{"code": "string", "desc": "string", "details": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "expand": {}, "group": "string", "id": "string", "name": "示例名称", "structType": 1}'
+  --body '{"code": "string", "desc": "string", "details": [{"children": [{"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [{"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": [], "desc": "string", "dictCode": "string", "expand": {}, "i18nLabel": "string", "id": "string", "idPath": "string", "isLeaf": 1, "label": "string", "parent": {"children": "...", "desc": "...", "dictCode": "...", "expand": "...", "i18nLabel": "...", "id": "...", "idPath": "...", "isLeaf": "...", "label": "...", "parent": "...", "parentID": "...", "sort": "...", "status": "...", "value": "..."}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}, "parentID": "string", "sort": 1, "status": 1, "value": "string"}], "expand": {}, "group": "string", "id": "string", "name": "示例名称", "structType": 1}'
 ```
 
 ### POST `/api/v1/system/log/login/get-list`
@@ -3626,8 +3881,9 @@ ur api /api/v1/system/dict/info/update \
 | `ipAddr` | string | 否 | 按ip地址查找 |
 | `loginLocation` | string | 否 | 按登录地址查找 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `userID` | string | 否 |  用户id |
 | `userName` | string | 否 |  登录账号 |
 
@@ -3643,8 +3899,14 @@ ur api /api/v1/system/dict/info/update \
   "ipAddr": "string",
   "loginLocation": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "userID": "string",
   "userName": "string"
@@ -3681,7 +3943,7 @@ ur api /api/v1/system/dict/info/update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/log/login/get-list \
-  --body '{"appID": "string", "code": "string", "dateRange": {"end": "2026-01-01T00:00:00Z", "start": "2026-01-01T00:00:00Z"}, "ipAddr": "string", "loginLocation": "string", "page": {"page": 1, "pageSize": 1}, "userID": "string", "userName": "string"}'
+  --body '{"appID": "string", "code": "string", "dateRange": {"end": "2026-01-01T00:00:00Z", "start": "2026-01-01T00:00:00Z"}, "ipAddr": "string", "loginLocation": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "userID": "string", "userName": "string"}'
 ```
 
 ### POST `/api/v1/system/log/oper/get-list`
@@ -3703,8 +3965,9 @@ ur api /api/v1/system/log/login/get-list \
 | `operUserID` | string | 否 |  操作用户id |
 | `operUserName` | string | 否 | 按操作人员名称查找 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -3718,8 +3981,14 @@ ur api /api/v1/system/log/login/get-list \
   "operUserID": "string",
   "operUserName": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -3759,7 +4028,7 @@ ur api /api/v1/system/log/login/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/log/oper/get-list \
-  --body '{"accessKey": "string", "appID": "string", "authType": "string", "code": "string", "operName": "示例名称", "operType": "string", "operUserID": "string", "operUserName": "示例名称", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"accessKey": "string", "appID": "string", "authType": "string", "code": "string", "operName": "示例名称", "operType": "string", "operUserID": "string", "operUserName": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/system/notify/config/create`
@@ -3837,7 +4106,7 @@ ur api /api/v1/system/notify/config/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -3875,8 +4144,9 @@ ur api /api/v1/system/notify/config/delete \
 | `isEnabled` | integer | 否 | 是否启用 1:启用 2:禁用 (格式: int64) |
 | `name` | string | 否 |  应用名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `withTemplates` | boolean | 否 | 格式: boolean |
 
 **请求示例**:
@@ -3887,8 +4157,14 @@ ur api /api/v1/system/notify/config/delete \
   "isEnabled": 1,
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "withTemplates": true
 }
@@ -3934,7 +4210,7 @@ ur api /api/v1/system/notify/config/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/config/get-list \
-  --body '{"code": "string", "group": "string", "isEnabled": 1, "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "withTemplates": true}'
+  --body '{"code": "string", "group": "string", "isEnabled": 1, "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "withTemplates": true}'
 ```
 
 ### POST `/api/v1/system/notify/config/get-one`
@@ -3948,13 +4224,13 @@ ur api /api/v1/system/notify/config/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `code` | string | 否 |  |
-| `id` | string | 否 |  id |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "code": "string",
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -3991,7 +4267,7 @@ ur api /api/v1/system/notify/config/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/config/get-one \
-  --body '{"code": "string", "id": "string"}'
+  --body '{"code": "string", "id": 1}'
 ```
 
 ### POST `/api/v1/system/notify/config/send-test`
@@ -4058,8 +4334,9 @@ ur api /api/v1/system/notify/config/send-test \
 | `isEnabled` | integer | 否 | 是否启用 1:启用 2:禁用 (格式: int64) |
 | `name` | string | 否 |  应用名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `withTemplates` | boolean | 否 | 格式: boolean |
 
 **请求示例**:
@@ -4070,8 +4347,14 @@ ur api /api/v1/system/notify/config/send-test \
   "isEnabled": 1,
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "withTemplates": true
 }
@@ -4112,7 +4395,7 @@ ur api /api/v1/system/notify/config/send-test \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/config/tree \
-  --body '{"code": "string", "group": "string", "isEnabled": 1, "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "withTemplates": true}'
+  --body '{"code": "string", "group": "string", "isEnabled": 1, "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "withTemplates": true}'
 ```
 
 ### POST `/api/v1/system/notify/config/update`
@@ -4306,7 +4589,7 @@ ur api /api/v1/system/notify/config/template/update \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -4344,8 +4627,9 @@ ur api /api/v1/system/notify/message/info/delete \
 | `notificationID` | string | 否 | 关联手动通知ID |
 | `notifyCode` | string | 否 | 通知编码 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -4355,8 +4639,14 @@ ur api /api/v1/system/notify/message/info/delete \
   "notificationID": "string",
   "notifyCode": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -4407,7 +4697,7 @@ ur api /api/v1/system/notify/message/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/message/info/get-list \
-  --body '{"group": "string", "isGlobal": 1, "notificationID": "string", "notifyCode": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"group": "string", "isGlobal": 1, "notificationID": "string", "notifyCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/system/notify/message/info/send`
@@ -4608,7 +4898,7 @@ ur api /api/v1/system/notify/news/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -4641,7 +4931,7 @@ ur api /api/v1/system/notify/news/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -4689,8 +4979,9 @@ ur api /api/v1/system/notify/news/info \
 | `notifyTimeEnd` | integer | 否 |  发布时间结束 (格式: int64) |
 | `notifyTimeStart` | integer | 否 |  发布时间开始 (格式: int64) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  状态筛选 |
 | `title` | string | 否 |  标题模糊搜索 |
 
@@ -4700,8 +4991,14 @@ ur api /api/v1/system/notify/news/info \
   "notifyTimeEnd": 1,
   "notifyTimeStart": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": "string",
   "title": "string"
@@ -4738,7 +5035,7 @@ ur api /api/v1/system/notify/news/info \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/news/list \
-  --body '{"notifyTimeEnd": 1, "notifyTimeStart": 1, "page": {"page": 1, "pageSize": 1}, "status": "string", "title": "string"}'
+  --body '{"notifyTimeEnd": 1, "notifyTimeStart": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string", "title": "string"}'
 ```
 
 ### POST `/api/v1/system/notify/news/update`
@@ -4802,7 +5099,7 @@ ur api /api/v1/system/notify/news/update \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -4930,7 +5227,7 @@ ur api /api/v1/system/notify/notification/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -4963,7 +5260,7 @@ ur api /api/v1/system/notify/notification/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5001,8 +5298,9 @@ ur api /api/v1/system/notify/notification/estimate-users \
 |------|------|------|------|
 | `group` | string | 否 | 分组筛选 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `priority` | integer | 否 | 优先级筛选 (格式: int64) |
 | `status` | integer | 否 | 状态筛选 (格式: int64) |
 | `tenantCode` | string | 否 | 租户编码筛选 |
@@ -5013,8 +5311,14 @@ ur api /api/v1/system/notify/notification/estimate-users \
 {
   "group": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "priority": 1,
   "status": 1,
@@ -5074,7 +5378,7 @@ ur api /api/v1/system/notify/notification/estimate-users \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/notification/index \
-  --body '{"group": "string", "page": {"page": 1, "pageSize": 1}, "priority": 1, "status": 1, "tenantCode": "string", "title": "string"}'
+  --body '{"group": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "priority": 1, "status": 1, "tenantCode": "string", "title": "string"}'
 ```
 
 ### POST `/api/v1/system/notify/notification/read`
@@ -5087,7 +5391,7 @@ ur api /api/v1/system/notify/notification/index \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5153,7 +5457,7 @@ ur api /api/v1/system/notify/notification/read \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5378,7 +5682,7 @@ ur api /api/v1/system/notify/template/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5414,8 +5718,9 @@ ur api /api/v1/system/notify/template/delete \
 | `name` | string | 否 |  |
 | `notifyCode` | string | 否 |  应用编号 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `type` | string | 否 | 对应的配置类型 sms email |
 
 **请求示例**:
@@ -5424,8 +5729,14 @@ ur api /api/v1/system/notify/template/delete \
   "name": "string",
   "notifyCode": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "type": "string"
 }
@@ -5468,7 +5779,7 @@ ur api /api/v1/system/notify/template/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/template/get-list \
-  --body '{"name": "string", "notifyCode": "string", "page": {"page": 1, "pageSize": 1}, "type": "string"}'
+  --body '{"name": "string", "notifyCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "type": "string"}'
 ```
 
 ### POST `/api/v1/system/notify/template/get-one`
@@ -5481,7 +5792,7 @@ ur api /api/v1/system/notify/template/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5722,7 +6033,7 @@ ur api /api/v1/system/role/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5759,8 +6070,9 @@ ur api /api/v1/system/role/info/delete \
 | `ids` | array[string] | 否 |  |
 | `name` | string | 否 | 按名称查找角色 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 按状态查找角色 (格式: int64) |
 
 **请求示例**:
@@ -5774,8 +6086,14 @@ ur api /api/v1/system/role/info/delete \
   ],
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1
 }
@@ -5808,7 +6126,7 @@ ur api /api/v1/system/role/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/role/info/get-list \
-  --body '{"codes": ["string"], "ids": ["string"], "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1}'
+  --body '{"codes": ["string"], "ids": ["string"], "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1}'
 ```
 
 ### POST `/api/v1/system/role/info/update`
@@ -6029,8 +6347,9 @@ ur api /api/v1/system/role/resource/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 项目id |
 | `userID` | string | 是 | 用户ID |
 
@@ -6038,8 +6357,14 @@ ur api /api/v1/system/role/resource/get-list \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "projectID": "string",
   "userID": "string"
@@ -6198,7 +6523,7 @@ ur api /api/v1/system/role/resource/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/data/area/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "projectID": "string", "userID": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectID": "string", "userID": "string"}'
 ```
 
 ### POST `/api/v1/system/user/data/project/get-list`
@@ -6212,16 +6537,23 @@ ur api /api/v1/system/user/data/area/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `userID` | string | 是 | 用户ID |
 
 **请求示例**:
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "userID": "string"
 }
@@ -6323,7 +6655,7 @@ ur api /api/v1/system/user/data/area/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/data/project/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "userID": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "userID": "string"}'
 ```
 
 ### POST `/api/v1/system/user/dept/batch-create`
@@ -6500,8 +6832,9 @@ ur api /api/v1/system/user/info/delete \
 | `email` | string | 否 |  邮箱 |
 | `nickName` | string | 否 |  用户的昵称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `phone` | string | 否 |  手机号 |
 | `userIDs` | array[string] | 否 |  |
 | `userName` | string | 否 | 用户名(唯一) |
@@ -6513,8 +6846,14 @@ ur api /api/v1/system/user/info/delete \
   "email": "string",
   "nickName": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "phone": "string",
   "userIDs": [
@@ -6550,7 +6889,7 @@ ur api /api/v1/system/user/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/info/get-list \
-  --body '{"account": "string", "email": "string", "nickName": "string", "page": {"page": 1, "pageSize": 1}, "phone": "string", "userIDs": ["string"], "userName": "string"}'
+  --body '{"account": "string", "email": "string", "nickName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "phone": "string", "userIDs": ["string"], "userName": "string"}'
 ```
 
 ### POST `/api/v1/system/user/info/get-one`
@@ -6702,7 +7041,7 @@ ur api /api/v1/system/user/self/access-token/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -6737,16 +7076,23 @@ ur api /api/v1/system/user/self/access-token/delete \
 |------|------|------|------|
 | `accessKey` | string | 否 |  按访问密钥标识过滤 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "accessKey": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -6781,7 +7127,7 @@ ur api /api/v1/system/user/self/access-token/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/self/access-token/get-list \
-  --body '{"accessKey": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"accessKey": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/system/user/self/access-token/get-one`
@@ -6794,7 +7140,7 @@ ur api /api/v1/system/user/self/access-token/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -6925,7 +7271,6 @@ ur api /api/v1/system/user/self/access-token/update \
             "appSecret": "string"
           },
           "id": "string",
-          "isSysCreated": 1,
           "isUseMenu": 1,
           "isUseProxy": 1,
           "loginTypes": [
@@ -7470,8 +7815,9 @@ ur api /api/v1/system/user/self/menu/get-list \
 | `isRead` | integer | 否 | 是否已读 1:已读 2:未读 (格式: int64) |
 | `notifyCode` | string | 否 | 通知编码 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `str1` | string | 否 |  |
 | `str2` | string | 否 |  |
 | `str3` | string | 否 |  |
@@ -7486,8 +7832,14 @@ ur api /api/v1/system/user/self/menu/get-list \
   "isRead": 1,
   "notifyCode": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "str1": "string",
   "str2": "string",
@@ -7552,7 +7904,7 @@ ur api /api/v1/system/user/self/menu/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/self/message/get-list \
-  --body '{"createdTime": "2026-01-01T00:00:00Z", "group": "string", "isHandled": 1, "isRead": 1, "notifyCode": "string", "page": {"page": 1, "pageSize": 1}, "str1": "string", "str2": "string", "str3": "string", "type": "string"}'
+  --body '{"createdTime": "2026-01-01T00:00:00Z", "group": "string", "isHandled": 1, "isRead": 1, "notifyCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "str1": "string", "str2": "string", "str3": "string", "type": "string"}'
 ```
 
 ### POST `/api/v1/system/user/self/message/get-pending`
@@ -7566,15 +7918,22 @@ ur api /api/v1/system/user/self/message/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -7635,7 +7994,7 @@ ur api /api/v1/system/user/self/message/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/self/message/get-pending \
-  --body '{"page": {"page": 1, "pageSize": 1}}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/system/user/self/message/handle`
@@ -7648,7 +8007,7 @@ ur api /api/v1/system/user/self/message/get-pending \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -7701,13 +8060,13 @@ ur api /api/v1/system/user/self/message/mark-all-read \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `ids` | array[string] | 是 |  |
+| `ids` | array[integer] | 是 |  |
 
 **请求示例**:
 ```json
 {
   "ids": [
-    "string"
+    1
   ]
 }
 ```
@@ -7723,7 +8082,7 @@ ur api /api/v1/system/user/self/message/mark-all-read \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/self/message/multi-delete \
-  --body '{"ids": ["string"]}'
+  --body '{"ids": [1]}'
 ```
 
 ### POST `/api/v1/system/user/self/message/multi-is-read`
@@ -7736,13 +8095,13 @@ ur api /api/v1/system/user/self/message/multi-delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `ids` | array[string] | 是 |  |
+| `ids` | array[integer] | 是 |  |
 
 **请求示例**:
 ```json
 {
   "ids": [
-    "string"
+    1
   ]
 }
 ```
@@ -7758,7 +8117,7 @@ ur api /api/v1/system/user/self/message/multi-delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/self/message/multi-is-read \
-  --body '{"ids": ["string"]}'
+  --body '{"ids": [1]}'
 ```
 
 ### POST `/api/v1/system/user/self/message/statistics`
@@ -8485,7 +8844,7 @@ ur api /api/v1/system/user/self/openclaw/setup-complete \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -8508,16 +8867,23 @@ ur api /api/v1/system/user/self/tenant/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `withRole` | boolean | 否 |  同时返回角色信息 (格式: boolean) |
 
 **请求示例**:
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "withRole": true
 }
@@ -8606,7 +8972,7 @@ ur api /api/v1/system/user/self/tenant/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/self/tenant/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "withRole": true}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "withRole": true}'
 ```
 
 ### POST `/api/v1/system/user/self/tenant/get-one`
@@ -8713,7 +9079,7 @@ ur api /api/v1/system/user/self/tenant/get-one \
 
 ### POST `/api/v1/system/user/self/tenant/join`
 
-**说明**: 用户加入租户（通过邀请码、邮件或手机邀请）
+**说明**: 用户加入租户（通过邀请码、邮件、手机或客户端应用）
 
 **权限**: all
 
@@ -8721,9 +9087,9 @@ ur api /api/v1/system/user/self/tenant/get-one \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `code` | string | 是 |  邀请码（使用邀请码加入时填写） |
-| `method` | string | 否 |  加入方法：code（邀请码）、email（邮件邀请）、phone（手机邀请） |
-| `tenantCode` | string | 否 |  租户编码（可选，某些场景可能需要明确指定） |
+| `code` | string | 是 |  邀请码（code/email/phone 方式时填写，client 方式可为空） |
+| `method` | string | 否 |  加入方法：code（邀请码）、email（邮件邀请）、phone（手机邀请）、client（客户端应用直接加入） |
+| `tenantCode` | string | 否 |  租户编码（client 方式时必填，其他方式可选） |
 
 **请求示例**:
 ```json
@@ -8739,7 +9105,7 @@ ur api /api/v1/system/user/self/tenant/get-one \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -8869,7 +9235,7 @@ ur api /api/v1/system/user/self/tenant/join \
 {
   "code": 200,
   "data": {
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -8892,8 +9258,9 @@ ur api /api/v1/system/user/self/tenant/update \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  用户状态（1:启用，2:禁用） (格式: int64) |
 | `userID` | string | 是 |  |
 | `withRole` | boolean | 否 |  同时返回角色信息 (格式: boolean) |
@@ -8902,8 +9269,14 @@ ur api /api/v1/system/user/self/tenant/update \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "userID": "string",
@@ -8994,5 +9367,5 @@ ur api /api/v1/system/user/self/tenant/update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/tenant/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "status": 1, "userID": "string", "withRole": true}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "userID": "string", "withRole": true}'
 ```

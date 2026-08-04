@@ -95,7 +95,7 @@ ur api /api/v1/ai/skill/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -128,7 +128,7 @@ ur api /api/v1/ai/skill/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -167,8 +167,9 @@ ur api /api/v1/ai/skill/download \
 |------|------|------|------|
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | integer | 否 |  父技能ID过滤 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 (格式: int64) |
 | `tenantCode` | string | 否 |  租户编码过滤 |
@@ -178,8 +179,14 @@ ur api /api/v1/ai/skill/download \
 {
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": 1,
   "status": 1,
@@ -222,7 +229,7 @@ ur api /api/v1/ai/skill/download \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/skill/get-list \
-  --body '{"name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": 1, "status": 1, "tenantCode": "string"}'
+  --body '{"name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": 1, "status": 1, "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/skill/get-one`
@@ -235,7 +242,7 @@ ur api /api/v1/ai/skill/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json

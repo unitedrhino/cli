@@ -45,10 +45,10 @@ func printAiToolHelp(w io.Writer) {
   ur ai-tool render --id <id> [--output <file>]
 
 子命令:
-  artifact get   从平台获取三件套（executor.js / document.md / manifest.json）
+  artifact get   从平台获取三件套（executor.js / skill.md / manifest.json）
   artifact save  将本地三件套保存到平台
   validate       校验三件套一致性（JSON 格式、JS 安全、变量一致性、组件白名单）
   run            在沙箱中运行工具，轮询等待结果
   edit           AI 编辑三件套
-  render         将 document.md 渲染为 HTML（含组件占位）`)
+  render         将 skill.md 渲染为 HTML（含组件占位）`)
 }

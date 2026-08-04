@@ -73,7 +73,6 @@
           "appSecret": "string"
         },
         "id": "string",
-        "isSysCreated": 1,
         "isUseMenu": 1,
         "isUseProxy": 1,
         "loginTypes": [
@@ -128,7 +127,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/agreement/bind-batch-update \
-  --body '{"agreementID": "string", "appID": "string", "list": [{"agreement": {"code": "string", "content": "string", "createdTime": "string", "id": "string", "name": "string", "remark": "string", "status": 1, "title": "string", "updatedTime": "string"}, "agreementID": "string", "app": {"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isSysCreated": 1, "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}, "appID": "string", "id": "string", "sort": 1, "status": 1, "type": "string"}]}'
+  --body '{"agreementID": "string", "appID": "string", "list": [{"agreement": {"code": "string", "content": "string", "createdTime": "string", "id": "string", "name": "string", "remark": "string", "status": 1, "title": "string", "updatedTime": "string"}, "agreementID": "string", "app": {"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}, "appID": "string", "id": "string", "sort": 1, "status": 1, "type": "string"}]}'
 ```
 
 ### POST `/api/v1/system/app/agreement/get-bind-list`
@@ -144,8 +143,9 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
 | `agreementID` | string | 否 |  |
 | `appID` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int64 |
 | `type` | string | 否 |  |
 | `withAgreement` | boolean | 否 | 格式: boolean |
@@ -157,8 +157,14 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
   "agreementID": "string",
   "appID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "type": "string",
@@ -215,7 +221,6 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
             "appSecret": "string"
           },
           "id": "string",
-          "isSysCreated": 1,
           "isUseMenu": 1,
           "isUseProxy": 1,
           "loginTypes": [
@@ -267,5 +272,5 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/agreement/get-bind-list \
-  --body '{"agreementID": "string", "appID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "type": "string", "withAgreement": true, "withApp": true}'
+  --body '{"agreementID": "string", "appID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "type": "string", "withAgreement": true, "withApp": true}'
 ```

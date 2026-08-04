@@ -2197,6 +2197,10 @@ func outputResult(resp client.APIResponse, jsonOutput bool, stdout, stderr io.Wr
 	if jsonOutput {
 		raw, _ := json.MarshalIndent(resp, "", "  ")
 		fmt.Fprintln(stdout, string(raw))
+		// --json 模式下业务失败同样返回非 0 退出码，保证脚本可判断成败
+		if resp.Code != 200 {
+			return 1
+		}
 		return 0
 	}
 	if resp.Code != 200 {

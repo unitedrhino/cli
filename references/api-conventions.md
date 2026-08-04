@@ -30,7 +30,7 @@
  所有 API 端点在 swagger JSON 中标注 `x-auth-type`:
 
  - `all` — 所有登录用户可访问
- - `admin` — 租户管理员及以上
+ - `admin` — 企业管理员及以上
  - `platform` — 仅平台管理员
 
 ### 字段命名注意

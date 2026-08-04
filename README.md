@@ -27,9 +27,9 @@
 
 | 应用 | `--app` 值 | 覆盖域 | 典型能力 |
 |------|-----------|--------|---------|
-| 平台管理 | `platform-manage` | 租户、用户、应用、角色、权限 | 租户 CRUD、用户管理、应用配置、授权分配 |
+| 平台管理 | `platform-manage` | 企业、用户、应用、角色、权限 | 企业 CRUD、用户管理、应用配置、授权分配 |
 | 物联网 | `iot` | 设备、产品、项目、场景、OTA | 设备管理、物模型、项目场景、OTA 升级、协议网关 |
-| 组织管理 | `org-manage` | 组织用户、AI 智能体 | 租户内用户/角色/Agent 管理 |
+| 组织管理 | `org-manage` | 组织用户、AI 智能体 | 企业内用户/角色/Agent 管理 |
 | 能源管理 | `org-energy` | 能耗分析、电力集抄、预付费 | 用能概况、实时监控、预付费充值 |
 | 控制台 | `console` | 个人信息、访问令牌 | 个人资料、访问令牌管理 |
 
@@ -55,8 +55,8 @@ ur --app iot generate-skills --output ./skills/ur-iot
 | `ur-product` | 产品管理 — 产品定义、物模型、品类管理 |
 | `ur-project` | 项目管理 — 项目 CRUD、区域管理、场景编辑 |
 | `ur-system` | 系统管理 — 用户管理、角色权限、菜单资源、字典配置 |
-| `ur-tenant` | 租户管理 — 租户 CRUD、应用绑定、配额管理 |
-| `ur-user` | 用户管理 — 个人信息、租户成员、邀请码 |
+| `ur-tenant` | 企业管理 — 企业 CRUD、应用绑定、配额管理 |
+| `ur-user` | 用户管理 — 个人信息、企业成员、邀请码 |
 | `ur-ai` | AI 管理 — Agent 配置、告警管理 |
 | `scene-linkage` | 场景联动 — 规则模板生成与 JSON 校验（if/when/then） |
 | `thing-model` | 物模型 — 模板生成、JSON 校验、affordance 定义 |

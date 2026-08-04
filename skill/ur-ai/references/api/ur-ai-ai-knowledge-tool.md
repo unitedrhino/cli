@@ -46,15 +46,21 @@ CLI/调试-获取切片关联 等
   "data": {
     "artifact": {
       "artifactType": "string",
+      "bboxJSON": "string",
+      "caption": "string",
       "charEnd": 1,
       "charStart": 1,
       "chunkIndex": 1,
       "content": "string",
       "createdTime": 1,
       "documentID": 1,
+      "extraJSON": "string",
       "headingPath": "string",
       "id": 1,
       "knowledgeID": 1,
+      "mediaURI": "string",
+      "mimeType": "string",
+      "pageIdx": 1,
       "relatedCount": 1,
       "sourceDocumentIDs": [
         1
@@ -76,15 +82,21 @@ CLI/调试-获取切片关联 等
         "score": 1,
         "targetArtifact": {
           "artifactType": "string",
+          "bboxJSON": "string",
+          "caption": "string",
           "charEnd": 1,
           "charStart": 1,
           "chunkIndex": 1,
           "content": "string",
           "createdTime": 1,
           "documentID": 1,
+          "extraJSON": "string",
           "headingPath": "string",
           "id": 1,
           "knowledgeID": 1,
+          "mediaURI": "string",
+          "mimeType": "string",
+          "pageIdx": 1,
           "relatedCount": 1,
           "sourceDocumentIDs": [
             1
@@ -214,6 +226,7 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
     "chunks": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -221,6 +234,8 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -244,6 +259,7 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
     "expandedChunks": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -251,6 +267,8 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -262,6 +280,7 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
     "list": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -269,6 +288,8 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,

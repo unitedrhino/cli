@@ -1,6 +1,6 @@
 ---
 name: ur-api
-description: "Use when calling 联犀 SaaS 平台 API: device management, user management, product management, tenant management, AI management, project management, system management, or IoT device operations. triggers: API调用, 设备列表, IoT设备控制, 设备注册, 访问令牌, 物模型管理, OTA升级, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 问题反馈, 提交反馈, 反馈类型, 使用问题, 业务受损, 业务不可用"
+description: "Use when calling 联犀 SaaS 平台 API: device management, user management, product management, tenant management, AI management, project management, system management, bigscreen visualization, or IoT device operations. triggers: API调用, 设备列表, IoT设备控制, 设备注册, 访问令牌, 物模型管理, OTA升级, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 问题反馈, 提交反馈, 反馈类型, 使用问题, 业务受损, 业务不可用, 大屏, 数据可视化, GoView, 画布, 看板, 编辑大屏, 发布大屏"
 ---
 
 # ur-api — 联犀 SaaS 平台 API 工具
@@ -17,20 +17,21 @@ description: "Use when calling 联犀 SaaS 平台 API: device management, user m
 
 | 角色 | 权限范围 | 典型场景 |
 |------|---------|----------|
-| **平台管理员** | 跨租户操作、租户 CRUD、查看所有租户 | 创建租户、管理租户配置 |
-| **租户管理员** | 本租户内 CRUD、用户管理、角色分配 | 创建设备、管理用户、配置项目 |
+| **平台管理员** | 跨企业操作、企业 CRUD、查看所有企业 | 创建企业、管理企业配置 |
+| **企业管理员** | 本企业内 CRUD、用户管理、角色分配 | 创建设备、管理用户、配置项目 |
 | **普通用户** | 个人信息、设备分享、查看权限范围内数据 | 登录、修改密码、分享设备 |
 
 ### 按角色区分的域
 
-| 域 | 平台管理员 | 租户管理员 | 普通用户 |
+| 域 | 平台管理员 | 企业管理员 | 普通用户 |
 |---|-----------|-----------|---------|
-| ur-tenant | 创建/删除租户、查看所有租户 | 管理本租户、邀请用户 | 无权限 |
+| ur-tenant | 创建/删除企业、查看所有企业 | 管理本企业、邀请用户 | 无权限 |
 | ur-device | 无权限 | 设备 CRUD、属性控制 | 设备分享、收藏 |
 | ur-user | 无权限 | 用户 CRUD、角色管理 | 个人信息、修改密码 |
 | ur-product | 无权限 | 产品 CRUD、物模型管理 | 无权限 |
 | ur-project | 无权限 | 项目 CRUD、区域管理 | 查看权限内项目 |
 | ur-ai | 无权限 | Agent 配置、告警管理 | 无权限 |
+| ur-view | 无权限 | 大屏 CRUD、画布编辑、发布管理、素材管理 | 无权限 |
 
 ### 当前用户身份
 
@@ -66,7 +67,7 @@ ur check
 | 角色 | 可操作范围 | 配置方式 |
 |------|----------|---------|
 | **平台管理员** | 所有域（platform/admin/all 接口） | `ur login` 用平台管理员账号授权 |
-| **租户管理员** | 本租户 CRUD（admin/all 接口） | `ur login` 用租户管理员账号授权 |
+| **企业管理员** | 本企业 CRUD（admin/all 接口） | `ur login` 用企业管理员账号授权 |
 | **普通用户** | 个人信息、设备分享（仅 all 接口） | `ur login` 用普通用户账号授权 |
 
 > **切换角色**：重新运行 `ur login`（用不同账号授权），或用 `--app` 切换应用上下文：
@@ -83,8 +84,9 @@ ur check
 | 项目、区域、分组、数据权限申请 | `ur-project` | admin（管理），user（申请权限） |
 | 登录、用户信息、角色、部门、字典、通知、访问令牌、修改密码 | `ur-user` | admin（CRUD），user（自身信息） |
 | 文件上传、WebSocket、批量接口、应用管理、Hook | `ur-system` | user（上传/WS），admin（应用），platform（全局应用） |
-| 创建租户、租户列表、租户配置、邀请用户加入租户 | `ur-tenant` | **platform**（创建/查看全部），admin（管理本租户） |
+| 创建企业、企业列表、企业配置、邀请用户加入企业 | `ur-tenant` | **platform**（创建/查看全部），admin（管理本企业） |
 | AI Agent、场景联动、告警规则、数字分身、AI会话 | `ur-ai` | admin |
+| 大屏、数据可视化、GoView、画布编辑、发布大屏、看板、素材库 | `ur-view` | admin |
 
 ### 第三步：IoT AI 工具调用设计
 
@@ -128,7 +130,7 @@ ur check
 | ur-project | 41 | 项目管理：项目、区域、分组、数据权限、用户权限 |
 | ur-user | 153 | 用户管理：登录、角色、部门、字典、任务、通知、日志 |
 | ur-system | 53 | 系统管理：通用接口、应用管理、授权码、Hook能力 |
-| ur-tenant | 38 | 租户管理：租户CRUD、用户管理、权限配置 |
+| ur-tenant | 38 | 企业管理：企业CRUD、用户管理、权限配置 |
 | ur-ai | 36 | AI管理：Agent、告警、规则引擎、场景联动 |
 
 详细端点列表见各子域 SKILL.md：
@@ -150,6 +152,9 @@ IoT AI 工具迁移相关子域：
 
 设备调试子域：
 - `ur-device-debug/SKILL.md` — 设备日志查询（属性/事件/命令/上下线/异常/诊断/SDK）、实时调试（属性控制/行为调用/事件发送/Mock数据）
+
+大屏可视化子域：
+- `ur-view/SKILL.md` — 大屏（GoView）项目 CRUD、画布 JSON 本地编辑闭环（pull/validate/push/publish/screenshot）、素材库管理、IoT 数据绑定配方
 
 ---
 
@@ -206,7 +211,7 @@ export UR_APP=iot
 | `references/api-conventions.md` | API 通用约定（请求格式、响应格式、分页、权限标注） |
 | `references/troubleshooting.md` | 常见问题排查（登录失败、401/403、连接问题、问题反馈） |
 | `references/quick-reference.md` | 高频端点速查（Top 15 最常用端点） |
-| `references/workflows.md` | 跨域工作流示例（设备上线、租户初始化、告警通知） |
+| `references/workflows.md` | 跨域工作流示例（设备上线、企业初始化、告警通知） |
 | `references/maintenance.md` | 新增接口维护规范（检查清单、权限标注指南） |
 | `references/frontend-permissions.md` | 前端应用权限映射（平台应用 / 组织应用 / 公共应用） |
 

@@ -92,7 +92,7 @@ ur api /api/v1/ai/agent/group/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -127,8 +127,9 @@ ur api /api/v1/ai/agent/group/delete \
 |------|------|------|------|
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `purpose` | string | 否 |  用途分类过滤 |
 | `tenantCode` | string | 否 |  租户编码过滤 |
 
@@ -137,8 +138,14 @@ ur api /api/v1/ai/agent/group/delete \
 {
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "purpose": "string",
   "tenantCode": "string"
@@ -180,7 +187,7 @@ ur api /api/v1/ai/agent/group/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/agent/group/get-list \
-  --body '{"name": "示例名称", "page": {"page": 1, "pageSize": 1}, "purpose": "string", "tenantCode": "string"}'
+  --body '{"name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "purpose": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/agent/group/get-one`
@@ -193,7 +200,7 @@ ur api /api/v1/ai/agent/group/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json

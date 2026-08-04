@@ -57,7 +57,7 @@ export UR_APP=iot          # 指定应用上下文
 | 字段名 | JSON 名称 | 说明 |
 |--------|-----------|------|
 | `UserID` | `"userID"` | **必须为字符串格式** |
-| `TenantCode` | `"tenantCode"` | 租户代码，可为空 |
+| `TenantCode` | `"tenantCode"` | 企业代码，可为空 |
 | `AccessKey` | `"accessKey"` | 令牌标识 |
 | `exp` | `"exp"` | Unix 秒时间戳（可选） |
 
@@ -67,6 +67,6 @@ export UR_APP=iot          # 指定应用上下文
 |--------|-----|------|
 | `Authorization` | Bearer \<jwt\> | JWT 模式 |
 | `app-id` | 应用 ID（如 `77`） | 必须 |
-| `tenant-code` | 租户代码 | 必须 |
+| `tenant-code` | 企业代码 | 必须 |
 
 > **关键陷阱**: JWT 中 `userID` 必须为字符串格式（`"userID": "12345"` 而非数字 `12345`），否则 401 错误。

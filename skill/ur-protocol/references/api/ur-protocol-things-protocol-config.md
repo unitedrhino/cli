@@ -72,7 +72,7 @@ ur api /api/v1/things/protocol/config/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -106,8 +106,9 @@ ur api /api/v1/things/protocol/config/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `protocolCode` | string | 否 |  按协议Code过滤 |
 | `protocolID` | string | 否 |  按协议ID过滤 |
 
@@ -115,8 +116,14 @@ ur api /api/v1/things/protocol/config/delete \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "protocolCode": "string",
   "protocolID": "string"
@@ -148,7 +155,7 @@ ur api /api/v1/things/protocol/config/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/config/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "protocolCode": "string", "protocolID": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "protocolCode": "string", "protocolID": "string"}'
 ```
 
 ### POST `/api/v1/things/protocol/config/get-one`
@@ -161,7 +168,7 @@ ur api /api/v1/things/protocol/config/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json

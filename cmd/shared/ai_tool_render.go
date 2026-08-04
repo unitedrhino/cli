@@ -78,7 +78,7 @@ func runAiToolRender(ctx context.Context, args []string, stdout, stderr io.Write
 	manifestJson, _ := artifact["manifestJson"].(string)
 
 	if documentMd == "" {
-		fmt.Fprintln(stderr, "document.md 为空")
+		fmt.Fprintln(stderr, "skill.md 为空")
 		return 1
 	}
 

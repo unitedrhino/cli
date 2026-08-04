@@ -285,8 +285,9 @@ ur api /api/v1/things/protocol/script/delete \
 |------|------|------|------|
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
 | `triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
@@ -298,8 +299,14 @@ ur api /api/v1/things/protocol/script/delete \
 {
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "triggerDir": 1,
@@ -340,7 +347,7 @@ ur api /api/v1/things/protocol/script/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/script/get-list \
-  --body '{"name": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "triggerDir": 1, "triggerHandle": "string", "triggerTimer": 1, "triggerType": "string"}'
+  --body '{"name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "triggerDir": 1, "triggerHandle": "string", "triggerTimer": 1, "triggerType": "string"}'
 ```
 
 ### POST `/api/v1/things/protocol/script/get-one`

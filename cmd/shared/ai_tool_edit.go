@@ -78,7 +78,7 @@ func runAiToolEdit(ctx context.Context, args []string, stdout, stderr io.Writer)
 	}
 
 	executorJs, _ := artifact["executorJs"].(string)
-	documentMd, _ := artifact["documentMd"].(string)
+	skillMd, _ := artifact["skillMd"].(string)
 	manifestJson, _ := artifact["manifestJson"].(string)
 
 	// 2. 构建 LLM 消息
@@ -93,8 +93,8 @@ func runAiToolEdit(ctx context.Context, args []string, stdout, stderr io.Writer)
 			{
 				"role": "user",
 				"content": fmt.Sprintf(
-					"## 当前三件套内容\n\n### executor.js\n```javascript\n%s\n```\n\n### document.md\n```markdown\n%s\n```\n\n### manifest.json\n```json\n%s\n```\n\n## 修改指令\n\n%s",
-					executorJs, documentMd, manifestJson, instruction,
+					"## 当前三件套内容\n\n### executor.js\n```javascript\n%s\n```\n\n### skill.md\n```markdown\n%s\n```\n\n### manifest.json\n```json\n%s\n```\n\n## 修改指令\n\n%s",
+					executorJs, skillMd, manifestJson, instruction,
 				),
 			},
 		},
@@ -126,8 +126,8 @@ func runAiToolEdit(ctx context.Context, args []string, stdout, stderr io.Writer)
 		return 1
 	}
 
-	// 4. 解析 LLM 返回的 JSON（期望包含 executorJs/documentMd/manifestJson）
-	newExecutorJs, newDocumentMd, newManifestJson, parseErr := parseAIResponse(content, executorJs, documentMd, manifestJson)
+	// 4. 解析 LLM 返回的 JSON（期望包含 executorJs/skillMd/manifestJson）
+	newExecutorJs, newDocumentMd, newManifestJson, parseErr := parseAIResponse(content, executorJs, skillMd, manifestJson)
 	if parseErr != nil {
 		fmt.Fprintf(stderr, "解析 AI 响应失败: %v\n", parseErr)
 		fmt.Fprintf(stderr, "原始响应:\n%s\n", content)
@@ -140,7 +140,7 @@ func runAiToolEdit(ctx context.Context, args []string, stdout, stderr io.Writer)
 		"executorJs": newExecutorJs,
 	}
 	if newDocumentMd != "" {
-		saveBody["documentMd"] = newDocumentMd
+		saveBody["skillMd"] = newDocumentMd
 	}
 	if newManifestJson != "" {
 		saveBody["manifestJson"] = newManifestJson
@@ -168,10 +168,10 @@ func buildEditSystemPrompt() string {
 
 ## 文件说明
 - **executor.js**: QuickJS 执行逻辑，使用 runtime.set/patch 更新状态，tier0.query 查询数据
-- **document.md**: 用户可见文档，Markdown + 组件标签，{{var}} 变量绑定
+- **skill.md**: 用户可见文档，Markdown + 组件标签，{{var}} 变量绑定
 - **manifest.json**: 元信息（title, runtime, inputs[], output, permissions）
 
-## 组件标签（可在 document.md 中使用）
+## 组件标签（可在 skill.md 中使用）
 | 标签 | 用途 | 属性 |
 |------|------|------|
 | <chart> | 图表 | type, data, x, y, title, height |
@@ -184,7 +184,7 @@ func buildEditSystemPrompt() string {
 | <json-view> | JSON查看 | data |
 
 ## 变量绑定
-- document.md 中用 {{varName}} 引用变量
+- skill.md 中用 {{varName}} 引用变量
 - executor.js 中用 runtime.set("varName", value) 写入变量
 
 ## 响应格式
@@ -192,7 +192,7 @@ func buildEditSystemPrompt() string {
 ` + "```json" + `
 {
   "executorJs": "...修改后的完整 executor.js...",
-  "documentMd": "...修改后的完整 document.md...",
+  "skillMd": "...修改后的完整 skill.md...",
   "manifestJson": "...修改后的完整 manifest.json..."
 }
 ` + "```" + `
@@ -232,18 +232,18 @@ func parseAIResponse(content string, origJs, origMd, origManifest string) (strin
 	if v, ok := parsed["executorJs"]; ok && v != "" {
 		executorJs = v
 	}
-	documentMd := origMd
-	if v, ok := parsed["documentMd"]; ok {
-		documentMd = v
+	skillMd := origMd
+	if v, ok := parsed["skillMd"]; ok {
+		skillMd = v
 	}
 	manifestJson := origManifest
 	if v, ok := parsed["manifestJson"]; ok {
 		manifestJson = v
 	}
 
-	if executorJs == origJs && documentMd == origMd && manifestJson == origManifest {
+	if executorJs == origJs && skillMd == origMd && manifestJson == origManifest {
 		return "", "", "", fmt.Errorf("AI 未返回任何修改")
 	}
 
-	return executorJs, documentMd, manifestJson, nil
+	return executorJs, skillMd, manifestJson, nil
 }

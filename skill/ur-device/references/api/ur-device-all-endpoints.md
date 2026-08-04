@@ -413,8 +413,7 @@ ur api /api/v1/things/device/edge/upload-file \
   "list": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -431,7 +430,7 @@ ur api /api/v1/things/device/edge/upload-file \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/gateway/batch-create \
-  --body '{"gateWayProductID": "string", "gateWaydeviceName": "示例名称", "list": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"gateWayProductID": "string", "gateWaydeviceName": "示例名称", "list": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/device/gateway/batch-delete`
@@ -456,8 +455,7 @@ ur api /api/v1/things/device/gateway/batch-create \
   "list": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -474,7 +472,7 @@ ur api /api/v1/things/device/gateway/batch-create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/gateway/batch-delete \
-  --body '{"gateWayProductID": "string", "gateWaydeviceName": "示例名称", "list": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"gateWayProductID": "string", "gateWaydeviceName": "示例名称", "list": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/device/gateway/get-list`
@@ -490,8 +488,9 @@ ur api /api/v1/things/device/gateway/batch-delete \
 | `gateWayProductID` | string | 是 | 产品ID |
 | `gateWaydeviceName` | string | 是 | 设备名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -499,8 +498,14 @@ ur api /api/v1/things/device/gateway/batch-delete \
   "gateWayProductID": "string",
   "gateWaydeviceName": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -1002,7 +1007,7 @@ ur api /api/v1/things/device/gateway/batch-delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/gateway/get-list \
-  --body '{"gateWayProductID": "string", "gateWaydeviceName": "示例名称", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"gateWayProductID": "string", "gateWaydeviceName": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/things/device/group/batch-create`
@@ -1148,8 +1153,7 @@ ur api /api/v1/things/device/group/batch-update \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -1176,7 +1180,7 @@ ur api /api/v1/things/device/group/batch-update \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/info/batch-bind \
-  --body '{"areaID": "string", "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"areaID": "string", "devices": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/device/info/batch-import`
@@ -1275,8 +1279,7 @@ ur api /api/v1/things/device/info/batch-import \
         "code": 1,
         "device": {
           "deviceName": "示例名称",
-          "productID": "string",
-          "productName": "string"
+          "productID": "string"
         },
         "msg": "string"
       }
@@ -1309,7 +1312,6 @@ ur api /api/v1/things/device/info/batch-update-import \
 | `device` | object | 是 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 | `expand` | object | 否 | 拓展字段 |
 | `token` | string | 否 | 配网token,中绑定需要 |
 
@@ -1319,8 +1321,7 @@ ur api /api/v1/things/device/info/batch-update-import \
   "areaID": "string",
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "expand": {},
   "token": "string"
@@ -1338,7 +1339,7 @@ ur api /api/v1/things/device/info/batch-update-import \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/info/bind \
-  --body '{"areaID": "string", "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "expand": {}, "token": "string"}'
+  --body '{"areaID": "string", "device": {"deviceName": "示例名称", "productID": "string"}, "expand": {}, "token": "string"}'
 ```
 
 ### POST `/api/v1/things/device/info/bind/token/create`
@@ -1415,15 +1416,13 @@ ur api /api/v1/things/device/info/bind/token/get-one \
 | `device` | object | 是 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 
 **请求示例**:
 ```json
 {
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   }
 }
 ```
@@ -1432,6 +1431,12 @@ ur api /api/v1/things/device/info/bind/token/get-one \
 ```json
 {
   "code": 200,
+  "data": {
+    "canBind": true,
+    "isShare": true,
+    "projectID": "string",
+    "status": "string"
+  },
   "msg": "success"
 }
 ```
@@ -1439,7 +1444,7 @@ ur api /api/v1/things/device/info/bind/token/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/info/can-bind \
-  --body '{"device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}}'
+  --body '{"device": {"deviceName": "示例名称", "productID": "string"}}'
 ```
 
 ### POST `/api/v1/things/device/info/count`
@@ -1547,12 +1552,11 @@ ur api /api/v1/things/device/info/delete \
 | `deviceTypes` | array[integer] | 否 | 设备类型:1:设备,2:网关,3:子设备设备类型:1:设备,2:网关,3:子设备 |
 | `devices` | array[DeviceCore] | 否 |  |
 | `expTime` | object | 否 |  |
-| `expTime.cmpType` | string | 是 | "=":相等 "!=":不相等 ">":大于">=":大于等于"<":小于"<=":小于等于 "like":模糊查询 |
+| `expTime.cmpTYpe` | string | 是 | "=":相等 "!=":不相等 ">":大于">=":大于等于"<":小于"<=":小于等于 "like":模糊查询 |
 | `expTime.value` | string | 是 |  |
 | `gateway` | object | 否 |  |
 | `gateway.deviceName` | string | 是 | 设备名称 |
 | `gateway.productID` | string | 是 | 产品ID |
-| `gateway.productName` | string | 否 |  |
 | `groupID` | string | 否 |  |
 | `groupIDPath` | string | 否 |  |
 | `groupIDPaths` | array[string] | 否 |  |
@@ -1561,15 +1565,16 @@ ur api /api/v1/things/device/info/delete \
 | `groupPurpose` | string | 否 | 设备分组用途 不填默认为default |
 | `hasOwner` | integer | 否 | 是否被人拥有,1为是 2为否 (格式: int64) |
 | `iccid` | string | 否 | SIM卡卡号 |
-| `isOnline` | integer | 否 |  在线状态过滤  1离线 2在线 (格式: int64) |
+| `isOnline` | integer | 否 |  在线状态过滤 1在线 2离线 (格式: int64) |
 | `isOnlyCore` | boolean | 否 | 只返回核心信息 (格式: boolean) |
 | `netType` | integer | 否 | 通讯方式:1:其他,2:wi-fi,3:2G/3G/4G,4:5G,5:BLE,6:LoRaWAN,7:wifi+ble,8:有线网 (格式: int64) |
 | `notAreaID` | string | 否 |  |
 | `notGroupID` | string | 否 |  |
 | `notVersion` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentGroupID` | string | 否 |  |
 | `position` | object | 否 |  |
 | `position.latitude` | number | 是 | 纬度 (格式: double) |
@@ -1583,10 +1588,10 @@ ur api /api/v1/things/device/info/delete \
 | `propertyIgnoreEmpty` | boolean | 否 |  设备属性是否忽略空值,空值是否返回 (格式: boolean) |
 | `range` | integer | 否 | 过滤条件:距离坐标点固定范围内的设备 单位：米 (格式: int64) |
 | `ratedPower` | object | 否 |  |
-| `ratedPower.cmpType` | string | 是 | "=":相等 "!=":不相等 ">":大于">=":大于等于"<":小于"<=":小于等于 "like":模糊查询 |
+| `ratedPower.cmpTYpe` | string | 是 | "=":相等 "!=":不相等 ">":大于">=":大于等于"<":小于"<=":小于等于 "like":模糊查询 |
 | `ratedPower.value` | string | 是 |  |
 | `rssi` | object | 否 |  |
-| `rssi.cmpType` | string | 是 | "=":相等 "!=":不相等 ">":大于">=":大于等于"<":小于"<=":小于等于 "like":模糊查询 |
+| `rssi.cmpTYpe` | string | 是 | "=":相等 "!=":不相等 ">":大于">=":大于等于"<":小于"<=":小于等于 "like":模糊查询 |
 | `rssi.value` | string | 是 |  |
 | `status` | integer | 否 | 设备状态 1-未激活，2-在线，3-离线 4-异常(频繁上下线,告警中) (格式: int64) |
 | `statuses` | array[integer] | 否 |  |
@@ -1626,18 +1631,16 @@ ur api /api/v1/things/device/info/delete \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "expTime": {
-    "cmpType": "string",
+    "cmpTYpe": "string",
     "value": "string"
   },
   "gateway": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "groupID": "string",
   "groupIDPath": "string",
@@ -1658,8 +1661,14 @@ ur api /api/v1/things/device/info/delete \
   "notGroupID": "string",
   "notVersion": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentGroupID": "string",
   "position": {
@@ -1679,11 +1688,11 @@ ur api /api/v1/things/device/info/delete \
   "propertyIgnoreEmpty": true,
   "range": 1,
   "ratedPower": {
-    "cmpType": "string",
+    "cmpTYpe": "string",
     "value": "string"
   },
   "rssi": {
-    "cmpType": "string",
+    "cmpTYpe": "string",
     "value": "string"
   },
   "status": 1,
@@ -2210,7 +2219,7 @@ ur api /api/v1/things/device/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/info/get-list \
-  --body '{"areaID": "string", "areaIDPath": "string", "areaIDPaths": ["string"], "areaIDs": ["string"], "deviceAlias": "示例名称", "deviceName": "string", "deviceNameOrAlias": "示例名称", "deviceNames": ["string"], "deviceTypes": [1], "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "expTime": {"cmpType": "string", "value": "string"}, "gateway": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "groupID": "string", "groupIDPath": "string", "groupIDPaths": ["string"], "groupIDs": ["string"], "groupName": "string", "groupPurpose": "string", "hasOwner": 1, "iccid": "string", "isOnline": 1, "isOnlyCore": true, "netType": 1, "notAreaID": "string", "notGroupID": "string", "notVersion": "string", "page": {"page": 1, "pageSize": 1}, "parentGroupID": "string", "position": {"latitude": 1, "longitude": 1}, "productCategoryCode": "string", "productCategoryID": "string", "productCategoryIDs": [1], "productID": "string", "productIDs": ["string"], "property": {}, "propertyIgnoreEmpty": true, "range": 1, "ratedPower": {"cmpType": "string", "value": "string"}, "rssi": {"cmpType": "string", "value": "string"}, "status": 1, "statuses": [1], "tags": {}, "tenantCode": "string", "userID": "string", "versions": ["string"], "withArea": true, "withCollect": 1, "withGateway": true, "withGroups": ["string"], "withOwner": true, "withProfiles": ["string"], "withProperties": ["string"], "withShared": 1}'
+  --body '{"areaID": "string", "areaIDPath": "string", "areaIDPaths": ["string"], "areaIDs": ["string"], "deviceAlias": "示例名称", "deviceName": "string", "deviceNameOrAlias": "示例名称", "deviceNames": ["string"], "deviceTypes": [1], "devices": [{"deviceName": "示例名称", "productID": "string"}], "expTime": {"cmpTYpe": "string", "value": "string"}, "gateway": {"deviceName": "示例名称", "productID": "string"}, "groupID": "string", "groupIDPath": "string", "groupIDPaths": ["string"], "groupIDs": ["string"], "groupName": "string", "groupPurpose": "string", "hasOwner": 1, "iccid": "string", "isOnline": 1, "isOnlyCore": true, "netType": 1, "notAreaID": "string", "notGroupID": "string", "notVersion": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentGroupID": "string", "position": {"latitude": 1, "longitude": 1}, "productCategoryCode": "string", "productCategoryID": "string", "productCategoryIDs": [1], "productID": "string", "productIDs": ["string"], "property": {}, "propertyIgnoreEmpty": true, "range": 1, "ratedPower": {"cmpTYpe": "string", "value": "string"}, "rssi": {"cmpTYpe": "string", "value": "string"}, "status": 1, "statuses": [1], "tags": {}, "tenantCode": "string", "userID": "string", "versions": ["string"], "withArea": true, "withCollect": 1, "withGateway": true, "withGroups": ["string"], "withOwner": true, "withProfiles": ["string"], "withProperties": ["string"], "withShared": 1}'
 ```
 
 ### POST `/api/v1/things/device/info/get-one`
@@ -3572,11 +3581,9 @@ ur api /api/v1/things/device/info/get-one \
 | `new` | object | 是 |  |
 | `new.deviceName` | string | 是 | 设备名称 |
 | `new.productID` | string | 是 | 产品ID |
-| `new.productName` | string | 否 |  |
 | `old` | object | 是 |  |
 | `old.deviceName` | string | 是 | 设备名称 |
 | `old.productID` | string | 是 | 产品ID |
-| `old.productName` | string | 否 |  |
 | `withTarget` | array[string] | 否 | 设备配置-profile,schemaAlias:profile |
 
 **请求示例**:
@@ -3584,13 +3591,11 @@ ur api /api/v1/things/device/info/get-one \
 {
   "new": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "old": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "withTarget": [
     "string"
@@ -3609,7 +3614,7 @@ ur api /api/v1/things/device/info/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/info/move \
-  --body '{"new": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "old": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "withTarget": ["string"]}'
+  --body '{"new": {"deviceName": "示例名称", "productID": "string"}, "old": {"deviceName": "示例名称", "productID": "string"}, "withTarget": ["string"]}'
 ```
 
 ### POST `/api/v1/things/device/info/ota/upgrade`
@@ -3682,7 +3687,6 @@ ur api /api/v1/things/device/info/ota/upgrade \
 | `device` | object | 否 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 | `devices` | array[DeviceCore] | 否 |  |
 | `isCleanData` | integer | 是 | 是否清除数据:1是 2否 (格式: int64) |
 | `projectID` | string | 否 |  |
@@ -3696,14 +3700,12 @@ ur api /api/v1/things/device/info/ota/upgrade \
   "areaID": "string",
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "isCleanData": 1,
@@ -3725,7 +3727,7 @@ ur api /api/v1/things/device/info/ota/upgrade \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/info/transfer \
-  --body '{"areaID": "string", "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "isCleanData": 1, "projectID": "string", "srcProjectID": "string", "transferTo": 1, "userID": "string"}'
+  --body '{"areaID": "string", "device": {"deviceName": "示例名称", "productID": "string"}, "devices": [{"deviceName": "示例名称", "productID": "string"}], "isCleanData": 1, "projectID": "string", "srcProjectID": "string", "transferTo": 1, "userID": "string"}'
 ```
 
 ### POST `/api/v1/things/device/info/unbind`
@@ -3794,8 +3796,7 @@ ur api /api/v1/things/device/info/unbind \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "ratedPower": 1
@@ -3813,7 +3814,7 @@ ur api /api/v1/things/device/info/unbind \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/info/batch-update \
-  --body '{"areaID": "string", "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "ratedPower": 1}'
+  --body '{"areaID": "string", "devices": [{"deviceName": "示例名称", "productID": "string"}], "ratedPower": 1}'
 ```
 
 ### POST `/api/v1/things/device/info/create`
@@ -3941,7 +3942,7 @@ ur api /api/v1/things/device/info/batch-update \
 | `gateway.gateway.id` | string | 否 |  |
 | `gateway.gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `gateway.gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `gateway.gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `gateway.gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `gateway.gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `gateway.gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `gateway.gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -3983,7 +3984,7 @@ ur api /api/v1/things/device/info/batch-update \
 | `gateway.id` | string | 否 |  |
 | `gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -4036,7 +4037,7 @@ ur api /api/v1/things/device/info/batch-update \
 | `id` | string | 否 |  |
 | `imei` | string | 否 |  IMEI号信息 只读 |
 | `isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `lastBind` | string | 否 | 最后绑定时间 只读 |
 | `lastIp` | string | 否 | 最后登录的ip地址 |
 | `lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -5518,7 +5519,7 @@ ur api /api/v1/things/device/info/create \
 | `gateway.gateway.id` | string | 否 |  |
 | `gateway.gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `gateway.gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `gateway.gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `gateway.gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `gateway.gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `gateway.gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `gateway.gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -5560,7 +5561,7 @@ ur api /api/v1/things/device/info/create \
 | `gateway.id` | string | 否 |  |
 | `gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -5613,7 +5614,7 @@ ur api /api/v1/things/device/info/create \
 | `id` | string | 否 |  |
 | `imei` | string | 否 |  IMEI号信息 只读 |
 | `isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `lastBind` | string | 否 | 最后绑定时间 只读 |
 | `lastIp` | string | 否 | 最后登录的ip地址 |
 | `lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -6984,7 +6985,6 @@ ur api /api/v1/things/device/info/update \
 | `device` | object | 是 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 
 **请求示例**:
 ```json
@@ -6992,8 +6992,7 @@ ur api /api/v1/things/device/info/update \
   "code": "string",
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   }
 }
 ```
@@ -7009,7 +7008,7 @@ ur api /api/v1/things/device/info/update \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/profile/delete \
-  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}}'
+  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string"}}'
 ```
 
 ### POST `/api/v1/things/device/profile/get-list`
@@ -7026,7 +7025,6 @@ ur api /api/v1/things/device/profile/delete \
 | `device` | object | 是 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 
 **请求示例**:
 ```json
@@ -7036,8 +7034,7 @@ ur api /api/v1/things/device/profile/delete \
   ],
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   }
 }
 ```
@@ -7052,8 +7049,7 @@ ur api /api/v1/things/device/profile/delete \
         "code": "string",
         "device": {
           "deviceName": "示例名称",
-          "productID": "string",
-          "productName": "string"
+          "productID": "string"
         },
         "params": "string"
       }
@@ -7066,7 +7062,7 @@ ur api /api/v1/things/device/profile/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/profile/get-list \
-  --body '{"codes": ["string"], "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}}'
+  --body '{"codes": ["string"], "device": {"deviceName": "示例名称", "productID": "string"}}'
 ```
 
 ### POST `/api/v1/things/device/profile/get-one`
@@ -7083,7 +7079,6 @@ ur api /api/v1/things/device/profile/get-list \
 | `device` | object | 是 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 
 **请求示例**:
 ```json
@@ -7091,8 +7086,7 @@ ur api /api/v1/things/device/profile/get-list \
   "code": "string",
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   }
 }
 ```
@@ -7105,8 +7099,7 @@ ur api /api/v1/things/device/profile/get-list \
     "code": "string",
     "device": {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     },
     "params": "string"
   },
@@ -7117,7 +7110,7 @@ ur api /api/v1/things/device/profile/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/profile/get-one \
-  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}}'
+  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string"}}'
 ```
 
 ### POST `/api/v1/things/device/profile/update`
@@ -7134,7 +7127,6 @@ ur api /api/v1/things/device/profile/get-one \
 | `device` | object | 是 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 | `params` | string | 是 |  |
 
 **请求示例**:
@@ -7143,8 +7135,7 @@ ur api /api/v1/things/device/profile/get-one \
   "code": "string",
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "params": "string"
 }
@@ -7161,7 +7152,7 @@ ur api /api/v1/things/device/profile/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/profile/update \
-  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "params": "string"}'
+  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string"}, "params": "string"}'
 ```
 
 ### POST `/api/v1/things/device/schema/batch-create`
@@ -7334,8 +7325,9 @@ ur api /api/v1/things/device/schema/create \
 | `isCanSceneLinkage` | integer | 否 | 是否可以场景联动 (格式: int64) |
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 是 | 产品id |
 | `propertyMode` | string | 否 | 属性类型可用 读写类型: 1:r(只读) 2:rw(可读可写) |
 | `tag` | integer | 否 | 过滤条件: 物模型标签 1:自定义 2:可选 3:必选 (格式: int64) |
@@ -7355,8 +7347,14 @@ ur api /api/v1/things/device/schema/create \
   "isCanSceneLinkage": 1,
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string",
   "propertyMode": "string",
@@ -7402,7 +7400,7 @@ ur api /api/v1/things/device/schema/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/schema/get-list \
-  --body '{"controlMode": 1, "deviceName": "string", "funcGroup": 1, "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string", "propertyMode": "string", "tag": 1, "type": 1, "types": [1], "withProductSchema": true}'
+  --body '{"controlMode": 1, "deviceName": "string", "funcGroup": 1, "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "propertyMode": "string", "tag": 1, "type": 1, "types": [1], "withProductSchema": true}'
 ```
 
 ### POST `/api/v1/things/device/schema/tsl-read`
@@ -7512,8 +7510,9 @@ ur api /api/v1/things/device/schema/update \
 |------|------|------|------|
 | `moduleCode` | integer | 否 | 格式: int64 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 | 产品id 只读 |
 | `productName` | string | 否 |  |
 
@@ -7522,8 +7521,14 @@ ur api /api/v1/things/device/schema/update \
 {
   "moduleCode": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string",
   "productName": "string"
@@ -7555,7 +7560,7 @@ ur api /api/v1/things/device/schema/update \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/version/get-list \
-  --body '{"moduleCode": 1, "page": {"page": 1, "pageSize": 1}, "productID": "string", "productName": "string"}'
+  --body '{"moduleCode": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "productName": "string"}'
 ```
 
 ### POST `/api/v1/things/device/version/get-one`

@@ -33,8 +33,9 @@
 | `archiveReason` | string | 否 |  归档原因过滤 |
 | `cloneID` | integer | 是 |  分身ID (格式: int64) |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -42,8 +43,14 @@
   "archiveReason": "string",
   "cloneID": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -71,7 +78,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/memory/archives/get-list \
-  --body '{"archiveReason": "string", "cloneID": 1, "page": {"page": 1, "pageSize": 1}}'
+  --body '{"archiveReason": "string", "cloneID": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/clone/memory/compact`
@@ -84,7 +91,7 @@ ur api /api/v1/ai/clone/memory/archives/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -198,8 +205,9 @@ ur api /api/v1/ai/clone/memory/delete \
 |------|------|------|------|
 | `cloneID` | integer | 是 |  分身ID (格式: int64) |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  状态过滤 running/success/skipped/failed |
 
 **请求示例**:
@@ -207,8 +215,14 @@ ur api /api/v1/ai/clone/memory/delete \
 {
   "cloneID": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": "string"
 }
@@ -241,7 +255,7 @@ ur api /api/v1/ai/clone/memory/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/memory/dream-runs/get-list \
-  --body '{"cloneID": 1, "page": {"page": 1, "pageSize": 1}, "status": "string"}'
+  --body '{"cloneID": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string"}'
 ```
 
 ### POST `/api/v1/ai/clone/memory/dream/run`
@@ -300,8 +314,9 @@ ur api /api/v1/ai/clone/memory/dream/run \
 | `entityKey` | string | 否 |  实体键过滤 |
 | `entityType` | string | 否 |  实体类型过滤 |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -310,8 +325,14 @@ ur api /api/v1/ai/clone/memory/dream/run \
   "entityKey": "string",
   "entityType": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -340,7 +361,7 @@ ur api /api/v1/ai/clone/memory/dream/run \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/memory/entities/get-list \
-  --body '{"cloneID": 1, "entityKey": "string", "entityType": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"cloneID": 1, "entityKey": "string", "entityType": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/clone/memory/profile/get-one`
@@ -397,8 +418,9 @@ ur api /api/v1/ai/clone/memory/profile/get-one \
 | `memoryKind` | string | 否 |  记忆类别 |
 | `memoryLevel` | string | 否 |  记忆层级 l1/l2/profile |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `query` | string | 否 |  搜索关键词（摘要/内容模糊匹配） |
 | `startTime` | string | 否 |  开始时间戳（秒） |
 | `status` | string | 否 |  状态 1-活跃 2-已衰减 3-已归档 |
@@ -411,8 +433,14 @@ ur api /api/v1/ai/clone/memory/profile/get-one \
   "memoryKind": "string",
   "memoryLevel": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "query": "string",
   "startTime": "2026-01-01T00:00:00Z",
@@ -449,7 +477,7 @@ ur api /api/v1/ai/clone/memory/profile/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/memory/records/get-list \
-  --body '{"cloneID": 1, "endTime": "2026-01-01T00:00:00Z", "memoryKind": "string", "memoryLevel": "string", "page": {"page": 1, "pageSize": 1}, "query": "string", "startTime": "2026-01-01T00:00:00Z", "status": "string"}'
+  --body '{"cloneID": 1, "endTime": "2026-01-01T00:00:00Z", "memoryKind": "string", "memoryLevel": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "query": "string", "startTime": "2026-01-01T00:00:00Z", "status": "string"}'
 ```
 
 ### POST `/api/v1/ai/clone/memory/search`
@@ -519,8 +547,9 @@ ur api /api/v1/ai/clone/memory/search \
 |------|------|------|------|
 | `cloneID` | integer | 是 |  分身ID (格式: int64) |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `query` | string | 否 |  查询内容模糊搜索 |
 
 **请求示例**:
@@ -528,8 +557,14 @@ ur api /api/v1/ai/clone/memory/search \
 {
   "cloneID": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "query": "string"
 }
@@ -559,5 +594,5 @@ ur api /api/v1/ai/clone/memory/search \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/memory/traces/get-list \
-  --body '{"cloneID": 1, "page": {"page": 1, "pageSize": 1}, "query": "string"}'
+  --body '{"cloneID": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "query": "string"}'
 ```

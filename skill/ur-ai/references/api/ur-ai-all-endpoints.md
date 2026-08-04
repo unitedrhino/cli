@@ -34,7 +34,23 @@
 | POST | `/api/v1/ai/chat/tool-result` | 前端 Tool 执行结果回传 | all |
 | POST | `/api/v1/ai/embedding/debug` | Embedding配置调试 | platform |
 | POST | `/api/v1/ai/llm/debug` | LLM配置调试 | platform |
+| POST | `/api/v1/ai/tool-dev/completions` | 工具编辑 AI 对话（自动绑定 tool_assistant） | all |
 | POST | `/api/v1/ai/user/completions` | 用户 AI 对话（自动查找/创建专属 Clone） | all |
+| POST | `/api/v1/ai/clone-group/create` | 创建Clone组 | admin |
+| POST | `/api/v1/ai/clone-group/delete` | 删除Clone组 | admin |
+| POST | `/api/v1/ai/clone-group/get-list` | 获取Clone组列表 | admin |
+| POST | `/api/v1/ai/clone-group/get-one` | 获取Clone组详情 | admin |
+| POST | `/api/v1/ai/clone-group/update` | 更新Clone组 | admin |
+| POST | `/api/v1/ai/clone-task/create` | 创建clone任务 | admin |
+| POST | `/api/v1/ai/clone-task/delete` | 删除clone任务 | admin |
+| POST | `/api/v1/ai/clone-task/get-list` | 获取clone任务列表 | admin |
+| POST | `/api/v1/ai/clone-task/get-one` | 获取clone任务详情 | admin |
+| POST | `/api/v1/ai/clone-task/get-runs` | 获取clone任务执行日志 | admin |
+| POST | `/api/v1/ai/clone-task/get-subscribe-topics` | 获取订阅主题列表 | admin |
+| POST | `/api/v1/ai/clone-task/run` | 手动触发clone任务 | admin |
+| POST | `/api/v1/ai/clone-task/start` | 启用clone任务 | admin |
+| POST | `/api/v1/ai/clone-task/stop` | 禁用clone任务 | admin |
+| POST | `/api/v1/ai/clone-task/update` | 更新clone任务 | admin |
 | POST | `/api/v1/ai/clone/create` | 创建分身 | admin |
 | POST | `/api/v1/ai/clone/delete` | 删除分身 | admin |
 | POST | `/api/v1/ai/clone/get-list` | 获取分身列表 | admin |
@@ -115,11 +131,20 @@
 | POST | `/api/v1/ai/skill/file/delete` | 删除文件 | admin |
 | POST | `/api/v1/ai/skill/file/get-one` | 获取文件内容 | admin |
 | POST | `/api/v1/ai/skill/file/update` | 更新文件内容 | admin |
+| POST | `/api/v1/ai/speaker/embedding/create` | 注册声纹 | admin |
+| POST | `/api/v1/ai/speaker/embedding/delete` | 删除声纹 | admin |
+| POST | `/api/v1/ai/speaker/embedding/extract` | 提取声纹特征向量 | admin |
+| POST | `/api/v1/ai/speaker/embedding/get-list` | 获取声纹列表 | admin |
+| POST | `/api/v1/ai/speaker/embedding/get-one` | 获取声纹详情 | admin |
+| POST | `/api/v1/ai/speaker/embedding/import` | 批量导入声纹 | admin |
+| POST | `/api/v1/ai/speaker/embedding/update` | 更新声纹 | admin |
 | POST | `/api/v1/ai/tool/create` | 创建工具 | admin |
 | POST | `/api/v1/ai/tool/delete` | 删除工具 | admin |
 | POST | `/api/v1/ai/tool/disable` | 停用工具 | admin |
+| POST | `/api/v1/ai/tool/export` | 导出工具zip包 | admin |
 | POST | `/api/v1/ai/tool/get-list` | 获取工具列表 | admin |
 | POST | `/api/v1/ai/tool/get-one` | 获取工具详情 | admin |
+| POST | `/api/v1/ai/tool/import` | 导入工具zip包 | admin |
 | POST | `/api/v1/ai/tool/publish` | 发布工具 | admin |
 | POST | `/api/v1/ai/tool/save-artifact` | 保存三件套 | admin |
 | POST | `/api/v1/ai/tool/update` | 更新工具 | admin |
@@ -131,16 +156,32 @@
 | POST | `/api/v1/things/ai/mcp/run` | Stateless MCP HTTP | all |
 | GET | `/api/v1/things/ai/mcp/sse` | SSE连接 | all |
 | POST | `/api/v1/things/ai/mcp/sse` | SSE连接（POST） | all |
-| POST | `/api/v1/things/alarm/info/create` | 新增告警 | admin |
-| POST | `/api/v1/things/alarm/info/delete` | 删除告警 | admin |
-| POST | `/api/v1/things/alarm/info/get-list` | 获取告警信息列表 | admin |
-| POST | `/api/v1/things/alarm/info/get-one` | 获取告警信息 | admin |
-| POST | `/api/v1/things/alarm/info/update` | 更新告警 | admin |
-| POST | `/api/v1/things/alarm/record/deal` | 处理告警 | admin |
-| POST | `/api/v1/things/alarm/record/get-list` | 获取告警记录列表 | admin |
-| POST | `/api/v1/things/alarm/scene/batch-create` | 更新告警和场景的关联 | admin |
-| POST | `/api/v1/things/alarm/scene/delete` | 删除告警和场景的关联 | admin |
-| POST | `/api/v1/things/alarm/scene/get-list` | 获取告警和场景的关联列表 | admin |
+| POST | `/api/v1/things/alarm/capability/get-one` | 获取告警能力矩阵 | admin |
+| POST | `/api/v1/things/alarm/condition-template/create` | 创建触发条件模板 | admin |
+| POST | `/api/v1/things/alarm/condition-template/delete` | 删除触发条件模板 | admin |
+| POST | `/api/v1/things/alarm/condition-template/get-list` | 获取触发条件模板列表 | admin |
+| POST | `/api/v1/things/alarm/condition-template/get-one` | 获取触发条件模板详情 | admin |
+| POST | `/api/v1/things/alarm/condition-template/update` | 更新触发条件模板 | admin |
+| POST | `/api/v1/things/alarm/event/deal` | 处理告警事件 | admin |
+| POST | `/api/v1/things/alarm/event/false-alarm` | 标记误报 | admin |
+| POST | `/api/v1/things/alarm/event/get-list` | 获取告警事件列表 | admin |
+| POST | `/api/v1/things/alarm/event/get-one` | 获取告警事件详情 | admin |
+| POST | `/api/v1/things/alarm/event/stat` | 告警事件统计 | admin |
+| POST | `/api/v1/things/alarm/info/create` | 创建告警规则 | admin |
+| POST | `/api/v1/things/alarm/info/delete` | 删除告警规则 | admin |
+| POST | `/api/v1/things/alarm/info/evaluate-trigger` | 手动触发评估 | admin |
+| POST | `/api/v1/things/alarm/info/get-list` | 获取告警规则列表 | admin |
+| POST | `/api/v1/things/alarm/info/get-one` | 获取告警规则详情 | admin |
+| POST | `/api/v1/things/alarm/info/status-update` | 更新告警规则状态 | admin |
+| POST | `/api/v1/things/alarm/info/update` | 更新告警规则 | admin |
+| POST | `/api/v1/things/alarm/notify-record/get-list` | 获取通知记录列表 | admin |
+| POST | `/api/v1/things/alarm/notify-record/resend` | 重新发送通知 | admin |
+| POST | `/api/v1/things/alarm/notify-template/create` | 创建通知内容模板 | admin |
+| POST | `/api/v1/things/alarm/notify-template/delete` | 删除通知内容模板 | admin |
+| POST | `/api/v1/things/alarm/notify-template/get-list` | 获取通知内容模板列表 | admin |
+| POST | `/api/v1/things/alarm/notify-template/get-one` | 获取通知内容模板详情 | admin |
+| POST | `/api/v1/things/alarm/notify-template/test-send` | 测试发送通知 | admin |
+| POST | `/api/v1/things/alarm/notify-template/update` | 更新通知内容模板 | admin |
 
 ## 端点详情
 
@@ -222,7 +263,7 @@ ur api /api/v1/ai/agent/group/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -257,8 +298,9 @@ ur api /api/v1/ai/agent/group/delete \
 |------|------|------|------|
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `purpose` | string | 否 |  用途分类过滤 |
 | `tenantCode` | string | 否 |  租户编码过滤 |
 
@@ -267,8 +309,14 @@ ur api /api/v1/ai/agent/group/delete \
 {
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "purpose": "string",
   "tenantCode": "string"
@@ -310,7 +358,7 @@ ur api /api/v1/ai/agent/group/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/agent/group/get-list \
-  --body '{"name": "示例名称", "page": {"page": 1, "pageSize": 1}, "purpose": "string", "tenantCode": "string"}'
+  --body '{"name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "purpose": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/agent/group/get-one`
@@ -323,7 +371,7 @@ ur api /api/v1/ai/agent/group/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -572,8 +620,9 @@ ur api /api/v1/ai/agent/info/delete \
 | `groupID` | integer | 否 |  按助手组ID过滤 (格式: int64) |
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  状态过滤 |
 | `tenantCode` | string | 否 |  租户编码过滤 |
 
@@ -583,8 +632,14 @@ ur api /api/v1/ai/agent/info/delete \
   "groupID": 1,
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": "string",
   "tenantCode": "string"
@@ -640,7 +695,7 @@ ur api /api/v1/ai/agent/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/agent/info/get-list \
-  --body '{"groupID": 1, "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": "string", "tenantCode": "string"}'
+  --body '{"groupID": 1, "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/agent/info/get-one`
@@ -888,16 +943,23 @@ ur api /api/v1/ai/clone/snapshot/delete \
 |------|------|------|------|
 | `cloneID` | integer | 是 |  分身ID (格式: int64) |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "cloneID": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -929,7 +991,7 @@ ur api /api/v1/ai/clone/snapshot/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/snapshot/get-list \
-  --body '{"cloneID": 1, "page": {"page": 1, "pageSize": 1}}'
+  --body '{"cloneID": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/clone/snapshot/get-one`
@@ -1536,21 +1598,22 @@ ur api /api/v1/ai/mcp/run \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `agentID` | integer | 是 |  助手ID (格式: int64) |
+| `agentID` | integer | 否 |  助手ID（0=裸LLM调用，不注入任何上下文） (格式: int64) |
 | `audioConfig` | object | 否 |  |
 | `audioConfig.channels` | integer | 否 |  声道数，默认 1 (格式: int32) |
 | `audioConfig.format` | string | 否 |  音频格式：opus/mp3/wav，默认 opus |
 | `audioConfig.sampleRate` | integer | 否 |  采样率，默认 24000 (格式: int32) |
-| `cloneID` | integer | 否 |  分身ID（0=不使用分身记忆） (格式: int64) |
-| `currentAppID` | string | 否 |  当前页面所属应用ID |
-| `currentAppName` | string | 否 |  当前页面所属应用名称 |
-| `currentRoute` | string | 否 |  当前前端路由 |
+| `cloneID` | integer | 否 |  分身ID（agentID=0 时忽略） (格式: int64) |
+| `currentAppID` | string | 否 |  当前页面所属应用ID（agentID=0 时忽略） |
+| `currentAppName` | string | 否 |  当前页面所属应用名称（agentID=0 时忽略） |
+| `currentRoute` | string | 否 |  当前前端路由（agentID=0 时忽略） |
 | `messages` | array[ChatMessage] | 是 |  对话消息列表 |
+| `modelType` | string | 否 |  LLM 模型类型（agentID=0 时生效，默认 "small"） |
 | `outputModalities` | array[string] | 否 |  输出模态：text / audio，默认 ["text"] |
-| `sessionID` | string | 否 |  会话ID（为空则自动生成） |
+| `sessionID` | string | 否 |  会话ID（agentID=0 时忽略） |
 | `stream` | boolean | 否 |  是否流式返回（SSE） (格式: boolean) |
-| `toolID` | integer | 否 |  工具ID（用于工具编辑场景，注入文件操作工具） (格式: int64) |
-| `tools` | array[ToolDef] | 否 |  前端注册的工具定义列表 |
+| `toolID` | integer | 否 |  工具ID（agentID=0 时忽略） (格式: int64) |
+| `tools` | array[ToolDef] | 否 |  前端注册的工具定义列表（agentID=0 时忽略） |
 
 **请求示例**:
 ```json
@@ -1563,7 +1626,7 @@ ur api /api/v1/ai/mcp/run \
   },
   "cloneID": 1,
   "currentAppID": "string",
-  "currentAppName": "示例名称",
+  "currentAppName": "string",
   "currentRoute": "string",
   "messages": [
     {
@@ -1591,6 +1654,7 @@ ur api /api/v1/ai/mcp/run \
       ]
     }
   ],
+  "modelType": "string",
   "outputModalities": [
     "string"
   ],
@@ -1669,7 +1733,7 @@ ur api /api/v1/ai/mcp/run \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/chat/available-tools \
-  --body '{"agentID": 1, "audioConfig": {"channels": 1, "format": "string", "sampleRate": 1}, "cloneID": 1, "currentAppID": "string", "currentAppName": "示例名称", "currentRoute": "string", "messages": [{"contents": [{"audioData": "string", "audioFormat": "string", "fileMime": "string", "fileName": "string", "fileUrl": "string", "imageUrl": "string", "text": "string", "type": "string", "videoUrl": "string"}], "role": "string", "toolCallID": "string", "toolCalls": [{"arguments": "string", "id": "string", "name": "示例名称"}]}], "outputModalities": ["string"], "sessionID": "string", "stream": true, "toolID": 1, "tools": [{"available": "string", "description": "string", "formSchema": {"cancelLabel": "string", "description": "string", "fields": [{"default": "...", "key": "...", "label": "...", "max": "...", "min": "...", "options": "...", "placeholder": "...", "required": "...", "type": "..."}], "submitLabel": "string", "title": "string"}, "interactionType": "string", "name": "示例名称", "parameters": {}}]}'
+  --body '{"agentID": 1, "audioConfig": {"channels": 1, "format": "string", "sampleRate": 1}, "cloneID": 1, "currentAppID": "string", "currentAppName": "string", "currentRoute": "string", "messages": [{"contents": [{"audioData": "string", "audioFormat": "string", "fileMime": "string", "fileName": "string", "fileUrl": "string", "imageUrl": "string", "text": "string", "type": "string", "videoUrl": "string"}], "role": "string", "toolCallID": "string", "toolCalls": [{"arguments": "string", "id": "string", "name": "示例名称"}]}], "modelType": "string", "outputModalities": ["string"], "sessionID": "string", "stream": true, "toolID": 1, "tools": [{"available": "string", "description": "string", "formSchema": {"cancelLabel": "string", "description": "string", "fields": [{"default": "...", "key": "...", "label": "...", "max": "...", "min": "...", "options": "...", "placeholder": "...", "required": "...", "type": "..."}], "submitLabel": "string", "title": "string"}, "interactionType": "string", "name": "示例名称", "parameters": {}}]}'
 ```
 
 ### POST `/api/v1/ai/chat/check-available`
@@ -1711,21 +1775,22 @@ ur api /api/v1/ai/chat/check-available \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `agentID` | integer | 是 |  助手ID (格式: int64) |
+| `agentID` | integer | 否 |  助手ID（0=裸LLM调用，不注入任何上下文） (格式: int64) |
 | `audioConfig` | object | 否 |  |
 | `audioConfig.channels` | integer | 否 |  声道数，默认 1 (格式: int32) |
 | `audioConfig.format` | string | 否 |  音频格式：opus/mp3/wav，默认 opus |
 | `audioConfig.sampleRate` | integer | 否 |  采样率，默认 24000 (格式: int32) |
-| `cloneID` | integer | 否 |  分身ID（0=不使用分身记忆） (格式: int64) |
-| `currentAppID` | string | 否 |  当前页面所属应用ID |
-| `currentAppName` | string | 否 |  当前页面所属应用名称 |
-| `currentRoute` | string | 否 |  当前前端路由 |
+| `cloneID` | integer | 否 |  分身ID（agentID=0 时忽略） (格式: int64) |
+| `currentAppID` | string | 否 |  当前页面所属应用ID（agentID=0 时忽略） |
+| `currentAppName` | string | 否 |  当前页面所属应用名称（agentID=0 时忽略） |
+| `currentRoute` | string | 否 |  当前前端路由（agentID=0 时忽略） |
 | `messages` | array[ChatMessage] | 是 |  对话消息列表 |
+| `modelType` | string | 否 |  LLM 模型类型（agentID=0 时生效，默认 "small"） |
 | `outputModalities` | array[string] | 否 |  输出模态：text / audio，默认 ["text"] |
-| `sessionID` | string | 否 |  会话ID（为空则自动生成） |
+| `sessionID` | string | 否 |  会话ID（agentID=0 时忽略） |
 | `stream` | boolean | 否 |  是否流式返回（SSE） (格式: boolean) |
-| `toolID` | integer | 否 |  工具ID（用于工具编辑场景，注入文件操作工具） (格式: int64) |
-| `tools` | array[ToolDef] | 否 |  前端注册的工具定义列表 |
+| `toolID` | integer | 否 |  工具ID（agentID=0 时忽略） (格式: int64) |
+| `tools` | array[ToolDef] | 否 |  前端注册的工具定义列表（agentID=0 时忽略） |
 
 **请求示例**:
 ```json
@@ -1738,7 +1803,7 @@ ur api /api/v1/ai/chat/check-available \
   },
   "cloneID": 1,
   "currentAppID": "string",
-  "currentAppName": "示例名称",
+  "currentAppName": "string",
   "currentRoute": "string",
   "messages": [
     {
@@ -1766,6 +1831,7 @@ ur api /api/v1/ai/chat/check-available \
       ]
     }
   ],
+  "modelType": "string",
   "outputModalities": [
     "string"
   ],
@@ -1814,6 +1880,7 @@ ur api /api/v1/ai/chat/check-available \
     "citations": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -1821,6 +1888,8 @@ ur api /api/v1/ai/chat/check-available \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -1847,6 +1916,7 @@ ur api /api/v1/ai/chat/check-available \
     "expandedCitations": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -1854,6 +1924,8 @@ ur api /api/v1/ai/chat/check-available \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -1884,7 +1956,7 @@ ur api /api/v1/ai/chat/check-available \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/chat/completions \
-  --body '{"agentID": 1, "audioConfig": {"channels": 1, "format": "string", "sampleRate": 1}, "cloneID": 1, "currentAppID": "string", "currentAppName": "示例名称", "currentRoute": "string", "messages": [{"contents": [{"audioData": "string", "audioFormat": "string", "fileMime": "string", "fileName": "string", "fileUrl": "string", "imageUrl": "string", "text": "string", "type": "string", "videoUrl": "string"}], "role": "string", "toolCallID": "string", "toolCalls": [{"arguments": "string", "id": "string", "name": "示例名称"}]}], "outputModalities": ["string"], "sessionID": "string", "stream": true, "toolID": 1, "tools": [{"available": "string", "description": "string", "formSchema": {"cancelLabel": "string", "description": "string", "fields": [{"default": "...", "key": "...", "label": "...", "max": "...", "min": "...", "options": "...", "placeholder": "...", "required": "...", "type": "..."}], "submitLabel": "string", "title": "string"}, "interactionType": "string", "name": "示例名称", "parameters": {}}]}'
+  --body '{"agentID": 1, "audioConfig": {"channels": 1, "format": "string", "sampleRate": 1}, "cloneID": 1, "currentAppID": "string", "currentAppName": "string", "currentRoute": "string", "messages": [{"contents": [{"audioData": "string", "audioFormat": "string", "fileMime": "string", "fileName": "string", "fileUrl": "string", "imageUrl": "string", "text": "string", "type": "string", "videoUrl": "string"}], "role": "string", "toolCallID": "string", "toolCalls": [{"arguments": "string", "id": "string", "name": "示例名称"}]}], "modelType": "string", "outputModalities": ["string"], "sessionID": "string", "stream": true, "toolID": 1, "tools": [{"available": "string", "description": "string", "formSchema": {"cancelLabel": "string", "description": "string", "fields": [{"default": "...", "key": "...", "label": "...", "max": "...", "min": "...", "options": "...", "placeholder": "...", "required": "...", "type": "..."}], "submitLabel": "string", "title": "string"}, "interactionType": "string", "name": "示例名称", "parameters": {}}]}'
 ```
 
 ### POST `/api/v1/ai/chat/tool-result`
@@ -2045,6 +2117,146 @@ ur api /api/v1/ai/llm/debug \
   --body '{"cfgType": "string", "jsonData": "string", "messages": [{"contents": [{"audioData": "string", "audioFormat": "string", "fileMime": "string", "fileName": "string", "fileUrl": "string", "imageUrl": "string", "text": "string", "type": "string", "videoUrl": "string"}], "role": "string", "toolCallID": "string", "toolCalls": [{"arguments": "string", "id": "string", "name": "示例名称"}]}], "outputModalities": ["string"]}'
 ```
 
+### POST `/api/v1/ai/tool-dev/completions`
+
+**说明**: 工具编辑 AI 对话（自动绑定 tool_assistant）
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `messages` | array[ChatMessage] | 是 |  对话消息列表 |
+| `sessionID` | string | 否 |  会话ID（为空自动生成） |
+| `stream` | boolean | 否 |  是否流式返回（SSE） (格式: boolean) |
+| `toolID` | integer | 否 |  工具ID（首次需传，后续可从 session 恢复） (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "messages": [
+    {
+      "contents": [
+        {
+          "audioData": "string",
+          "audioFormat": "string",
+          "fileMime": "string",
+          "fileName": "string",
+          "fileUrl": "string",
+          "imageUrl": "string",
+          "text": "string",
+          "type": "string",
+          "videoUrl": "string"
+        }
+      ],
+      "role": "string",
+      "toolCallID": "string",
+      "toolCalls": [
+        {
+          "arguments": "string",
+          "id": "string",
+          "name": "示例名称"
+        }
+      ]
+    }
+  ],
+  "sessionID": "string",
+  "stream": true,
+  "toolID": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "answerPolicy": "string",
+    "audioData": "string",
+    "audioFormat": "string",
+    "citations": [
+      {
+        "artifactID": 1,
+        "artifactType": "string",
+        "charEnd": 1,
+        "charStart": 1,
+        "chunkIndex": 1,
+        "content": "string",
+        "documentID": 1,
+        "documentName": "string",
+        "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
+        "path": "string",
+        "relationType": "string",
+        "score": 1,
+        "snippet": "string",
+        "sourceArtifactID": 1,
+        "sourceType": "string"
+      }
+    ],
+    "confidenceBand": "string",
+    "content": "string",
+    "contents": [
+      {
+        "audioData": "string",
+        "audioFormat": "string",
+        "fileMime": "string",
+        "fileName": "string",
+        "fileUrl": "string",
+        "imageUrl": "string",
+        "text": "string",
+        "type": "string",
+        "videoUrl": "string"
+      }
+    ],
+    "expandedCitations": [
+      {
+        "artifactID": 1,
+        "artifactType": "string",
+        "charEnd": 1,
+        "charStart": 1,
+        "chunkIndex": 1,
+        "content": "string",
+        "documentID": 1,
+        "documentName": "string",
+        "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
+        "path": "string",
+        "relationType": "string",
+        "score": 1,
+        "snippet": "string",
+        "sourceArtifactID": 1,
+        "sourceType": "string"
+      }
+    ],
+    "matchedDocuments": [
+      {
+        "chunkCount": 1,
+        "documentID": 1,
+        "documentName": "string",
+        "knowledgeID": 1,
+        "path": "string",
+        "score": 1,
+        "snippet": "string"
+      }
+    ],
+    "rewrittenQuery": "string",
+    "role": "string",
+    "sessionID": "string"
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/tool-dev/completions \
+  --body '{"messages": [{"contents": [{"audioData": "string", "audioFormat": "string", "fileMime": "string", "fileName": "string", "fileUrl": "string", "imageUrl": "string", "text": "string", "type": "string", "videoUrl": "string"}], "role": "string", "toolCallID": "string", "toolCalls": [{"arguments": "string", "id": "string", "name": "示例名称"}]}], "sessionID": "string", "stream": true, "toolID": 1}'
+```
+
 ### POST `/api/v1/ai/user/completions`
 
 **说明**: 用户 AI 对话（自动查找/创建专属 Clone）
@@ -2147,6 +2359,7 @@ ur api /api/v1/ai/llm/debug \
     "citations": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -2154,6 +2367,8 @@ ur api /api/v1/ai/llm/debug \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -2180,6 +2395,7 @@ ur api /api/v1/ai/llm/debug \
     "expandedCitations": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -2187,6 +2403,8 @@ ur api /api/v1/ai/llm/debug \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -2220,6 +2438,825 @@ ur api /api/v1/ai/user/completions \
   --body '{"assistantCode": "string", "currentAppID": "string", "currentAppName": "示例名称", "currentRoute": "string", "messages": [{"contents": [{"audioData": "string", "audioFormat": "string", "fileMime": "string", "fileName": "string", "fileUrl": "string", "imageUrl": "string", "text": "string", "type": "string", "videoUrl": "string"}], "role": "string", "toolCallID": "string", "toolCalls": [{"arguments": "string", "id": "string", "name": "示例名称"}]}], "outputModalities": ["string"], "sessionID": "string", "stream": true, "toolID": 1, "tools": [{"available": "string", "description": "string", "formSchema": {"cancelLabel": "string", "description": "string", "fields": [{"default": "...", "key": "...", "label": "...", "max": "...", "min": "...", "options": "...", "placeholder": "...", "required": "...", "type": "..."}], "submitLabel": "string", "title": "string"}, "interactionType": "string", "name": "示例名称", "parameters": {}}]}'
 ```
 
+### POST `/api/v1/ai/clone-group/create`
+
+**说明**: 创建Clone组
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentGroupID` | integer | 是 |  关联AgentGroup ID (格式: int64) |
+| `agentGroupName` | string | 否 |  关联AgentGroup名称 |
+| `authType` | string | 否 |  权限类型 |
+| `code` | string | 是 |  Clone组编码 |
+| `createdTime` | integer | 否 |  创建时间 (格式: int64) |
+| `description` | string | 否 |  描述 |
+| `id` | integer | 否 |  Clone组ID (格式: int64) |
+| `isDefault` | string | 否 |  是否默认组 1-是 2-否 |
+| `name` | string | 是 |  Clone组名称 |
+| `status` | string | 否 |  状态 1-启用 2-禁用 |
+| `tenantCode` | string | 否 |  租户编码 |
+| `thirdID` | string | 否 |  第三方业务ID（如 projectID） |
+| `ttsConfigID` | string | 否 |  组级TTS配置ID |
+| `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
+| `voiceParams` | string | 否 |  组级语音参数（JSON字符串） |
+
+**请求示例**:
+```json
+{
+  "agentGroupID": 1,
+  "agentGroupName": "示例名称",
+  "authType": "string",
+  "code": "string",
+  "createdTime": 1,
+  "description": "string",
+  "id": 1,
+  "isDefault": "string",
+  "name": "示例名称",
+  "status": "string",
+  "tenantCode": "string",
+  "thirdID": "string",
+  "ttsConfigID": "string",
+  "updatedTime": 1,
+  "voiceParams": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-group/create \
+  --body '{"agentGroupID": 1, "agentGroupName": "示例名称", "authType": "string", "code": "string", "createdTime": 1, "description": "string", "id": 1, "isDefault": "string", "name": "示例名称", "status": "string", "tenantCode": "string", "thirdID": "string", "ttsConfigID": "string", "updatedTime": 1, "voiceParams": "string"}'
+```
+
+### POST `/api/v1/ai/clone-group/delete`
+
+**说明**: 删除Clone组
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 否 |  id (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-group/delete \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/ai/clone-group/get-list`
+
+**说明**: 获取Clone组列表
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentGroupID` | integer | 否 |  按AgentGroup ID过滤 (格式: int64) |
+| `name` | string | 否 |  名称模糊搜索 |
+| `page` | object | 是 |  |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `status` | integer | 否 |  状态过滤 (格式: int64) |
+| `thirdID` | string | 否 |  按第三方业务ID过滤 |
+
+**请求示例**:
+```json
+{
+  "agentGroupID": 1,
+  "name": "示例名称",
+  "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
+    "page": 1,
+    "size": 1
+  },
+  "status": 1,
+  "thirdID": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "agentGroupID": 1,
+        "agentGroupName": "示例名称",
+        "authType": "string",
+        "code": "string",
+        "createdTime": 1,
+        "description": "string",
+        "id": 1,
+        "isDefault": "string",
+        "name": "示例名称",
+        "status": "string",
+        "tenantCode": "string",
+        "thirdID": "string",
+        "ttsConfigID": "string",
+        "updatedTime": 1,
+        "voiceParams": "string"
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-group/get-list \
+  --body '{"agentGroupID": 1, "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "thirdID": "string"}'
+```
+
+### POST `/api/v1/ai/clone-group/get-one`
+
+**说明**: 获取Clone组详情
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 否 |  id (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "agentGroupID": 1,
+    "agentGroupName": "示例名称",
+    "authType": "string",
+    "code": "string",
+    "createdTime": 1,
+    "description": "string",
+    "id": 1,
+    "isDefault": "string",
+    "name": "示例名称",
+    "status": "string",
+    "tenantCode": "string",
+    "thirdID": "string",
+    "ttsConfigID": "string",
+    "updatedTime": 1,
+    "voiceParams": "string"
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-group/get-one \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/ai/clone-group/update`
+
+**说明**: 更新Clone组
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentGroupID` | integer | 是 |  关联AgentGroup ID (格式: int64) |
+| `agentGroupName` | string | 否 |  关联AgentGroup名称 |
+| `authType` | string | 否 |  权限类型 |
+| `code` | string | 是 |  Clone组编码 |
+| `createdTime` | integer | 否 |  创建时间 (格式: int64) |
+| `description` | string | 否 |  描述 |
+| `id` | integer | 否 |  Clone组ID (格式: int64) |
+| `isDefault` | string | 否 |  是否默认组 1-是 2-否 |
+| `name` | string | 是 |  Clone组名称 |
+| `status` | string | 否 |  状态 1-启用 2-禁用 |
+| `tenantCode` | string | 否 |  租户编码 |
+| `thirdID` | string | 否 |  第三方业务ID（如 projectID） |
+| `ttsConfigID` | string | 否 |  组级TTS配置ID |
+| `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
+| `voiceParams` | string | 否 |  组级语音参数（JSON字符串） |
+
+**请求示例**:
+```json
+{
+  "agentGroupID": 1,
+  "agentGroupName": "示例名称",
+  "authType": "string",
+  "code": "string",
+  "createdTime": 1,
+  "description": "string",
+  "id": 1,
+  "isDefault": "string",
+  "name": "示例名称",
+  "status": "string",
+  "tenantCode": "string",
+  "thirdID": "string",
+  "ttsConfigID": "string",
+  "updatedTime": 1,
+  "voiceParams": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-group/update \
+  --body '{"agentGroupID": 1, "agentGroupName": "示例名称", "authType": "string", "code": "string", "createdTime": 1, "description": "string", "id": 1, "isDefault": "string", "name": "示例名称", "status": "string", "tenantCode": "string", "thirdID": "string", "ttsConfigID": "string", "updatedTime": 1, "voiceParams": "string"}'
+```
+
+### POST `/api/v1/ai/clone-task/create`
+
+**说明**: 创建clone任务
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `cloneGroupID` | string | 是 |  CloneGroup ID |
+| `cloneID` | string | 是 |  绑定的Clone ID |
+| `desc` | string | 否 |  任务描述 |
+| `name` | string | 是 |  任务名称 |
+| `prompt` | string | 否 |  AI运行的提示词(ai_run时必填) |
+| `repeatTimes` | integer | 否 |  最大执行次数，0=无限 (格式: int64) |
+| `scheduleDailyTimeSec` | integer | 否 |  daily:当天秒数(0-86399) (格式: int64) |
+| `scheduleInterval` | integer | 否 |  interval:间隔分钟数 (格式: int64) |
+| `scheduleTime` | string | 否 |  once:ISO时间 "2026-06-01T08:00:00" |
+| `scheduleType` | string | 是 |  调度类型 none/once/interval/daily/weekly |
+| `scheduleWeeklyDay` | integer | 否 |  weekly:0=周日1=周一...6=周六 (格式: int64) |
+| `scheduleWeeklyTimeSec` | integer | 否 |  weekly:当天秒数(0-86399) (格式: int64) |
+| `subscribePayloadFilter` | string | 否 |  订阅消息过滤条件JSON |
+| `subscribeTopic` | string | 否 |  订阅消息触发时选择的主题编码 |
+| `taskType` | string | 是 |  任务类型 ai_run/tool_run |
+| `timeoutSeconds` | integer | 否 |  超时时间，默认300 (格式: int64) |
+| `toolID` | integer | 否 |  AiTool ID(tool_run时必填) (格式: int64) |
+| `toolInputs` | string | 否 |  工具输入JSON(tool_run时选填) |
+| `triggerType` | string | 否 |  触发类型 schedule/subscribe_message，默认schedule |
+
+**请求示例**:
+```json
+{
+  "cloneGroupID": "string",
+  "cloneID": "string",
+  "desc": "string",
+  "name": "示例名称",
+  "prompt": "string",
+  "repeatTimes": 1,
+  "scheduleDailyTimeSec": 1,
+  "scheduleInterval": 1,
+  "scheduleTime": "2026-01-01T00:00:00Z",
+  "scheduleType": "string",
+  "scheduleWeeklyDay": 1,
+  "scheduleWeeklyTimeSec": 1,
+  "subscribePayloadFilter": "string",
+  "subscribeTopic": "string",
+  "taskType": "string",
+  "timeoutSeconds": 1,
+  "toolID": 1,
+  "toolInputs": "string",
+  "triggerType": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-task/create \
+  --body '{"cloneGroupID": "string", "cloneID": "string", "desc": "string", "name": "示例名称", "prompt": "string", "repeatTimes": 1, "scheduleDailyTimeSec": 1, "scheduleInterval": 1, "scheduleTime": "2026-01-01T00:00:00Z", "scheduleType": "string", "scheduleWeeklyDay": 1, "scheduleWeeklyTimeSec": 1, "subscribePayloadFilter": "string", "subscribeTopic": "string", "taskType": "string", "timeoutSeconds": 1, "toolID": 1, "toolInputs": "string", "triggerType": "string"}'
+```
+
+### POST `/api/v1/ai/clone-task/delete`
+
+**说明**: 删除clone任务
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 否 |  id (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-task/delete \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/ai/clone-task/get-list`
+
+**说明**: 获取clone任务列表
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentID` | integer | 否 |  按Agent过滤 (格式: int64) |
+| `cloneGroupID` | integer | 否 |  按CloneGroup过滤 (格式: int64) |
+| `cloneID` | integer | 否 |  按Clone过滤 (格式: int64) |
+| `enabled` | integer | 否 |  按启用状态过滤 (格式: int64) |
+| `page` | object | 是 |  |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `scheduleType` | string | 否 |  按调度类型过滤 |
+| `taskType` | string | 否 |  按任务类型过滤 |
+| `triggerType` | string | 否 |  按触发类型过滤 |
+
+**请求示例**:
+```json
+{
+  "agentID": 1,
+  "cloneGroupID": 1,
+  "cloneID": 1,
+  "enabled": 1,
+  "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
+    "page": 1,
+    "size": 1
+  },
+  "scheduleType": "string",
+  "taskType": "string",
+  "triggerType": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "agentID": 1,
+        "cloneGroupID": "string",
+        "cloneID": "string",
+        "createdTime": 1,
+        "desc": "string",
+        "enabled": "string",
+        "id": 1,
+        "lastError": "string",
+        "lastRunAt": 1,
+        "lastRunID": "string",
+        "lastStatus": "string",
+        "name": "示例名称",
+        "nextRunAt": 1,
+        "prompt": "string",
+        "repeatCompleted": 1,
+        "repeatTimes": 1,
+        "scheduleDailyTimeSec": 1,
+        "scheduleInterval": 1,
+        "scheduleTime": "2026-01-01T00:00:00Z",
+        "scheduleType": "string",
+        "scheduleWeeklyDay": 1,
+        "scheduleWeeklyTimeSec": 1,
+        "sessionID": "string",
+        "state": "string",
+        "subscribePayloadFilter": "string",
+        "subscribeTopic": "string",
+        "taskType": "string",
+        "tenantCode": "string",
+        "timeoutSeconds": 1,
+        "toolCodeSnapshot": "string",
+        "toolID": 1,
+        "toolInputsTemplate": "string",
+        "toolManifestSnapshot": "string",
+        "toolVersionSnapshot": 1,
+        "triggerType": "string",
+        "updatedTime": 1
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-task/get-list \
+  --body '{"agentID": 1, "cloneGroupID": 1, "cloneID": 1, "enabled": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "scheduleType": "string", "taskType": "string", "triggerType": "string"}'
+```
+
+### POST `/api/v1/ai/clone-task/get-one`
+
+**说明**: 获取clone任务详情
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 否 |  id (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "agentID": 1,
+    "cloneGroupID": "string",
+    "cloneID": "string",
+    "createdTime": 1,
+    "desc": "string",
+    "enabled": "string",
+    "id": 1,
+    "lastError": "string",
+    "lastRunAt": 1,
+    "lastRunID": "string",
+    "lastStatus": "string",
+    "name": "示例名称",
+    "nextRunAt": 1,
+    "prompt": "string",
+    "repeatCompleted": 1,
+    "repeatTimes": 1,
+    "scheduleDailyTimeSec": 1,
+    "scheduleInterval": 1,
+    "scheduleTime": "2026-01-01T00:00:00Z",
+    "scheduleType": "string",
+    "scheduleWeeklyDay": 1,
+    "scheduleWeeklyTimeSec": 1,
+    "sessionID": "string",
+    "state": "string",
+    "subscribePayloadFilter": "string",
+    "subscribeTopic": "string",
+    "taskType": "string",
+    "tenantCode": "string",
+    "timeoutSeconds": 1,
+    "toolCodeSnapshot": "string",
+    "toolID": 1,
+    "toolInputsTemplate": "string",
+    "toolManifestSnapshot": "string",
+    "toolVersionSnapshot": 1,
+    "triggerType": "string",
+    "updatedTime": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-task/get-one \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/ai/clone-task/get-runs`
+
+**说明**: 获取clone任务执行日志
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `page` | object | 是 |  |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `taskID` | string | 是 |  任务ID |
+
+**请求示例**:
+```json
+{
+  "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
+    "page": 1,
+    "size": 1
+  },
+  "taskID": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "createdTime": 1,
+        "durationMs": 1,
+        "endTime": 1,
+        "errorMsg": "string",
+        "id": 1,
+        "logs": "string",
+        "output": "string",
+        "runID": "string",
+        "sessionID": "string",
+        "startTime": 1,
+        "status": "string",
+        "taskID": 1,
+        "toolID": 1,
+        "triggerType": "string"
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-task/get-runs \
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "taskID": "string"}'
+```
+
+### POST `/api/v1/ai/clone-task/get-subscribe-topics`
+
+**说明**: 获取订阅主题列表
+
+**权限**: admin
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "code": "string",
+        "description": "示例名称"
+      }
+    ]
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-task/get-subscribe-topics \
+  --body '{}'
+```
+
+### POST `/api/v1/ai/clone-task/run`
+
+**说明**: 手动触发clone任务
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 否 |  id (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-task/run \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/ai/clone-task/start`
+
+**说明**: 启用clone任务
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 否 |  id (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-task/start \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/ai/clone-task/stop`
+
+**说明**: 禁用clone任务
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 否 |  id (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-task/stop \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/ai/clone-task/update`
+
+**说明**: 更新clone任务
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `desc` | string | 否 |  任务描述 |
+| `id` | string | 是 |  任务ID |
+| `name` | string | 否 |  任务名称 |
+| `prompt` | string | 否 |  AI运行的提示词 |
+| `repeatTimes` | integer | 否 |  最大执行次数 (格式: int64) |
+| `scheduleDailyTimeSec` | integer | 否 |  daily:当天秒数 (格式: int64) |
+| `scheduleInterval` | integer | 否 |  interval:间隔分钟数 (格式: int64) |
+| `scheduleTime` | string | 否 |  once:ISO时间 |
+| `scheduleType` | string | 否 |  调度类型 |
+| `scheduleWeeklyDay` | integer | 否 |  weekly:周几 (格式: int64) |
+| `scheduleWeeklyTimeSec` | integer | 否 |  weekly:当天秒数 (格式: int64) |
+| `subscribePayloadFilter` | string | 否 |  订阅消息过滤条件JSON |
+| `subscribeTopic` | string | 否 |  订阅消息触发时选择的主题编码 |
+| `timeoutSeconds` | integer | 否 |  超时时间 (格式: int64) |
+| `toolInputs` | string | 否 |  工具输入JSON |
+| `triggerType` | string | 否 |  触发类型 schedule/subscribe_message |
+
+**请求示例**:
+```json
+{
+  "desc": "string",
+  "id": "string",
+  "name": "示例名称",
+  "prompt": "string",
+  "repeatTimes": 1,
+  "scheduleDailyTimeSec": 1,
+  "scheduleInterval": 1,
+  "scheduleTime": "2026-01-01T00:00:00Z",
+  "scheduleType": "string",
+  "scheduleWeeklyDay": 1,
+  "scheduleWeeklyTimeSec": 1,
+  "subscribePayloadFilter": "string",
+  "subscribeTopic": "string",
+  "timeoutSeconds": 1,
+  "toolInputs": "string",
+  "triggerType": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/clone-task/update \
+  --body '{"desc": "string", "id": "string", "name": "示例名称", "prompt": "string", "repeatTimes": 1, "scheduleDailyTimeSec": 1, "scheduleInterval": 1, "scheduleTime": "2026-01-01T00:00:00Z", "scheduleType": "string", "scheduleWeeklyDay": 1, "scheduleWeeklyTimeSec": 1, "subscribePayloadFilter": "string", "subscribeTopic": "string", "timeoutSeconds": 1, "toolInputs": "string", "triggerType": "string"}'
+```
+
 ### POST `/api/v1/ai/clone/create`
 
 **说明**: 创建分身
@@ -2231,6 +3268,7 @@ ur api /api/v1/ai/user/completions \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `agentID` | integer | 是 |  关联Agent ID (格式: int64) |
+| `cloneGroupID` | integer | 否 |  所属CloneGroup ID (格式: int64) |
 | `code` | string | 否 |  分身编码（全局唯一，可为空） |
 | `createdTime` | integer | 否 |  创建时间 (格式: int64) |
 | `desc` | string | 否 |  描述 |
@@ -2246,6 +3284,7 @@ ur api /api/v1/ai/user/completions \
 ```json
 {
   "agentID": 1,
+  "cloneGroupID": 1,
   "code": "string",
   "createdTime": 1,
   "desc": "string",
@@ -2273,7 +3312,7 @@ ur api /api/v1/ai/user/completions \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/create \
-  --body '{"agentID": 1, "code": "string", "createdTime": 1, "desc": "string", "id": 1, "metadata": "string", "name": "示例名称", "personaPrompt": "string", "status": 1, "tenantCode": "string", "updatedTime": 1}'
+  --body '{"agentID": 1, "cloneGroupID": 1, "code": "string", "createdTime": 1, "desc": "string", "id": 1, "metadata": "string", "name": "示例名称", "personaPrompt": "string", "status": 1, "tenantCode": "string", "updatedTime": 1}'
 ```
 
 ### POST `/api/v1/ai/clone/delete`
@@ -2286,7 +3325,7 @@ ur api /api/v1/ai/clone/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -2320,11 +3359,13 @@ ur api /api/v1/ai/clone/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `agentID` | integer | 否 |  按Agent ID过滤 (格式: int64) |
+| `cloneGroupID` | integer | 否 |  按CloneGroup ID过滤 (格式: int64) |
 | `code` | string | 否 |  按code精确查询 |
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 (格式: int64) |
 | `tenantCode` | string | 否 |  租户编码过滤 |
 
@@ -2332,11 +3373,18 @@ ur api /api/v1/ai/clone/delete \
 ```json
 {
   "agentID": 1,
+  "cloneGroupID": 1,
   "code": "string",
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "tenantCode": "string"
@@ -2351,6 +3399,7 @@ ur api /api/v1/ai/clone/delete \
     "list": [
       {
         "agentID": 1,
+        "cloneGroupID": 1,
         "code": "string",
         "createdTime": 1,
         "desc": "string",
@@ -2372,7 +3421,7 @@ ur api /api/v1/ai/clone/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/get-list \
-  --body '{"agentID": 1, "code": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1, "tenantCode": "string"}'
+  --body '{"agentID": 1, "cloneGroupID": 1, "code": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/clone/get-one`
@@ -2385,7 +3434,7 @@ ur api /api/v1/ai/clone/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -2400,6 +3449,7 @@ ur api /api/v1/ai/clone/get-list \
   "code": 200,
   "data": {
     "agentID": 1,
+    "cloneGroupID": 1,
     "code": "string",
     "createdTime": 1,
     "desc": "string",
@@ -2432,6 +3482,7 @@ ur api /api/v1/ai/clone/get-one \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `agentID` | integer | 是 |  关联Agent ID (格式: int64) |
+| `cloneGroupID` | integer | 否 |  所属CloneGroup ID (格式: int64) |
 | `code` | string | 否 |  分身编码（全局唯一，可为空） |
 | `createdTime` | integer | 否 |  创建时间 (格式: int64) |
 | `desc` | string | 否 |  描述 |
@@ -2447,6 +3498,7 @@ ur api /api/v1/ai/clone/get-one \
 ```json
 {
   "agentID": 1,
+  "cloneGroupID": 1,
   "code": "string",
   "createdTime": 1,
   "desc": "string",
@@ -2471,7 +3523,7 @@ ur api /api/v1/ai/clone/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/update \
-  --body '{"agentID": 1, "code": "string", "createdTime": 1, "desc": "string", "id": 1, "metadata": "string", "name": "示例名称", "personaPrompt": "string", "status": 1, "tenantCode": "string", "updatedTime": 1}'
+  --body '{"agentID": 1, "cloneGroupID": 1, "code": "string", "createdTime": 1, "desc": "string", "id": 1, "metadata": "string", "name": "示例名称", "personaPrompt": "string", "status": 1, "tenantCode": "string", "updatedTime": 1}'
 ```
 
 ### POST `/api/v1/ai/clone/memory/archives/get-list`
@@ -2487,8 +3539,9 @@ ur api /api/v1/ai/clone/update \
 | `archiveReason` | string | 否 |  归档原因过滤 |
 | `cloneID` | integer | 是 |  分身ID (格式: int64) |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -2496,8 +3549,14 @@ ur api /api/v1/ai/clone/update \
   "archiveReason": "string",
   "cloneID": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -2525,7 +3584,7 @@ ur api /api/v1/ai/clone/update \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/memory/archives/get-list \
-  --body '{"archiveReason": "string", "cloneID": 1, "page": {"page": 1, "pageSize": 1}}'
+  --body '{"archiveReason": "string", "cloneID": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/clone/memory/compact`
@@ -2538,7 +3597,7 @@ ur api /api/v1/ai/clone/memory/archives/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -2652,8 +3711,9 @@ ur api /api/v1/ai/clone/memory/delete \
 |------|------|------|------|
 | `cloneID` | integer | 是 |  分身ID (格式: int64) |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  状态过滤 running/success/skipped/failed |
 
 **请求示例**:
@@ -2661,8 +3721,14 @@ ur api /api/v1/ai/clone/memory/delete \
 {
   "cloneID": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": "string"
 }
@@ -2695,7 +3761,7 @@ ur api /api/v1/ai/clone/memory/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/memory/dream-runs/get-list \
-  --body '{"cloneID": 1, "page": {"page": 1, "pageSize": 1}, "status": "string"}'
+  --body '{"cloneID": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string"}'
 ```
 
 ### POST `/api/v1/ai/clone/memory/dream/run`
@@ -2754,8 +3820,9 @@ ur api /api/v1/ai/clone/memory/dream/run \
 | `entityKey` | string | 否 |  实体键过滤 |
 | `entityType` | string | 否 |  实体类型过滤 |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -2764,8 +3831,14 @@ ur api /api/v1/ai/clone/memory/dream/run \
   "entityKey": "string",
   "entityType": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -2794,7 +3867,7 @@ ur api /api/v1/ai/clone/memory/dream/run \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/memory/entities/get-list \
-  --body '{"cloneID": 1, "entityKey": "string", "entityType": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"cloneID": 1, "entityKey": "string", "entityType": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/clone/memory/profile/get-one`
@@ -2851,8 +3924,9 @@ ur api /api/v1/ai/clone/memory/profile/get-one \
 | `memoryKind` | string | 否 |  记忆类别 |
 | `memoryLevel` | string | 否 |  记忆层级 l1/l2/profile |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `query` | string | 否 |  搜索关键词（摘要/内容模糊匹配） |
 | `startTime` | string | 否 |  开始时间戳（秒） |
 | `status` | string | 否 |  状态 1-活跃 2-已衰减 3-已归档 |
@@ -2865,8 +3939,14 @@ ur api /api/v1/ai/clone/memory/profile/get-one \
   "memoryKind": "string",
   "memoryLevel": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "query": "string",
   "startTime": "2026-01-01T00:00:00Z",
@@ -2903,7 +3983,7 @@ ur api /api/v1/ai/clone/memory/profile/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/memory/records/get-list \
-  --body '{"cloneID": 1, "endTime": "2026-01-01T00:00:00Z", "memoryKind": "string", "memoryLevel": "string", "page": {"page": 1, "pageSize": 1}, "query": "string", "startTime": "2026-01-01T00:00:00Z", "status": "string"}'
+  --body '{"cloneID": 1, "endTime": "2026-01-01T00:00:00Z", "memoryKind": "string", "memoryLevel": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "query": "string", "startTime": "2026-01-01T00:00:00Z", "status": "string"}'
 ```
 
 ### POST `/api/v1/ai/clone/memory/search`
@@ -2973,8 +4053,9 @@ ur api /api/v1/ai/clone/memory/search \
 |------|------|------|------|
 | `cloneID` | integer | 是 |  分身ID (格式: int64) |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `query` | string | 否 |  查询内容模糊搜索 |
 
 **请求示例**:
@@ -2982,8 +4063,14 @@ ur api /api/v1/ai/clone/memory/search \
 {
   "cloneID": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "query": "string"
 }
@@ -3013,7 +4100,7 @@ ur api /api/v1/ai/clone/memory/search \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/memory/traces/get-list \
-  --body '{"cloneID": 1, "page": {"page": 1, "pageSize": 1}, "query": "string"}'
+  --body '{"cloneID": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "query": "string"}'
 ```
 
 ### POST `/api/v1/ai/config/info/create`
@@ -3028,6 +4115,7 @@ ur api /api/v1/ai/clone/memory/traces/get-list \
 |------|------|------|------|
 | `cfgType` | string | 否 |  配置类型：llm/tts/asr/vad |
 | `configID` | string | 否 |  配置唯一标识 |
+| `contextLength` | integer | 否 |  上下文长度 (格式: int64) |
 | `enabled` | boolean | 否 |  是否启用 (格式: boolean) |
 | `id` | integer | 否 |  配置ID (格式: int64) |
 | `inputModalities` | string | 否 |  输入模态（JSON字符串） |
@@ -3043,6 +4131,7 @@ ur api /api/v1/ai/clone/memory/traces/get-list \
 {
   "cfgType": "string",
   "configID": "string",
+  "contextLength": 1,
   "enabled": true,
   "id": 1,
   "inputModalities": "string",
@@ -3069,7 +4158,7 @@ ur api /api/v1/ai/clone/memory/traces/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/config/info/create \
-  --body '{"cfgType": "string", "configID": "string", "enabled": true, "id": 1, "inputModalities": "string", "isDefault": true, "jsonData": "string", "modelType": "string", "name": "示例名称", "outputModalities": "string", "tenantCode": "string"}'
+  --body '{"cfgType": "string", "configID": "string", "contextLength": 1, "enabled": true, "id": 1, "inputModalities": "string", "isDefault": true, "jsonData": "string", "modelType": "string", "name": "示例名称", "outputModalities": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/config/info/delete`
@@ -3135,6 +4224,7 @@ ur api /api/v1/ai/config/info/delete \
   "data": {
     "cfgType": "string",
     "configID": "string",
+    "contextLength": 1,
     "enabled": true,
     "id": 1,
     "inputModalities": "string",
@@ -3168,8 +4258,9 @@ ur api /api/v1/ai/config/info/get-default \
 | `cfgType` | string | 否 |  配置类型过滤 |
 | `onlyEnabled` | boolean | 否 |  仅返回启用的 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
@@ -3178,8 +4269,14 @@ ur api /api/v1/ai/config/info/get-default \
   "cfgType": "string",
   "onlyEnabled": true,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "tenantCode": "string"
 }
@@ -3194,6 +4291,7 @@ ur api /api/v1/ai/config/info/get-default \
       {
         "cfgType": "string",
         "configID": "string",
+        "contextLength": 1,
         "enabled": true,
         "id": 1,
         "inputModalities": "string",
@@ -3214,7 +4312,7 @@ ur api /api/v1/ai/config/info/get-default \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/config/info/get-list \
-  --body '{"cfgType": "string", "onlyEnabled": true, "page": {"page": 1, "pageSize": 1}, "tenantCode": "string"}'
+  --body '{"cfgType": "string", "onlyEnabled": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/config/info/get-one`
@@ -3245,6 +4343,7 @@ ur api /api/v1/ai/config/info/get-list \
   "data": {
     "cfgType": "string",
     "configID": "string",
+    "contextLength": 1,
     "enabled": true,
     "id": 1,
     "inputModalities": "string",
@@ -3336,6 +4435,7 @@ ur api /api/v1/ai/config/info/get-one \
     "citations": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -3343,6 +4443,8 @@ ur api /api/v1/ai/config/info/get-one \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -3369,6 +4471,7 @@ ur api /api/v1/ai/config/info/get-one \
     "expandedCitations": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -3376,6 +4479,8 @@ ur api /api/v1/ai/config/info/get-one \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -3420,6 +4525,7 @@ ur api /api/v1/ai/config/info/test \
 |------|------|------|------|
 | `cfgType` | string | 否 |  配置类型：llm/tts/asr/vad |
 | `configID` | string | 否 |  配置唯一标识 |
+| `contextLength` | integer | 否 |  上下文长度 (格式: int64) |
 | `enabled` | boolean | 否 |  是否启用 (格式: boolean) |
 | `id` | integer | 否 |  配置ID (格式: int64) |
 | `inputModalities` | string | 否 |  输入模态（JSON字符串） |
@@ -3435,6 +4541,7 @@ ur api /api/v1/ai/config/info/test \
 {
   "cfgType": "string",
   "configID": "string",
+  "contextLength": 1,
   "enabled": true,
   "id": 1,
   "inputModalities": "string",
@@ -3458,7 +4565,7 @@ ur api /api/v1/ai/config/info/test \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/config/info/update \
-  --body '{"cfgType": "string", "configID": "string", "enabled": true, "id": 1, "inputModalities": "string", "isDefault": true, "jsonData": "string", "modelType": "string", "name": "示例名称", "outputModalities": "string", "tenantCode": "string"}'
+  --body '{"cfgType": "string", "configID": "string", "contextLength": 1, "enabled": true, "id": 1, "inputModalities": "string", "isDefault": true, "jsonData": "string", "modelType": "string", "name": "示例名称", "outputModalities": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/control/abort`
@@ -3699,15 +4806,21 @@ ur api /api/v1/ai/knowledge/compile/retry \
   "data": {
     "artifact": {
       "artifactType": "string",
+      "bboxJSON": "string",
+      "caption": "string",
       "charEnd": 1,
       "charStart": 1,
       "chunkIndex": 1,
       "content": "string",
       "createdTime": 1,
       "documentID": 1,
+      "extraJSON": "string",
       "headingPath": "string",
       "id": 1,
       "knowledgeID": 1,
+      "mediaURI": "string",
+      "mimeType": "string",
+      "pageIdx": 1,
       "relatedCount": 1,
       "sourceDocumentIDs": [
         1
@@ -3729,15 +4842,21 @@ ur api /api/v1/ai/knowledge/compile/retry \
         "score": 1,
         "targetArtifact": {
           "artifactType": "string",
+          "bboxJSON": "string",
+          "caption": "string",
           "charEnd": 1,
           "charStart": 1,
           "chunkIndex": 1,
           "content": "string",
           "createdTime": 1,
           "documentID": 1,
+          "extraJSON": "string",
           "headingPath": "string",
           "id": 1,
           "knowledgeID": 1,
+          "mediaURI": "string",
+          "mimeType": "string",
+          "pageIdx": 1,
           "relatedCount": 1,
           "sourceDocumentIDs": [
             1
@@ -3857,15 +4976,21 @@ ur api /api/v1/ai/knowledge/document/get-content \
     "articles": [
       {
         "artifactType": "string",
+        "bboxJSON": "string",
+        "caption": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
         "content": "string",
         "createdTime": 1,
         "documentID": 1,
+        "extraJSON": "string",
         "headingPath": "string",
         "id": 1,
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
+        "pageIdx": 1,
         "relatedCount": 1,
         "sourceDocumentIDs": [
           1
@@ -3878,15 +5003,21 @@ ur api /api/v1/ai/knowledge/document/get-content \
     "chunks": [
       {
         "artifactType": "string",
+        "bboxJSON": "string",
+        "caption": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
         "content": "string",
         "createdTime": 1,
         "documentID": 1,
+        "extraJSON": "string",
         "headingPath": "string",
         "id": 1,
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
+        "pageIdx": 1,
         "relatedCount": 1,
         "sourceDocumentIDs": [
           1
@@ -3900,15 +5031,21 @@ ur api /api/v1/ai/knowledge/document/get-content \
     "concepts": [
       {
         "artifactType": "string",
+        "bboxJSON": "string",
+        "caption": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
         "content": "string",
         "createdTime": 1,
         "documentID": 1,
+        "extraJSON": "string",
         "headingPath": "string",
         "id": 1,
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
+        "pageIdx": 1,
         "relatedCount": 1,
         "sourceDocumentIDs": [
           1
@@ -3981,15 +5118,21 @@ ur api /api/v1/ai/knowledge/document/get-content \
     "sourceDownloadURL": "string",
     "summary": {
       "artifactType": "string",
+      "bboxJSON": "string",
+      "caption": "string",
       "charEnd": 1,
       "charStart": 1,
       "chunkIndex": 1,
       "content": "string",
       "createdTime": 1,
       "documentID": 1,
+      "extraJSON": "string",
       "headingPath": "string",
       "id": 1,
       "knowledgeID": 1,
+      "mediaURI": "string",
+      "mimeType": "string",
+      "pageIdx": 1,
       "relatedCount": 1,
       "sourceDocumentIDs": [
         1
@@ -4021,16 +5164,23 @@ ur api /api/v1/ai/knowledge/document/get-detail \
 |------|------|------|------|
 | `knowledgeID` | integer | 是 | 格式: int64 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "knowledgeID": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -4082,7 +5232,7 @@ ur api /api/v1/ai/knowledge/document/get-detail \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/knowledge/document/get-failed-list \
-  --body '{"knowledgeID": 1, "page": {"page": 1, "pageSize": 1}}'
+  --body '{"knowledgeID": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/knowledge/document/get-tree`
@@ -4369,6 +5519,7 @@ ur api /api/v1/ai/knowledge/export/get-status \
 | `id` | integer | 否 | 格式: int64 |
 | `lastCompileTime` | integer | 否 | 格式: int64 |
 | `name` | string | 是 |  |
+| `scope` | string | 否 | 归属层级：platform=平台公共库(common)，tenant=租户级库 |
 | `status` | string | 否 |  |
 | `tenantCode` | string | 否 |  |
 | `updatedTime` | integer | 否 | 格式: int64 |
@@ -4384,6 +5535,7 @@ ur api /api/v1/ai/knowledge/export/get-status \
   "id": 1,
   "lastCompileTime": 1,
   "name": "string",
+  "scope": "string",
   "status": "string",
   "tenantCode": "string",
   "updatedTime": 1
@@ -4404,7 +5556,7 @@ ur api /api/v1/ai/knowledge/export/get-status \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/knowledge/info/create \
-  --body '{"compiledDocumentCount": 1, "createdTime": 1, "desc": "string", "documentCount": 1, "failedDocumentCount": 1, "id": 1, "lastCompileTime": 1, "name": "string", "status": "string", "tenantCode": "string", "updatedTime": 1}'
+  --body '{"compiledDocumentCount": 1, "createdTime": 1, "desc": "string", "documentCount": 1, "failedDocumentCount": 1, "id": 1, "lastCompileTime": 1, "name": "string", "scope": "string", "status": "string", "tenantCode": "string", "updatedTime": 1}'
 ```
 
 ### POST `/api/v1/ai/knowledge/info/delete`
@@ -4452,8 +5604,10 @@ ur api /api/v1/ai/knowledge/info/delete \
 |------|------|------|------|
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `scope` | string | 否 | 可选过滤：platform=仅平台公共库，tenant=仅本租户库，空=全部可见范围 |
 | `status` | string | 否 |  |
 | `tenantCode` | string | 否 |  |
 
@@ -4462,9 +5616,16 @@ ur api /api/v1/ai/knowledge/info/delete \
 {
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
+  "scope": "string",
   "status": "string",
   "tenantCode": "string"
 }
@@ -4485,6 +5646,7 @@ ur api /api/v1/ai/knowledge/info/delete \
         "id": 1,
         "lastCompileTime": 1,
         "name": "string",
+        "scope": "string",
         "status": "string",
         "tenantCode": "string",
         "updatedTime": 1
@@ -4499,7 +5661,7 @@ ur api /api/v1/ai/knowledge/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/knowledge/info/get-list \
-  --body '{"name": "string", "page": {"page": 1, "pageSize": 1}, "status": "string", "tenantCode": "string"}'
+  --body '{"name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "scope": "string", "status": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/knowledge/info/get-one`
@@ -4534,6 +5696,7 @@ ur api /api/v1/ai/knowledge/info/get-list \
     "id": 1,
     "lastCompileTime": 1,
     "name": "string",
+    "scope": "string",
     "status": "string",
     "tenantCode": "string",
     "updatedTime": 1
@@ -4585,6 +5748,7 @@ ur api /api/v1/ai/knowledge/info/get-one \
     "chunks": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -4592,6 +5756,8 @@ ur api /api/v1/ai/knowledge/info/get-one \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -4615,6 +5781,7 @@ ur api /api/v1/ai/knowledge/info/get-one \
     "expandedChunks": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -4622,6 +5789,8 @@ ur api /api/v1/ai/knowledge/info/get-one \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -4633,6 +5802,7 @@ ur api /api/v1/ai/knowledge/info/get-one \
     "list": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -4640,6 +5810,8 @@ ur api /api/v1/ai/knowledge/info/get-one \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -4681,6 +5853,7 @@ ur api /api/v1/ai/knowledge/info/search \
 | `id` | integer | 否 | 格式: int64 |
 | `lastCompileTime` | integer | 否 | 格式: int64 |
 | `name` | string | 是 |  |
+| `scope` | string | 否 | 归属层级：platform=平台公共库(common)，tenant=租户级库 |
 | `status` | string | 否 |  |
 | `tenantCode` | string | 否 |  |
 | `updatedTime` | integer | 否 | 格式: int64 |
@@ -4696,6 +5869,7 @@ ur api /api/v1/ai/knowledge/info/search \
   "id": 1,
   "lastCompileTime": 1,
   "name": "string",
+  "scope": "string",
   "status": "string",
   "tenantCode": "string",
   "updatedTime": 1
@@ -4716,7 +5890,7 @@ ur api /api/v1/ai/knowledge/info/search \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/knowledge/info/update \
-  --body '{"compiledDocumentCount": 1, "createdTime": 1, "desc": "string", "documentCount": 1, "failedDocumentCount": 1, "id": 1, "lastCompileTime": 1, "name": "string", "status": "string", "tenantCode": "string", "updatedTime": 1}'
+  --body '{"compiledDocumentCount": 1, "createdTime": 1, "desc": "string", "documentCount": 1, "failedDocumentCount": 1, "id": 1, "lastCompileTime": 1, "name": "string", "scope": "string", "status": "string", "tenantCode": "string", "updatedTime": 1}'
 ```
 
 ### POST `/api/v1/ai/knowledge/tool/get-chunk-relations`
@@ -4753,15 +5927,21 @@ ur api /api/v1/ai/knowledge/info/update \
   "data": {
     "artifact": {
       "artifactType": "string",
+      "bboxJSON": "string",
+      "caption": "string",
       "charEnd": 1,
       "charStart": 1,
       "chunkIndex": 1,
       "content": "string",
       "createdTime": 1,
       "documentID": 1,
+      "extraJSON": "string",
       "headingPath": "string",
       "id": 1,
       "knowledgeID": 1,
+      "mediaURI": "string",
+      "mimeType": "string",
+      "pageIdx": 1,
       "relatedCount": 1,
       "sourceDocumentIDs": [
         1
@@ -4783,15 +5963,21 @@ ur api /api/v1/ai/knowledge/info/update \
         "score": 1,
         "targetArtifact": {
           "artifactType": "string",
+          "bboxJSON": "string",
+          "caption": "string",
           "charEnd": 1,
           "charStart": 1,
           "chunkIndex": 1,
           "content": "string",
           "createdTime": 1,
           "documentID": 1,
+          "extraJSON": "string",
           "headingPath": "string",
           "id": 1,
           "knowledgeID": 1,
+          "mediaURI": "string",
+          "mimeType": "string",
+          "pageIdx": 1,
           "relatedCount": 1,
           "sourceDocumentIDs": [
             1
@@ -4921,6 +6107,7 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
     "chunks": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -4928,6 +6115,8 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -4951,6 +6140,7 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
     "expandedChunks": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -4958,6 +6148,8 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -4969,6 +6161,7 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
     "list": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -4976,6 +6169,8 @@ ur api /api/v1/ai/knowledge/tool/get-document-content \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -5141,8 +6336,9 @@ ur api /api/v1/ai/mcp/service/delete \
 | `enabled` | boolean | 否 |  启用状态过滤 (格式: boolean) |
 | `nameLike` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
@@ -5151,8 +6347,14 @@ ur api /api/v1/ai/mcp/service/delete \
   "enabled": true,
   "nameLike": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "tenantCode": "string"
 }
@@ -5185,7 +6387,7 @@ ur api /api/v1/ai/mcp/service/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/mcp/service/get-list \
-  --body '{"enabled": true, "nameLike": "示例名称", "page": {"page": 1, "pageSize": 1}, "tenantCode": "string"}'
+  --body '{"enabled": true, "nameLike": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/mcp/service/get-one`
@@ -5374,8 +6576,9 @@ ur api /api/v1/ai/mcp/tools/get-tools \
 | `archiveReason` | string | 否 |  归档原因过滤 |
 | `cloneID` | string | 否 |  分身ID（不传则查全部） |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5383,8 +6586,14 @@ ur api /api/v1/ai/mcp/tools/get-tools \
   "archiveReason": "string",
   "cloneID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -5414,7 +6623,7 @@ ur api /api/v1/ai/mcp/tools/get-tools \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/memory/debug/archives/get-list \
-  --body '{"archiveReason": "string", "cloneID": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"archiveReason": "string", "cloneID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/memory/debug/dream-runs/get-list`
@@ -5429,8 +6638,9 @@ ur api /api/v1/ai/memory/debug/archives/get-list \
 |------|------|------|------|
 | `cloneID` | string | 否 |  分身ID（不传则查全部） |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  状态过滤 running/success/skipped/failed |
 
 **请求示例**:
@@ -5438,8 +6648,14 @@ ur api /api/v1/ai/memory/debug/archives/get-list \
 {
   "cloneID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": "string"
 }
@@ -5474,7 +6690,7 @@ ur api /api/v1/ai/memory/debug/archives/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/memory/debug/dream-runs/get-list \
-  --body '{"cloneID": "string", "page": {"page": 1, "pageSize": 1}, "status": "string"}'
+  --body '{"cloneID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string"}'
 ```
 
 ### POST `/api/v1/ai/memory/debug/overview`
@@ -5535,16 +6751,23 @@ ur api /api/v1/ai/memory/debug/overview \
 |------|------|------|------|
 | `cloneID` | string | 否 |  分身ID（不传则查全部） |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "cloneID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -5574,7 +6797,7 @@ ur api /api/v1/ai/memory/debug/overview \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/memory/debug/pipeline-state/get-list \
-  --body '{"cloneID": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"cloneID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/memory/debug/traces/get-list`
@@ -5589,8 +6812,9 @@ ur api /api/v1/ai/memory/debug/pipeline-state/get-list \
 |------|------|------|------|
 | `cloneID` | string | 否 |  分身ID（不传则查全部） |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `query` | string | 否 |  查询内容模糊搜索 |
 
 **请求示例**:
@@ -5598,8 +6822,14 @@ ur api /api/v1/ai/memory/debug/pipeline-state/get-list \
 {
   "cloneID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "query": "string"
 }
@@ -5631,7 +6861,7 @@ ur api /api/v1/ai/memory/debug/pipeline-state/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/memory/debug/traces/get-list \
-  --body '{"cloneID": "string", "page": {"page": 1, "pageSize": 1}, "query": "string"}'
+  --body '{"cloneID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "query": "string"}'
 ```
 
 ### POST `/api/v1/ai/session/archive`
@@ -5644,7 +6874,7 @@ ur api /api/v1/ai/memory/debug/traces/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5759,7 +6989,7 @@ ur api /api/v1/ai/session/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5796,8 +7026,9 @@ ur api /api/v1/ai/session/end \
 | `cloneID` | integer | 否 |  按Clone ID过滤 (格式: int64) |
 | `endTime` | integer | 否 |  结束时间戳 (格式: int64) |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `startTime` | integer | 否 |  开始时间戳 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 (格式: int64) |
 | `tenantCode` | string | 否 |  租户编码过滤 |
@@ -5810,8 +7041,14 @@ ur api /api/v1/ai/session/end \
   "cloneID": 1,
   "endTime": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "startTime": 1,
   "status": 1,
@@ -5850,7 +7087,7 @@ ur api /api/v1/ai/session/end \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/session/get-list \
-  --body '{"agentID": 1, "cloneID": 1, "endTime": 1, "page": {"page": 1, "pageSize": 1}, "startTime": 1, "status": 1, "tenantCode": "string", "userID": 1}'
+  --body '{"agentID": 1, "cloneID": 1, "endTime": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "startTime": 1, "status": 1, "tenantCode": "string", "userID": 1}'
 ```
 
 ### POST `/api/v1/ai/session/get-one`
@@ -5954,8 +7191,9 @@ ur api /api/v1/ai/session/inject \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `sessionID` | string | 是 |  会话ID |
 | `tenantCode` | string | 否 |  租户编码 |
 
@@ -5963,8 +7201,14 @@ ur api /api/v1/ai/session/inject \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "sessionID": "string",
   "tenantCode": "string"
@@ -5994,7 +7238,7 @@ ur api /api/v1/ai/session/inject \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/session/messages \
-  --body '{"page": {"page": 1, "pageSize": 1}, "sessionID": "string", "tenantCode": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "sessionID": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/skill/create`
@@ -6075,7 +7319,7 @@ ur api /api/v1/ai/skill/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -6108,7 +7352,7 @@ ur api /api/v1/ai/skill/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -6147,8 +7391,9 @@ ur api /api/v1/ai/skill/download \
 |------|------|------|------|
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | integer | 否 |  父技能ID过滤 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 (格式: int64) |
 | `tenantCode` | string | 否 |  租户编码过滤 |
@@ -6158,8 +7403,14 @@ ur api /api/v1/ai/skill/download \
 {
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": 1,
   "status": 1,
@@ -6202,7 +7453,7 @@ ur api /api/v1/ai/skill/download \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/skill/get-list \
-  --body '{"name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": 1, "status": 1, "tenantCode": "string"}'
+  --body '{"name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": 1, "status": 1, "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/skill/get-one`
@@ -6215,7 +7466,7 @@ ur api /api/v1/ai/skill/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -6552,6 +7803,375 @@ ur api /api/v1/ai/skill/file/update \
   --body '{"content": "string", "path": "string", "skillID": 1}'
 ```
 
+### POST `/api/v1/ai/speaker/embedding/create`
+
+**说明**: 注册声纹
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `audioPath` | string | 否 |  原始音频存储路径 |
+| `cloneGroupID` | integer | 是 |  所属Clone组ID (格式: int64) |
+| `createdTime` | integer | 否 |  创建时间 (格式: int64) |
+| `embedding` | string | 否 |  声纹特征向量（JSON数组，仅查询时返回） |
+| `id` | integer | 否 |  声纹ID (格式: int64) |
+| `personaPrompt` | string | 否 |  个性化提示词 |
+| `speakerName` | string | 是 |  说话人名称 |
+| `status` | string | 否 |  状态 1-启用 2-禁用 |
+| `tenantCode` | string | 否 |  租户编码 |
+| `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "audioPath": "string",
+  "cloneGroupID": 1,
+  "createdTime": 1,
+  "embedding": "string",
+  "id": 1,
+  "personaPrompt": "string",
+  "speakerName": "示例名称",
+  "status": "string",
+  "tenantCode": "string",
+  "updatedTime": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/speaker/embedding/create \
+  --body '{"audioPath": "string", "cloneGroupID": 1, "createdTime": 1, "embedding": "string", "id": 1, "personaPrompt": "string", "speakerName": "示例名称", "status": "string", "tenantCode": "string", "updatedTime": 1}'
+```
+
+### POST `/api/v1/ai/speaker/embedding/delete`
+
+**说明**: 删除声纹
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 是 |  声纹ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/speaker/embedding/delete \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/ai/speaker/embedding/extract`
+
+**说明**: 提取声纹特征向量
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `audioBase64` | string | 是 |  音频数据（Base64编码的PCM或WAV） |
+| `sampleRate` | integer | 否 |  采样率（默认16000） (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "audioBase64": "string",
+  "sampleRate": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "audioQuality": {
+      "checks": [
+        {
+          "message": "string",
+          "name": "示例名称",
+          "passed": true,
+          "threshold": 1,
+          "value": 1
+        }
+      ],
+      "level": "string",
+      "message": "string",
+      "passed": true,
+      "score": 1
+    },
+    "embedding": [
+      1
+    ],
+    "embeddingQuality": {
+      "checks": [
+        {
+          "message": "string",
+          "name": "示例名称",
+          "passed": true,
+          "threshold": 1,
+          "value": 1
+        }
+      ],
+      "level": "string",
+      "message": "string",
+      "passed": true,
+      "score": 1
+    }
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/speaker/embedding/extract \
+  --body '{"audioBase64": "string", "sampleRate": 1}'
+```
+
+### POST `/api/v1/ai/speaker/embedding/get-list`
+
+**说明**: 获取声纹列表
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `cloneGroupID` | integer | 是 |  按Clone组过滤 (格式: int64) |
+| `page` | object | 是 |  |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `speakerName` | string | 否 |  说话人名称模糊搜索 |
+| `status` | integer | 否 |  状态过滤 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "cloneGroupID": 1,
+  "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
+    "page": 1,
+    "size": 1
+  },
+  "speakerName": "示例名称",
+  "status": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "audioPath": "string",
+        "cloneGroupID": 1,
+        "createdTime": 1,
+        "embedding": "string",
+        "id": 1,
+        "personaPrompt": "string",
+        "speakerName": "示例名称",
+        "status": "string",
+        "tenantCode": "string",
+        "updatedTime": 1
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/speaker/embedding/get-list \
+  --body '{"cloneGroupID": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "speakerName": "示例名称", "status": 1}'
+```
+
+### POST `/api/v1/ai/speaker/embedding/get-one`
+
+**说明**: 获取声纹详情
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 否 |  id (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "audioPath": "string",
+    "cloneGroupID": 1,
+    "createdTime": 1,
+    "embedding": "string",
+    "id": 1,
+    "personaPrompt": "string",
+    "speakerName": "示例名称",
+    "status": "string",
+    "tenantCode": "string",
+    "updatedTime": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/speaker/embedding/get-one \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/ai/speaker/embedding/import`
+
+**说明**: 批量导入声纹
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `cloneGroupID` | integer | 是 |  Clone组ID (格式: int64) |
+| `speakers` | array[SpeakerImportItem] | 是 |  声纹列表 |
+
+**请求示例**:
+```json
+{
+  "cloneGroupID": 1,
+  "speakers": [
+    {
+      "audioBase64": "string",
+      "embedding": [
+        1
+      ],
+      "personaPrompt": "string",
+      "speakerName": "示例名称"
+    }
+  ]
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "failed": 1,
+    "imported": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/speaker/embedding/import \
+  --body '{"cloneGroupID": 1, "speakers": [{"audioBase64": "string", "embedding": [1], "personaPrompt": "string", "speakerName": "示例名称"}]}'
+```
+
+### POST `/api/v1/ai/speaker/embedding/update`
+
+**说明**: 更新声纹
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `audioPath` | string | 否 |  原始音频存储路径 |
+| `cloneGroupID` | integer | 是 |  所属Clone组ID (格式: int64) |
+| `createdTime` | integer | 否 |  创建时间 (格式: int64) |
+| `embedding` | string | 否 |  声纹特征向量（JSON数组，仅查询时返回） |
+| `id` | integer | 否 |  声纹ID (格式: int64) |
+| `personaPrompt` | string | 否 |  个性化提示词 |
+| `speakerName` | string | 是 |  说话人名称 |
+| `status` | string | 否 |  状态 1-启用 2-禁用 |
+| `tenantCode` | string | 否 |  租户编码 |
+| `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "audioPath": "string",
+  "cloneGroupID": 1,
+  "createdTime": 1,
+  "embedding": "string",
+  "id": 1,
+  "personaPrompt": "string",
+  "speakerName": "示例名称",
+  "status": "string",
+  "tenantCode": "string",
+  "updatedTime": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/speaker/embedding/update \
+  --body '{"audioPath": "string", "cloneGroupID": 1, "createdTime": 1, "embedding": "string", "id": 1, "personaPrompt": "string", "speakerName": "示例名称", "status": "string", "tenantCode": "string", "updatedTime": 1}'
+```
+
 ### POST `/api/v1/ai/tool/create`
 
 **说明**: 创建工具
@@ -6562,18 +8182,26 @@ ur api /api/v1/ai/skill/file/update \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `agentGroupID` | string | 是 |  关联AgentGroup ID |
+| `agentGroupID` | string | 否 |  关联AgentGroup ID（兼容） |
+| `cloneGroupID` | string | 否 |  所属CloneGroup ID |
 | `code` | string | 是 |  工具编码 |
+| `config` | string | 否 |  工具配置（JSON） |
 | `description` | string | 否 |  工具描述 |
+| `inputSchema` | string | 否 |  输入参数schema（JSON） |
 | `name` | string | 是 |  工具名称 |
+| `toolType` | string | 否 |  工具类型 |
 
 **请求示例**:
 ```json
 {
   "agentGroupID": "string",
+  "cloneGroupID": "string",
   "code": "string",
+  "config": "string",
   "description": "string",
-  "name": "示例名称"
+  "inputSchema": "string",
+  "name": "示例名称",
+  "toolType": "string"
 }
 ```
 
@@ -6591,7 +8219,7 @@ ur api /api/v1/ai/skill/file/update \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/tool/create \
-  --body '{"agentGroupID": "string", "code": "string", "description": "string", "name": "示例名称"}'
+  --body '{"agentGroupID": "string", "cloneGroupID": "string", "code": "string", "config": "string", "description": "string", "inputSchema": "string", "name": "示例名称", "toolType": "string"}'
 ```
 
 ### POST `/api/v1/ai/tool/delete`
@@ -6604,7 +8232,7 @@ ur api /api/v1/ai/tool/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -6637,7 +8265,7 @@ ur api /api/v1/ai/tool/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -6660,6 +8288,43 @@ ur api /api/v1/ai/tool/disable \
   --body '{"id": 1}'
 ```
 
+### POST `/api/v1/ai/tool/export`
+
+**说明**: 导出工具zip包
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 是 |  工具ID |
+
+**请求示例**:
+```json
+{
+  "id": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "fileName": "string",
+    "zipData": "string"
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/tool/export \
+  --body '{"id": "string"}'
+```
+
 ### POST `/api/v1/ai/tool/get-list`
 
 **说明**: 获取工具列表
@@ -6670,23 +8335,34 @@ ur api /api/v1/ai/tool/disable \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `agentGroupID` | string | 否 |  AgentGroup过滤 |
+| `agentGroupID` | string | 否 |  AgentGroup过滤（兼容） |
+| `cloneGroupID` | string | 否 |  CloneGroup过滤 |
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  状态过滤 |
+| `toolType` | string | 否 |  工具类型过滤 |
 
 **请求示例**:
 ```json
 {
   "agentGroupID": "string",
+  "cloneGroupID": "string",
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
-  "status": "string"
+  "status": "string",
+  "toolType": "string"
 }
 ```
 
@@ -6698,14 +8374,18 @@ ur api /api/v1/ai/tool/disable \
     "list": [
       {
         "agentGroupID": "string",
+        "cloneGroupID": "string",
         "code": "string",
+        "config": "string",
         "createdTime": 1,
         "description": "string",
         "groupName": "示例名称",
         "id": "string",
+        "inputSchema": "string",
         "name": "示例名称",
         "status": "string",
         "tenantCode": "string",
+        "toolType": "string",
         "version": "string"
       }
     ],
@@ -6718,7 +8398,7 @@ ur api /api/v1/ai/tool/disable \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/tool/get-list \
-  --body '{"agentGroupID": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": "string"}'
+  --body '{"agentGroupID": "string", "cloneGroupID": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string", "toolType": "string"}'
 ```
 
 ### POST `/api/v1/ai/tool/get-one`
@@ -6752,14 +8432,18 @@ ur api /api/v1/ai/tool/get-list \
     },
     "info": {
       "agentGroupID": "string",
+      "cloneGroupID": "string",
       "code": "string",
+      "config": "string",
       "createdTime": 1,
       "description": "string",
       "groupName": "示例名称",
       "id": "string",
+      "inputSchema": "string",
       "name": "示例名称",
       "status": "string",
       "tenantCode": "string",
+      "toolType": "string",
       "version": "string"
     }
   },
@@ -6773,6 +8457,44 @@ ur api /api/v1/ai/tool/get-one \
   --body '{"id": "string"}'
 ```
 
+### POST `/api/v1/ai/tool/import`
+
+**说明**: 导入工具zip包
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 是 |  工具ID |
+| `zipData` | string | 是 |  Base64编码的zip包数据 |
+
+**请求示例**:
+```json
+{
+  "id": "string",
+  "zipData": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/tool/import \
+  --body '{"id": "string", "zipData": "string"}'
+```
+
 ### POST `/api/v1/ai/tool/publish`
 
 **说明**: 发布工具
@@ -6783,7 +8505,7 @@ ur api /api/v1/ai/tool/get-one \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -6931,16 +8653,23 @@ ur api /api/v1/ai/tool/run \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `toolID` | string | 是 |  工具ID |
 
 **请求示例**:
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "toolID": "string"
 }
@@ -6956,6 +8685,7 @@ ur api /api/v1/ai/tool/run \
         "durationMs": "string",
         "errorMsg": "string",
         "logs": "string",
+        "output": "string",
         "runID": "string",
         "state": "string",
         "status": "string"
@@ -6970,7 +8700,7 @@ ur api /api/v1/ai/tool/run \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/tool/run-history \
-  --body '{"page": {"page": 1, "pageSize": 1}, "toolID": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "toolID": "string"}'
 ```
 
 ### POST `/api/v1/ai/tool/run-status`
@@ -7000,6 +8730,7 @@ ur api /api/v1/ai/tool/run-history \
     "durationMs": "string",
     "errorMsg": "string",
     "logs": "string",
+    "output": "string",
     "runID": "string",
     "state": "string",
     "status": "string"
@@ -7144,9 +8875,9 @@ ur api /api/v1/things/ai/mcp/sse \
   --body '{}'
 ```
 
-### POST `/api/v1/things/alarm/info/create`
+### POST `/api/v1/things/alarm/capability/get-one`
 
-**说明**: 新增告警
+**说明**: 获取告警能力矩阵
 
 **权限**: admin
 
@@ -7154,53 +8885,115 @@ ur api /api/v1/things/ai/mcp/sse \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `accounts` | array[string] | 否 | 账号 |
-| `code` | string | 否 |  |
-| `createdTime` | string | 否 |  |
-| `desc` | string | 否 |  |
-| `id` | string | 否 |  |
-| `level` | integer | 否 | 告警配置级别（1提醒 2一般 3严重 4紧急 5超紧急） (格式: int64) |
-| `name` | string | 否 |  |
-| `notifies` | array[AlarmNotify] | 否 | 通知 |
-| `sceneIDs` | array[integer] | 否 | 绑定的场景列表 |
-| `scenes` | array[SceneCore] | 否 | 绑定的场景列表,只读 |
-| `status` | integer | 否 | 状态: 1启用 2禁用 (格式: int64) |
-| `userIDs` | array[string] | 否 | 指定用户ID |
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "criteria": [
+      {
+        "allowedChildren": [
+          "string"
+        ],
+        "type": "string"
+      }
+    ],
+    "notify": {
+      "callbackAuthTypes": [
+        "string"
+      ],
+      "callbackMethods": [
+        "string"
+      ],
+      "channels": [
+        "string"
+      ],
+      "timings": [
+        "string"
+      ]
+    },
+    "sources": [
+      {
+        "aggregates": [
+          {
+            "compares": {},
+            "dataType": "string",
+            "values": []
+          }
+        ],
+        "compareTypes": [
+          "string"
+        ],
+        "dataTypes": [
+          "string"
+        ],
+        "sourceType": "string",
+        "supportsFilters": true
+      }
+    ],
+    "targets": [
+      "string"
+    ],
+    "version": "string"
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/capability/get-one \
+  --body '{}'
+```
+
+### POST `/api/v1/things/alarm/condition-template/create`
+
+**说明**: 创建触发条件模板
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `desc` | string | 否 |  描述 |
+| `if` | object | 否 |  |
+| `if.triggers` | array[AlarmTrigger] | 否 |  触发器列表 |
+| `name` | string | 是 |  名称 |
+| `productCategoryID` | string | 否 |  产品品类ID |
+| `productID` | string | 否 |  产品ID |
 
 **请求示例**:
 ```json
 {
-  "accounts": [
-    "string"
-  ],
-  "code": "string",
-  "createdTime": "string",
   "desc": "string",
-  "id": "string",
-  "level": 1,
-  "name": "string",
-  "notifies": [
-    {
-      "templateID": "string",
-      "templateName": "示例名称",
-      "type": "string"
-    }
-  ],
-  "sceneIDs": [
-    1
-  ],
-  "scenes": [
-    {
-      "desc": "string",
-      "id": "string",
-      "name": "string",
-      "status": 1
-    }
-  ],
-  "status": 1,
-  "userIDs": [
-    "string"
-  ]
+  "if": {
+    "triggers": [
+      {
+        "criteria": [
+          {
+            "duration": "...",
+            "frequency": "...",
+            "id": "...",
+            "kOfN": "...",
+            "order": "...",
+            "plain": "...",
+            "rollingAggregate": "...",
+            "type": "..."
+          }
+        ],
+        "id": "string",
+        "level": "string",
+        "templateID": "string",
+        "templateName": "示例名称",
+        "type": "string"
+      }
+    ]
+  },
+  "name": "示例名称",
+  "productCategoryID": "string",
+  "productID": "string"
 }
 ```
 
@@ -7209,7 +9002,7 @@ ur api /api/v1/things/ai/mcp/sse \
 {
   "code": 200,
   "data": {
-    "id": 1
+    "id": "string"
   },
   "msg": "success"
 }
@@ -7217,13 +9010,13 @@ ur api /api/v1/things/ai/mcp/sse \
 
 **调用示例**:
 ```bash
-ur api /api/v1/things/alarm/info/create \
-  --body '{"accounts": ["string"], "code": "string", "createdTime": "string", "desc": "string", "id": "string", "level": 1, "name": "string", "notifies": [{"templateID": "string", "templateName": "示例名称", "type": "string"}], "sceneIDs": [1], "scenes": [{"desc": "string", "id": "string", "name": "string", "status": 1}], "status": 1, "userIDs": ["string"]}'
+ur api /api/v1/things/alarm/condition-template/create \
+  --body '{"desc": "string", "if": {"triggers": [{"criteria": [{"duration": "...", "frequency": "...", "id": "...", "kOfN": "...", "order": "...", "plain": "...", "rollingAggregate": "...", "type": "..."}], "id": "string", "level": "string", "templateID": "string", "templateName": "示例名称", "type": "string"}]}, "name": "示例名称", "productCategoryID": "string", "productID": "string"}'
 ```
 
-### POST `/api/v1/things/alarm/info/delete`
+### POST `/api/v1/things/alarm/condition-template/delete`
 
-**说明**: 删除告警
+**说明**: 删除触发条件模板
 
 **权限**: admin
 
@@ -7231,12 +9024,12 @@ ur api /api/v1/things/alarm/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | string | 否 |  ID |
 
 **请求示例**:
 ```json
 {
-  "id": 1
+  "id": "string"
 }
 ```
 
@@ -7244,19 +9037,20 @@ ur api /api/v1/things/alarm/info/create \
 ```json
 {
   "code": 200,
+  "data": {},
   "msg": "success"
 }
 ```
 
 **调用示例**:
 ```bash
-ur api /api/v1/things/alarm/info/delete \
-  --body '{"id": 1}'
+ur api /api/v1/things/alarm/condition-template/delete \
+  --body '{"id": "string"}'
 ```
 
-### POST `/api/v1/things/alarm/info/get-list`
+### POST `/api/v1/things/alarm/condition-template/get-list`
 
-**说明**: 获取告警信息列表
+**说明**: 获取触发条件模板列表
 
 **权限**: admin
 
@@ -7264,21 +9058,32 @@ ur api /api/v1/things/alarm/info/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `code` | string | 否 |  |
-| `name` | string | 否 | 告警名模糊查询 |
+| `keyword` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `productCategoryID` | string | 否 |  产品品类ID |
+| `productID` | string | 否 |  产品ID |
+| `status` | integer | 否 |  状态 (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "code": "string",
-  "name": "string",
+  "keyword": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
-  }
+    "size": 1
+  },
+  "productCategoryID": "string",
+  "productID": "string",
+  "status": 1
 }
 ```
 
@@ -7289,37 +9094,27 @@ ur api /api/v1/things/alarm/info/delete \
   "data": {
     "list": [
       {
-        "accounts": [
-          "string"
-        ],
-        "code": "string",
-        "createdTime": "string",
+        "createdTime": "2026-01-01T00:00:00Z",
         "desc": "string",
         "id": "string",
-        "level": 1,
-        "name": "string",
-        "notifies": [
-          {
-            "templateID": "string",
-            "templateName": "示例名称",
-            "type": "string"
-          }
-        ],
-        "sceneIDs": [
-          1
-        ],
-        "scenes": [
-          {
-            "desc": "string",
-            "id": "string",
-            "name": "string",
-            "status": 1
-          }
-        ],
+        "if": {
+          "triggers": [
+            {
+              "criteria": "...",
+              "id": "...",
+              "level": "...",
+              "templateID": "...",
+              "templateName": "...",
+              "type": "..."
+            }
+          ]
+        },
+        "name": "示例名称",
+        "productCategoryID": "string",
+        "productID": "string",
+        "refCount": 1,
         "status": 1,
-        "userIDs": [
-          "string"
-        ]
+        "updatedTime": "2026-01-01T00:00:00Z"
       }
     ],
     "page": 1,
@@ -7332,13 +9127,13 @@ ur api /api/v1/things/alarm/info/delete \
 
 **调用示例**:
 ```bash
-ur api /api/v1/things/alarm/info/get-list \
-  --body '{"code": "string", "name": "string", "page": {"page": 1, "pageSize": 1}}'
+ur api /api/v1/things/alarm/condition-template/get-list \
+  --body '{"keyword": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productCategoryID": "string", "productID": "string", "status": 1}'
 ```
 
-### POST `/api/v1/things/alarm/info/get-one`
+### POST `/api/v1/things/alarm/condition-template/get-one`
 
-**说明**: 获取告警信息
+**说明**: 获取触发条件模板详情
 
 **权限**: admin
 
@@ -7346,153 +9141,11 @@ ur api /api/v1/things/alarm/info/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | string | 否 |  ID |
 
 **请求示例**:
 ```json
 {
-  "id": 1
-}
-```
-
-**响应示例**:
-```json
-{
-  "code": 200,
-  "data": {
-    "accounts": [
-      "string"
-    ],
-    "code": "string",
-    "createdTime": "string",
-    "desc": "string",
-    "id": "string",
-    "level": 1,
-    "name": "string",
-    "notifies": [
-      {
-        "templateID": "string",
-        "templateName": "示例名称",
-        "type": "string"
-      }
-    ],
-    "sceneIDs": [
-      1
-    ],
-    "scenes": [
-      {
-        "desc": "string",
-        "id": "string",
-        "name": "string",
-        "status": 1
-      }
-    ],
-    "status": 1,
-    "userIDs": [
-      "string"
-    ]
-  },
-  "msg": "success"
-}
-```
-
-**调用示例**:
-```bash
-ur api /api/v1/things/alarm/info/get-one \
-  --body '{"id": 1}'
-```
-
-### POST `/api/v1/things/alarm/info/update`
-
-**说明**: 更新告警
-
-**权限**: admin
-
-**请求体字段**:
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `accounts` | array[string] | 否 | 账号 |
-| `code` | string | 否 |  |
-| `createdTime` | string | 否 |  |
-| `desc` | string | 否 |  |
-| `id` | string | 否 |  |
-| `level` | integer | 否 | 告警配置级别（1提醒 2一般 3严重 4紧急 5超紧急） (格式: int64) |
-| `name` | string | 否 |  |
-| `notifies` | array[AlarmNotify] | 否 | 通知 |
-| `sceneIDs` | array[integer] | 否 | 绑定的场景列表 |
-| `scenes` | array[SceneCore] | 否 | 绑定的场景列表,只读 |
-| `status` | integer | 否 | 状态: 1启用 2禁用 (格式: int64) |
-| `userIDs` | array[string] | 否 | 指定用户ID |
-
-**请求示例**:
-```json
-{
-  "accounts": [
-    "string"
-  ],
-  "code": "string",
-  "createdTime": "string",
-  "desc": "string",
-  "id": "string",
-  "level": 1,
-  "name": "string",
-  "notifies": [
-    {
-      "templateID": "string",
-      "templateName": "示例名称",
-      "type": "string"
-    }
-  ],
-  "sceneIDs": [
-    1
-  ],
-  "scenes": [
-    {
-      "desc": "string",
-      "id": "string",
-      "name": "string",
-      "status": 1
-    }
-  ],
-  "status": 1,
-  "userIDs": [
-    "string"
-  ]
-}
-```
-
-**响应示例**:
-```json
-{
-  "code": 200,
-  "msg": "success"
-}
-```
-
-**调用示例**:
-```bash
-ur api /api/v1/things/alarm/info/update \
-  --body '{"accounts": ["string"], "code": "string", "createdTime": "string", "desc": "string", "id": "string", "level": 1, "name": "string", "notifies": [{"templateID": "string", "templateName": "示例名称", "type": "string"}], "sceneIDs": [1], "scenes": [{"desc": "string", "id": "string", "name": "string", "status": 1}], "status": 1, "userIDs": ["string"]}'
-```
-
-### POST `/api/v1/things/alarm/record/deal`
-
-**说明**: 处理告警
-
-**权限**: admin
-
-**请求体字段**:
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `handle` | integer | 是 | 告警处理结果 1:无效(告警无效) 2:派单(走工作流) (格式: int64) |
-| `id` | string | 是 | 告警记录ID |
-
-**请求示例**:
-```json
-{
-  "handle": 1,
   "id": "string"
 }
 ```
@@ -7501,19 +9154,53 @@ ur api /api/v1/things/alarm/info/update \
 ```json
 {
   "code": 200,
+  "data": {
+    "createdTime": "2026-01-01T00:00:00Z",
+    "desc": "string",
+    "id": "string",
+    "if": {
+      "triggers": [
+        {
+          "criteria": [
+            {
+              "duration": "...",
+              "frequency": "...",
+              "id": "...",
+              "kOfN": "...",
+              "order": "...",
+              "plain": "...",
+              "rollingAggregate": "...",
+              "type": "..."
+            }
+          ],
+          "id": "string",
+          "level": "string",
+          "templateID": "string",
+          "templateName": "示例名称",
+          "type": "string"
+        }
+      ]
+    },
+    "name": "示例名称",
+    "productCategoryID": "string",
+    "productID": "string",
+    "refCount": 1,
+    "status": 1,
+    "updatedTime": "2026-01-01T00:00:00Z"
+  },
   "msg": "success"
 }
 ```
 
 **调用示例**:
 ```bash
-ur api /api/v1/things/alarm/record/deal \
-  --body '{"handle": 1, "id": "string"}'
+ur api /api/v1/things/alarm/condition-template/get-one \
+  --body '{"id": "string"}'
 ```
 
-### POST `/api/v1/things/alarm/record/get-list`
+### POST `/api/v1/things/alarm/condition-template/update`
 
-**说明**: 获取告警记录列表
+**说明**: 更新触发条件模板
 
 **权限**: admin
 
@@ -7521,39 +9208,193 @@ ur api /api/v1/things/alarm/record/deal \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `alarmCode` | string | 否 |  |
-| `alarmID` | string | 否 | 告警记录ID |
-| `alarmName` | string | 否 |  |
-| `areaID` | string | 否 | 区域ID过滤 |
-| `areaIDPath` | string | 否 |  |
-| `dealStatus` | array[integer] | 否 | 告警记录状态（1告警中 2忽略 3正在处理 4已处理） |
-| `deviceAlias` | string | 否 | 触发设备名称 |
-| `deviceName` | string | 否 | 触发设备ID |
-| `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
-| `timeRange` | object | 否 |  |
-| `timeRange.end` | integer | 否 | 结束时间 unix时间戳 (格式: int64) |
-| `timeRange.start` | integer | 否 | 开始时间 unix时间戳 (格式: int64) |
+| `desc` | string | 否 |  描述 |
+| `id` | string | 是 |  ID |
+| `if` | object | 否 |  |
+| `if.triggers` | array[AlarmTrigger] | 否 |  触发器列表 |
+| `name` | string | 否 |  名称 |
+| `productCategoryID` | string | 否 |  产品品类ID |
+| `productID` | string | 否 |  产品ID |
+| `status` | integer | 否 |  状态 (格式: int64) |
 
 **请求示例**:
 ```json
 {
-  "alarmCode": "string",
-  "alarmID": "string",
-  "alarmName": "string",
-  "areaID": "string",
-  "areaIDPath": "string",
-  "dealStatus": [
-    1
-  ],
-  "deviceAlias": "示例名称",
-  "deviceName": "string",
-  "page": {
-    "page": 1,
-    "pageSize": 1
+  "desc": "string",
+  "id": "string",
+  "if": {
+    "triggers": [
+      {
+        "criteria": [
+          {
+            "duration": "...",
+            "frequency": "...",
+            "id": "...",
+            "kOfN": "...",
+            "order": "...",
+            "plain": "...",
+            "rollingAggregate": "...",
+            "type": "..."
+          }
+        ],
+        "id": "string",
+        "level": "string",
+        "templateID": "string",
+        "templateName": "示例名称",
+        "type": "string"
+      }
+    ]
   },
-  "timeRange": {
+  "name": "示例名称",
+  "productCategoryID": "string",
+  "productID": "string",
+  "status": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/condition-template/update \
+  --body '{"desc": "string", "id": "string", "if": {"triggers": [{"criteria": [{"duration": "...", "frequency": "...", "id": "...", "kOfN": "...", "order": "...", "plain": "...", "rollingAggregate": "...", "type": "..."}], "id": "string", "level": "string", "templateID": "string", "templateName": "示例名称", "type": "string"}]}, "name": "示例名称", "productCategoryID": "string", "productID": "string", "status": 1}'
+```
+
+### POST `/api/v1/things/alarm/event/deal`
+
+**说明**: 处理告警事件
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `action` | string | 是 |  ack / shield / unshield |
+| `eventID` | string | 是 |  事件ID |
+| `remark` | string | 否 |  备注 |
+
+**请求示例**:
+```json
+{
+  "action": "string",
+  "eventID": "string",
+  "remark": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/event/deal \
+  --body '{"action": "string", "eventID": "string", "remark": "string"}'
+```
+
+### POST `/api/v1/things/alarm/event/false-alarm`
+
+**说明**: 标记误报
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `eventID` | string | 是 |  事件ID |
+| `reason` | string | 否 |  原因 |
+| `reasonType` | string | 是 |  configurationError / dataError / drill / other |
+
+**请求示例**:
+```json
+{
+  "eventID": "string",
+  "reason": "string",
+  "reasonType": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/event/false-alarm \
+  --body '{"eventID": "string", "reason": "string", "reasonType": "string"}'
+```
+
+### POST `/api/v1/things/alarm/event/get-list`
+
+**说明**: 获取告警事件列表
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `alarmID` | string | 否 |  告警规则ID |
+| `deviceName` | string | 否 |  设备名 |
+| `isFalseAlarm` | boolean | 否 |  是否误报 (格式: boolean) |
+| `isRecovered` | boolean | 否 |  是否已恢复 (格式: boolean) |
+| `keyword` | string | 否 |  名称模糊搜索 |
+| `level` | array[string] | 否 |  级别列表 |
+| `page` | object | 否 |  |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `productID` | string | 否 |  产品ID |
+| `status` | array[string] | 否 |  状态列表 |
+| `triggerTimeRange` | object | 否 |  |
+| `triggerTimeRange.end` | integer | 否 | 结束时间 unix时间戳 (格式: int64) |
+| `triggerTimeRange.start` | integer | 否 | 开始时间 unix时间戳 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "alarmID": "string",
+  "deviceName": "string",
+  "isFalseAlarm": true,
+  "isRecovered": true,
+  "keyword": "示例名称",
+  "level": [
+    "string"
+  ],
+  "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
+    "page": 1,
+    "size": 1
+  },
+  "productID": "string",
+  "status": [
+    "string"
+  ],
+  "triggerTimeRange": {
     "end": 1,
     "start": 1
   }
@@ -7567,21 +9408,43 @@ ur api /api/v1/things/alarm/record/deal \
   "data": {
     "list": [
       {
-        "alarmCount": 1,
         "alarmID": "string",
         "alarmName": "string",
         "createdTime": "2026-01-01T00:00:00Z",
-        "dealStatus": 1,
-        "desc": "string",
-        "deviceAlias": "示例名称",
         "deviceName": "string",
+        "falseAlarm": true,
+        "falseAlarmReason": "string",
+        "falseAlarmReasonType": "string",
+        "firstTriggerTime": "2026-01-01T00:00:00Z",
         "id": "string",
-        "lastAlarm": 1,
-        "level": 1,
+        "lastTriggerTime": "2026-01-01T00:00:00Z",
+        "level": "string",
         "productID": "string",
-        "sceneID": "string",
-        "sceneName": "示例名称",
-        "triggerType": "string"
+        "recoveryTime": "2026-01-01T00:00:00Z",
+        "status": "string",
+        "target": {
+          "areas": [
+            1
+          ],
+          "categoryID": "string",
+          "devices": [
+            {
+              "alias": "...",
+              "name": "...",
+              "productID": "..."
+            }
+          ],
+          "groups": [
+            1
+          ],
+          "productID": "string",
+          "selectType": "string"
+        },
+        "targetName": "string",
+        "triggerContent": "string",
+        "triggerCount": 1,
+        "triggerValue": "string",
+        "updatedTime": "2026-01-01T00:00:00Z"
       }
     ],
     "page": 1,
@@ -7594,13 +9457,13 @@ ur api /api/v1/things/alarm/record/deal \
 
 **调用示例**:
 ```bash
-ur api /api/v1/things/alarm/record/get-list \
-  --body '{"alarmCode": "string", "alarmID": "string", "alarmName": "string", "areaID": "string", "areaIDPath": "string", "dealStatus": [1], "deviceAlias": "示例名称", "deviceName": "string", "page": {"page": 1, "pageSize": 1}, "timeRange": {"end": 1, "start": 1}}'
+ur api /api/v1/things/alarm/event/get-list \
+  --body '{"alarmID": "string", "deviceName": "string", "isFalseAlarm": true, "isRecovered": true, "keyword": "示例名称", "level": ["string"], "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "status": ["string"], "triggerTimeRange": {"end": 1, "start": 1}}'
 ```
 
-### POST `/api/v1/things/alarm/scene/batch-create`
+### POST `/api/v1/things/alarm/event/get-one`
 
-**说明**: 更新告警和场景的关联
+**说明**: 获取告警事件详情
 
 **权限**: admin
 
@@ -7608,84 +9471,12 @@ ur api /api/v1/things/alarm/record/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `alarmID` | string | 是 | 告警配置ID |
-| `sceneIDs` | array[integer] | 是 | 场景id |
+| `id` | string | 否 |  ID |
 
 **请求示例**:
 ```json
 {
-  "alarmID": "string",
-  "sceneIDs": [
-    1
-  ]
-}
-```
-
-**响应示例**:
-```json
-{
-  "code": 200,
-  "msg": "success"
-}
-```
-
-**调用示例**:
-```bash
-ur api /api/v1/things/alarm/scene/batch-create \
-  --body '{"alarmID": "string", "sceneIDs": [1]}'
-```
-
-### POST `/api/v1/things/alarm/scene/delete`
-
-**说明**: 删除告警和场景的关联
-
-**权限**: admin
-
-**请求体字段**:
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `alarmID` | string | 是 | 告警配置ID |
-| `sceneID` | string | 是 | 场景id |
-
-**请求示例**:
-```json
-{
-  "alarmID": "string",
-  "sceneID": "string"
-}
-```
-
-**响应示例**:
-```json
-{
-  "code": 200,
-  "msg": "success"
-}
-```
-
-**调用示例**:
-```bash
-ur api /api/v1/things/alarm/scene/delete \
-  --body '{"alarmID": "string", "sceneID": "string"}'
-```
-
-### POST `/api/v1/things/alarm/scene/get-list`
-
-**说明**: 获取告警和场景的关联列表
-
-**权限**: admin
-
-**请求体字段**:
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `alarmID` | string | 是 | 告警配置ID |
-
-**请求示例**:
-```json
-{
-  "alarmID": "string"
+  "id": "string"
 }
 ```
 
@@ -7694,38 +9485,87 @@ ur api /api/v1/things/alarm/scene/delete \
 {
   "code": 200,
   "data": {
-    "alarmID": "string",
-    "scenes": [
+    "dealRecords": [
       {
-        "areaID": "string",
-        "avatar": "string",
-        "body": "string",
-        "createdTime": "string",
-        "desc": "string",
-        "deviceAlias": "string",
-        "deviceMode": "string",
-        "deviceName": "string",
-        "flowPath": [
+        "action": "string",
+        "createdTime": "2026-01-01T00:00:00Z",
+        "eventID": "string",
+        "fromStatus": "string",
+        "id": "string",
+        "operatorID": "string",
+        "operatorName": "string",
+        "remark": "string",
+        "toStatus": "string"
+      }
+    ],
+    "event": {
+      "alarmID": "string",
+      "alarmName": "string",
+      "createdTime": "2026-01-01T00:00:00Z",
+      "deviceName": "string",
+      "falseAlarm": true,
+      "falseAlarmReason": "string",
+      "falseAlarmReasonType": "string",
+      "firstTriggerTime": "2026-01-01T00:00:00Z",
+      "id": "string",
+      "lastTriggerTime": "2026-01-01T00:00:00Z",
+      "level": "string",
+      "productID": "string",
+      "recoveryTime": "2026-01-01T00:00:00Z",
+      "status": "string",
+      "target": {
+        "areas": [
+          1
+        ],
+        "categoryID": "string",
+        "devices": [
           {
-            "info": "string",
-            "subType": "string",
-            "type": "string"
+            "alias": "示例名称",
+            "name": "string",
+            "productID": "string"
           }
         ],
-        "id": "string",
-        "if": "string",
-        "isCommon": 1,
-        "lastRunTime": 1,
-        "logo": "string",
-        "name": "string",
+        "groups": [
+          1
+        ],
         "productID": "string",
-        "reason": "string",
-        "status": 1,
-        "tag": "string",
-        "then": "string",
-        "type": "string",
-        "updatedTime": 1,
-        "when": "string"
+        "selectType": "string"
+      },
+      "targetName": "string",
+      "triggerContent": "string",
+      "triggerCount": 1,
+      "triggerValue": "string",
+      "updatedTime": "2026-01-01T00:00:00Z"
+    },
+    "notifyRecords": [
+      {
+        "alarmID": "string",
+        "alarmName": "示例名称",
+        "channel": "string",
+        "content": "string",
+        "createdTime": "2026-01-01T00:00:00Z",
+        "eventID": "string",
+        "externalResp": "string",
+        "failReason": "string",
+        "id": "string",
+        "ladderOrder": 1,
+        "retryTimes": 1,
+        "sentTime": "2026-01-01T00:00:00Z",
+        "status": "string",
+        "targetName": "示例名称",
+        "targets": {
+          "groupIDs": [
+            "string"
+          ],
+          "roleIDs": [
+            "string"
+          ],
+          "userIDs": [
+            "string"
+          ]
+        },
+        "templateID": "string",
+        "timing": "string"
       }
     ]
   },
@@ -7735,6 +9575,1131 @@ ur api /api/v1/things/alarm/scene/delete \
 
 **调用示例**:
 ```bash
-ur api /api/v1/things/alarm/scene/get-list \
-  --body '{"alarmID": "string"}'
+ur api /api/v1/things/alarm/event/get-one \
+  --body '{"id": "string"}'
+```
+
+### POST `/api/v1/things/alarm/event/stat`
+
+**说明**: 告警事件统计
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `groupBy` | string | 是 |  level / status / alarm / date / product |
+| `level` | array[string] | 否 |  级别列表 |
+| `status` | array[string] | 否 |  状态列表 |
+| `triggerTimeRange` | object | 否 |  |
+| `triggerTimeRange.end` | integer | 否 | 结束时间 unix时间戳 (格式: int64) |
+| `triggerTimeRange.start` | integer | 否 | 开始时间 unix时间戳 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "groupBy": "string",
+  "level": [
+    "string"
+  ],
+  "status": [
+    "string"
+  ],
+  "triggerTimeRange": {
+    "end": 1,
+    "start": 1
+  }
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "key": "string",
+        "name": "string",
+        "recovered": 1,
+        "total": 1,
+        "unRecovered": 1
+      }
+    ]
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/event/stat \
+  --body '{"groupBy": "string", "level": ["string"], "status": ["string"], "triggerTimeRange": {"end": 1, "start": 1}}'
+```
+
+### POST `/api/v1/things/alarm/info/create`
+
+**说明**: 创建告警规则
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `desc` | string | 否 |  描述 |
+| `evalPeriod` | integer | 否 |  评估周期（分钟） (格式: int64) |
+| `if` | object | 否 |  |
+| `if.triggers` | array[AlarmTrigger] | 否 |  触发器列表 |
+| `ladders` | array[AlarmNotifyLadder] | 否 |  通知阶梯 |
+| `name` | string | 是 |  名称 |
+| `target` | object | 否 |  |
+| `target.areas` | array[integer] | 否 |  区域ID列表 |
+| `target.categoryID` | string | 否 |  产品品类ID |
+| `target.devices` | array[AlarmTargetDevice] | 否 |  指定设备列表 |
+| `target.groups` | array[integer] | 否 |  分组ID列表 |
+| `target.productID` | string | 否 |  产品ID |
+| `target.selectType` | string | 否 |  all / fixed / area / areaWithChildren / group |
+
+**请求示例**:
+```json
+{
+  "desc": "string",
+  "evalPeriod": 1,
+  "if": {
+    "triggers": [
+      {
+        "criteria": [
+          {
+            "duration": "...",
+            "frequency": "...",
+            "id": "...",
+            "kOfN": "...",
+            "order": "...",
+            "plain": "...",
+            "rollingAggregate": "...",
+            "type": "..."
+          }
+        ],
+        "id": "string",
+        "level": "string",
+        "templateID": "string",
+        "templateName": "示例名称",
+        "type": "string"
+      }
+    ]
+  },
+  "ladders": [
+    {
+      "callbacks": [
+        {
+          "authToken": "string",
+          "authType": "string",
+          "bodyTemplate": "string",
+          "headers": {},
+          "method": "string",
+          "name": "示例名称",
+          "notifyCycle": "string",
+          "notifyEndTime": "2026-01-01T00:00:00Z",
+          "notifyStartTime": "2026-01-01T00:00:00Z",
+          "retryTimes": 1,
+          "timeoutSeconds": 1,
+          "url": "string"
+        }
+      ],
+      "channelTemplates": {},
+      "channels": [
+        "string"
+      ],
+      "delaySeconds": 1,
+      "levels": [
+        "string"
+      ],
+      "order": 1,
+      "targets": {
+        "groupIDs": [
+          "string"
+        ],
+        "roleIDs": [
+          "string"
+        ],
+        "userIDs": [
+          "string"
+        ]
+      },
+      "timing": "string"
+    }
+  ],
+  "name": "示例名称",
+  "target": {
+    "areas": [
+      1
+    ],
+    "categoryID": "string",
+    "devices": [
+      {
+        "alias": "示例名称",
+        "name": "string",
+        "productID": "string"
+      }
+    ],
+    "groups": [
+      1
+    ],
+    "productID": "string",
+    "selectType": "string"
+  }
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": "string"
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/info/create \
+  --body '{"desc": "string", "evalPeriod": 1, "if": {"triggers": [{"criteria": [{"duration": "...", "frequency": "...", "id": "...", "kOfN": "...", "order": "...", "plain": "...", "rollingAggregate": "...", "type": "..."}], "id": "string", "level": "string", "templateID": "string", "templateName": "示例名称", "type": "string"}]}, "ladders": [{"callbacks": [{"authToken": "string", "authType": "string", "bodyTemplate": "string", "headers": {}, "method": "string", "name": "示例名称", "notifyCycle": "string", "notifyEndTime": "2026-01-01T00:00:00Z", "notifyStartTime": "2026-01-01T00:00:00Z", "retryTimes": 1, "timeoutSeconds": 1, "url": "string"}], "channelTemplates": {}, "channels": ["string"], "delaySeconds": 1, "levels": ["string"], "order": 1, "targets": {"groupIDs": ["string"], "roleIDs": ["string"], "userIDs": ["string"]}, "timing": "string"}], "name": "示例名称", "target": {"areas": [1], "categoryID": "string", "devices": [{"alias": "示例名称", "name": "string", "productID": "string"}], "groups": [1], "productID": "string", "selectType": "string"}}'
+```
+
+### POST `/api/v1/things/alarm/info/delete`
+
+**说明**: 删除告警规则
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 否 |  ID |
+
+**请求示例**:
+```json
+{
+  "id": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/info/delete \
+  --body '{"id": "string"}'
+```
+
+### POST `/api/v1/things/alarm/info/evaluate-trigger`
+
+**说明**: 手动触发评估
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `alarmIDs` | array[integer] | 否 |  告警ID列表，为空表示全量扫描 |
+
+**请求示例**:
+```json
+{
+  "alarmIDs": [
+    1
+  ]
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/info/evaluate-trigger \
+  --body '{"alarmIDs": [1]}'
+```
+
+### POST `/api/v1/things/alarm/info/get-list`
+
+**说明**: 获取告警规则列表
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `createdTimeRange` | object | 否 |  |
+| `createdTimeRange.end` | integer | 否 | 结束时间 unix时间戳 (格式: int64) |
+| `createdTimeRange.start` | integer | 否 | 开始时间 unix时间戳 (格式: int64) |
+| `keyword` | string | 否 |  名称模糊搜索 |
+| `levels` | array[string] | 否 |  触发条件级别 |
+| `page` | object | 否 |  |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `productID` | string | 否 |  产品ID |
+| `status` | integer | 否 |  状态 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "createdTimeRange": {
+    "end": 1,
+    "start": 1
+  },
+  "keyword": "示例名称",
+  "levels": [
+    "string"
+  ],
+  "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
+    "page": 1,
+    "size": 1
+  },
+  "productID": "string",
+  "status": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "createdTime": "2026-01-01T00:00:00Z",
+        "desc": "string",
+        "evalPeriod": 1,
+        "id": "string",
+        "if": {
+          "triggers": [
+            {
+              "criteria": "...",
+              "id": "...",
+              "level": "...",
+              "templateID": "...",
+              "templateName": "...",
+              "type": "..."
+            }
+          ]
+        },
+        "ladders": [
+          {
+            "callbacks": [],
+            "channelTemplates": {},
+            "channels": [],
+            "delaySeconds": 1,
+            "levels": [],
+            "order": 1,
+            "targets": {
+              "groupIDs": "...",
+              "roleIDs": "...",
+              "userIDs": "..."
+            },
+            "timing": "string"
+          }
+        ],
+        "name": "示例名称",
+        "projectID": "string",
+        "status": 1,
+        "target": {
+          "areas": [
+            1
+          ],
+          "categoryID": "string",
+          "devices": [
+            {
+              "alias": "...",
+              "name": "...",
+              "productID": "..."
+            }
+          ],
+          "groups": [
+            1
+          ],
+          "productID": "string",
+          "selectType": "string"
+        },
+        "targetName": "string",
+        "updatedTime": "2026-01-01T00:00:00Z",
+        "version": 1
+      }
+    ],
+    "page": 1,
+    "pageSize": 1,
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/info/get-list \
+  --body '{"createdTimeRange": {"end": 1, "start": 1}, "keyword": "示例名称", "levels": ["string"], "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "status": 1}'
+```
+
+### POST `/api/v1/things/alarm/info/get-one`
+
+**说明**: 获取告警规则详情
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 否 |  ID |
+
+**请求示例**:
+```json
+{
+  "id": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "createdTime": "2026-01-01T00:00:00Z",
+    "desc": "string",
+    "evalPeriod": 1,
+    "id": "string",
+    "if": {
+      "triggers": [
+        {
+          "criteria": [
+            {
+              "duration": "...",
+              "frequency": "...",
+              "id": "...",
+              "kOfN": "...",
+              "order": "...",
+              "plain": "...",
+              "rollingAggregate": "...",
+              "type": "..."
+            }
+          ],
+          "id": "string",
+          "level": "string",
+          "templateID": "string",
+          "templateName": "示例名称",
+          "type": "string"
+        }
+      ]
+    },
+    "ladders": [
+      {
+        "callbacks": [
+          {
+            "authToken": "string",
+            "authType": "string",
+            "bodyTemplate": "string",
+            "headers": {},
+            "method": "string",
+            "name": "示例名称",
+            "notifyCycle": "string",
+            "notifyEndTime": "2026-01-01T00:00:00Z",
+            "notifyStartTime": "2026-01-01T00:00:00Z",
+            "retryTimes": 1,
+            "timeoutSeconds": 1,
+            "url": "string"
+          }
+        ],
+        "channelTemplates": {},
+        "channels": [
+          "string"
+        ],
+        "delaySeconds": 1,
+        "levels": [
+          "string"
+        ],
+        "order": 1,
+        "targets": {
+          "groupIDs": [
+            "string"
+          ],
+          "roleIDs": [
+            "string"
+          ],
+          "userIDs": [
+            "string"
+          ]
+        },
+        "timing": "string"
+      }
+    ],
+    "name": "示例名称",
+    "projectID": "string",
+    "status": 1,
+    "target": {
+      "areas": [
+        1
+      ],
+      "categoryID": "string",
+      "devices": [
+        {
+          "alias": "示例名称",
+          "name": "string",
+          "productID": "string"
+        }
+      ],
+      "groups": [
+        1
+      ],
+      "productID": "string",
+      "selectType": "string"
+    },
+    "targetName": "string",
+    "updatedTime": "2026-01-01T00:00:00Z",
+    "version": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/info/get-one \
+  --body '{"id": "string"}'
+```
+
+### POST `/api/v1/things/alarm/info/status-update`
+
+**说明**: 更新告警规则状态
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 是 |  ID |
+| `status` | integer | 是 |  状态：1启用 2停用 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": "string",
+  "status": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/info/status-update \
+  --body '{"id": "string", "status": 1}'
+```
+
+### POST `/api/v1/things/alarm/info/update`
+
+**说明**: 更新告警规则
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `desc` | string | 否 |  描述 |
+| `evalPeriod` | integer | 否 |  评估周期（分钟） (格式: int64) |
+| `id` | string | 是 |  ID |
+| `if` | object | 否 |  |
+| `if.triggers` | array[AlarmTrigger] | 否 |  触发器列表 |
+| `ladders` | array[AlarmNotifyLadder] | 否 |  通知阶梯 |
+| `name` | string | 否 |  名称 |
+| `target` | object | 否 |  |
+| `target.areas` | array[integer] | 否 |  区域ID列表 |
+| `target.categoryID` | string | 否 |  产品品类ID |
+| `target.devices` | array[AlarmTargetDevice] | 否 |  指定设备列表 |
+| `target.groups` | array[integer] | 否 |  分组ID列表 |
+| `target.productID` | string | 否 |  产品ID |
+| `target.selectType` | string | 否 |  all / fixed / area / areaWithChildren / group |
+
+**请求示例**:
+```json
+{
+  "desc": "string",
+  "evalPeriod": 1,
+  "id": "string",
+  "if": {
+    "triggers": [
+      {
+        "criteria": [
+          {
+            "duration": "...",
+            "frequency": "...",
+            "id": "...",
+            "kOfN": "...",
+            "order": "...",
+            "plain": "...",
+            "rollingAggregate": "...",
+            "type": "..."
+          }
+        ],
+        "id": "string",
+        "level": "string",
+        "templateID": "string",
+        "templateName": "示例名称",
+        "type": "string"
+      }
+    ]
+  },
+  "ladders": [
+    {
+      "callbacks": [
+        {
+          "authToken": "string",
+          "authType": "string",
+          "bodyTemplate": "string",
+          "headers": {},
+          "method": "string",
+          "name": "示例名称",
+          "notifyCycle": "string",
+          "notifyEndTime": "2026-01-01T00:00:00Z",
+          "notifyStartTime": "2026-01-01T00:00:00Z",
+          "retryTimes": 1,
+          "timeoutSeconds": 1,
+          "url": "string"
+        }
+      ],
+      "channelTemplates": {},
+      "channels": [
+        "string"
+      ],
+      "delaySeconds": 1,
+      "levels": [
+        "string"
+      ],
+      "order": 1,
+      "targets": {
+        "groupIDs": [
+          "string"
+        ],
+        "roleIDs": [
+          "string"
+        ],
+        "userIDs": [
+          "string"
+        ]
+      },
+      "timing": "string"
+    }
+  ],
+  "name": "示例名称",
+  "target": {
+    "areas": [
+      1
+    ],
+    "categoryID": "string",
+    "devices": [
+      {
+        "alias": "示例名称",
+        "name": "string",
+        "productID": "string"
+      }
+    ],
+    "groups": [
+      1
+    ],
+    "productID": "string",
+    "selectType": "string"
+  }
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/info/update \
+  --body '{"desc": "string", "evalPeriod": 1, "id": "string", "if": {"triggers": [{"criteria": [{"duration": "...", "frequency": "...", "id": "...", "kOfN": "...", "order": "...", "plain": "...", "rollingAggregate": "...", "type": "..."}], "id": "string", "level": "string", "templateID": "string", "templateName": "示例名称", "type": "string"}]}, "ladders": [{"callbacks": [{"authToken": "string", "authType": "string", "bodyTemplate": "string", "headers": {}, "method": "string", "name": "示例名称", "notifyCycle": "string", "notifyEndTime": "2026-01-01T00:00:00Z", "notifyStartTime": "2026-01-01T00:00:00Z", "retryTimes": 1, "timeoutSeconds": 1, "url": "string"}], "channelTemplates": {}, "channels": ["string"], "delaySeconds": 1, "levels": ["string"], "order": 1, "targets": {"groupIDs": ["string"], "roleIDs": ["string"], "userIDs": ["string"]}, "timing": "string"}], "name": "示例名称", "target": {"areas": [1], "categoryID": "string", "devices": [{"alias": "示例名称", "name": "string", "productID": "string"}], "groups": [1], "productID": "string", "selectType": "string"}}'
+```
+
+### POST `/api/v1/things/alarm/notify-record/get-list`
+
+**说明**: 获取通知记录列表
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `alarmID` | string | 否 |  告警规则ID |
+| `alarmName` | string | 否 |  规则名称模糊查询 |
+| `channel` | array[string] | 否 |  渠道列表 |
+| `createdTimeRange` | object | 否 |  |
+| `createdTimeRange.end` | integer | 否 | 结束时间 unix时间戳 (格式: int64) |
+| `createdTimeRange.start` | integer | 否 | 开始时间 unix时间戳 (格式: int64) |
+| `eventID` | string | 否 |  事件ID |
+| `page` | object | 否 |  |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `status` | array[string] | 否 |  状态列表 |
+| `targetName` | string | 否 |  告警对象模糊查询 |
+| `timing` | string | 否 |  trigger / recovery |
+
+**请求示例**:
+```json
+{
+  "alarmID": "string",
+  "alarmName": "示例名称",
+  "channel": [
+    "string"
+  ],
+  "createdTimeRange": {
+    "end": 1,
+    "start": 1
+  },
+  "eventID": "string",
+  "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
+    "page": 1,
+    "size": 1
+  },
+  "status": [
+    "string"
+  ],
+  "targetName": "string",
+  "timing": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "alarmID": "string",
+        "alarmName": "示例名称",
+        "channel": "string",
+        "content": "string",
+        "createdTime": "2026-01-01T00:00:00Z",
+        "eventID": "string",
+        "externalResp": "string",
+        "failReason": "string",
+        "id": "string",
+        "ladderOrder": 1,
+        "retryTimes": 1,
+        "sentTime": "2026-01-01T00:00:00Z",
+        "status": "string",
+        "targetName": "示例名称",
+        "targets": {
+          "groupIDs": [
+            "string"
+          ],
+          "roleIDs": [
+            "string"
+          ],
+          "userIDs": [
+            "string"
+          ]
+        },
+        "templateID": "string",
+        "timing": "string"
+      }
+    ],
+    "page": 1,
+    "pageSize": 1,
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/notify-record/get-list \
+  --body '{"alarmID": "string", "alarmName": "示例名称", "channel": ["string"], "createdTimeRange": {"end": 1, "start": 1}, "eventID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": ["string"], "targetName": "string", "timing": "string"}'
+```
+
+### POST `/api/v1/things/alarm/notify-record/resend`
+
+**说明**: 重新发送通知
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 是 |  通知记录ID |
+
+**请求示例**:
+```json
+{
+  "id": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/notify-record/resend \
+  --body '{"id": "string"}'
+```
+
+### POST `/api/v1/things/alarm/notify-template/create`
+
+**说明**: 创建通知内容模板
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `channel` | string | 是 |  渠道 |
+| `desc` | string | 否 |  描述 |
+| `headers` | object | 否 |  请求头 |
+| `name` | string | 是 |  名称 |
+| `recoveryBody` | string | 否 |  恢复内容 |
+| `subject` | string | 否 |  主题 |
+| `triggerBody` | string | 否 |  触发内容 |
+
+**请求示例**:
+```json
+{
+  "channel": "string",
+  "desc": "string",
+  "headers": {},
+  "name": "示例名称",
+  "recoveryBody": "string",
+  "subject": "string",
+  "triggerBody": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": "string"
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/notify-template/create \
+  --body '{"channel": "string", "desc": "string", "headers": {}, "name": "示例名称", "recoveryBody": "string", "subject": "string", "triggerBody": "string"}'
+```
+
+### POST `/api/v1/things/alarm/notify-template/delete`
+
+**说明**: 删除通知内容模板
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 否 |  ID |
+
+**请求示例**:
+```json
+{
+  "id": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/notify-template/delete \
+  --body '{"id": "string"}'
+```
+
+### POST `/api/v1/things/alarm/notify-template/get-list`
+
+**说明**: 获取通知内容模板列表
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `channel` | string | 否 |  渠道 |
+| `keyword` | string | 否 |  名称模糊搜索 |
+| `page` | object | 否 |  |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `status` | integer | 否 |  状态 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "channel": "string",
+  "keyword": "示例名称",
+  "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
+    "page": 1,
+    "size": 1
+  },
+  "status": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "channel": "string",
+        "createdTime": "2026-01-01T00:00:00Z",
+        "desc": "string",
+        "headers": {},
+        "id": "string",
+        "name": "示例名称",
+        "recoveryBody": "string",
+        "refCount": 1,
+        "status": 1,
+        "subject": "string",
+        "triggerBody": "string",
+        "updatedTime": "2026-01-01T00:00:00Z"
+      }
+    ],
+    "page": 1,
+    "pageSize": 1,
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/notify-template/get-list \
+  --body '{"channel": "string", "keyword": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1}'
+```
+
+### POST `/api/v1/things/alarm/notify-template/get-one`
+
+**说明**: 获取通知内容模板详情
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 否 |  ID |
+
+**请求示例**:
+```json
+{
+  "id": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "channel": "string",
+    "createdTime": "2026-01-01T00:00:00Z",
+    "desc": "string",
+    "headers": {},
+    "id": "string",
+    "name": "示例名称",
+    "recoveryBody": "string",
+    "refCount": 1,
+    "status": 1,
+    "subject": "string",
+    "triggerBody": "string",
+    "updatedTime": "2026-01-01T00:00:00Z"
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/notify-template/get-one \
+  --body '{"id": "string"}'
+```
+
+### POST `/api/v1/things/alarm/notify-template/test-send`
+
+**说明**: 测试发送通知
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 是 |  模板ID |
+| `targets` | object | 否 |  |
+| `targets.groupIDs` | array[string] | 否 |  用户组ID列表 |
+| `targets.roleIDs` | array[string] | 否 |  角色ID列表 |
+| `targets.userIDs` | array[string] | 否 |  用户ID列表 |
+| `timing` | string | 是 |  trigger / recovery |
+
+**请求示例**:
+```json
+{
+  "id": "string",
+  "targets": {
+    "groupIDs": [
+      "string"
+    ],
+    "roleIDs": [
+      "string"
+    ],
+    "userIDs": [
+      "string"
+    ]
+  },
+  "timing": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/notify-template/test-send \
+  --body '{"id": "string", "targets": {"groupIDs": ["string"], "roleIDs": ["string"], "userIDs": ["string"]}, "timing": "string"}'
+```
+
+### POST `/api/v1/things/alarm/notify-template/update`
+
+**说明**: 更新通知内容模板
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `channel` | string | 否 |  渠道 |
+| `desc` | string | 否 |  描述 |
+| `headers` | object | 否 |  请求头 |
+| `id` | string | 是 |  ID |
+| `name` | string | 否 |  名称 |
+| `recoveryBody` | string | 否 |  恢复内容 |
+| `status` | integer | 否 |  状态 (格式: int64) |
+| `subject` | string | 否 |  主题 |
+| `triggerBody` | string | 否 |  触发内容 |
+
+**请求示例**:
+```json
+{
+  "channel": "string",
+  "desc": "string",
+  "headers": {},
+  "id": "string",
+  "name": "示例名称",
+  "recoveryBody": "string",
+  "status": 1,
+  "subject": "string",
+  "triggerBody": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/alarm/notify-template/update \
+  --body '{"channel": "string", "desc": "string", "headers": {}, "id": "string", "name": "示例名称", "recoveryBody": "string", "status": 1, "subject": "string", "triggerBody": "string"}'
 ```

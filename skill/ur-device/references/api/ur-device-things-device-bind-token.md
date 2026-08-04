@@ -136,7 +136,7 @@
 | `gateway.gateway.id` | string | 否 |  |
 | `gateway.gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `gateway.gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `gateway.gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `gateway.gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `gateway.gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `gateway.gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `gateway.gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -178,7 +178,7 @@
 | `gateway.id` | string | 否 |  |
 | `gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -231,7 +231,7 @@
 | `id` | string | 否 |  |
 | `imei` | string | 否 |  IMEI号信息 只读 |
 | `isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `lastBind` | string | 否 | 最后绑定时间 只读 |
 | `lastIp` | string | 否 | 最后登录的ip地址 |
 | `lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -1713,7 +1713,7 @@ ur api /api/v1/things/device/info/create \
 | `gateway.gateway.id` | string | 否 |  |
 | `gateway.gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `gateway.gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `gateway.gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `gateway.gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `gateway.gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `gateway.gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `gateway.gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -1755,7 +1755,7 @@ ur api /api/v1/things/device/info/create \
 | `gateway.id` | string | 否 |  |
 | `gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -1808,7 +1808,7 @@ ur api /api/v1/things/device/info/create \
 | `id` | string | 否 |  |
 | `imei` | string | 否 |  IMEI号信息 只读 |
 | `isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `lastBind` | string | 否 | 最后绑定时间 只读 |
 | `lastIp` | string | 否 | 最后登录的ip地址 |
 | `lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |

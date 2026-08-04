@@ -100,8 +100,9 @@ ur api /api/v1/system/tenant/app/delete \
 | `appIDs` | array[string] | 否 |  |
 | `notAppID` | string | 否 | 排除某个应用ID |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  应用状态 1 正常(默认)，2 禁用，3 过期 (格式: int64) |
 | `subType` | string | 否 | 子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
 | `tenantCode` | string | 否 | 指定租户,租户下只能过滤 common或他自己的  common的是通用应用,非common的是租户应用 |
@@ -118,8 +119,14 @@ ur api /api/v1/system/tenant/app/delete \
   ],
   "notAppID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "subType": "string",
@@ -166,7 +173,6 @@ ur api /api/v1/system/tenant/app/delete \
             "appSecret": "string"
           },
           "id": "string",
-          "isSysCreated": 1,
           "isUseMenu": 1,
           "isUseProxy": 1,
           "loginTypes": [
@@ -220,7 +226,7 @@ ur api /api/v1/system/tenant/app/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/app/get-list \
-  --body '{"appID": "string", "appIDs": ["string"], "notAppID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "subType": "string", "tenantCode": "string", "type": "string", "useBy": "string", "withApp": true}'
+  --body '{"appID": "string", "appIDs": ["string"], "notAppID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "subType": "string", "tenantCode": "string", "type": "string", "useBy": "string", "withApp": true}'
 ```
 
 ### POST `/api/v1/system/tenant/app/get-one`
@@ -278,7 +284,6 @@ ur api /api/v1/system/tenant/app/get-list \
         "appSecret": "string"
       },
       "id": "string",
-      "isSysCreated": 1,
       "isUseMenu": 1,
       "isUseProxy": 1,
       "loginTypes": [
@@ -365,7 +370,6 @@ ur api /api/v1/system/tenant/app/get-one \
 | `app.googleConfig.appKey` | string | 否 | 微信小程序无需填写 |
 | `app.googleConfig.appSecret` | string | 否 |  |
 | `app.id` | string | 否 |  编号,创建时自动生成(默认),也可以指定 |
-| `app.isSysCreated` | integer | 否 |  是否系统创建 1-是 2-否（系统创建的应用不允许删除，绑定时自动添加） (格式: int64) |
 | `app.isUseMenu` | integer | 否 |  是否使用菜单 1-是 2-否 (格式: int64) |
 | `app.isUseProxy` | integer | 否 |  是否使用代理 1-是 2-否 (格式: int64) |
 | `app.loginTypes` | array[string] | 否 | 选项取决于 app里是否配置了 支持的登录类型(不填支持全部登录方式):    "email":邮箱(系统配置里配置了才能开启) "phone":手机号(系统配置里配置了才能开启)  "wxMiniP":微信小程序(app里配置了微信小程序才能开启)  "wxOpen": 微信开放平台登录(app里配置了微信开放才能开启)   "ding":钉钉应用(包含小程序,h5等方式,app里配置了钉钉才能开启)  "pwd":账号密码注册 |
@@ -433,7 +437,6 @@ ur api /api/v1/system/tenant/app/get-one \
       "appSecret": "string"
     },
     "id": "string",
-    "isSysCreated": 1,
     "isUseMenu": 1,
     "isUseProxy": 1,
     "loginTypes": [
@@ -488,5 +491,5 @@ ur api /api/v1/system/tenant/app/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/app/update \
-  --body '{"app": {"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isSysCreated": 1, "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}, "appID": "string", "createdTime": "string", "expTime": 1, "id": "string", "sort": 1, "status": 1, "tenantCode": "string"}'
+  --body '{"app": {"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}, "appID": "string", "createdTime": "string", "expTime": 1, "id": "string", "sort": 1, "status": 1, "tenantCode": "string"}'
 ```

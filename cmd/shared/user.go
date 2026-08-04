@@ -1094,7 +1094,7 @@ func runUserSelfMessageStatistics(ctx context.Context, args []string, stdout, st
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-// runUserSelfTenant 执行租户管理命令
+// runUserSelfTenant 执行企业管理命令
 func runUserSelfTenant(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
 		printUserSelfTenantHelp(stdout)
@@ -1122,7 +1122,7 @@ func runUserSelfTenant(ctx context.Context, args []string, stdout, stderr io.Wri
 	}
 }
 
-// printUserSelfTenantHelp 打印租户管理帮助信息
+// printUserSelfTenantHelp 打印企业管理帮助信息
 func printUserSelfTenantHelp(w io.Writer) {
 	fmt.Fprintln(w, "Usage: ur user self tenant <subcommand> [options]")
 	fmt.Fprintln(w, "")
@@ -1136,7 +1136,7 @@ func printUserSelfTenantHelp(w io.Writer) {
 	fmt.Fprintln(w, "  join       Join tenant")
 }
 
-// runUserSelfTenantGetList 执行查询租户列表命令
+// runUserSelfTenantGetList 执行查询企业列表命令
 func runUserSelfTenantGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput, page, size, _ := parseInfoListParams(args)
 	reqBody := map[string]any{
@@ -1155,7 +1155,7 @@ func runUserSelfTenantGetList(ctx context.Context, args []string, stdout, stderr
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-// runUserSelfTenantGetOne 执行查询租户详情命令
+// runUserSelfTenantGetOne 执行查询企业详情命令
 func runUserSelfTenantGetOne(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput := false
 	tenantID := ""
@@ -1188,7 +1188,7 @@ func runUserSelfTenantGetOne(ctx context.Context, args []string, stdout, stderr 
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-// runUserSelfTenantUpdate 执行更新租户命令
+// runUserSelfTenantUpdate 执行更新企业命令
 func runUserSelfTenantUpdate(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput := false
 	bodyJSON := ""
@@ -1227,7 +1227,7 @@ func runUserSelfTenantUpdate(ctx context.Context, args []string, stdout, stderr 
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-// runUserSelfTenantDelete 执行删除租户命令
+// runUserSelfTenantDelete 执行删除企业命令
 func runUserSelfTenantDelete(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput := false
 	tenantID := ""
@@ -1260,7 +1260,7 @@ func runUserSelfTenantDelete(ctx context.Context, args []string, stdout, stderr 
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-// runUserSelfTenantJoin 执行加入租户命令
+// runUserSelfTenantJoin 执行加入企业命令
 func runUserSelfTenantJoin(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput := false
 	bodyJSON := ""

@@ -126,7 +126,7 @@
   "code": 200,
   "data": {
     "code": "string",
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -149,13 +149,13 @@ ur api /api/v1/system/tenant/info/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `code` | string | 否 |  |
-| `id` | string | 否 |  id |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "code": "string",
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -170,7 +170,7 @@ ur api /api/v1/system/tenant/info/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/info/delete \
-  --body '{"code": "string", "id": "string"}'
+  --body '{"code": "string", "id": 1}'
 ```
 
 ### POST `/api/v1/system/tenant/info/get-list`
@@ -188,8 +188,9 @@ ur api /api/v1/system/tenant/info/delete \
 | `name` | string | 否 |  租户名称 |
 | `ownerUserID` | string | 否 |  超级管理员id,只有平台管理员有权限 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 租户状态 (格式: int64) |
 | `tenantCodes` | array[string] | 否 |  指定租户编码列表，非空时按编码精确返回 |
 | `withOwnerUser` | boolean | 否 | 同时获取管理员核心信息 (格式: boolean) |
@@ -202,8 +203,14 @@ ur api /api/v1/system/tenant/info/delete \
   "name": "示例名称",
   "ownerUserID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "tenantCodes": [
@@ -280,7 +287,7 @@ ur api /api/v1/system/tenant/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/info/get-list \
-  --body '{"code": "string", "isGetAll": true, "name": "示例名称", "ownerUserID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "tenantCodes": ["string"], "withOwnerUser": true}'
+  --body '{"code": "string", "isGetAll": true, "name": "示例名称", "ownerUserID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "tenantCodes": ["string"], "withOwnerUser": true}'
 ```
 
 ### POST `/api/v1/system/tenant/info/get-one`
@@ -294,13 +301,13 @@ ur api /api/v1/system/tenant/info/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `code` | string | 否 |  |
-| `id` | string | 否 |  id |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "code": "string",
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -364,7 +371,7 @@ ur api /api/v1/system/tenant/info/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/info/get-one \
-  --body '{"code": "string", "id": "string"}'
+  --body '{"code": "string", "id": 1}'
 ```
 
 ### POST `/api/v1/system/tenant/info/transfer`

@@ -92,7 +92,7 @@ func runAiToolArtifactGet(ctx context.Context, args []string, stdout, stderr io.
 	}
 
 	executorJs, _ := artifact["executorJs"].(string)
-	documentMd, _ := artifact["documentMd"].(string)
+	skillMd, _ := artifact["skillMd"].(string)
 	manifestJson, _ := artifact["manifestJson"].(string)
 
 	if outputDir != "" {
@@ -101,13 +101,13 @@ func runAiToolArtifactGet(ctx context.Context, args []string, stdout, stderr io.
 			return 1
 		}
 		writeFile(filepath.Join(outputDir, "executor.js"), executorJs, stderr)
-		writeFile(filepath.Join(outputDir, "document.md"), documentMd, stderr)
+		writeFile(filepath.Join(outputDir, "skill.md"), skillMd, stderr)
 		writeFile(filepath.Join(outputDir, "manifest.json"), manifestJson, stderr)
 		fmt.Fprintf(stdout, "已保存到: %s\n", outputDir)
 	} else {
 		out := map[string]string{
 			"executorJs":   executorJs,
-			"documentMd":   documentMd,
+			"skillMd":   skillMd,
 			"manifestJson": manifestJson,
 		}
 		raw, _ := json.MarshalIndent(out, "", "  ")
@@ -161,15 +161,15 @@ func runAiToolArtifactSave(ctx context.Context, args []string, stdout, stderr io
 		fmt.Fprintf(stderr, "读取 executor.js 失败: %v\n", err)
 		return 1
 	}
-	documentMd, _ := os.ReadFile(filepath.Join(dir, "document.md"))
+	skillMd, _ := os.ReadFile(filepath.Join(dir, "skill.md"))
 	manifestJson, _ := os.ReadFile(filepath.Join(dir, "manifest.json"))
 
 	body := map[string]any{
 		"id":         strconv.FormatInt(id, 10),
 		"executorJs": string(executorJs),
 	}
-	if len(documentMd) > 0 {
-		body["documentMd"] = string(documentMd)
+	if len(skillMd) > 0 {
+		body["skillMd"] = string(skillMd)
 	}
 	if len(manifestJson) > 0 {
 		body["manifestJson"] = string(manifestJson)

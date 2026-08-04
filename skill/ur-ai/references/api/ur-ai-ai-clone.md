@@ -25,6 +25,7 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `agentID` | integer | 是 |  关联Agent ID (格式: int64) |
+| `cloneGroupID` | integer | 否 |  所属CloneGroup ID (格式: int64) |
 | `code` | string | 否 |  分身编码（全局唯一，可为空） |
 | `createdTime` | integer | 否 |  创建时间 (格式: int64) |
 | `desc` | string | 否 |  描述 |
@@ -40,6 +41,7 @@
 ```json
 {
   "agentID": 1,
+  "cloneGroupID": 1,
   "code": "string",
   "createdTime": 1,
   "desc": "string",
@@ -67,7 +69,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/create \
-  --body '{"agentID": 1, "code": "string", "createdTime": 1, "desc": "string", "id": 1, "metadata": "string", "name": "示例名称", "personaPrompt": "string", "status": 1, "tenantCode": "string", "updatedTime": 1}'
+  --body '{"agentID": 1, "cloneGroupID": 1, "code": "string", "createdTime": 1, "desc": "string", "id": 1, "metadata": "string", "name": "示例名称", "personaPrompt": "string", "status": 1, "tenantCode": "string", "updatedTime": 1}'
 ```
 
 ### POST `/api/v1/ai/clone/delete`
@@ -80,7 +82,7 @@ ur api /api/v1/ai/clone/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -114,11 +116,13 @@ ur api /api/v1/ai/clone/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `agentID` | integer | 否 |  按Agent ID过滤 (格式: int64) |
+| `cloneGroupID` | integer | 否 |  按CloneGroup ID过滤 (格式: int64) |
 | `code` | string | 否 |  按code精确查询 |
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 (格式: int64) |
 | `tenantCode` | string | 否 |  租户编码过滤 |
 
@@ -126,11 +130,18 @@ ur api /api/v1/ai/clone/delete \
 ```json
 {
   "agentID": 1,
+  "cloneGroupID": 1,
   "code": "string",
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "tenantCode": "string"
@@ -145,6 +156,7 @@ ur api /api/v1/ai/clone/delete \
     "list": [
       {
         "agentID": 1,
+        "cloneGroupID": 1,
         "code": "string",
         "createdTime": 1,
         "desc": "string",
@@ -166,7 +178,7 @@ ur api /api/v1/ai/clone/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/get-list \
-  --body '{"agentID": 1, "code": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1, "tenantCode": "string"}'
+  --body '{"agentID": 1, "cloneGroupID": 1, "code": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/clone/get-one`
@@ -179,7 +191,7 @@ ur api /api/v1/ai/clone/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -194,6 +206,7 @@ ur api /api/v1/ai/clone/get-list \
   "code": 200,
   "data": {
     "agentID": 1,
+    "cloneGroupID": 1,
     "code": "string",
     "createdTime": 1,
     "desc": "string",
@@ -226,6 +239,7 @@ ur api /api/v1/ai/clone/get-one \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `agentID` | integer | 是 |  关联Agent ID (格式: int64) |
+| `cloneGroupID` | integer | 否 |  所属CloneGroup ID (格式: int64) |
 | `code` | string | 否 |  分身编码（全局唯一，可为空） |
 | `createdTime` | integer | 否 |  创建时间 (格式: int64) |
 | `desc` | string | 否 |  描述 |
@@ -241,6 +255,7 @@ ur api /api/v1/ai/clone/get-one \
 ```json
 {
   "agentID": 1,
+  "cloneGroupID": 1,
   "code": "string",
   "createdTime": 1,
   "desc": "string",
@@ -265,5 +280,5 @@ ur api /api/v1/ai/clone/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/update \
-  --body '{"agentID": 1, "code": "string", "createdTime": 1, "desc": "string", "id": 1, "metadata": "string", "name": "示例名称", "personaPrompt": "string", "status": 1, "tenantCode": "string", "updatedTime": 1}'
+  --body '{"agentID": 1, "cloneGroupID": 1, "code": "string", "createdTime": 1, "desc": "string", "id": 1, "metadata": "string", "name": "示例名称", "personaPrompt": "string", "status": 1, "tenantCode": "string", "updatedTime": 1}'
 ```

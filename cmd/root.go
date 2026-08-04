@@ -52,7 +52,9 @@ func Execute(app config.CLIApp, version string, args []string, stdout, stderr io
 	RootCmd.SetOut(stdout)
 	RootCmd.SetErr(stderr)
 	RootCmd.SetArgs(args)
-	RootCmd.Version = version
+	// 注意：不设置 RootCmd.Version——cobra 会在根命令注册全局 --version flag，
+	// 导致子命令参数（如 ur upgrade --version v0.3.5）被误判为版本查询。
+	// 顶层版本查询（ur --version / -v / --check-latest）已由 main.go 处理。
 
 	// 解析 --app 并注入环境变量
 	resolveAppAndInject(app)

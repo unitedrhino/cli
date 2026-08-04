@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"context"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"gitee.com/unitedrhino/cli/cmd/ai"
@@ -11,6 +13,7 @@ import (
 	"gitee.com/unitedrhino/cli/cmd/view"
 	"gitee.com/unitedrhino/cli/internal/cmdutil"
 	"gitee.com/unitedrhino/cli/internal/config"
+	"gitee.com/unitedrhino/cli/internal/updatecheck"
 )
 
 // RootCmd 是 ur 的根命令
@@ -54,6 +57,11 @@ func Execute(app config.CLIApp, version string, args []string, stdout, stderr io
 	// 解析 --app 并注入环境变量
 	resolveAppAndInject(app)
 
+	// 自动版本检查提醒（只读命令跳过；非阻塞，不干扰命令输出）
+	if !isReadOnlyCommand(args) {
+		go updatecheck.Run(context.Background(), stderr)
+	}
+
 	if err := RootCmd.Execute(); err != nil {
 		if exitErr, ok := err.(interface{ ExitCode() int }); ok {
 			return exitErr.ExitCode()
@@ -61,6 +69,20 @@ func Execute(app config.CLIApp, version string, args []string, stdout, stderr io
 		return 1
 	}
 	return 0
+}
+
+// isReadOnlyCommand 判断是否为只读/信息类命令（--help/--version/help/version/completion 等），
+// 此类命令跳过自动版本检查，避免打扰
+func isReadOnlyCommand(args []string) bool {
+	if len(args) == 0 {
+		return true
+	}
+	first := args[0]
+	switch first {
+	case "--help", "-h", "help", "--version", "version", "--check-latest", "completion", "setup", "login":
+		return true
+	}
+	return strings.HasPrefix(first, "--")
 }
 
 func resolveAppAndInject(defaultApp config.CLIApp) {

@@ -103,6 +103,30 @@ cd cli
 go build -ldflags "-X main.version=$(git describe --tags)" -o dist/bin/ur .
 ```
 
+#### 版本升级与 Skills
+
+```bash
+# 检查是否有新版本（--dry-run 只检查不安装）
+ur upgrade --dry-run
+
+# 升级到最新版本（升级成功后内置 skills 会随安装包自动同步；
+# 每次运行命令时会自动低频检查（默认每天一次），发现新版本或版本过旧会在终端提醒）
+ur upgrade
+
+# 升级并自动把内置 skills 部署到本机各 AI 工具（Claude Code / Codex）
+ur upgrade --install-skills
+
+# 手动把内置 ur-api skill 部署到本机各 AI 工具的 skills 目录
+# （ur-api 是一个统一 skill，整体部署，不拆分；部署后重启对应 AI 会话即可发现）
+ur skills install
+ur skills install --dry-run     # 预览目标，不实际写入
+ur skills install --json        # JSON 输出
+ur skills install --dir <path>  # 额外指定自定义目标目录
+
+# 跳过自动版本检查（环境变量）
+export UR_NO_UPDATE_CHECK=1
+```
+
 #### 配置与使用
 
 ```bash

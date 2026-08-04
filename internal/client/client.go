@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
@@ -120,6 +121,91 @@ func doAPIOnce(ctx context.Context, req APIRequest) (APIResponse, error) {
 	var out APIResponse
 	if err := json.Unmarshal(rawResp, &out); err != nil {
 		return APIResponse{}, fmt.Errorf("decode response status=%d body=%s: %w", resp.StatusCode, strings.TrimSpace(string(rawResp)), err)
+	}
+	return out, nil
+}
+
+// UploadFileMultipart 以 multipart/form-data 上传文件，适配 /api/v1/system/common/upload-file 等接口。
+// 与 DoAPI 一致注入 app-id/tenant-code/认证头，并支持 401 自动刷新重试。
+func UploadFileMultipart(ctx context.Context, path, fieldName, fileName string, fileData []byte, form map[string]string) (APIResponse, error) {
+	resp, err := uploadFileMultipartOnce(ctx, path, fieldName, fileName, fileData, form)
+	if err != nil {
+		return APIResponse{}, err
+	}
+	if isAuthFailure(resp) {
+		if _, refreshErr := auth.RefreshToken(ctx); refreshErr == nil {
+			return uploadFileMultipartOnce(ctx, path, fieldName, fileName, fileData, form)
+		}
+	}
+	return resp, nil
+}
+
+// uploadFileMultipartOnce 执行一次 multipart 上传（不含 401 重试）
+func uploadFileMultipartOnce(ctx context.Context, path, fieldName, fileName string, fileData []byte, form map[string]string) (APIResponse, error) {
+	baseURL, err := config.GetBaseURL()
+	if err != nil {
+		return APIResponse{}, err
+	}
+	appID, err := config.GetAppID()
+	if err != nil {
+		return APIResponse{}, err
+	}
+	tenantCode, err := config.GetTenantCode()
+	if err != nil {
+		return APIResponse{}, err
+	}
+
+	var buf bytes.Buffer
+	mw := multipart.NewWriter(&buf)
+	part, err := mw.CreateFormFile(fieldName, fileName)
+	if err != nil {
+		return APIResponse{}, fmt.Errorf("create multipart file field: %w", err)
+	}
+	if _, err := part.Write(fileData); err != nil {
+		return APIResponse{}, fmt.Errorf("write multipart file: %w", err)
+	}
+	for key, value := range form {
+		if err := mw.WriteField(key, value); err != nil {
+			return APIResponse{}, fmt.Errorf("write multipart field %s: %w", key, err)
+		}
+	}
+	if err := mw.Close(); err != nil {
+		return APIResponse{}, fmt.Errorf("close multipart writer: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimRight(baseURL, "/")+path, &buf)
+	if err != nil {
+		return APIResponse{}, fmt.Errorf("build request: %w", err)
+	}
+	httpReq.Header.Set("Content-Type", mw.FormDataContentType())
+	httpReq.Header.Set("app-id", appID)
+	httpReq.Header.Set("tenant-code", tenantCode)
+	if traceparent := strings.TrimSpace(os.Getenv("UR_TRACEPARENT")); traceparent != "" {
+		httpReq.Header.Set("traceparent", traceparent)
+	}
+	if tracestate := strings.TrimSpace(os.Getenv("UR_TRACESTATE")); tracestate != "" {
+		httpReq.Header.Set("tracestate", tracestate)
+	}
+	authHeaders, err := auth.ResolveAuthHeaders(ctx)
+	if err != nil {
+		return APIResponse{}, err
+	}
+	for key, value := range authHeaders {
+		httpReq.Header.Set(key, value)
+	}
+
+	resp, err := (&http.Client{Timeout: 60 * time.Second}).Do(httpReq)
+	if err != nil {
+		return APIResponse{}, fmt.Errorf("do upload request: %w", err)
+	}
+	defer resp.Body.Close()
+	rawResp, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return APIResponse{}, fmt.Errorf("read upload response: %w", err)
+	}
+	var out APIResponse
+	if err := json.Unmarshal(rawResp, &out); err != nil {
+		return APIResponse{}, fmt.Errorf("decode upload response status=%d body=%s: %w", resp.StatusCode, strings.TrimSpace(string(rawResp)), err)
 	}
 	return out, nil
 }

@@ -1,19 +1,19 @@
 # ur-tenant system/tenant/user/role
 
-更新企业用户的角色列表 等
+更新租户用户的角色列表 等
 
 ## 端点概览
 
 | 方法 | 端点 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/api/v1/system/tenant/user/role/batch-update` | 更新企业用户的角色列表 | admin |
-| POST | `/api/v1/system/tenant/user/role/get-list` | 获取企业用户角色列表 | admin |
+| POST | `/api/v1/system/tenant/user/role/batch-update` | 更新租户用户的角色列表 | admin |
+| POST | `/api/v1/system/tenant/user/role/get-list` | 获取租户用户角色列表 | admin |
 
 ## 详细说明
 
 ### POST `/api/v1/system/tenant/user/role/batch-update`
 
-**说明**: 更新企业用户的角色列表
+**说明**: 更新租户用户的角色列表
 
 **权限**: admin
 
@@ -22,7 +22,7 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `roleIDs` | array[string] | 是 |  角色编号列表 |
-| `tenantCode` | string | 否 |  企业编码（可选，不填取当前用户企业） |
+| `tenantCode` | string | 否 |  租户编码（可选，不填取当前用户租户） |
 | `userID` | string | 是 |  用户ID |
 
 **请求示例**:
@@ -52,7 +52,7 @@ ur api /api/v1/system/tenant/user/role/batch-update \
 
 ### POST `/api/v1/system/tenant/user/role/get-list`
 
-**说明**: 获取企业用户角色列表
+**说明**: 获取租户用户角色列表
 
 **权限**: admin
 
@@ -60,7 +60,7 @@ ur api /api/v1/system/tenant/user/role/batch-update \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `tenantCode` | string | 否 |  企业编码（可选，不填取当前用户企业） |
+| `tenantCode` | string | 否 |  租户编码（可选，不填取当前用户租户） |
 | `userID` | string | 是 |  用户ID |
 
 **请求示例**:

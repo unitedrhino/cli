@@ -37,8 +37,8 @@
 | `parentID` | string | 否 |  父菜单ID，一级菜单为1 |
 | `path` | string | 否 |  系统的path |
 | `redirect` | string | 否 |  路由重定向 |
-| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:企业管理员 |
-| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是企业应用 |
+| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:租户管理员 |
+| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是租户应用 |
 | `type` | integer | 否 |  类型 1：菜单或者页面 2：iframe嵌入 3：外链跳转 (格式: int64) |
 
 **请求示例**:
@@ -131,7 +131,7 @@ ur api /api/v1/system/app/menu/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -260,8 +260,8 @@ ur api /api/v1/system/app/menu/get-list \
 | `parentID` | string | 否 |  父菜单ID，一级菜单为1 |
 | `path` | string | 否 |  系统的path |
 | `redirect` | string | 否 |  路由重定向 |
-| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:企业管理员 |
-| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是企业应用 |
+| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:租户管理员 |
+| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是租户应用 |
 | `type` | integer | 否 |  类型 1：菜单或者页面 2：iframe嵌入 3：外链跳转 (格式: int64) |
 
 **请求示例**:

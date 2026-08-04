@@ -23,8 +23,9 @@
 |------|------|------|------|
 | `moduleCode` | integer | 否 | 格式: int64 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 | 产品id 只读 |
 | `productName` | string | 否 |  |
 
@@ -33,8 +34,14 @@
 {
   "moduleCode": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string",
   "productName": "string"
@@ -66,7 +73,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/version/get-list \
-  --body '{"moduleCode": 1, "page": {"page": 1, "pageSize": 1}, "productID": "string", "productName": "string"}'
+  --body '{"moduleCode": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "productName": "string"}'
 ```
 
 ### POST `/api/v1/things/device/version/get-one`

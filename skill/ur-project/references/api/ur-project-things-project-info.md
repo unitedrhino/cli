@@ -24,48 +24,23 @@
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `address` | string | 否 |  可选：项目详细地址 |
-| `adminUserID` | string | 否 |  可选：管理员用户id，默认当前登录用户 |
-| `area` | number | 否 |  可选：建筑面积（单位平米） (格式: float) |
-| `attachments` | array[Attachment] | 否 |  可选：附件列表 |
-| `desc` | string | 否 |  可选：项目备注 |
-| `position` | object | 否 |  |
-| `position.latitude` | number | 是 | 纬度 (格式: double) |
-| `position.longitude` | number | 是 | 经度 (格式: double) |
-| `ppsm` | integer | 否 |  可选：每平方米功耗 (格式: int64) |
-| `projectImg` | string | 否 |  可选：项目图片 |
-| `projectName` | string | 是 |  必填：项目名称 |
-| `sort` | integer | 否 |  可选：排序标记，默认为1 (格式: int64) |
-| `status` | integer | 否 |  可选：项目状态 1:正常 2:禁用 3:过期 (格式: int64) |
-| `tags` | object | 否 |  可选：自定义标签 |
-| `type` | string | 否 |  可选：项目类型 |
+| `desc` | string | 否 |  项目描述 |
+| `indexImage` | string | 否 |  图片地址 |
+| `isSystem` | boolean | 否 |  是否系统模板 (格式: boolean) |
+| `name` | string | 否 |  项目名称 |
+| `projectID` | string | 否 |  归属物联网项目ID |
+| `status` | integer | 否 |  项目状态 1: 已发布 2: 未发布 (格式: int64) |
+| `type` | string | 否 |  screen/template |
 
 **请求示例**:
 ```json
 {
-  "address": "string",
-  "adminUserID": "string",
-  "area": 1,
-  "attachments": [
-    {
-      "fileName": "string",
-      "filePath": "string",
-      "fileUrl": "string",
-      "id": "string",
-      "useBy": "string"
-    }
-  ],
   "desc": "string",
-  "position": {
-    "latitude": 1,
-    "longitude": 1
-  },
-  "ppsm": 1,
-  "projectImg": "string",
-  "projectName": "示例名称",
-  "sort": 1,
+  "indexImage": "string",
+  "isSystem": true,
+  "name": "示例名称",
+  "projectID": "string",
   "status": 1,
-  "tags": {},
   "type": "string"
 }
 ```
@@ -86,7 +61,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/things/project/info/create \
-  --body '{"address": "string", "adminUserID": "string", "area": 1, "attachments": [{"fileName": "string", "filePath": "string", "fileUrl": "string", "id": "string", "useBy": "string"}], "desc": "string", "position": {"latitude": 1, "longitude": 1}, "ppsm": 1, "projectImg": "string", "projectName": "示例名称", "sort": 1, "status": 1, "tags": {}, "type": "string"}'
+  --body '{"desc": "string", "indexImage": "string", "isSystem": true, "name": "示例名称", "projectID": "string", "status": 1, "type": "string"}'
 ```
 
 ### POST `/api/v1/things/project/info/delete`
@@ -140,12 +115,13 @@ ur api /api/v1/things/project/info/delete \
 | `alarmStatus` | integer | 否 | 报警状态(只读) （1正常 2提醒 3一般 4严重 5紧急 6超紧急） (格式: int64) |
 | `isGetAll` | boolean | 否 | 是否返回所有,只有平台管理员有权限 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `projectIDs` | array[string] | 否 | 过滤项目id列表 |
 | `projectName` | string | 否 | 过滤项目名称 |
 | `status` | integer | 否 | 项目状态  1 正常，2-禁用，3-过期 (格式: int64) |
-| `tenantCode` | string | 否 | 指定企业(只有default企业下的管理员才有效) |
+| `tenantCode` | string | 否 | 指定租户(只有default租户下的管理员才有效) |
 | `type` | string | 否 | 项目类型 |
 | `withAdminUser` | boolean | 否 | 同时获取管理员核心信息 (格式: boolean) |
 | `withTopAreas` | boolean | 否 | 同时返回顶层的区域列表 (格式: boolean) |
@@ -157,8 +133,14 @@ ur api /api/v1/things/project/info/delete \
   "alarmStatus": 1,
   "isGetAll": true,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "projectIDs": [
     "string"
@@ -265,7 +247,7 @@ ur api /api/v1/things/project/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/project/info/get-list \
-  --body '{"adminUserID": "string", "alarmStatus": 1, "isGetAll": true, "page": {"page": 1, "pageSize": 1}, "projectIDs": ["string"], "projectName": "示例名称", "status": 1, "tenantCode": "string", "type": "string", "withAdminUser": true, "withTopAreas": true}'
+  --body '{"adminUserID": "string", "alarmStatus": 1, "isGetAll": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectIDs": ["string"], "projectName": "示例名称", "status": 1, "tenantCode": "string", "type": "string", "withAdminUser": true, "withTopAreas": true}'
 ```
 
 ### POST `/api/v1/things/project/info/get-one`
@@ -615,7 +597,7 @@ ur api /api/v1/things/project/info/get-one \
 | `sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `status` | integer | 否 | 项目状态  1 正常，2-禁用，3-过期 (格式: int64) |
 | `tags` | object | 否 | 自定义标签 |
-| `tenantCode` | string | 否 | 企业编码（只读） |
+| `tenantCode` | string | 否 | 租户编码（只读） |
 | `type` | string | 否 | 项目类型 |
 | `userCount` | integer | 否 | 项目下的用户统计(只读) (格式: int64) |
 

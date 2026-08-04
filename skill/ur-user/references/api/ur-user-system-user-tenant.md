@@ -1,18 +1,18 @@
 # ur-user system/user/tenant
 
-用户所处的企业列表
+用户所处的租户列表
 
 ## 端点概览
 
 | 方法 | 端点 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/api/v1/system/user/tenant/get-list` | 用户所处的企业列表 | all |
+| POST | `/api/v1/system/user/tenant/get-list` | 用户所处的租户列表 | all |
 
 ## 详细说明
 
 ### POST `/api/v1/system/user/tenant/get-list`
 
-**说明**: 用户所处的企业列表
+**说明**: 用户所处的租户列表
 
 **权限**: all
 
@@ -21,8 +21,9 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  用户状态（1:启用，2:禁用） (格式: int64) |
 | `userID` | string | 是 |  |
 | `withRole` | boolean | 否 |  同时返回角色信息 (格式: boolean) |
@@ -31,8 +32,14 @@
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "userID": "string",
@@ -123,5 +130,5 @@
 **调用示例**:
 ```bash
 ur api /api/v1/system/user/tenant/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "status": 1, "userID": "string", "withRole": true}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "userID": "string", "withRole": true}'
 ```

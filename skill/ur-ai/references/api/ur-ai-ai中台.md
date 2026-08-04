@@ -35,7 +35,7 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  助手ID (格式: int64) |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -72,10 +72,11 @@ ur api /api/v1/ai/agent/info/delete \
 | `groupID` | integer | 否 |  按助手组ID过滤 (格式: int64) |
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  状态过滤 |
-| `tenantCode` | string | 否 |  企业编码过滤 |
+| `tenantCode` | string | 否 |  租户编码过滤 |
 
 **请求示例**:
 ```json
@@ -83,8 +84,14 @@ ur api /api/v1/ai/agent/info/delete \
   "groupID": 1,
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": "string",
   "tenantCode": "string"
@@ -140,7 +147,7 @@ ur api /api/v1/ai/agent/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/agent/info/get-list \
-  --body '{"groupID": 1, "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": "string", "tenantCode": "string"}'
+  --body '{"groupID": 1, "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/agent/info/get-one`
@@ -154,7 +161,7 @@ ur api /api/v1/ai/agent/info/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  助手ID (格式: int64) |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -225,7 +232,7 @@ ur api /api/v1/ai/agent/info/get-one \
 | `asrSpeed` | string | 否 |  ASR语速（旧版，兼容保留） |
 | `avatar` | string | 否 |  助手头像URL |
 | `capabilities` | array[string] | 否 |  能力列表 |
-| `code` | string | 否 |  助手编码（企业内唯一） |
+| `code` | string | 否 |  助手编码（租户内唯一） |
 | `customPrompt` | string | 否 |  自定义提示词（旧版，兼容保留） |
 | `description` | string | 否 |  助手描述 |
 | `groupID` | integer | 否 |  所属助手组ID (格式: int64) |
@@ -244,7 +251,7 @@ ur api /api/v1/ai/agent/info/get-one \
 | `sort` | integer | 否 |  排序权重 (格式: int64) |
 | `status` | string | 否 |  助手状态 1-启用 2-禁用 |
 | `systemPrompt` | string | 否 |  系统提示词 |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 | `ttsConfigID` | string | 否 |  TTS配置ID |
 | `userID` | integer | 否 |  用户ID (格式: int64) |
 | `visionConfigID` | string | 否 |  视觉配置ID |
@@ -388,16 +395,23 @@ ur api /api/v1/ai/clone/snapshot/delete \
 |------|------|------|------|
 | `cloneID` | integer | 是 |  分身ID (格式: int64) |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "cloneID": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -429,7 +443,7 @@ ur api /api/v1/ai/clone/snapshot/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/clone/snapshot/get-list \
-  --body '{"cloneID": 1, "page": {"page": 1, "pageSize": 1}}'
+  --body '{"cloneID": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/clone/snapshot/get-one`

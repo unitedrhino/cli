@@ -1,23 +1,23 @@
 # ur-tenant system/tenant/info
 
-添加企业 等
+添加租户 等
 
 ## 端点概览
 
 | 方法 | 端点 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/api/v1/system/tenant/info/create` | 添加企业 | all |
-| POST | `/api/v1/system/tenant/info/delete` | 删除企业 | platform |
-| POST | `/api/v1/system/tenant/info/get-list` | 获取企业列表 | platform |
-| POST | `/api/v1/system/tenant/info/get-one` | 获取企业详情 | admin |
-| POST | `/api/v1/system/tenant/info/transfer` | 转让企业（仅企业所有者） | admin |
-| POST | `/api/v1/system/tenant/info/update` | 更新企业 | admin |
+| POST | `/api/v1/system/tenant/info/create` | 添加租户 | all |
+| POST | `/api/v1/system/tenant/info/delete` | 删除租户 | platform |
+| POST | `/api/v1/system/tenant/info/get-list` | 获取租户列表 | platform |
+| POST | `/api/v1/system/tenant/info/get-one` | 获取租户详情 | admin |
+| POST | `/api/v1/system/tenant/info/transfer` | 转让租户（仅租户所有者） | admin |
+| POST | `/api/v1/system/tenant/info/update` | 更新租户 | admin |
 
 ## 详细说明
 
 ### POST `/api/v1/system/tenant/info/create`
 
-**说明**: 添加企业
+**说明**: 添加租户
 
 **权限**: all
 
@@ -26,16 +26,16 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `avatar` | string | 否 |  头像,更新时传filePath |
-| `code` | string | 否 |  企业编码,创建的时候自动生成 |
+| `code` | string | 否 |  租户编码,创建的时候自动生成 |
 | `config` | object | 否 |  |
 | `config.id` | string | 否 |  |
 | `config.registerRoleID` | string | 否 | 注册分配的角色id |
-| `config.tenantCode` | string | 否 | 企业编码 |
+| `config.tenantCode` | string | 否 | 租户编码 |
 | `createdTime` | string | 否 |  创建时间 |
 | `desc` | string | 否 |  应用描述 |
 | `id` | string | 否 |  id编号 |
 | `licenseCode` | string | 否 |  授权码（创建时可选，写入后应用套餐配额） |
-| `name` | string | 否 |  企业名称 |
+| `name` | string | 否 |  租户名称 |
 | `ownerUser` | object | 否 |  |
 | `ownerUser.avatar` | string | 否 |  用户头像 |
 | `ownerUser.createdTime` | string | 否 |  创建时间 |
@@ -55,16 +55,16 @@
 | `resource.quota` | object | 否 |  |
 | `resource.quota.aiTokenBalance` | integer | 否 |  AI Token 充值余额 (格式: int64) |
 | `resource.quota.aiTokenMonthly` | integer | 否 |  AI Token 月配额 (格式: int64) |
-| `resource.quota.deviceMsgPerDay` | integer | 否 |  企业每天设备消息总量上限 (格式: int64) |
-| `resource.quota.deviceNum` | integer | 否 |  企业下的设备数量限制，0 为不限制 (格式: int64) |
+| `resource.quota.deviceMsgPerDay` | integer | 否 |  租户每天设备消息总量上限 (格式: int64) |
+| `resource.quota.deviceNum` | integer | 否 |  租户下的设备数量限制，0 为不限制 (格式: int64) |
 | `resource.quota.diskSpaceGB` | integer | 否 |  磁盘空间配额（GB） (格式: int64) |
-| `resource.quota.userNum` | integer | 否 |  企业下的用户数量限制，0 为不限制 (格式: int64) |
+| `resource.quota.userNum` | integer | 否 |  租户下的用户数量限制，0 为不限制 (格式: int64) |
 | `resource.usage` | object | 否 |  |
 | `resource.usage.aiTokenBalanceUsed` | integer | 否 |  AI Token 余额已用 (格式: int64) |
 | `resource.usage.aiTokenMonth` | string | 否 |  AI Token 用量月份 |
 | `resource.usage.aiTokenUsed` | integer | 否 |  AI Token 月已用 (格式: int64) |
-| `resource.usage.deviceCount` | integer | 否 | 企业下设备统计,只读 (格式: int64) |
-| `resource.usage.userCount` | integer | 否 | 企业下用户统计,只读 (格式: int64) |
+| `resource.usage.deviceCount` | integer | 否 | 租户下设备统计,只读 (格式: int64) |
+| `resource.usage.userCount` | integer | 否 | 租户下用户统计,只读 (格式: int64) |
 | `status` | integer | 否 |  租戶状态: 1启用 2禁用 (格式: int64) |
 
 **请求示例**:
@@ -126,7 +126,7 @@
   "code": 200,
   "data": {
     "code": "string",
-    "id": "string"
+    "id": 1
   },
   "msg": "success"
 }
@@ -140,7 +140,7 @@ ur api /api/v1/system/tenant/info/create \
 
 ### POST `/api/v1/system/tenant/info/delete`
 
-**说明**: 删除企业
+**说明**: 删除租户
 
 **权限**: platform
 
@@ -149,13 +149,13 @@ ur api /api/v1/system/tenant/info/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `code` | string | 否 |  |
-| `id` | string | 否 |  id |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "code": "string",
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -170,12 +170,12 @@ ur api /api/v1/system/tenant/info/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/info/delete \
-  --body '{"code": "string", "id": "string"}'
+  --body '{"code": "string", "id": 1}'
 ```
 
 ### POST `/api/v1/system/tenant/info/get-list`
 
-**说明**: 获取企业列表
+**说明**: 获取租户列表
 
 **权限**: platform
 
@@ -183,15 +183,16 @@ ur api /api/v1/system/tenant/info/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `code` | string | 否 |  企业编号 |
+| `code` | string | 否 |  租户编号 |
 | `isGetAll` | boolean | 否 | 是否返回所有,只有平台管理员有权限 (格式: boolean) |
-| `name` | string | 否 |  企业名称 |
+| `name` | string | 否 |  租户名称 |
 | `ownerUserID` | string | 否 |  超级管理员id,只有平台管理员有权限 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
-| `status` | integer | 否 | 企业状态 (格式: int64) |
-| `tenantCodes` | array[string] | 否 |  指定企业编码列表，非空时按编码精确返回 |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `status` | integer | 否 | 租户状态 (格式: int64) |
+| `tenantCodes` | array[string] | 否 |  指定租户编码列表，非空时按编码精确返回 |
 | `withOwnerUser` | boolean | 否 | 同时获取管理员核心信息 (格式: boolean) |
 
 **请求示例**:
@@ -202,8 +203,14 @@ ur api /api/v1/system/tenant/info/delete \
   "name": "示例名称",
   "ownerUserID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "tenantCodes": [
@@ -280,12 +287,12 @@ ur api /api/v1/system/tenant/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/info/get-list \
-  --body '{"code": "string", "isGetAll": true, "name": "示例名称", "ownerUserID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "tenantCodes": ["string"], "withOwnerUser": true}'
+  --body '{"code": "string", "isGetAll": true, "name": "示例名称", "ownerUserID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "tenantCodes": ["string"], "withOwnerUser": true}'
 ```
 
 ### POST `/api/v1/system/tenant/info/get-one`
 
-**说明**: 获取企业详情
+**说明**: 获取租户详情
 
 **权限**: admin
 
@@ -294,13 +301,13 @@ ur api /api/v1/system/tenant/info/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `code` | string | 否 |  |
-| `id` | string | 否 |  id |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "code": "string",
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -364,12 +371,12 @@ ur api /api/v1/system/tenant/info/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/info/get-one \
-  --body '{"code": "string", "id": "string"}'
+  --body '{"code": "string", "id": 1}'
 ```
 
 ### POST `/api/v1/system/tenant/info/transfer`
 
-**说明**: 转让企业（仅企业所有者）
+**说明**: 转让租户（仅租户所有者）
 
 **权限**: admin
 
@@ -377,7 +384,7 @@ ur api /api/v1/system/tenant/info/get-one \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `newOwnerUserID` | string | 是 |  新的企业所有者用户ID |
+| `newOwnerUserID` | string | 是 |  新的租户所有者用户ID |
 
 **请求示例**:
 ```json
@@ -402,7 +409,7 @@ ur api /api/v1/system/tenant/info/transfer \
 
 ### POST `/api/v1/system/tenant/info/update`
 
-**说明**: 更新企业
+**说明**: 更新租户
 
 **权限**: admin
 
@@ -411,16 +418,16 @@ ur api /api/v1/system/tenant/info/transfer \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `avatar` | string | 否 |  头像,更新时传filePath |
-| `code` | string | 否 |  企业编码,创建的时候自动生成 |
+| `code` | string | 否 |  租户编码,创建的时候自动生成 |
 | `config` | object | 否 |  |
 | `config.id` | string | 否 |  |
 | `config.registerRoleID` | string | 否 | 注册分配的角色id |
-| `config.tenantCode` | string | 否 | 企业编码 |
+| `config.tenantCode` | string | 否 | 租户编码 |
 | `createdTime` | string | 否 |  创建时间 |
 | `desc` | string | 否 |  应用描述 |
 | `id` | string | 否 |  id编号 |
 | `licenseCode` | string | 否 |  授权码（创建时可选，写入后应用套餐配额） |
-| `name` | string | 否 |  企业名称 |
+| `name` | string | 否 |  租户名称 |
 | `ownerUser` | object | 否 |  |
 | `ownerUser.avatar` | string | 否 |  用户头像 |
 | `ownerUser.createdTime` | string | 否 |  创建时间 |
@@ -440,16 +447,16 @@ ur api /api/v1/system/tenant/info/transfer \
 | `resource.quota` | object | 否 |  |
 | `resource.quota.aiTokenBalance` | integer | 否 |  AI Token 充值余额 (格式: int64) |
 | `resource.quota.aiTokenMonthly` | integer | 否 |  AI Token 月配额 (格式: int64) |
-| `resource.quota.deviceMsgPerDay` | integer | 否 |  企业每天设备消息总量上限 (格式: int64) |
-| `resource.quota.deviceNum` | integer | 否 |  企业下的设备数量限制，0 为不限制 (格式: int64) |
+| `resource.quota.deviceMsgPerDay` | integer | 否 |  租户每天设备消息总量上限 (格式: int64) |
+| `resource.quota.deviceNum` | integer | 否 |  租户下的设备数量限制，0 为不限制 (格式: int64) |
 | `resource.quota.diskSpaceGB` | integer | 否 |  磁盘空间配额（GB） (格式: int64) |
-| `resource.quota.userNum` | integer | 否 |  企业下的用户数量限制，0 为不限制 (格式: int64) |
+| `resource.quota.userNum` | integer | 否 |  租户下的用户数量限制，0 为不限制 (格式: int64) |
 | `resource.usage` | object | 否 |  |
 | `resource.usage.aiTokenBalanceUsed` | integer | 否 |  AI Token 余额已用 (格式: int64) |
 | `resource.usage.aiTokenMonth` | string | 否 |  AI Token 用量月份 |
 | `resource.usage.aiTokenUsed` | integer | 否 |  AI Token 月已用 (格式: int64) |
-| `resource.usage.deviceCount` | integer | 否 | 企业下设备统计,只读 (格式: int64) |
-| `resource.usage.userCount` | integer | 否 | 企业下用户统计,只读 (格式: int64) |
+| `resource.usage.deviceCount` | integer | 否 | 租户下设备统计,只读 (格式: int64) |
+| `resource.usage.userCount` | integer | 否 | 租户下用户统计,只读 (格式: int64) |
 | `status` | integer | 否 |  租戶状态: 1启用 2禁用 (格式: int64) |
 
 **请求示例**:

@@ -210,7 +210,7 @@ ur api /api/v1/things/product/category/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -247,8 +247,9 @@ ur api /api/v1/things/product/category/delete \
 | `ids` | array[integer] | 否 | id过滤 |
 | `name` | string | 否 | 过滤产品名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 |  |
 | `projectID` | string | 否 | 项目id,只获取项目下有设备的 |
 
@@ -261,8 +262,14 @@ ur api /api/v1/things/product/category/delete \
   ],
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": "string",
   "projectID": "string"
@@ -315,7 +322,7 @@ ur api /api/v1/things/product/category/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/product/category/get-list \
-  --body '{"code": "string", "ids": [1], "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "parentID": "string", "projectID": "string"}'
+  --body '{"code": "string", "ids": [1], "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "projectID": "string"}'
 ```
 
 ### POST `/api/v1/things/product/category/get-one`
@@ -654,7 +661,7 @@ ur api /api/v1/things/product/category/update \
 | `devInit.areaID` | string | 否 | 设备创建默认分配给的区域ID |
 | `devInit.deptID` | string | 否 | 设备创建默认分配给的部门 |
 | `devInit.projectID` | string | 否 | 设备创建默认分配给的项目 |
-| `devInit.tenantCode` | string | 否 | 设备创建默认分配给的企业 |
+| `devInit.tenantCode` | string | 否 | 设备创建默认分配给的租户 |
 | `productID` | string | 是 |  |
 
 **请求示例**:
@@ -884,7 +891,7 @@ ur api /api/v1/things/product/info/batch-import \
 | `config.devInit.areaID` | string | 否 | 设备创建默认分配给的区域ID |
 | `config.devInit.deptID` | string | 否 | 设备创建默认分配给的部门 |
 | `config.devInit.projectID` | string | 否 | 设备创建默认分配给的项目 |
-| `config.devInit.tenantCode` | string | 否 | 设备创建默认分配给的企业 |
+| `config.devInit.tenantCode` | string | 否 | 设备创建默认分配给的租户 |
 | `config.productID` | string | 是 |  |
 | `createdTime` | string | 否 | 创建时间 只读 |
 | `customUi` | object | 否 | 自定义ui,key是端的类型(web-client  mini-client) value是以下类型的对象{version:123(版本号,只读),isUpdateUi:bool(是否更新ui),path:string(前端路径,如果需要修改,需要将isUpdateUi置为true并在这个参数中传入压缩包的filePath)} |
@@ -925,7 +932,7 @@ ur api /api/v1/things/product/info/batch-import \
 | `subProtocolCode` | string | 否 | 子协议,主协议和子协议传输类型必须不相同, 设备控制下发只会发送给主协议, 当设备是音视频设备但是控制协议需要单独走的时候就可以把主协议定义为普通协议,子协议定义为音视频协议,这样就能实现音视频走音视频协议,控制走子协议 |
 | `subProtocolConf` | object | 否 | 子协议协议配置 |
 | `tags` | object | 否 |  产品tag |
-| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `trialTime` | string | 否 | 试用时间(单位为天,为0不限制) |
 
 **请求示例**:
@@ -1149,8 +1156,9 @@ ur api /api/v1/things/product/info/delete \
 | `deviceTypes` | array[integer] | 否 | 设备类型:1:设备,2:网关,3:子设备设备类型:1:设备,2:网关,3:子设备 |
 | `netType` | integer | 否 | 通讯方式:1:其他,2:wi-fi,3:2G/3G/4G,4:5G,5:BLE,6:LoRaWAN,7:wifi+ble,8:有线网,9:4G+BLE (格式: int64) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productIDs` | array[string] | 否 | 过滤产品id列表 |
 | `productName` | string | 否 | 过滤产品名称 |
 | `projectID` | string | 否 | 项目id,只获取项目下有设备的 |
@@ -1161,7 +1169,7 @@ ur api /api/v1/things/product/info/delete \
 | `status` | integer | 否 | 产品状态 1:启用 2:禁用 3:开发中 (格式: int64) |
 | `statuses` | array[integer] | 否 | 产品状态 1:启用 2:禁用 3:开发中 |
 | `tags` | object | 否 |  key tag过滤查询,非模糊查询 为tag的名,value为tag对应的值 |
-| `tenantCode` | string | 否 | 企业号过滤,common 为公共的产品,公共的大家都可以看 |
+| `tenantCode` | string | 否 | 租户号过滤,common 为公共的产品,公共的大家都可以看 |
 | `withCategory` | boolean | 否 | 同时返回品类详情 (格式: boolean) |
 | `withProtocol` | boolean | 否 | 同时返回协议详情 (格式: boolean) |
 
@@ -1179,8 +1187,14 @@ ur api /api/v1/things/product/info/delete \
   ],
   "netType": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productIDs": [
     "string"
@@ -1356,7 +1370,7 @@ ur api /api/v1/things/product/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/product/info/get-list \
-  --body '{"areaID": "string", "areaIDPath": "string", "categoryIDs": [1], "deviceType": 1, "deviceTypes": [1], "netType": 1, "page": {"page": 1, "pageSize": 1}, "productIDs": ["string"], "productName": "示例名称", "projectID": "string", "protocolCode": "string", "protocolType": "string", "sceneMode": "string", "sceneModes": ["string"], "status": 1, "statuses": [1], "tags": {}, "tenantCode": "string", "withCategory": true, "withProtocol": true}'
+  --body '{"areaID": "string", "areaIDPath": "string", "categoryIDs": [1], "deviceType": 1, "deviceTypes": [1], "netType": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productIDs": ["string"], "productName": "示例名称", "projectID": "string", "protocolCode": "string", "protocolType": "string", "sceneMode": "string", "sceneModes": ["string"], "status": 1, "statuses": [1], "tags": {}, "tenantCode": "string", "withCategory": true, "withProtocol": true}'
 ```
 
 ### POST `/api/v1/things/product/info/get-one`
@@ -1613,7 +1627,7 @@ ur api /api/v1/things/product/info/init \
 | `config.devInit.areaID` | string | 否 | 设备创建默认分配给的区域ID |
 | `config.devInit.deptID` | string | 否 | 设备创建默认分配给的部门 |
 | `config.devInit.projectID` | string | 否 | 设备创建默认分配给的项目 |
-| `config.devInit.tenantCode` | string | 否 | 设备创建默认分配给的企业 |
+| `config.devInit.tenantCode` | string | 否 | 设备创建默认分配给的租户 |
 | `config.productID` | string | 是 |  |
 | `createdTime` | string | 否 | 创建时间 只读 |
 | `customUi` | object | 否 | 自定义ui,key是端的类型(web-client  mini-client) value是以下类型的对象{version:123(版本号,只读),isUpdateUi:bool(是否更新ui),path:string(前端路径,如果需要修改,需要将isUpdateUi置为true并在这个参数中传入压缩包的filePath)} |
@@ -1654,7 +1668,7 @@ ur api /api/v1/things/product/info/init \
 | `subProtocolCode` | string | 否 | 子协议,主协议和子协议传输类型必须不相同, 设备控制下发只会发送给主协议, 当设备是音视频设备但是控制协议需要单独走的时候就可以把主协议定义为普通协议,子协议定义为音视频协议,这样就能实现音视频走音视频协议,控制走子协议 |
 | `subProtocolConf` | object | 否 | 子协议协议配置 |
 | `tags` | object | 否 |  产品tag |
-| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `trialTime` | string | 否 | 试用时间(单位为天,为0不限制) |
 
 **请求示例**:
@@ -1871,16 +1885,23 @@ ur api /api/v1/things/product/remote-config/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 是 | 产品id |
 
 **请求示例**:
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string"
 }
@@ -1909,7 +1930,7 @@ ur api /api/v1/things/product/remote-config/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/product/remote-config/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "productID": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string"}'
 ```
 
 ### POST `/api/v1/things/product/remote-config/lastest-read`
@@ -2143,8 +2164,9 @@ ur api /api/v1/things/product/schema/delete \
 | `isCanSceneLinkage` | integer | 否 | 是否可以场景联动 (格式: int64) |
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 是 | 产品id |
 | `propertyMode` | string | 否 | 属性类型可用 读写类型: 1:r(只读) 2:rw(可读可写) |
 | `tag` | integer | 否 | 过滤条件: 物模型标签 1:自定义 2:可选 3:必选 (格式: int64) |
@@ -2162,8 +2184,14 @@ ur api /api/v1/things/product/schema/delete \
   "isCanSceneLinkage": 1,
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string",
   "propertyMode": "string",
@@ -2207,7 +2235,7 @@ ur api /api/v1/things/product/schema/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/product/schema/get-list \
-  --body '{"controlMode": 1, "funcGroup": 1, "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string", "propertyMode": "string", "tag": 1, "type": 1, "types": [1]}'
+  --body '{"controlMode": 1, "funcGroup": 1, "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "propertyMode": "string", "tag": 1, "type": 1, "types": [1]}'
 ```
 
 ### POST `/api/v1/things/product/schema/tsl-import`

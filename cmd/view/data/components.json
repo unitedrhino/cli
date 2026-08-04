@@ -1,0 +1,1152 @@
+{
+  "snapshotDate": "2026-08-03",
+  "source": "apps/web/packages/bigscreen/src/goview/packages/components",
+  "components": [
+    {
+      "key": "BarCommon",
+      "chartKey": "VBarCommon",
+      "conKey": "VCBarCommon",
+      "title": "柱状图",
+      "category": "Bars",
+      "categoryName": "柱状图",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "bar_x.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "BarCrossrange",
+      "chartKey": "VBarCrossrange",
+      "conKey": "VCBarCrossrange",
+      "title": "横向柱状图",
+      "category": "Bars",
+      "categoryName": "柱状图",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "bar_y.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "CapsuleChart",
+      "chartKey": "VCapsuleChart",
+      "conKey": "VCCapsuleChart",
+      "title": "胶囊柱图",
+      "category": "Bars",
+      "categoryName": "柱状图",
+      "package": "Charts",
+      "chartFrame": "common",
+      "image": "capsule.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "BarLine",
+      "chartKey": "VBarLine",
+      "conKey": "VCBarLine",
+      "title": "柱状图 & 折线图",
+      "category": "Bars",
+      "categoryName": "柱状图",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "bar_line.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "PieCommon",
+      "chartKey": "VPieCommon",
+      "conKey": "VCPieCommon",
+      "title": "饼图",
+      "category": "Pies",
+      "categoryName": "饼图",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "pie.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "PieCircle",
+      "chartKey": "VPieCircle",
+      "conKey": "VCPieCircle",
+      "title": "饼图-环形",
+      "category": "Pies",
+      "categoryName": "饼图",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "pie-circle.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus"
+      ],
+      "singleValueSelfRender": true
+    },
+    {
+      "key": "Process",
+      "chartKey": "VProcess",
+      "conKey": "VCProcess",
+      "title": "NaiveUI-进度",
+      "category": "Pies",
+      "categoryName": "饼图",
+      "package": "Charts",
+      "chartFrame": "",
+      "image": "process.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus"
+      ],
+      "singleValueSelfRender": true
+    },
+    {
+      "key": "WaterPolo",
+      "chartKey": "VWaterPolo",
+      "conKey": "VCWaterPolo",
+      "title": "水球图",
+      "category": "Pies",
+      "categoryName": "饼图",
+      "package": "Charts",
+      "chartFrame": "common",
+      "image": "water_WaterPolo.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus"
+      ],
+      "singleValueSelfRender": true
+    },
+    {
+      "key": "LineCommon",
+      "chartKey": "VLineCommon",
+      "conKey": "VCLineCommon",
+      "title": "折线图",
+      "category": "Lines",
+      "categoryName": "折线图",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "line.png",
+      "iotQueryTypes": [
+        "property"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "LineLinearSingle",
+      "chartKey": "VLineLinearSingle",
+      "conKey": "VCLineLinearSingle",
+      "title": "单折线渐变图",
+      "category": "Lines",
+      "categoryName": "折线图",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "line_linear_single.png",
+      "iotQueryTypes": [
+        "property"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "LineGradientSingle",
+      "chartKey": "VLineGradientSingle",
+      "conKey": "VCLineGradientSingle",
+      "title": "单折线渐变面积图",
+      "category": "Lines",
+      "categoryName": "折线图",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "line_gradient_single.png",
+      "iotQueryTypes": [
+        "property"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "LineGradients",
+      "chartKey": "VLineGradients",
+      "conKey": "VCLineGradients",
+      "title": "双折线渐变面积图",
+      "category": "Lines",
+      "categoryName": "折线图",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "line_gradient.png",
+      "iotQueryTypes": [
+        "property"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "ScatterCommon",
+      "chartKey": "VScatterCommon",
+      "conKey": "VCScatterCommon",
+      "title": "散点图",
+      "category": "Scatters",
+      "categoryName": "散点图",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "scatter-multi.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "ScatterLogarithmicRegression",
+      "chartKey": "VScatterLogarithmicRegression",
+      "conKey": "VCScatterLogarithmicRegression",
+      "title": "对数回归散点图",
+      "category": "Scatters",
+      "categoryName": "散点图",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "scatter-logarithmic-regression.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Radar",
+      "chartKey": "VRadar",
+      "conKey": "VCRadar",
+      "title": "雷达图",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Charts",
+      "chartFrame": "common",
+      "image": "radar.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Funnel",
+      "chartKey": "VFunnel",
+      "conKey": "VCFunnel",
+      "title": "漏斗图",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Charts",
+      "chartFrame": "echarts",
+      "image": "funnel.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Heatmap",
+      "chartKey": "VHeatmap",
+      "conKey": "VCHeatmap",
+      "title": "热力图",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Charts",
+      "chartFrame": "common",
+      "image": "heatmap.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "TreeMap",
+      "chartKey": "VTreeMap",
+      "conKey": "VCTreeMap",
+      "title": "树形分布",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Charts",
+      "chartFrame": "common",
+      "image": "tree_map.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Graph",
+      "chartKey": "VGraph",
+      "conKey": "VCGraph",
+      "title": "关系图",
+      "category": "Others",
+      "categoryName": "其他",
+      "package": "Charts",
+      "chartFrame": "common",
+      "image": "graph.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Sankey",
+      "chartKey": "VSankey",
+      "conKey": "VCSankey",
+      "title": "桑基图",
+      "category": "Others",
+      "categoryName": "其他",
+      "package": "Charts",
+      "chartFrame": "common",
+      "image": "sankey.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Dial",
+      "chartKey": "VDial",
+      "conKey": "VCDial",
+      "title": "表盘",
+      "category": "Others",
+      "categoryName": "其他",
+      "package": "Charts",
+      "chartFrame": "common",
+      "image": "dial.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": true
+    },
+    {
+      "key": "MapBase",
+      "chartKey": "VMapBase",
+      "conKey": "VCMapBase",
+      "title": "地图(可选省份)",
+      "category": "Maps",
+      "categoryName": "地图",
+      "package": "Charts",
+      "chartFrame": "common",
+      "image": "map.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "MapAmap",
+      "chartKey": "VMapAmap",
+      "conKey": "VCMapAmap",
+      "title": "高德地图",
+      "category": "Maps",
+      "categoryName": "地图",
+      "package": "Charts",
+      "chartFrame": "common",
+      "image": "map_amap.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "TextCommon",
+      "chartKey": "VTextCommon",
+      "conKey": "VCTextCommon",
+      "title": "文字",
+      "category": "Texts",
+      "categoryName": "文本",
+      "package": "Informations",
+      "chartFrame": "common",
+      "image": "text_static.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "TextBarrage",
+      "chartKey": "VTextBarrage",
+      "conKey": "VCTextBarrage",
+      "title": "弹幕文字",
+      "category": "Texts",
+      "categoryName": "文本",
+      "package": "Informations",
+      "chartFrame": "common",
+      "image": "text_barrage.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "TextGradient",
+      "chartKey": "VTextGradient",
+      "conKey": "VCTextGradient",
+      "title": "渐变文字",
+      "category": "Texts",
+      "categoryName": "文本",
+      "package": "Informations",
+      "chartFrame": "naiveUI",
+      "image": "text_gradient.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "InputsDate",
+      "chartKey": "VInputsDate",
+      "conKey": "VCInputsDate",
+      "title": "时间选择器",
+      "category": "Inputs",
+      "categoryName": "控件",
+      "package": "Informations",
+      "chartFrame": "static",
+      "image": "inputs_date.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "InputsSelect",
+      "chartKey": "VInputsSelect",
+      "conKey": "VCInputsSelect",
+      "title": "下拉选择器",
+      "category": "Inputs",
+      "categoryName": "控件",
+      "package": "Informations",
+      "chartFrame": "static",
+      "image": "inputs_select.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "InputsTab",
+      "chartKey": "VInputsTab",
+      "conKey": "VCInputsTab",
+      "title": "标签选择器",
+      "category": "Inputs",
+      "categoryName": "控件",
+      "package": "Informations",
+      "chartFrame": "static",
+      "image": "inputs_tab.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "InputsPagination",
+      "chartKey": "VInputsPagination",
+      "conKey": "VCInputsPagination",
+      "title": "分页",
+      "category": "Inputs",
+      "categoryName": "控件",
+      "package": "Informations",
+      "chartFrame": "static",
+      "image": "inputs_pagination.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "InputsInput",
+      "chartKey": "VInputsInput",
+      "conKey": "VCInputsInput",
+      "title": "输入框",
+      "category": "Inputs",
+      "categoryName": "控件",
+      "package": "Informations",
+      "chartFrame": "static",
+      "image": "inputs_input.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Image",
+      "chartKey": "VImage",
+      "conKey": "VCImage",
+      "title": "图片",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Informations",
+      "chartFrame": "common",
+      "image": "photo.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "ImageCarousel",
+      "chartKey": "VImageCarousel",
+      "conKey": "VCImageCarousel",
+      "title": "轮播图",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Informations",
+      "chartFrame": "naiveUI",
+      "image": "photo_carousel.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Iframe",
+      "chartKey": "VIframe",
+      "conKey": "VCIframe",
+      "title": "远程网页",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Informations",
+      "chartFrame": "common",
+      "image": "iframe.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Video",
+      "chartKey": "VVideo",
+      "conKey": "VCVideo",
+      "title": "视频",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Informations",
+      "chartFrame": "common",
+      "image": "video.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "WordCloud",
+      "chartKey": "VWordCloud",
+      "conKey": "VCWordCloud",
+      "title": "词云",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Informations",
+      "chartFrame": "common",
+      "image": "words_cloud.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "TableList",
+      "chartKey": "VTableList",
+      "conKey": "VCTableList",
+      "title": "滚动排名列表",
+      "category": "Tables",
+      "categoryName": "表格",
+      "package": "Tables",
+      "chartFrame": "common",
+      "image": "tables_list.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "TableScrollBoard",
+      "chartKey": "VTableScrollBoard",
+      "conKey": "VCTableScrollBoard",
+      "title": "轮播列表",
+      "category": "Tables",
+      "categoryName": "表格",
+      "package": "Tables",
+      "chartFrame": "common",
+      "image": "table_scrollboard.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "TablesBasic",
+      "chartKey": "VTablesBasic",
+      "conKey": "VCTablesBasic",
+      "title": "基础分页表格",
+      "category": "Tables",
+      "categoryName": "表格",
+      "package": "Tables",
+      "chartFrame": "common",
+      "image": "tables_basic.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border01",
+      "chartKey": "VBorder01",
+      "conKey": "VCBorder01",
+      "title": "边框-01",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border01.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border02",
+      "chartKey": "VBorder02",
+      "conKey": "VCBorder02",
+      "title": "边框-02",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border02.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border03",
+      "chartKey": "VBorder03",
+      "conKey": "VCBorder03",
+      "title": "边框-03",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border03.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border04",
+      "chartKey": "VBorder04",
+      "conKey": "VCBorder04",
+      "title": "边框-04",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border04.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border05",
+      "chartKey": "VBorder05",
+      "conKey": "VCBorder05",
+      "title": "边框-05",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border05.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border06",
+      "chartKey": "VBorder06",
+      "conKey": "VCBorder06",
+      "title": "边框-06",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border06.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border07",
+      "chartKey": "VBorder07",
+      "conKey": "VCBorder07",
+      "title": "边框-07",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border07.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border08",
+      "chartKey": "VBorder08",
+      "conKey": "VCBorder08",
+      "title": "边框-08",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border08.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border09",
+      "chartKey": "VBorder09",
+      "conKey": "VCBorder09",
+      "title": "边框-09",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border09.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border10",
+      "chartKey": "VBorder10",
+      "conKey": "VCBorder10",
+      "title": "边框-10",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border10.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border11",
+      "chartKey": "VBorder11",
+      "conKey": "VCBorder11",
+      "title": "边框-11",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border11.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border12",
+      "chartKey": "VBorder12",
+      "conKey": "VCBorder12",
+      "title": "边框-12",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border12.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Border13",
+      "chartKey": "VBorder13",
+      "conKey": "VCBorder13",
+      "title": "边框-13",
+      "category": "Borders",
+      "categoryName": "边框",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "border13.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Decorates01",
+      "chartKey": "VDecorates01",
+      "conKey": "VCDecorates01",
+      "title": "装饰-01",
+      "category": "Decorates",
+      "categoryName": "装饰",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "decorates01.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Decorates02",
+      "chartKey": "VDecorates02",
+      "conKey": "VCDecorates02",
+      "title": "装饰-02",
+      "category": "Decorates",
+      "categoryName": "装饰",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "decorates02.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Decorates03",
+      "chartKey": "VDecorates03",
+      "conKey": "VCDecorates03",
+      "title": "装饰-03",
+      "category": "Decorates",
+      "categoryName": "装饰",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "decorates03.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Decorates04",
+      "chartKey": "VDecorates04",
+      "conKey": "VCDecorates04",
+      "title": "装饰-04",
+      "category": "Decorates",
+      "categoryName": "装饰",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "decorates04.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Decorates05",
+      "chartKey": "VDecorates05",
+      "conKey": "VCDecorates05",
+      "title": "装饰-05",
+      "category": "Decorates",
+      "categoryName": "装饰",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "decorates05.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Decorates06",
+      "chartKey": "VDecorates06",
+      "conKey": "VCDecorates06",
+      "title": "装饰-06",
+      "category": "Decorates",
+      "categoryName": "装饰",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "decorates06.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "FlowChartLine",
+      "chartKey": "VFlowChartLine",
+      "conKey": "VCFlowChartLine",
+      "title": "流程线",
+      "category": "FlowChart",
+      "categoryName": "流程",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "flow-zhexian.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "ThreeEarth01",
+      "chartKey": "VThreeEarth01",
+      "conKey": "VCThreeEarth01",
+      "title": "三维地球",
+      "category": "Three",
+      "categoryName": "三维",
+      "package": "Decorates",
+      "chartFrame": "common",
+      "image": "threeEarth01.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Number",
+      "chartKey": "VNumber",
+      "conKey": "VCNumber",
+      "title": "数字计数",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Decorates",
+      "chartFrame": "common",
+      "image": "number.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "TimeCommon",
+      "chartKey": "VTimeCommon",
+      "conKey": "VCTimeCommon",
+      "title": "通用时间",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "time.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Clock",
+      "chartKey": "VClock",
+      "conKey": "VCClock",
+      "title": "时钟",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "clock.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "FullScreen",
+      "chartKey": "VFullScreen",
+      "conKey": "VCFullScreen",
+      "title": "全屏按钮",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "fullScreen.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "CountDown",
+      "chartKey": "VCountDown",
+      "conKey": "VCCountDown",
+      "title": "倒计时",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Decorates",
+      "chartFrame": "common",
+      "image": "countdown.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "FlipperNumber",
+      "chartKey": "VFlipperNumber",
+      "conKey": "VCFlipperNumber",
+      "title": "数字翻牌-需动态触发",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Decorates",
+      "chartFrame": "common",
+      "image": "flipper-number.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "PipelineH",
+      "chartKey": "VPipelineH",
+      "conKey": "VCPipelineH",
+      "title": "管道-横向",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Decorates",
+      "chartFrame": "",
+      "image": "Pipeline_H.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "PipelineV",
+      "chartKey": "VPipelineV",
+      "conKey": "VCPipelineV",
+      "title": "管道-纵向",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Decorates",
+      "chartFrame": "",
+      "image": "Pipeline_V.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "CirclePoint",
+      "chartKey": "VCirclePoint",
+      "conKey": "VCCirclePoint",
+      "title": "圆点光环",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "flow-circle.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "Icon",
+      "chartKey": "VIcon",
+      "conKey": "VCIcon",
+      "title": "图标",
+      "category": "Default",
+      "categoryName": "默认",
+      "package": "Icons",
+      "chartFrame": "static",
+      "image": "icon.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "BorderRunningTimer",
+      "chartKey": "VBorderRunningTimer",
+      "conKey": "VCBorderRunningTimer",
+      "title": "累计运行时间",
+      "category": "Metrics",
+      "categoryName": "指标类",
+      "package": "Presets",
+      "chartFrame": "composite",
+      "image": "BorderRunningTimer01.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "BorderMetricFlipper",
+      "chartKey": "VBorderMetricFlipper",
+      "conKey": "VCBorderMetricFlipper",
+      "title": "指标翻牌器",
+      "category": "Metrics",
+      "categoryName": "指标类",
+      "package": "Presets",
+      "chartFrame": "composite",
+      "image": "BorderRunningTimer02.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "BorderDeviceStatus",
+      "chartKey": "VBorderDeviceStatus",
+      "conKey": "VCBorderDeviceStatus",
+      "title": "设备状态",
+      "category": "Status",
+      "categoryName": "状态类",
+      "package": "Presets",
+      "chartFrame": "composite",
+      "image": "ChartDataIoTDevice.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "BorderDualChart",
+      "chartKey": "VBorderDualChart",
+      "conKey": "VCBorderDualChart",
+      "title": "设备对比分析",
+      "category": "Compare",
+      "categoryName": "对比类",
+      "package": "Presets",
+      "chartFrame": "composite",
+      "image": "border04.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "BorderBarChart",
+      "chartKey": "VBorderChartBase",
+      "conKey": "VCBorderChartBase",
+      "title": "通用图表",
+      "category": "Common",
+      "categoryName": "通用类",
+      "package": "Presets",
+      "chartFrame": "composite",
+      "image": "border01.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "BorderContainer",
+      "chartKey": "group",
+      "conKey": "VEnhancedGroupConfig",
+      "title": "空白边框容器",
+      "category": "Container",
+      "categoryName": "容器/排版",
+      "package": "Presets",
+      "chartFrame": "common",
+      "image": "border01.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "DeviceInteractButton",
+      "chartKey": "VDeviceInteractButton",
+      "conKey": "VCDeviceInteractButton",
+      "title": "设备交互按钮",
+      "category": "Buttons",
+      "categoryName": "按钮",
+      "package": "Interact",
+      "chartFrame": "static",
+      "image": "button.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    }
+  ]
+}

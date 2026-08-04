@@ -61,16 +61,23 @@ ur api /api/v1/ai/tool/run \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `toolID` | string | 是 |  工具ID |
 
 **请求示例**:
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "toolID": "string"
 }
@@ -86,6 +93,7 @@ ur api /api/v1/ai/tool/run \
         "durationMs": "string",
         "errorMsg": "string",
         "logs": "string",
+        "output": "string",
         "runID": "string",
         "state": "string",
         "status": "string"
@@ -100,7 +108,7 @@ ur api /api/v1/ai/tool/run \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/tool/run-history \
-  --body '{"page": {"page": 1, "pageSize": 1}, "toolID": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "toolID": "string"}'
 ```
 
 ### POST `/api/v1/ai/tool/run-status`
@@ -130,6 +138,7 @@ ur api /api/v1/ai/tool/run-history \
     "durationMs": "string",
     "errorMsg": "string",
     "logs": "string",
+    "output": "string",
     "runID": "string",
     "state": "string",
     "status": "string"

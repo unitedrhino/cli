@@ -438,17 +438,17 @@ ur api /api/v1/system/common/sys-config/info/get-one \
 | `tenant` | object | 否 |  |
 | `tenant.defaultLimit` | object | 是 |  |
 | `tenant.defaultLimit.aiTokenMonthly` | integer | 否 |  默认 AI Token 月配额（单位：token） (格式: int64) |
-| `tenant.defaultLimit.deviceMsgPerDay` | integer | 否 |  默认企业每天设备消息总量上限 (格式: int64) |
-| `tenant.defaultLimit.deviceNum` | integer | 否 |  企业下的设备数量限制,0为不限制 (格式: int64) |
+| `tenant.defaultLimit.deviceMsgPerDay` | integer | 否 |  默认租户每天设备消息总量上限 (格式: int64) |
+| `tenant.defaultLimit.deviceNum` | integer | 否 |  租户下的设备数量限制,0为不限制 (格式: int64) |
 | `tenant.defaultLimit.diskSpaceGB` | integer | 否 |  默认磁盘空间 GB (格式: int64) |
-| `tenant.defaultLimit.userNum` | integer | 否 |  企业下的用户数量限制,0为不限制 (格式: int64) |
+| `tenant.defaultLimit.userNum` | integer | 否 |  租户下的用户数量限制,0为不限制 (格式: int64) |
 | `user` | object | 否 |  |
 | `user.captchaLen` | integer | 是 |  验证码长度 (格式: int32) |
 | `user.forceSetPassword` | integer | 是 |  是否强制未设置密码的用户登录后设置密码(1:是，2:否) (格式: int64) 可选: ['1', '2'] |
 | `user.ownerUserID` | string | 否 |  平台超级管理员ID 非平台超管不返回该参数,不可修改 |
 | `user.passLevel` | integer | 是 |  用户密码强度级别 1:长度大于等于8位即可 2:包含数字,大写字母,小写字母,特殊字符起码两种  3:包含数字,大写字母,小写字母,特殊字符起码3种 4:包含数字,大写字母,小写字母,特殊字符   特殊字符: !@#~$%^&*()+\|_ (格式: int64) |
 | `user.remindSetPassword` | integer | 是 |  是否提醒未设置密码的用户设置密码(1:是，2:否) (格式: int64) 可选: ['1', '2'] |
-| `user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费企业数量，0表示不可直接创建免费企业，需提供授权码 (格式: int64) |
+| `user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费租户数量，0表示不可直接创建免费租户，需提供授权码 (格式: int64) |
 | `weather` | object | 否 |  |
 | `weather.apiHost` | string | 是 |  天气API主机地址 |
 | `weather.apiKey` | string | 是 |  天气API密钥 |
@@ -555,8 +555,9 @@ ur api /api/v1/system/common/sys-config/info/update \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父节点 |
 | `thirdConfig` | object | 是 |  |
 | `thirdConfig.appID` | string | 否 |  |
@@ -568,8 +569,14 @@ ur api /api/v1/system/common/sys-config/info/update \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": "string",
   "thirdConfig": {
@@ -688,7 +695,7 @@ ur api /api/v1/system/common/sys-config/info/update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/common/third/dept/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "parentID": "string", "thirdConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "thirdType": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "thirdConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "thirdType": "string"}'
 ```
 
 ### POST `/api/v1/system/common/third/dept/get-one`
@@ -1046,7 +1053,7 @@ ur api /api/v1/system/common/upload-file \
 | `isPublic` | boolean | 否 | true时使用公开桶上传,返回永久fileUrl。用于通知富文本中的图片、封面图等需长期可访问的资源 (格式: boolean) |
 | `rename` | boolean | 否 | true 文件重命名，false 不重命名(默认) (格式: boolean) |
 | `scene` | string | 是 | 场景(业务定义 如产品图片 productImg) |
-| `useBy` | string | 否 | 公开桶时必填。上传用途: user=用户级, tenant=企业级, platform=平台级(需supper权限) |
+| `useBy` | string | 否 | 公开桶时必填。上传用途: user=用户级, tenant=租户级, platform=平台级(需supper权限) |
 
 **请求示例**:
 ```json

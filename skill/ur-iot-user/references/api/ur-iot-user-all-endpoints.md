@@ -9,7 +9,9 @@
 | POST | `/api/v1/things/user/device/share/batch-accept` | 接受批量分享设备 | all |
 | POST | `/api/v1/things/user/device/share/batch-create` | 生成批量分享设备二维码 | all |
 | POST | `/api/v1/things/user/device/share/batch-delete` | 批量取消分享设备 | all |
+| POST | `/api/v1/things/user/device/share/batch-delete-token` | 删除批量分享 Token | all |
 | POST | `/api/v1/things/user/device/share/batch-get-list` | 获取批量分享的设备列表 | all |
+| POST | `/api/v1/things/user/device/share/batch-get-token-list` | 获取批量分享 Token 列表 | all |
 | POST | `/api/v1/things/user/device/share/create` | 分享设备 | all |
 | POST | `/api/v1/things/user/device/share/delete` | 取消分享设备 | all |
 | POST | `/api/v1/things/user/device/share/get-list` | 获取分享设备列表 | all |
@@ -76,8 +78,7 @@ ur api /api/v1/things/user/area/apply/create \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -94,7 +95,7 @@ ur api /api/v1/things/user/area/apply/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/collect/batch-create \
-  --body '{"devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"devices": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/user/device/collect/batch-delete`
@@ -115,8 +116,7 @@ ur api /api/v1/things/user/device/collect/batch-create \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -133,7 +133,7 @@ ur api /api/v1/things/user/device/collect/batch-create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/collect/batch-delete \
-  --body '{"devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"devices": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/user/device/collect/get-list`
@@ -658,8 +658,7 @@ ur api /api/v1/things/user/device/collect/get-list \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "shareToken": "string"
@@ -677,7 +676,7 @@ ur api /api/v1/things/user/device/collect/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/share/batch-accept \
-  --body '{"devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "shareToken": "string"}'
+  --body '{"devices": [{"deviceName": "示例名称", "productID": "string"}], "shareToken": "string"}'
 ```
 
 ### POST `/api/v1/things/user/device/share/batch-create`
@@ -707,8 +706,7 @@ ur api /api/v1/things/user/device/share/batch-accept \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "expTime": 1,
@@ -731,7 +729,7 @@ ur api /api/v1/things/user/device/share/batch-accept \
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/share/batch-create \
-  --body '{"accessPerm": {}, "authType": 1, "createdTime": "string", "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "expTime": 1, "schemaPerm": {}, "useBy": "string"}'
+  --body '{"accessPerm": {}, "authType": 1, "createdTime": "string", "devices": [{"deviceName": "示例名称", "productID": "string"}], "expTime": 1, "schemaPerm": {}, "useBy": "string"}'
 ```
 
 ### POST `/api/v1/things/user/device/share/batch-delete`
@@ -769,6 +767,39 @@ ur api /api/v1/things/user/device/share/batch-create \
 ```bash
 ur api /api/v1/things/user/device/share/batch-delete \
   --body '{"ids": [1], "projectID": "string"}'
+```
+
+### POST `/api/v1/things/user/device/share/batch-delete-token`
+
+**说明**: 删除批量分享 Token
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `shareToken` | string | 是 | 要删除的分享 Token |
+
+**请求示例**:
+```json
+{
+  "shareToken": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/user/device/share/batch-delete-token \
+  --body '{"shareToken": "string"}'
 ```
 
 ### POST `/api/v1/things/user/device/share/batch-get-list`
@@ -822,6 +853,39 @@ ur api /api/v1/things/user/device/share/batch-get-list \
   --body '{"shareToken": "string"}'
 ```
 
+### POST `/api/v1/things/user/device/share/batch-get-token-list`
+
+**说明**: 获取批量分享 Token 列表
+
+**权限**: all
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "authType": 1,
+        "createdTime": "2026-01-01T00:00:00Z",
+        "deviceCount": "string",
+        "expTime": 1,
+        "shareToken": "string",
+        "useBy": "string"
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/user/device/share/batch-get-token-list \
+  --body '{}'
+```
+
 ### POST `/api/v1/things/user/device/share/create`
 
 **说明**: 分享设备
@@ -838,7 +902,6 @@ ur api /api/v1/things/user/device/share/batch-get-list \
 | `device` | object | 否 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 | `expTime` | string | 否 | 到期时间 |
 | `id` | string | 否 |  |
 | `projectID` | string | 否 |  |
@@ -865,8 +928,7 @@ ur api /api/v1/things/user/device/share/batch-get-list \
   "createdTime": "string",
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "expTime": "2026-01-01T00:00:00Z",
   "id": "string",
@@ -903,7 +965,7 @@ ur api /api/v1/things/user/device/share/batch-get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/share/create \
-  --body '{"accessPerm": {}, "authType": 1, "createdTime": "string", "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "expTime": "2026-01-01T00:00:00Z", "id": "string", "projectID": "string", "schemaPerm": {}, "sharedUserAccount": "string", "sharedUserID": "string", "useBy": "string", "user": {"avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "email": "string", "lastIP": "string", "nickName": "string", "phone": "string", "regIP": "string", "userID": "string", "userName": "string"}}'
+  --body '{"accessPerm": {}, "authType": 1, "createdTime": "string", "device": {"deviceName": "示例名称", "productID": "string"}, "expTime": "2026-01-01T00:00:00Z", "id": "string", "projectID": "string", "schemaPerm": {}, "sharedUserAccount": "string", "sharedUserID": "string", "useBy": "string", "user": {"avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "email": "string", "lastIP": "string", "nickName": "string", "phone": "string", "regIP": "string", "userID": "string", "userName": "string"}}'
 ```
 
 ### POST `/api/v1/things/user/device/share/delete`
@@ -919,7 +981,6 @@ ur api /api/v1/things/user/device/share/create \
 | `device` | object | 否 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 | `id` | string | 否 |  |
 | `useBy` | string | 否 | 用途 |
 
@@ -928,8 +989,7 @@ ur api /api/v1/things/user/device/share/create \
 {
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "id": "string",
   "useBy": "string"
@@ -947,7 +1007,7 @@ ur api /api/v1/things/user/device/share/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/share/delete \
-  --body '{"device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "id": "string", "useBy": "string"}'
+  --body '{"device": {"deviceName": "示例名称", "productID": "string"}, "id": "string", "useBy": "string"}'
 ```
 
 ### POST `/api/v1/things/user/device/share/get-list`
@@ -963,10 +1023,10 @@ ur api /api/v1/things/user/device/share/delete \
 | `device` | object | 否 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `withUser` | boolean | 否 | 同时返回用户信息 (格式: boolean) |
 
 **请求示例**:
@@ -974,12 +1034,17 @@ ur api /api/v1/things/user/device/share/delete \
 {
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "withUser": true
 }
@@ -997,8 +1062,7 @@ ur api /api/v1/things/user/device/share/delete \
         "createdTime": "string",
         "device": {
           "deviceName": "示例名称",
-          "productID": "string",
-          "productName": "string"
+          "productID": "string"
         },
         "expTime": "2026-01-01T00:00:00Z",
         "id": "string",
@@ -1029,7 +1093,7 @@ ur api /api/v1/things/user/device/share/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/share/get-list \
-  --body '{"device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "page": {"page": 1, "pageSize": 1}, "withUser": true}'
+  --body '{"device": {"deviceName": "示例名称", "productID": "string"}, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "withUser": true}'
 ```
 
 ### POST `/api/v1/things/user/device/share/get-one`
@@ -1045,7 +1109,6 @@ ur api /api/v1/things/user/device/share/get-list \
 | `device` | object | 否 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 | `id` | string | 否 |  |
 | `useBy` | string | 否 | 用途 |
 
@@ -1054,8 +1117,7 @@ ur api /api/v1/things/user/device/share/get-list \
 {
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "id": "string",
   "useBy": "string"
@@ -1072,8 +1134,7 @@ ur api /api/v1/things/user/device/share/get-list \
     "createdTime": "string",
     "device": {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     },
     "expTime": "2026-01-01T00:00:00Z",
     "id": "string",
@@ -1101,7 +1162,7 @@ ur api /api/v1/things/user/device/share/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/share/get-one \
-  --body '{"device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "id": "string", "useBy": "string"}'
+  --body '{"device": {"deviceName": "示例名称", "productID": "string"}, "id": "string", "useBy": "string"}'
 ```
 
 ### POST `/api/v1/things/user/device/share/share-code-accept`
@@ -1208,8 +1269,7 @@ ur api /api/v1/things/user/device/share/share-code-delete \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "expTime": "2026-01-01T00:00:00Z",
@@ -1235,7 +1295,7 @@ ur api /api/v1/things/user/device/share/share-code-delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/share/share-code-gen \
-  --body '{"accessPerm": {}, "authType": 1, "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "expTime": "2026-01-01T00:00:00Z", "schemaPerm": {}, "useBy": "string", "validHours": 1}'
+  --body '{"accessPerm": {}, "authType": 1, "devices": [{"deviceName": "示例名称", "productID": "string"}], "expTime": "2026-01-01T00:00:00Z", "schemaPerm": {}, "useBy": "string", "validHours": 1}'
 ```
 
 ### POST `/api/v1/things/user/device/share/share-code-get-info`
@@ -1351,7 +1411,6 @@ ur api /api/v1/things/user/device/share/share-code-get-list \
 | `device` | object | 否 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 | `expTime` | string | 否 | 到期时间 |
 | `id` | string | 否 |  |
 | `projectID` | string | 否 |  |
@@ -1378,8 +1437,7 @@ ur api /api/v1/things/user/device/share/share-code-get-list \
   "createdTime": "string",
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "expTime": "2026-01-01T00:00:00Z",
   "id": "string",
@@ -1413,5 +1471,5 @@ ur api /api/v1/things/user/device/share/share-code-get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/user/device/share/update \
-  --body '{"accessPerm": {}, "authType": 1, "createdTime": "string", "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "expTime": "2026-01-01T00:00:00Z", "id": "string", "projectID": "string", "schemaPerm": {}, "sharedUserAccount": "string", "sharedUserID": "string", "useBy": "string", "user": {"avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "email": "string", "lastIP": "string", "nickName": "string", "phone": "string", "regIP": "string", "userID": "string", "userName": "string"}}'
+  --body '{"accessPerm": {}, "authType": 1, "createdTime": "string", "device": {"deviceName": "示例名称", "productID": "string"}, "expTime": "2026-01-01T00:00:00Z", "id": "string", "projectID": "string", "schemaPerm": {}, "sharedUserAccount": "string", "sharedUserID": "string", "useBy": "string", "user": {"avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "email": "string", "lastIP": "string", "nickName": "string", "phone": "string", "regIP": "string", "userID": "string", "userName": "string"}}'
 ```

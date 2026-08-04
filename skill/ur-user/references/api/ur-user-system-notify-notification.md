@@ -28,7 +28,7 @@
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -88,7 +88,7 @@ ur api /api/v1/system/notify/notification/copy \
 | `showAsModal` | string | 否 |  message/news专属：是否弹窗 1=是 2=否 |
 | `status` | integer | 否 | 状态 1:草稿 2:已计划 3:发送中 4:已发送 5:已撤回 (格式: int64) |
 | `targetUserIDs` | array[string] | 否 | 目标用户ID列表 |
-| `tenantCode` | string | 否 | 企业编码,空=平台级 |
+| `tenantCode` | string | 否 | 租户编码,空=平台级 |
 | `title` | string | 是 | 标题 |
 | `videoUrl` | string | 否 |  news专属：视频URL |
 
@@ -156,7 +156,7 @@ ur api /api/v1/system/notify/notification/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -189,7 +189,7 @@ ur api /api/v1/system/notify/notification/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -227,11 +227,12 @@ ur api /api/v1/system/notify/notification/estimate-users \
 |------|------|------|------|
 | `group` | string | 否 | 分组筛选 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `priority` | integer | 否 | 优先级筛选 (格式: int64) |
 | `status` | integer | 否 | 状态筛选 (格式: int64) |
-| `tenantCode` | string | 否 | 企业编码筛选 |
+| `tenantCode` | string | 否 | 租户编码筛选 |
 | `title` | string | 否 | 标题模糊搜索 |
 
 **请求示例**:
@@ -239,8 +240,14 @@ ur api /api/v1/system/notify/notification/estimate-users \
 {
   "group": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "priority": 1,
   "status": 1,
@@ -300,7 +307,7 @@ ur api /api/v1/system/notify/notification/estimate-users \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/notification/index \
-  --body '{"group": "string", "page": {"page": 1, "pageSize": 1}, "priority": 1, "status": 1, "tenantCode": "string", "title": "string"}'
+  --body '{"group": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "priority": 1, "status": 1, "tenantCode": "string", "title": "string"}'
 ```
 
 ### POST `/api/v1/system/notify/notification/read`
@@ -313,7 +320,7 @@ ur api /api/v1/system/notify/notification/index \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -379,7 +386,7 @@ ur api /api/v1/system/notify/notification/read \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -471,7 +478,7 @@ ur api /api/v1/system/notify/notification/send \
 | `showAsModal` | string | 否 |  message/news专属：是否弹窗 1=是 2=否 |
 | `status` | integer | 否 | 状态 1:草稿 2:已计划 3:发送中 4:已发送 5:已撤回 (格式: int64) |
 | `targetUserIDs` | array[string] | 否 | 目标用户ID列表 |
-| `tenantCode` | string | 否 | 企业编码,空=平台级 |
+| `tenantCode` | string | 否 | 租户编码,空=平台级 |
 | `title` | string | 是 | 标题 |
 | `videoUrl` | string | 否 |  news专属：视频URL |
 

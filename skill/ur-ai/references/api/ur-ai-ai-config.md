@@ -28,6 +28,7 @@
 |------|------|------|------|
 | `cfgType` | string | 否 |  配置类型：llm/tts/asr/vad |
 | `configID` | string | 否 |  配置唯一标识 |
+| `contextLength` | integer | 否 |  上下文长度 (格式: int64) |
 | `enabled` | boolean | 否 |  是否启用 (格式: boolean) |
 | `id` | integer | 否 |  配置ID (格式: int64) |
 | `inputModalities` | string | 否 |  输入模态（JSON字符串） |
@@ -36,13 +37,14 @@
 | `modelType` | string | 否 |  模型级别：small/medium/large/xlarge |
 | `name` | string | 否 |  配置名称 |
 | `outputModalities` | string | 否 |  输出模态（JSON字符串） |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
 {
   "cfgType": "string",
   "configID": "string",
+  "contextLength": 1,
   "enabled": true,
   "id": 1,
   "inputModalities": "string",
@@ -69,7 +71,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/ai/config/info/create \
-  --body '{"cfgType": "string", "configID": "string", "enabled": true, "id": 1, "inputModalities": "string", "isDefault": true, "jsonData": "string", "modelType": "string", "name": "示例名称", "outputModalities": "string", "tenantCode": "string"}'
+  --body '{"cfgType": "string", "configID": "string", "contextLength": 1, "enabled": true, "id": 1, "inputModalities": "string", "isDefault": true, "jsonData": "string", "modelType": "string", "name": "示例名称", "outputModalities": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/config/info/delete`
@@ -83,7 +85,7 @@ ur api /api/v1/ai/config/info/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  配置ID (格式: int64) |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -118,7 +120,7 @@ ur api /api/v1/ai/config/info/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `cfgType` | string | 是 |  配置类型 |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -135,6 +137,7 @@ ur api /api/v1/ai/config/info/delete \
   "data": {
     "cfgType": "string",
     "configID": "string",
+    "contextLength": 1,
     "enabled": true,
     "id": 1,
     "inputModalities": "string",
@@ -168,9 +171,10 @@ ur api /api/v1/ai/config/info/get-default \
 | `cfgType` | string | 否 |  配置类型过滤 |
 | `onlyEnabled` | boolean | 否 |  仅返回启用的 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
-| `tenantCode` | string | 否 |  企业编码 |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -178,8 +182,14 @@ ur api /api/v1/ai/config/info/get-default \
   "cfgType": "string",
   "onlyEnabled": true,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "tenantCode": "string"
 }
@@ -194,6 +204,7 @@ ur api /api/v1/ai/config/info/get-default \
       {
         "cfgType": "string",
         "configID": "string",
+        "contextLength": 1,
         "enabled": true,
         "id": 1,
         "inputModalities": "string",
@@ -214,7 +225,7 @@ ur api /api/v1/ai/config/info/get-default \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/config/info/get-list \
-  --body '{"cfgType": "string", "onlyEnabled": true, "page": {"page": 1, "pageSize": 1}, "tenantCode": "string"}'
+  --body '{"cfgType": "string", "onlyEnabled": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/config/info/get-one`
@@ -228,7 +239,7 @@ ur api /api/v1/ai/config/info/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  配置ID (格式: int64) |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -245,6 +256,7 @@ ur api /api/v1/ai/config/info/get-list \
   "data": {
     "cfgType": "string",
     "configID": "string",
+    "contextLength": 1,
     "enabled": true,
     "id": 1,
     "inputModalities": "string",
@@ -283,7 +295,7 @@ ur api /api/v1/ai/config/info/get-one \
 | `modelType` | string | 否 |  模型级别 |
 | `name` | string | 否 |  配置名称，仅用于调试展示 |
 | `outputModalities` | string | 否 |  输出模态（JSON字符串） |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -336,6 +348,7 @@ ur api /api/v1/ai/config/info/get-one \
     "citations": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -343,6 +356,8 @@ ur api /api/v1/ai/config/info/get-one \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -369,6 +384,7 @@ ur api /api/v1/ai/config/info/get-one \
     "expandedCitations": [
       {
         "artifactID": 1,
+        "artifactType": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
@@ -376,6 +392,8 @@ ur api /api/v1/ai/config/info/get-one \
         "documentID": 1,
         "documentName": "string",
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
         "path": "string",
         "relationType": "string",
         "score": 1,
@@ -420,6 +438,7 @@ ur api /api/v1/ai/config/info/test \
 |------|------|------|------|
 | `cfgType` | string | 否 |  配置类型：llm/tts/asr/vad |
 | `configID` | string | 否 |  配置唯一标识 |
+| `contextLength` | integer | 否 |  上下文长度 (格式: int64) |
 | `enabled` | boolean | 否 |  是否启用 (格式: boolean) |
 | `id` | integer | 否 |  配置ID (格式: int64) |
 | `inputModalities` | string | 否 |  输入模态（JSON字符串） |
@@ -428,13 +447,14 @@ ur api /api/v1/ai/config/info/test \
 | `modelType` | string | 否 |  模型级别：small/medium/large/xlarge |
 | `name` | string | 否 |  配置名称 |
 | `outputModalities` | string | 否 |  输出模态（JSON字符串） |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
 {
   "cfgType": "string",
   "configID": "string",
+  "contextLength": 1,
   "enabled": true,
   "id": 1,
   "inputModalities": "string",
@@ -458,5 +478,5 @@ ur api /api/v1/ai/config/info/test \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/config/info/update \
-  --body '{"cfgType": "string", "configID": "string", "enabled": true, "id": 1, "inputModalities": "string", "isDefault": true, "jsonData": "string", "modelType": "string", "name": "示例名称", "outputModalities": "string", "tenantCode": "string"}'
+  --body '{"cfgType": "string", "configID": "string", "contextLength": 1, "enabled": true, "id": 1, "inputModalities": "string", "isDefault": true, "jsonData": "string", "modelType": "string", "name": "示例名称", "outputModalities": "string", "tenantCode": "string"}'
 ```

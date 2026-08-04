@@ -96,7 +96,7 @@ ur api /api/v1/things/protocol/config/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -130,8 +130,9 @@ ur api /api/v1/things/protocol/config/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `protocolCode` | string | 否 |  按协议Code过滤 |
 | `protocolID` | string | 否 |  按协议ID过滤 |
 
@@ -139,8 +140,14 @@ ur api /api/v1/things/protocol/config/delete \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "protocolCode": "string",
   "protocolID": "string"
@@ -172,7 +179,7 @@ ur api /api/v1/things/protocol/config/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/config/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "protocolCode": "string", "protocolID": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "protocolCode": "string", "protocolID": "string"}'
 ```
 
 ### POST `/api/v1/things/protocol/config/get-one`
@@ -185,7 +192,7 @@ ur api /api/v1/things/protocol/config/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -603,7 +610,7 @@ ur api /api/v1/things/protocol/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -640,8 +647,9 @@ ur api /api/v1/things/protocol/info/delete \
 | `codes` | array[string] | 否 |  |
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `transProtocol` | string | 否 |  传输协议: mqtt,tcp,udp |
 | `type` | string | 否 | 协议类型: 普通设备(默认):normal  音视频:media |
 
@@ -654,8 +662,14 @@ ur api /api/v1/things/protocol/info/delete \
   ],
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "transProtocol": "string",
   "type": "string"
@@ -746,7 +760,7 @@ ur api /api/v1/things/protocol/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/info/get-list \
-  --body '{"code": "string", "codes": ["string"], "name": "string", "page": {"page": 1, "pageSize": 1}, "transProtocol": "string", "type": "string"}'
+  --body '{"code": "string", "codes": ["string"], "name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "transProtocol": "string", "type": "string"}'
 ```
 
 ### POST `/api/v1/things/protocol/info/get-one`
@@ -760,13 +774,13 @@ ur api /api/v1/things/protocol/info/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `code` | string | 否 |  |
-| `id` | string | 否 |  id |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "code": "string",
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -849,7 +863,7 @@ ur api /api/v1/things/protocol/info/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/info/get-one \
-  --body '{"code": "string", "id": "string"}'
+  --body '{"code": "string", "id": 1}'
 ```
 
 ### POST `/api/v1/things/protocol/info/update`
@@ -1061,7 +1075,7 @@ ur api /api/v1/things/protocol/script/batch-import \
 | `name` | string | 否 |  |
 | `script` | string | 否 | 脚本内容 |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
 | `triggerTimer` | integer | 否 | 收到前处理1:before 2:after (格式: int64) |
@@ -1236,8 +1250,9 @@ ur api /api/v1/things/protocol/script/delete \
 |------|------|------|------|
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
 | `triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
@@ -1249,8 +1264,14 @@ ur api /api/v1/things/protocol/script/delete \
 {
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "triggerDir": 1,
@@ -1291,7 +1312,7 @@ ur api /api/v1/things/protocol/script/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/script/get-list \
-  --body '{"name": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "triggerDir": 1, "triggerHandle": "string", "triggerTimer": 1, "triggerType": "string"}'
+  --body '{"name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "triggerDir": 1, "triggerHandle": "string", "triggerTimer": 1, "triggerType": "string"}'
 ```
 
 ### POST `/api/v1/things/protocol/script/get-one`
@@ -1356,7 +1377,7 @@ ur api /api/v1/things/protocol/script/get-one \
 | `name` | string | 否 |  |
 | `script` | string | 否 | 脚本内容 |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
 | `triggerTimer` | integer | 否 | 收到前处理1:before 2:after (格式: int64) |
@@ -1428,7 +1449,7 @@ ur api /api/v1/things/protocol/script/update \
 | `device.area.projectID` | string | 否 | 项目id（只读） |
 | `device.area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `device.area.tags` | object | 否 | 自定义标签 |
-| `device.area.tenantCode` | string | 否 | 企业编码（只读） |
+| `device.area.tenantCode` | string | 否 | 租户编码（只读） |
 | `device.area.useBy` | string | 否 | 用途: commonSpace default |
 | `device.areaID` | string | 否 | 项目区域id 只读 |
 | `device.categoryID` | string | 否 | 产品品类 |
@@ -1475,7 +1496,7 @@ ur api /api/v1/things/protocol/script/update \
 | `device.gateway.id` | string | 否 |  |
 | `device.gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `device.gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `device.gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `device.gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `device.gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `device.gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `device.gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -1517,7 +1538,7 @@ ur api /api/v1/things/protocol/script/update \
 | `device.id` | string | 否 |  |
 | `device.imei` | string | 否 |  IMEI号信息 只读 |
 | `device.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `device.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `device.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `device.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `device.lastIp` | string | 否 | 最后登录的ip地址 |
 | `device.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -1625,7 +1646,7 @@ ur api /api/v1/things/protocol/script/update \
 | `product.subProtocolCode` | string | 否 | 子协议,主协议和子协议传输类型必须不相同, 设备控制下发只会发送给主协议, 当设备是音视频设备但是控制协议需要单独走的时候就可以把主协议定义为普通协议,子协议定义为音视频协议,这样就能实现音视频走音视频协议,控制走子协议 |
 | `product.subProtocolConf` | object | 否 | 子协议协议配置 |
 | `product.tags` | object | 否 |  产品tag |
-| `product.tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `product.tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `product.trialTime` | string | 否 | 试用时间(单位为天,为0不限制) |
 | `productID` | string | 否 |  |
 | `script` | object | 否 |  |
@@ -1635,14 +1656,14 @@ ur api /api/v1/things/protocol/script/update \
 | `script.name` | string | 否 |  |
 | `script.script` | string | 否 | 脚本内容 |
 | `script.status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `script.tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `script.tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `script.triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `script.triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
 | `script.triggerTimer` | integer | 否 | 收到前处理1:before 2:after (格式: int64) |
 | `script.triggerType` | string | 否 |  操作类型 从topic中提取 物模型下就是   property属性 event事件 action行为 |
 | `scriptID` | string | 否 |  |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `triggerSrc` | integer | 否 | product:1 device:2 (格式: int64) |
 
 **请求示例**:
@@ -2654,8 +2675,9 @@ ur api /api/v1/things/protocol/script/device/delete \
 |------|------|------|------|
 | `deviceName` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 |  |
 | `scriptID` | string | 否 |  |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
@@ -2668,8 +2690,14 @@ ur api /api/v1/things/protocol/script/device/delete \
 {
   "deviceName": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string",
   "scriptID": "string",
@@ -3068,7 +3096,7 @@ ur api /api/v1/things/protocol/script/device/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/script/device/get-list \
-  --body '{"deviceName": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string", "scriptID": "string", "status": 1, "triggerSrc": 1, "withDevice": true, "withScript": true}'
+  --body '{"deviceName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string", "scriptID": "string", "status": 1, "triggerSrc": 1, "withDevice": true, "withScript": true}'
 ```
 
 ### POST `/api/v1/things/protocol/script/device/get-one`
@@ -4082,7 +4110,7 @@ ur api /api/v1/things/protocol/script/device/get-one \
 | `device.area.projectID` | string | 否 | 项目id（只读） |
 | `device.area.sort` | integer | 否 |  排序标记,默认为1 (格式: int64) |
 | `device.area.tags` | object | 否 | 自定义标签 |
-| `device.area.tenantCode` | string | 否 | 企业编码（只读） |
+| `device.area.tenantCode` | string | 否 | 租户编码（只读） |
 | `device.area.useBy` | string | 否 | 用途: commonSpace default |
 | `device.areaID` | string | 否 | 项目区域id 只读 |
 | `device.categoryID` | string | 否 | 产品品类 |
@@ -4129,7 +4157,7 @@ ur api /api/v1/things/protocol/script/device/get-one \
 | `device.gateway.id` | string | 否 |  |
 | `device.gateway.imei` | string | 否 |  IMEI号信息 只读 |
 | `device.gateway.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `device.gateway.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `device.gateway.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `device.gateway.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `device.gateway.lastIp` | string | 否 | 最后登录的ip地址 |
 | `device.gateway.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -4171,7 +4199,7 @@ ur api /api/v1/things/protocol/script/device/get-one \
 | `device.id` | string | 否 |  |
 | `device.imei` | string | 否 |  IMEI号信息 只读 |
 | `device.isEnable` | integer | 否 | 是否启用 (格式: int64) |
-| `device.isOnline` | integer | 否 |  在线状态  1离线 2在线 只读 (格式: int64) |
+| `device.isOnline` | integer | 否 |  在线状态 1在线 2离线，只读 (格式: int64) |
 | `device.lastBind` | string | 否 | 最后绑定时间 只读 |
 | `device.lastIp` | string | 否 | 最后登录的ip地址 |
 | `device.lastLocalIp` | string | 否 | 最后登录局域网的ip地址 |
@@ -4279,7 +4307,7 @@ ur api /api/v1/things/protocol/script/device/get-one \
 | `product.subProtocolCode` | string | 否 | 子协议,主协议和子协议传输类型必须不相同, 设备控制下发只会发送给主协议, 当设备是音视频设备但是控制协议需要单独走的时候就可以把主协议定义为普通协议,子协议定义为音视频协议,这样就能实现音视频走音视频协议,控制走子协议 |
 | `product.subProtocolConf` | object | 否 | 子协议协议配置 |
 | `product.tags` | object | 否 |  产品tag |
-| `product.tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `product.tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `product.trialTime` | string | 否 | 试用时间(单位为天,为0不限制) |
 | `productID` | string | 否 |  |
 | `script` | object | 否 |  |
@@ -4289,14 +4317,14 @@ ur api /api/v1/things/protocol/script/device/get-one \
 | `script.name` | string | 否 |  |
 | `script.script` | string | 否 | 脚本内容 |
 | `script.status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `script.tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `script.tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `script.triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `script.triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
 | `script.triggerTimer` | integer | 否 | 收到前处理1:before 2:after (格式: int64) |
 | `script.triggerType` | string | 否 |  操作类型 从topic中提取 物模型下就是   property属性 event事件 action行为 |
 | `scriptID` | string | 否 |  |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `triggerSrc` | integer | 否 | product:1 device:2 (格式: int64) |
 
 **请求示例**:
@@ -5270,7 +5298,7 @@ ur api /api/v1/things/protocol/script/device/update \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5305,16 +5333,23 @@ ur api /api/v1/things/protocol/service/delete \
 |------|------|------|------|
 | `code` | string | 是 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "code": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -5344,7 +5379,7 @@ ur api /api/v1/things/protocol/service/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/service/get-list \
-  --body '{"code": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"code": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/things/protocol/sync/device`

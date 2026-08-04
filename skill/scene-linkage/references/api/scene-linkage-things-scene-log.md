@@ -21,8 +21,9 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `sceneID` | string | 否 | 场景id |
 | `sceneName` | string | 否 | 场景名称 |
 | `status` | integer | 否 |  状态（1成功 2失败） (格式: int64) |
@@ -34,8 +35,14 @@
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "sceneID": "string",
   "sceneName": "示例名称",
@@ -111,5 +118,5 @@
 **调用示例**:
 ```bash
 ur api /api/v1/things/scene/log/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "sceneID": "string", "sceneName": "示例名称", "status": 1, "timeRange": {"end": 1, "start": 1}}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "sceneID": "string", "sceneName": "示例名称", "status": 1, "timeRange": {"end": 1, "start": 1}}'
 ```

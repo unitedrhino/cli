@@ -1,0 +1,157 @@
+{
+  "editCanvasConfig": {
+    "width": 1920,
+    "height": 1080,
+    "background": "#0f1c3f",
+    "selectColor": true,
+    "previewScaleType": "fit"
+  },
+  "componentList": [
+    {
+      "id": "comp-bar-001",
+      "title": "月度能耗柱状图",
+      "key": "BarCommon",
+      "chartKey": "VBarCommon",
+      "conKey": "VCBarCommon",
+      "chartConfig": {
+        "key": "BarCommon",
+        "chartKey": "VBarCommon",
+        "conKey": "VCBarCommon",
+        "category": "Bars",
+        "package": "Charts",
+        "chartFrame": "echarts",
+        "title": "柱状图",
+        "image": "bar_x.png"
+      },
+      "attr": {
+        "w": 480,
+        "h": 320,
+        "x": 40,
+        "y": 60,
+        "zIndex": 1,
+        "offsetX": 40,
+        "offsetY": 60
+      },
+      "status": {
+        "lock": false,
+        "hide": false
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestContentType": 0,
+        "requestParamsBodyType": "none",
+        "requestSQLContent": {
+          "sql": ""
+        },
+        "requestIntervalUnit": "second"
+      },
+      "option": {
+        "dataset": {
+          "dimensions": [
+            "product",
+            "data"
+          ],
+          "source": [
+            {
+              "product": "一月",
+              "data": 120
+            }
+          ]
+        },
+        "series": []
+      },
+      "styles": {
+        "animations": []
+      }
+    },
+    {
+      "id": "comp-line-002",
+      "title": "温度趋势",
+      "key": "LineCommon",
+      "chartKey": "VLineCommon",
+      "conKey": "VCLineCommon",
+      "chartConfig": {
+        "key": "LineCommon",
+        "chartKey": "VLineCommon",
+        "conKey": "VCLineCommon",
+        "category": "Lines",
+        "package": "Charts",
+        "chartFrame": "echarts",
+        "title": "折线图",
+        "image": "line.png"
+      },
+      "attr": {
+        "w": 640,
+        "h": 360,
+        "x": 560,
+        "y": 60,
+        "zIndex": 2,
+        "offsetX": 560,
+        "offsetY": 60
+      },
+      "status": {
+        "lock": false,
+        "hide": false
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 5,
+        "requestHttpType": "get",
+        "requestContentType": 0,
+        "requestParamsBodyType": "none",
+        "requestSQLContent": {
+          "sql": ""
+        },
+        "requestIntervalUnit": "second",
+        "requestIoTDeviceConfig": {
+          "queryType": "property",
+          "productID": "p_temp_001",
+          "deviceNames": [
+            "sensor-001",
+            "sensor-002"
+          ],
+          "dataIDs": [
+            "Temperature"
+          ],
+          "chartMode": "trend",
+          "mode": "log",
+          "dataView": "prop",
+          "aggFunc": "avg",
+          "aggFuncs": [],
+          "logInterval": "1h",
+          "logTimeRange": "24h",
+          "areaIDs": []
+        }
+      },
+      "option": {
+        "dataset": {
+          "dimensions": [
+            "time",
+            "Temperature"
+          ],
+          "source": []
+        },
+        "series": []
+      },
+      "styles": {
+        "animations": []
+      }
+    }
+  ],
+  "requestGlobalConfig": {
+    "requestDataPond": [],
+    "requestInterval": 30,
+    "requestOriginUrl": "",
+    "requestIntervalUnit": "second"
+  }
+}

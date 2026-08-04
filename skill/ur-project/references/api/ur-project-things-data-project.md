@@ -198,8 +198,9 @@ ur api /api/v1/things/data/project/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 权限数据ID |
 | `targetID` | string | 否 | 用户ID |
 | `targetType` | string | 是 |  |
@@ -208,8 +209,14 @@ ur api /api/v1/things/data/project/delete \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "projectID": "string",
   "targetID": "string",
@@ -252,5 +259,5 @@ ur api /api/v1/things/data/project/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/data/project/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "projectID": "string", "targetID": "string", "targetType": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectID": "string", "targetID": "string", "targetType": "string"}'
 ```

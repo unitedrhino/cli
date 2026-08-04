@@ -194,8 +194,9 @@ ur api /api/v1/things/schema/common/delete \
 | `isCanSceneLinkage` | integer | 否 | 是否可以场景联动 (格式: int64) |
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productCategoryCode` | string | 否 | 品类编码 |
 | `productCategoryID` | string | 否 |  |
 | `productCategoryWithFather` | boolean | 否 | 格式: boolean |
@@ -223,8 +224,14 @@ ur api /api/v1/things/schema/common/delete \
   "isCanSceneLinkage": 1,
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productCategoryCode": "string",
   "productCategoryID": "string",
@@ -272,7 +279,7 @@ ur api /api/v1/things/schema/common/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/schema/common/get-list \
-  --body '{"areaID": "string", "areaIDPath": "string", "controlMode": 1, "funcGroup": 1, "groupID": "string", "groupIDs": ["string"], "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"page": 1, "pageSize": 1}, "productCategoryCode": "string", "productCategoryID": "string", "productCategoryWithFather": true, "productIDs": ["string"], "productSceneMode": "string", "projectID": "string", "propertyMode": "string", "type": 1, "types": [1]}'
+  --body '{"areaID": "string", "areaIDPath": "string", "controlMode": 1, "funcGroup": 1, "groupID": "string", "groupIDs": ["string"], "identifiers": ["string"], "isCanSceneLinkage": 1, "name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productCategoryCode": "string", "productCategoryID": "string", "productCategoryWithFather": true, "productIDs": ["string"], "productSceneMode": "string", "projectID": "string", "propertyMode": "string", "type": 1, "types": [1]}'
 ```
 
 ### POST `/api/v1/things/schema/common/init`

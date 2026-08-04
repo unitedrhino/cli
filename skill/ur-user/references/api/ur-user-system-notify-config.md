@@ -91,7 +91,7 @@ ur api /api/v1/system/notify/config/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -129,8 +129,9 @@ ur api /api/v1/system/notify/config/delete \
 | `isEnabled` | integer | 否 | 是否启用 1:启用 2:禁用 (格式: int64) |
 | `name` | string | 否 |  应用名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `withTemplates` | boolean | 否 | 格式: boolean |
 
 **请求示例**:
@@ -141,8 +142,14 @@ ur api /api/v1/system/notify/config/delete \
   "isEnabled": 1,
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "withTemplates": true
 }
@@ -188,7 +195,7 @@ ur api /api/v1/system/notify/config/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/config/get-list \
-  --body '{"code": "string", "group": "string", "isEnabled": 1, "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "withTemplates": true}'
+  --body '{"code": "string", "group": "string", "isEnabled": 1, "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "withTemplates": true}'
 ```
 
 ### POST `/api/v1/system/notify/config/get-one`
@@ -202,13 +209,13 @@ ur api /api/v1/system/notify/config/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `code` | string | 否 |  |
-| `id` | string | 否 |  id |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "code": "string",
-  "id": "string"
+  "id": 1
 }
 ```
 
@@ -245,7 +252,7 @@ ur api /api/v1/system/notify/config/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/config/get-one \
-  --body '{"code": "string", "id": "string"}'
+  --body '{"code": "string", "id": 1}'
 ```
 
 ### POST `/api/v1/system/notify/config/send-test`
@@ -312,8 +319,9 @@ ur api /api/v1/system/notify/config/send-test \
 | `isEnabled` | integer | 否 | 是否启用 1:启用 2:禁用 (格式: int64) |
 | `name` | string | 否 |  应用名称 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `withTemplates` | boolean | 否 | 格式: boolean |
 
 **请求示例**:
@@ -324,8 +332,14 @@ ur api /api/v1/system/notify/config/send-test \
   "isEnabled": 1,
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "withTemplates": true
 }
@@ -366,7 +380,7 @@ ur api /api/v1/system/notify/config/send-test \
 **调用示例**:
 ```bash
 ur api /api/v1/system/notify/config/tree \
-  --body '{"code": "string", "group": "string", "isEnabled": 1, "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "withTemplates": true}'
+  --body '{"code": "string", "group": "string", "isEnabled": 1, "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "withTemplates": true}'
 ```
 
 ### POST `/api/v1/system/notify/config/update`

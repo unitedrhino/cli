@@ -27,8 +27,9 @@
 | `archiveReason` | string | 否 |  归档原因过滤 |
 | `cloneID` | string | 否 |  分身ID（不传则查全部） |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
@@ -36,8 +37,14 @@
   "archiveReason": "string",
   "cloneID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -67,7 +74,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/ai/memory/debug/archives/get-list \
-  --body '{"archiveReason": "string", "cloneID": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"archiveReason": "string", "cloneID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/memory/debug/dream-runs/get-list`
@@ -82,8 +89,9 @@ ur api /api/v1/ai/memory/debug/archives/get-list \
 |------|------|------|------|
 | `cloneID` | string | 否 |  分身ID（不传则查全部） |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  状态过滤 running/success/skipped/failed |
 
 **请求示例**:
@@ -91,8 +99,14 @@ ur api /api/v1/ai/memory/debug/archives/get-list \
 {
   "cloneID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": "string"
 }
@@ -127,7 +141,7 @@ ur api /api/v1/ai/memory/debug/archives/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/memory/debug/dream-runs/get-list \
-  --body '{"cloneID": "string", "page": {"page": 1, "pageSize": 1}, "status": "string"}'
+  --body '{"cloneID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string"}'
 ```
 
 ### POST `/api/v1/ai/memory/debug/overview`
@@ -188,16 +202,23 @@ ur api /api/v1/ai/memory/debug/overview \
 |------|------|------|------|
 | `cloneID` | string | 否 |  分身ID（不传则查全部） |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "cloneID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -227,7 +248,7 @@ ur api /api/v1/ai/memory/debug/overview \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/memory/debug/pipeline-state/get-list \
-  --body '{"cloneID": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"cloneID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/memory/debug/traces/get-list`
@@ -242,8 +263,9 @@ ur api /api/v1/ai/memory/debug/pipeline-state/get-list \
 |------|------|------|------|
 | `cloneID` | string | 否 |  分身ID（不传则查全部） |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `query` | string | 否 |  查询内容模糊搜索 |
 
 **请求示例**:
@@ -251,8 +273,14 @@ ur api /api/v1/ai/memory/debug/pipeline-state/get-list \
 {
   "cloneID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "query": "string"
 }
@@ -284,5 +312,5 @@ ur api /api/v1/ai/memory/debug/pipeline-state/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/memory/debug/traces/get-list \
-  --body '{"cloneID": "string", "page": {"page": 1, "pageSize": 1}, "query": "string"}'
+  --body '{"cloneID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "query": "string"}'
 ```

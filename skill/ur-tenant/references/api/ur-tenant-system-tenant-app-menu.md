@@ -1,19 +1,19 @@
 # ur-tenant system/tenant/app/menu
 
-获取企业应用菜单列表 等
+获取租户应用菜单列表 等
 
 ## 端点概览
 
 | 方法 | 端点 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/api/v1/system/tenant/app/menu/get-list` | 获取企业应用菜单列表 | admin |
-| POST | `/api/v1/system/tenant/app/menu/update` | 更新企业应用菜单 | admin |
+| POST | `/api/v1/system/tenant/app/menu/get-list` | 获取租户应用菜单列表 | admin |
+| POST | `/api/v1/system/tenant/app/menu/update` | 更新租户应用菜单 | admin |
 
 ## 详细说明
 
 ### POST `/api/v1/system/tenant/app/menu/get-list`
 
-**说明**: 获取企业应用菜单列表
+**说明**: 获取租户应用菜单列表
 
 **权限**: admin
 
@@ -25,7 +25,7 @@
 | `isRetTree` | boolean | 否 | 格式: boolean |
 | `isStar` | integer | 否 |  是否收藏 1:是 2:否 (格式: int64) |
 | `menuIDs` | array[string] | 否 |  |
-| `tenantCode` | string | 否 | 指定企业,只有平台可以指定 |
+| `tenantCode` | string | 否 | 指定租户,只有平台可以指定 |
 
 **请求示例**:
 ```json
@@ -143,7 +143,7 @@ ur api /api/v1/system/tenant/app/menu/get-list \
 
 ### POST `/api/v1/system/tenant/app/menu/update`
 
-**说明**: 更新企业应用菜单
+**说明**: 更新租户应用菜单
 
 **权限**: admin
 
@@ -172,8 +172,8 @@ ur api /api/v1/system/tenant/app/menu/get-list \
 | `menu.parentID` | string | 否 |  父菜单ID，一级菜单为1 |
 | `menu.path` | string | 否 |  系统的path |
 | `menu.redirect` | string | 否 |  路由重定向 |
-| `menu.role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:企业管理员 |
-| `menu.tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是企业应用 |
+| `menu.role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:租户管理员 |
+| `menu.tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是租户应用 |
 | `menu.type` | integer | 否 |  类型 1：菜单或者页面 2：iframe嵌入 3：外链跳转 (格式: int64) |
 | `menuID` | string | 否 |  菜单ID,不可修改 |
 | `name` | string | 否 |  菜单名称 |

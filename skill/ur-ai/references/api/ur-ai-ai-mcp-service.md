@@ -32,7 +32,7 @@
 | `endpoint` | string | 是 |  服务端点URL |
 | `id` | integer | 否 |  MCP服务ID (格式: int64) |
 | `name` | string | 是 |  服务名称 |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 | `tools` | string | 否 |  工具列表（JSON字符串） |
 
 **请求示例**:
@@ -78,7 +78,7 @@ ur api /api/v1/ai/mcp/service/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  MCP服务ID (格式: int64) |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -115,9 +115,10 @@ ur api /api/v1/ai/mcp/service/delete \
 | `enabled` | boolean | 否 |  启用状态过滤 (格式: boolean) |
 | `nameLike` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
-| `tenantCode` | string | 否 |  企业编码 |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -125,8 +126,14 @@ ur api /api/v1/ai/mcp/service/delete \
   "enabled": true,
   "nameLike": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "tenantCode": "string"
 }
@@ -159,7 +166,7 @@ ur api /api/v1/ai/mcp/service/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/mcp/service/get-list \
-  --body '{"enabled": true, "nameLike": "示例名称", "page": {"page": 1, "pageSize": 1}, "tenantCode": "string"}'
+  --body '{"enabled": true, "nameLike": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/mcp/service/get-one`
@@ -173,7 +180,7 @@ ur api /api/v1/ai/mcp/service/get-list \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  MCP服务ID (格式: int64) |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -219,7 +226,7 @@ ur api /api/v1/ai/mcp/service/get-one \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `id` | integer | 是 |  MCP服务ID (格式: int64) |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -263,7 +270,7 @@ ur api /api/v1/ai/mcp/service/refresh-tools \
 | `endpoint` | string | 是 |  服务端点URL |
 | `id` | integer | 否 |  MCP服务ID (格式: int64) |
 | `name` | string | 是 |  服务名称 |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 | `tools` | string | 否 |  工具列表（JSON字符串） |
 
 **请求示例**:

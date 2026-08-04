@@ -100,3 +100,13 @@ func (b CobraBridge) RunSkills(args []string, stdout, stderr io.Writer) int {
 func (b CobraBridge) RunSystem(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	return runSystem(ctx, args, stdout, stderr)
 }
+
+// RunViewScreen 桥接 view screen 命令
+func (b CobraBridge) RunViewScreen(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	return runViewScreen(ctx, args, stdout, stderr)
+}
+
+// RunViewAsset 桥接 view asset 命令
+func (b CobraBridge) RunViewAsset(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	return runViewAsset(ctx, args, stdout, stderr)
+}

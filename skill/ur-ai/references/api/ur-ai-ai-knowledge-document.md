@@ -50,15 +50,21 @@
   "data": {
     "artifact": {
       "artifactType": "string",
+      "bboxJSON": "string",
+      "caption": "string",
       "charEnd": 1,
       "charStart": 1,
       "chunkIndex": 1,
       "content": "string",
       "createdTime": 1,
       "documentID": 1,
+      "extraJSON": "string",
       "headingPath": "string",
       "id": 1,
       "knowledgeID": 1,
+      "mediaURI": "string",
+      "mimeType": "string",
+      "pageIdx": 1,
       "relatedCount": 1,
       "sourceDocumentIDs": [
         1
@@ -80,15 +86,21 @@
         "score": 1,
         "targetArtifact": {
           "artifactType": "string",
+          "bboxJSON": "string",
+          "caption": "string",
           "charEnd": 1,
           "charStart": 1,
           "chunkIndex": 1,
           "content": "string",
           "createdTime": 1,
           "documentID": 1,
+          "extraJSON": "string",
           "headingPath": "string",
           "id": 1,
           "knowledgeID": 1,
+          "mediaURI": "string",
+          "mimeType": "string",
+          "pageIdx": 1,
           "relatedCount": 1,
           "sourceDocumentIDs": [
             1
@@ -208,15 +220,21 @@ ur api /api/v1/ai/knowledge/document/get-content \
     "articles": [
       {
         "artifactType": "string",
+        "bboxJSON": "string",
+        "caption": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
         "content": "string",
         "createdTime": 1,
         "documentID": 1,
+        "extraJSON": "string",
         "headingPath": "string",
         "id": 1,
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
+        "pageIdx": 1,
         "relatedCount": 1,
         "sourceDocumentIDs": [
           1
@@ -229,15 +247,21 @@ ur api /api/v1/ai/knowledge/document/get-content \
     "chunks": [
       {
         "artifactType": "string",
+        "bboxJSON": "string",
+        "caption": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
         "content": "string",
         "createdTime": 1,
         "documentID": 1,
+        "extraJSON": "string",
         "headingPath": "string",
         "id": 1,
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
+        "pageIdx": 1,
         "relatedCount": 1,
         "sourceDocumentIDs": [
           1
@@ -251,15 +275,21 @@ ur api /api/v1/ai/knowledge/document/get-content \
     "concepts": [
       {
         "artifactType": "string",
+        "bboxJSON": "string",
+        "caption": "string",
         "charEnd": 1,
         "charStart": 1,
         "chunkIndex": 1,
         "content": "string",
         "createdTime": 1,
         "documentID": 1,
+        "extraJSON": "string",
         "headingPath": "string",
         "id": 1,
         "knowledgeID": 1,
+        "mediaURI": "string",
+        "mimeType": "string",
+        "pageIdx": 1,
         "relatedCount": 1,
         "sourceDocumentIDs": [
           1
@@ -332,15 +362,21 @@ ur api /api/v1/ai/knowledge/document/get-content \
     "sourceDownloadURL": "string",
     "summary": {
       "artifactType": "string",
+      "bboxJSON": "string",
+      "caption": "string",
       "charEnd": 1,
       "charStart": 1,
       "chunkIndex": 1,
       "content": "string",
       "createdTime": 1,
       "documentID": 1,
+      "extraJSON": "string",
       "headingPath": "string",
       "id": 1,
       "knowledgeID": 1,
+      "mediaURI": "string",
+      "mimeType": "string",
+      "pageIdx": 1,
       "relatedCount": 1,
       "sourceDocumentIDs": [
         1
@@ -372,16 +408,23 @@ ur api /api/v1/ai/knowledge/document/get-detail \
 |------|------|------|------|
 | `knowledgeID` | integer | 是 | 格式: int64 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "knowledgeID": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -433,7 +476,7 @@ ur api /api/v1/ai/knowledge/document/get-detail \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/knowledge/document/get-failed-list \
-  --body '{"knowledgeID": 1, "page": {"page": 1, "pageSize": 1}}'
+  --body '{"knowledgeID": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/ai/knowledge/document/get-tree`

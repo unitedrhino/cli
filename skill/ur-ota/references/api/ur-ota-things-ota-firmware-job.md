@@ -41,7 +41,7 @@
 | `target` | string | 否 |  分组升级和区域升级填写对应的id |
 | `targetDeviceNames` | array[string] | 否 |  定向升级的设备名称列表。最多可传入200个设备名称。以逗号分隔 |
 | `targetSelection` | integer | 否 | 升级范围。 1：全量升级。 2：定向升级。 3：灰度升级。 4：分组升级(不做) 5: 区域升级(不做) (格式: int64) |
-| `tenantCodes` | array[string] | 否 | 指定企业 |
+| `tenantCodes` | array[string] | 否 | 指定租户 |
 | `timeoutInMinutes` | integer | 否 |  设备升级超时时间，单位为分钟。 动态升级 静态升级 (格式: int64) |
 | `type` | integer | 否 |  升级包所属产品的JobType。 验证升级包:1  批量升级:2 (格式: int64) |
 | `upgradeType` | integer | 否 |  升级策略，1-静态，2-动态 (格式: int64) |
@@ -109,16 +109,23 @@ ur api /api/v1/things/ota/firmware/job/create \
 |------|------|------|------|
 | `firmwareID` | string | 是 |  固件ID |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 
 **请求示例**:
 ```json
 {
   "firmwareID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   }
 }
 ```
@@ -171,7 +178,7 @@ ur api /api/v1/things/ota/firmware/job/create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/ota/firmware/job/get-list \
-  --body '{"firmwareID": "string", "page": {"page": 1, "pageSize": 1}}'
+  --body '{"firmwareID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}}'
 ```
 
 ### POST `/api/v1/things/ota/firmware/job/get-one`
@@ -184,7 +191,7 @@ ur api /api/v1/things/ota/firmware/job/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -265,7 +272,7 @@ ur api /api/v1/things/ota/firmware/job/get-one \
 | `target` | string | 否 |  分组升级和区域升级填写对应的id |
 | `targetDeviceNames` | array[string] | 否 |  定向升级的设备名称列表。最多可传入200个设备名称。以逗号分隔 |
 | `targetSelection` | integer | 否 | 升级范围。 1：全量升级。 2：定向升级。 3：灰度升级。 4：分组升级(不做) 5: 区域升级(不做) (格式: int64) |
-| `tenantCodes` | array[string] | 否 | 指定企业 |
+| `tenantCodes` | array[string] | 否 | 指定租户 |
 | `timeoutInMinutes` | integer | 否 |  设备升级超时时间，单位为分钟。 动态升级 静态升级 (格式: int64) |
 | `type` | integer | 否 |  升级包所属产品的JobType。 验证升级包:1  批量升级:2 (格式: int64) |
 | `upgradeType` | integer | 否 |  升级策略，1-静态，2-动态 (格式: int64) |

@@ -64,7 +64,7 @@ else
   cp "${SKILL_DIR}/SKILL.md" "${SKILLS_REPO}/SKILL.md"
 
   # 复制子 skill
-  for sub in ai-tool ur-device ur-device-analytics ur-device-debug ur-product ur-project ur-user ur-system ur-tenant ur-ai scene-linkage thing-model protocol-script; do
+  for sub in ai-tool ur-device ur-device-analytics ur-device-debug ur-product ur-project ur-user ur-system ur-tenant ur-ai ur-view scene-linkage thing-model protocol-script; do
     if [ -d "${SKILL_DIR}/${sub}" ]; then
       rm -rf "${SKILLS_REPO}/${sub}"
       cp -r "${SKILL_DIR}/${sub}" "${SKILLS_REPO}/${sub}"

@@ -21,7 +21,7 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `sessionID` | string | 是 |  会话ID |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json

@@ -31,8 +31,7 @@
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "ratedPower": 1
@@ -50,5 +49,5 @@
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/info/batch-update \
-  --body '{"areaID": "string", "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "ratedPower": 1}'
+  --body '{"areaID": "string", "devices": [{"deviceName": "示例名称", "productID": "string"}], "ratedPower": 1}'
 ```

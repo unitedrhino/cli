@@ -27,7 +27,7 @@
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -63,7 +63,7 @@ ur api /api/v1/ai/session/archive \
 | `agentID` | integer | 是 |  关联Agent ID (格式: int64) |
 | `channel` | string | 否 |  渠道 text/voice |
 | `cloneID` | integer | 否 |  关联Clone ID（0=无分身） (格式: int64) |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 | `userID` | integer | 否 |  用户ID (格式: int64) |
 
 **请求示例**:
@@ -105,7 +105,7 @@ ur api /api/v1/ai/session/create \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `sessionID` | string | 是 |  会话ID |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -142,7 +142,7 @@ ur api /api/v1/ai/session/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -179,11 +179,12 @@ ur api /api/v1/ai/session/end \
 | `cloneID` | integer | 否 |  按Clone ID过滤 (格式: int64) |
 | `endTime` | integer | 否 |  结束时间戳 (格式: int64) |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `startTime` | integer | 否 |  开始时间戳 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 (格式: int64) |
-| `tenantCode` | string | 否 |  企业编码过滤 |
+| `tenantCode` | string | 否 |  租户编码过滤 |
 | `userID` | integer | 否 |  按用户ID过滤 (格式: int64) |
 
 **请求示例**:
@@ -193,8 +194,14 @@ ur api /api/v1/ai/session/end \
   "cloneID": 1,
   "endTime": 1,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "startTime": 1,
   "status": 1,
@@ -233,7 +240,7 @@ ur api /api/v1/ai/session/end \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/session/get-list \
-  --body '{"agentID": 1, "cloneID": 1, "endTime": 1, "page": {"page": 1, "pageSize": 1}, "startTime": 1, "status": 1, "tenantCode": "string", "userID": 1}'
+  --body '{"agentID": 1, "cloneID": 1, "endTime": 1, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "startTime": 1, "status": 1, "tenantCode": "string", "userID": 1}'
 ```
 
 ### POST `/api/v1/ai/session/get-one`
@@ -337,17 +344,24 @@ ur api /api/v1/ai/session/inject \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `sessionID` | string | 是 |  会话ID |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "sessionID": "string",
   "tenantCode": "string"
@@ -377,5 +391,5 @@ ur api /api/v1/ai/session/inject \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/session/messages \
-  --body '{"page": {"page": 1, "pageSize": 1}, "sessionID": "string", "tenantCode": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "sessionID": "string", "tenantCode": "string"}'
 ```

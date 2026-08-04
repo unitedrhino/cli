@@ -110,7 +110,7 @@ ur api /api/v1/things/protocol/script/batch-import \
 | `name` | string | 否 |  |
 | `script` | string | 否 | 脚本内容 |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
 | `triggerTimer` | integer | 否 | 收到前处理1:before 2:after (格式: int64) |
@@ -285,8 +285,9 @@ ur api /api/v1/things/protocol/script/delete \
 |------|------|------|------|
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
 | `triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
@@ -298,8 +299,14 @@ ur api /api/v1/things/protocol/script/delete \
 {
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "triggerDir": 1,
@@ -340,7 +347,7 @@ ur api /api/v1/things/protocol/script/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/protocol/script/get-list \
-  --body '{"name": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "triggerDir": 1, "triggerHandle": "string", "triggerTimer": 1, "triggerType": "string"}'
+  --body '{"name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "triggerDir": 1, "triggerHandle": "string", "triggerTimer": 1, "triggerType": "string"}'
 ```
 
 ### POST `/api/v1/things/protocol/script/get-one`
@@ -405,7 +412,7 @@ ur api /api/v1/things/protocol/script/get-one \
 | `name` | string | 否 |  |
 | `script` | string | 否 | 脚本内容 |
 | `status` | integer | 否 | 状态:是否启用 (格式: int64) |
-| `tenantCode` | string | 否 | 企业号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
+| `tenantCode` | string | 否 | 租户号,common 为公共的产品,公共的大家都可以看,但是只有default可以修改 |
 | `triggerDir` | integer | 否 | 1:up 2:down (格式: int64) |
 | `triggerHandle` | string | 否 | 对应 mqtt topic的第一个 thing ota config 等等 |
 | `triggerTimer` | integer | 否 | 收到前处理1:before 2:after (格式: int64) |

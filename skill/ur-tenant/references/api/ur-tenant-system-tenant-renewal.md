@@ -27,7 +27,7 @@
 | `skuCode` | string | 否 |  SKU编码，sourceType=product时必填 |
 | `sourceID` | string | 是 |  来源ID |
 | `sourceType` | string | 是 |  来源类型：product 商品 package 套餐 |
-| `tenantCode` | string | 是 |  企业编码 |
+| `tenantCode` | string | 是 |  租户编码 |
 
 **请求示例**:
 ```json
@@ -78,13 +78,14 @@ ur api /api/v1/system/tenant/renewal/direct-grant \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `expireWithinDays` | integer | 否 |  到期天数筛选，传 30 表示仅返回 30 天内到期数据 (格式: int64) |
-| `keyword` | string | 否 |  关键字，按企业名、应用名或企业编码模糊匹配 |
+| `keyword` | string | 否 |  关键字，按企业名、应用名或租户编码模糊匹配 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  到期状态：all 全部 normal 正常 expiring 即将到期 expired 已过期 |
 | `targetType` | string | 否 |  续期对象类型：all 全部 tenant 企业 app 应用 |
-| `tenantCode` | string | 否 |  指定企业编码，仅平台管理员可传 |
+| `tenantCode` | string | 否 |  指定租户编码，仅平台管理员可传 |
 
 **请求示例**:
 ```json
@@ -92,8 +93,14 @@ ur api /api/v1/system/tenant/renewal/direct-grant \
   "expireWithinDays": 1,
   "keyword": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": "string",
   "targetType": "string",
@@ -146,7 +153,7 @@ ur api /api/v1/system/tenant/renewal/direct-grant \
 **调用示例**:
 ```bash
 ur api /api/v1/system/tenant/renewal/get-list \
-  --body '{"expireWithinDays": 1, "keyword": "string", "page": {"page": 1, "pageSize": 1}, "status": "string", "targetType": "string", "tenantCode": "string"}'
+  --body '{"expireWithinDays": 1, "keyword": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string", "targetType": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/system/tenant/renewal/renew`
@@ -163,7 +170,7 @@ ur api /api/v1/system/tenant/renewal/get-list \
 | `licenseCode` | string | 是 |  授权码 |
 | `targetID` | string | 是 |  续期对象标识，企业为 tenantCode，应用为 tenantAppID |
 | `targetType` | string | 是 |  续期对象类型：tenant 企业 app 应用 |
-| `tenantCode` | string | 否 |  所属企业编码，平台管理员可显式指定 |
+| `tenantCode` | string | 否 |  所属租户编码，平台管理员可显式指定 |
 
 **请求示例**:
 ```json

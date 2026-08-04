@@ -27,7 +27,6 @@
 | `device` | object | 是 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 
 **请求示例**:
 ```json
@@ -35,8 +34,7 @@
   "code": "string",
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   }
 }
 ```
@@ -52,7 +50,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/profile/delete \
-  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}}'
+  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string"}}'
 ```
 
 ### POST `/api/v1/things/device/profile/get-list`
@@ -69,7 +67,6 @@ ur api /api/v1/things/device/profile/delete \
 | `device` | object | 是 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 
 **请求示例**:
 ```json
@@ -79,8 +76,7 @@ ur api /api/v1/things/device/profile/delete \
   ],
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   }
 }
 ```
@@ -95,8 +91,7 @@ ur api /api/v1/things/device/profile/delete \
         "code": "string",
         "device": {
           "deviceName": "示例名称",
-          "productID": "string",
-          "productName": "string"
+          "productID": "string"
         },
         "params": "string"
       }
@@ -109,7 +104,7 @@ ur api /api/v1/things/device/profile/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/profile/get-list \
-  --body '{"codes": ["string"], "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}}'
+  --body '{"codes": ["string"], "device": {"deviceName": "示例名称", "productID": "string"}}'
 ```
 
 ### POST `/api/v1/things/device/profile/get-one`
@@ -126,7 +121,6 @@ ur api /api/v1/things/device/profile/get-list \
 | `device` | object | 是 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 
 **请求示例**:
 ```json
@@ -134,8 +128,7 @@ ur api /api/v1/things/device/profile/get-list \
   "code": "string",
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   }
 }
 ```
@@ -148,8 +141,7 @@ ur api /api/v1/things/device/profile/get-list \
     "code": "string",
     "device": {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     },
     "params": "string"
   },
@@ -160,7 +152,7 @@ ur api /api/v1/things/device/profile/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/profile/get-one \
-  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}}'
+  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string"}}'
 ```
 
 ### POST `/api/v1/things/device/profile/update`
@@ -177,7 +169,6 @@ ur api /api/v1/things/device/profile/get-one \
 | `device` | object | 是 |  |
 | `device.deviceName` | string | 是 | 设备名称 |
 | `device.productID` | string | 是 | 产品ID |
-| `device.productName` | string | 否 |  |
 | `params` | string | 是 |  |
 
 **请求示例**:
@@ -186,8 +177,7 @@ ur api /api/v1/things/device/profile/get-one \
   "code": "string",
   "device": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "params": "string"
 }
@@ -204,5 +194,5 @@ ur api /api/v1/things/device/profile/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/profile/update \
-  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "params": "string"}'
+  --body '{"code": "string", "device": {"deviceName": "示例名称", "productID": "string"}, "params": "string"}'
 ```

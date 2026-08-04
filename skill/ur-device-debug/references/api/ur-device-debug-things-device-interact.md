@@ -10,6 +10,7 @@
 | POST | `/api/v1/things/device/interact/action-resp` | 回复设备行为调用结果 | admin |
 | POST | `/api/v1/things/device/interact/action-send` | 调用设备行为 | admin |
 | POST | `/api/v1/things/device/interact/event-send` | 下行事件通知设备 | admin |
+| POST | `/api/v1/things/device/interact/message-send` | 下行透传消息给设备 | admin |
 | POST | `/api/v1/things/device/interact/property-control-batch-send` | 批量调用设备属性 | admin |
 | POST | `/api/v1/things/device/interact/property-control-get-one` | 获取调用设备属性的结果 | admin |
 | POST | `/api/v1/things/device/interact/property-control-send` | 调用设备属性 | admin |
@@ -204,6 +205,48 @@ ur api /api/v1/things/device/interact/event-send \
   --body '{"deviceName": "string", "eventID": "string", "params": "string", "productID": "string", "type": "string"}'
 ```
 
+### POST `/api/v1/things/device/interact/message-send`
+
+**说明**: 下行透传消息给设备
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `deviceName` | string | 是 | 目标设备名称 |
+| `handle` | string | 是 | 下行通道，仅支持thing、ota、config、log、shadow、gateway、ext |
+| `payload` | string | 是 | 原始文本载荷 |
+| `productID` | string | 是 | 目标产品ID |
+| `type` | string | 是 | 消息类型，必须是单个Topic路径段 |
+
+**请求示例**:
+```json
+{
+  "deviceName": "示例名称",
+  "handle": "string",
+  "payload": "string",
+  "productID": "string",
+  "type": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/things/device/interact/message-send \
+  --body '{"deviceName": "示例名称", "handle": "string", "payload": "string", "productID": "string", "type": "string"}'
+```
+
 ### POST `/api/v1/things/device/interact/property-control-batch-send`
 
 **说明**: 批量调用设备属性
@@ -237,8 +280,7 @@ ur api /api/v1/things/device/interact/event-send \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "groupID": "string",
@@ -273,7 +315,7 @@ ur api /api/v1/things/device/interact/event-send \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/interact/property-control-batch-send \
-  --body '{"areaID": "string", "areaIDPath": "string", "data": "string", "deviceNames": ["string"], "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "groupID": "string", "isAsync": true, "productID": "string", "shadowControl": 1, "syncTimeout": 1}'
+  --body '{"areaID": "string", "areaIDPath": "string", "data": "string", "deviceNames": ["string"], "devices": [{"deviceName": "示例名称", "productID": "string"}], "groupID": "string", "isAsync": true, "productID": "string", "shadowControl": 1, "syncTimeout": 1}'
 ```
 
 ### POST `/api/v1/things/device/interact/property-control-get-one`
@@ -405,8 +447,7 @@ ur api /api/v1/things/device/interact/property-control-send \
   "devices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ],
   "groupID": "string",
@@ -440,7 +481,7 @@ ur api /api/v1/things/device/interact/property-control-send \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/interact/property-get-report-batch-send \
-  --body '{"areaID": "string", "areaIDPath": "string", "dataIDs": ["string"], "deviceNames": ["string"], "devices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}], "groupID": "string", "productID": "string"}'
+  --body '{"areaID": "string", "areaIDPath": "string", "dataIDs": ["string"], "deviceNames": ["string"], "devices": [{"deviceName": "示例名称", "productID": "string"}], "groupID": "string", "productID": "string"}'
 ```
 
 ### POST `/api/v1/things/device/interact/property-get-report-send`

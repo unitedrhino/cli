@@ -82,7 +82,7 @@ ur api /api/v1/things/ota/firmware/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -117,8 +117,9 @@ ur api /api/v1/things/ota/firmware/info/delete \
 |------|------|------|------|
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productID` | string | 否 |  |
 
 **请求示例**:
@@ -126,8 +127,14 @@ ur api /api/v1/things/ota/firmware/info/delete \
 {
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productID": "string"
 }
@@ -174,7 +181,7 @@ ur api /api/v1/things/ota/firmware/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/ota/firmware/info/get-list \
-  --body '{"name": "string", "page": {"page": 1, "pageSize": 1}, "productID": "string"}'
+  --body '{"name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productID": "string"}'
 ```
 
 ### POST `/api/v1/things/ota/firmware/info/get-one`
@@ -187,7 +194,7 @@ ur api /api/v1/things/ota/firmware/info/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json

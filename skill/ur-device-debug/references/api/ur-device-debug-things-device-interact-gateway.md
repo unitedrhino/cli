@@ -59,7 +59,6 @@ ur api /api/v1/things/device/interact/gateway-get-found-send \
 | `gateway` | object | 是 |  |
 | `gateway.deviceName` | string | 是 | 设备名称 |
 | `gateway.productID` | string | 是 | 产品ID |
-| `gateway.productName` | string | 否 |  |
 | `subDevices` | array[DeviceCore] | 是 | 如果是不同的产品,则传这个字段,上面两个参数填了优先使用 |
 
 **请求示例**:
@@ -67,14 +66,12 @@ ur api /api/v1/things/device/interact/gateway-get-found-send \
 {
   "gateway": {
     "deviceName": "示例名称",
-    "productID": "string",
-    "productName": "string"
+    "productID": "string"
   },
   "subDevices": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -91,5 +88,5 @@ ur api /api/v1/things/device/interact/gateway-get-found-send \
 **调用示例**:
 ```bash
 ur api /api/v1/things/device/interact/gateway-notify-bind-send \
-  --body '{"gateway": {"deviceName": "示例名称", "productID": "string", "productName": "string"}, "subDevices": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"gateway": {"deviceName": "示例名称", "productID": "string"}, "subDevices": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```

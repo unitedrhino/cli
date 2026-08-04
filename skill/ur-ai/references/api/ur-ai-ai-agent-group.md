@@ -25,7 +25,7 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `asrConfigID` | string | 否 |  共享默认ASR配置ID |
-| `code` | string | 是 |  助手组编码（企业内唯一） |
+| `code` | string | 是 |  助手组编码（租户内唯一） |
 | `createdTime` | integer | 否 |  创建时间 (格式: int64) |
 | `defaultAgentId` | integer | 否 |  默认决策AgentID（0=未设置） (格式: int64) |
 | `desc` | string | 否 |  描述 |
@@ -38,7 +38,7 @@
 | `skillIds` | string | 否 |  平台分发Skill ID列表（JSON字符串，供组内Agent复用，不表示Group或Clone拥有learned skills） |
 | `status` | string | 否 |  状态 1-启用 2-禁用 |
 | `systemPrompt` | string | 否 |  共享系统提示词模板（供组内Agent决策时继承） |
-| `tenantCode` | string | 否 |  企业编码，"common"=平台级 |
+| `tenantCode` | string | 否 |  租户编码，"common"=平台级 |
 | `ttsConfigID` | string | 否 |  共享默认TTS配置ID |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 
@@ -92,7 +92,7 @@ ur api /api/v1/ai/agent/group/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -127,18 +127,25 @@ ur api /api/v1/ai/agent/group/delete \
 |------|------|------|------|
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 是 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `purpose` | string | 否 |  用途分类过滤 |
-| `tenantCode` | string | 否 |  企业编码过滤 |
+| `tenantCode` | string | 否 |  租户编码过滤 |
 
 **请求示例**:
 ```json
 {
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "purpose": "string",
   "tenantCode": "string"
@@ -180,7 +187,7 @@ ur api /api/v1/ai/agent/group/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/agent/group/get-list \
-  --body '{"name": "示例名称", "page": {"page": 1, "pageSize": 1}, "purpose": "string", "tenantCode": "string"}'
+  --body '{"name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "purpose": "string", "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/ai/agent/group/get-one`
@@ -193,7 +200,7 @@ ur api /api/v1/ai/agent/group/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -246,7 +253,7 @@ ur api /api/v1/ai/agent/group/get-one \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `asrConfigID` | string | 否 |  共享默认ASR配置ID |
-| `code` | string | 是 |  助手组编码（企业内唯一） |
+| `code` | string | 是 |  助手组编码（租户内唯一） |
 | `createdTime` | integer | 否 |  创建时间 (格式: int64) |
 | `defaultAgentId` | integer | 否 |  默认决策AgentID（0=未设置） (格式: int64) |
 | `desc` | string | 否 |  描述 |
@@ -259,7 +266,7 @@ ur api /api/v1/ai/agent/group/get-one \
 | `skillIds` | string | 否 |  平台分发Skill ID列表（JSON字符串，供组内Agent复用，不表示Group或Clone拥有learned skills） |
 | `status` | string | 否 |  状态 1-启用 2-禁用 |
 | `systemPrompt` | string | 否 |  共享系统提示词模板（供组内Agent决策时继承） |
-| `tenantCode` | string | 否 |  企业编码，"common"=平台级 |
+| `tenantCode` | string | 否 |  租户编码，"common"=平台级 |
 | `ttsConfigID` | string | 否 |  共享默认TTS配置ID |
 | `updatedTime` | integer | 否 |  更新时间 (格式: int64) |
 

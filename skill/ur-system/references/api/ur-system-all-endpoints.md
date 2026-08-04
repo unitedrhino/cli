@@ -52,6 +52,43 @@
 | POST | `/api/v1/system/hook/server/get-list` | 获取Hook服务列表 | platform |
 | POST | `/api/v1/system/hook/server/get-one` | 获取Hook服务详情 | platform |
 | POST | `/api/v1/system/hook/server/update` | 更新Hook服务 | platform |
+| GET | `/api/v1/system/im/call/active` | 查询群通话进行状态 | all |
+| POST | `/api/v1/system/im/call/signal` | 通话信令统一入口 | all |
+| POST | `/api/v1/system/im/channel/bind` | 绑定渠道端点 | all |
+| POST | `/api/v1/system/im/channel/get-list` | 查询渠道绑定列表 | all |
+| POST | `/api/v1/system/im/channel/set-mute` | 设置端点免打扰 | all |
+| POST | `/api/v1/system/im/channel/unbind` | 解绑渠道端点 | all |
+| POST | `/api/v1/system/im/chatlog/get-list` | 获取消息列表 | all |
+| POST | `/api/v1/system/im/chatlog/mark-read` | 标记已读 | all |
+| POST | `/api/v1/system/im/chatlog/search` | 搜索聊天记录 | all |
+| POST | `/api/v1/system/im/message/recall` | 撤回消息 | all |
+| POST | `/api/v1/system/im/message/send` | 发送消息 | all |
+| POST | `/api/v1/system/im/conversation/add-members` | 群聊邀请成员 | all |
+| POST | `/api/v1/system/im/conversation/create` | 创建会话 | all |
+| POST | `/api/v1/system/im/conversation/create-ai` | 创建 AI 会话 | all |
+| POST | `/api/v1/system/im/conversation/disband` | 群聊解散 | all |
+| POST | `/api/v1/system/im/conversation/get` | 获取会话详情 | all |
+| POST | `/api/v1/system/im/conversation/get-by-participants` | 按参与者查询单聊会话 | all |
+| POST | `/api/v1/system/im/conversation/get-list` | 获取会话列表 | all |
+| POST | `/api/v1/system/im/conversation/get-members` | 获取会话成员列表 | all |
+| POST | `/api/v1/system/im/conversation/mute-member` | 群聊禁言/取消禁言成员 | all |
+| POST | `/api/v1/system/im/conversation/remove-member` | 群聊移除/退出成员 | all |
+| POST | `/api/v1/system/im/conversation/set-admin` | 群聊设置/取消管理员 | all |
+| POST | `/api/v1/system/im/conversation/transfer-owner` | 群聊转让群主 | all |
+| POST | `/api/v1/system/im/conversation/update-setting` | 更新会话设置 | all |
+| POST | `/api/v1/system/im/friend/apply` | 发起好友申请 | all |
+| POST | `/api/v1/system/im/friend/delete` | 删除好友 | all |
+| POST | `/api/v1/system/im/friend/get-list` | 获取好友列表 | all |
+| POST | `/api/v1/system/im/friend/handle` | 处理好友申请 | all |
+| POST | `/api/v1/system/im/friend/request/get-list` | 获取好友申请列表 | all |
+| POST | `/api/v1/system/im/moment/comment/create` | 发表评论 | all |
+| POST | `/api/v1/system/im/moment/comment/delete` | 删除评论 | all |
+| POST | `/api/v1/system/im/moment/create` | 发布动态 | all |
+| POST | `/api/v1/system/im/moment/delete` | 删除动态 | all |
+| POST | `/api/v1/system/im/moment/get` | 获取动态详情 | all |
+| POST | `/api/v1/system/im/moment/like` | 点赞动态 | all |
+| POST | `/api/v1/system/im/moment/list` | 查询动态列表 | all |
+| POST | `/api/v1/system/im/moment/unlike` | 取消点赞动态 | all |
 | POST | `/api/v1/system/job/task/cancel` | 取消执行任务 | platform |
 | POST | `/api/v1/system/job/task/group/create` | 新建任务分组 | platform |
 | POST | `/api/v1/system/job/task/group/delete` | 删除任务分组 | platform |
@@ -81,6 +118,7 @@
 | POST | `/api/v1/system/mall/product/get-list` | 获取商品列表 | admin |
 | POST | `/api/v1/system/mall/product/get-one` | 获取商品详情 | admin |
 | POST | `/api/v1/system/mall/product/update` | 更新商品 | platform |
+| POST | `/api/v1/system/mcp/run` | Stateless MCP HTTP | all |
 | POST | `/api/v1/system/ops/feedback/create` | 添加帮助与反馈 | all |
 | POST | `/api/v1/system/ops/feedback/get-list` | 获取帮助与反馈 | all |
 | POST | `/api/v1/system/ops/feedback/update` | 更新帮助与反馈 | all |
@@ -156,7 +194,7 @@ ur api /api/v1/system/agreement/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -193,8 +231,9 @@ ur api /api/v1/system/agreement/delete \
 | `code` | string | 否 |  |
 | `name` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int64 |
 | `title` | string | 否 |  |
 
@@ -205,8 +244,14 @@ ur api /api/v1/system/agreement/delete \
   "code": "string",
   "name": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "title": "string"
@@ -242,7 +287,7 @@ ur api /api/v1/system/agreement/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/agreement/get-list \
-  --body '{"appID": "string", "code": "string", "name": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "title": "string"}'
+  --body '{"appID": "string", "code": "string", "name": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "title": "string"}'
 ```
 
 ### POST `/api/v1/system/agreement/get-one`
@@ -255,7 +300,7 @@ ur api /api/v1/system/agreement/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -442,7 +487,6 @@ ur api /api/v1/system/agreement/update \
           "appSecret": "string"
         },
         "id": "string",
-        "isSysCreated": 1,
         "isUseMenu": 1,
         "isUseProxy": 1,
         "loginTypes": [
@@ -497,7 +541,7 @@ ur api /api/v1/system/agreement/update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/agreement/bind-batch-update \
-  --body '{"agreementID": "string", "appID": "string", "list": [{"agreement": {"code": "string", "content": "string", "createdTime": "string", "id": "string", "name": "string", "remark": "string", "status": 1, "title": "string", "updatedTime": "string"}, "agreementID": "string", "app": {"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isSysCreated": 1, "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}, "appID": "string", "id": "string", "sort": 1, "status": 1, "type": "string"}]}'
+  --body '{"agreementID": "string", "appID": "string", "list": [{"agreement": {"code": "string", "content": "string", "createdTime": "string", "id": "string", "name": "string", "remark": "string", "status": 1, "title": "string", "updatedTime": "string"}, "agreementID": "string", "app": {"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}, "appID": "string", "id": "string", "sort": 1, "status": 1, "type": "string"}]}'
 ```
 
 ### POST `/api/v1/system/app/agreement/get-bind-list`
@@ -513,8 +557,9 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
 | `agreementID` | string | 否 |  |
 | `appID` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int64 |
 | `type` | string | 否 |  |
 | `withAgreement` | boolean | 否 | 格式: boolean |
@@ -526,8 +571,14 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
   "agreementID": "string",
   "appID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "type": "string",
@@ -584,7 +635,6 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
             "appSecret": "string"
           },
           "id": "string",
-          "isSysCreated": 1,
           "isUseMenu": 1,
           "isUseProxy": 1,
           "loginTypes": [
@@ -636,7 +686,7 @@ ur api /api/v1/system/app/agreement/bind-batch-update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/agreement/get-bind-list \
-  --body '{"agreementID": "string", "appID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "type": "string", "withAgreement": true, "withApp": true}'
+  --body '{"agreementID": "string", "appID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "type": "string", "withAgreement": true, "withApp": true}'
 ```
 
 ### POST `/api/v1/system/app/core/get-one`
@@ -695,7 +745,6 @@ ur api /api/v1/system/app/agreement/get-bind-list \
       "appSecret": "string"
     },
     "id": "string",
-    "isSysCreated": 1,
     "isUseMenu": 1,
     "isUseProxy": 1,
     "loginTypes": [
@@ -773,11 +822,10 @@ ur api /api/v1/system/app/core/get-one \
 | `googleConfig.appKey` | string | 否 | 微信小程序无需填写 |
 | `googleConfig.appSecret` | string | 否 |  |
 | `id` | string | 否 |  编号,创建时自动生成(默认),也可以指定 |
-| `isSysCreated` | integer | 否 |  是否系统创建 1-是 2-否（系统创建的应用不允许删除，绑定时自动添加） (格式: int64) |
 | `isUseMenu` | integer | 否 |  是否使用菜单 1-是 2-否 (格式: int64) |
 | `isUseProxy` | integer | 否 |  是否使用代理 1-是 2-否 (格式: int64) |
 | `loginTypes` | array[string] | 否 | 选项取决于 app里是否配置了 支持的登录类型(不填支持全部登录方式):    "email":邮箱(系统配置里配置了才能开启) "phone":手机号(系统配置里配置了才能开启)  "wxMiniP":微信小程序(app里配置了微信小程序才能开启)  "wxOpen": 微信开放平台登录(app里配置了微信开放才能开启)   "ding":钉钉应用(包含小程序,h5等方式,app里配置了钉钉才能开启)  "pwd":账号密码注册 |
-| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-企业管理员 |
+| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-租户管理员 |
 | `name` | string | 否 |  应用名称 |
 | `nativeConfig` | object | 否 |  |
 | `nativeConfig.filePath` | string | 否 |  文件路径,拿来下载文件 |
@@ -787,8 +835,8 @@ ur api /api/v1/system/app/core/get-one \
 | `sort` | integer | 否 | 排序,不能小于等于0 (格式: int64) |
 | `status` | integer | 否 |  应用状态 1:上架, 2:下架(默认) (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
-| `tenantCode` | string | 否 |  企业编码,common的是通用应用,非common的是企业应用 |
-| `tenantName` | string | 否 |  企业名称 |
+| `tenantCode` | string | 否 |  租户编码,common的是通用应用,非common的是租户应用 |
+| `tenantName` | string | 否 |  租户名称 |
 | `trialTime` | integer | 否 | 试用时间(单位为天,为0不限制,如果为0,是免费使用的,如果为-1 则不允许自己创建) (格式: int64) |
 | `type` | string | 否 |  应用类型 web:web页面  native:原生  mini:小程序 |
 | `url` | string | 否 |  应用地址 |
@@ -833,7 +881,6 @@ ur api /api/v1/system/app/core/get-one \
     "appSecret": "string"
   },
   "id": "string",
-  "isSysCreated": 1,
   "isUseMenu": 1,
   "isUseProxy": 1,
   "loginTypes": [
@@ -883,7 +930,7 @@ ur api /api/v1/system/app/core/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/info/create \
-  --body '{"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isSysCreated": 1, "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}'
+  --body '{"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}'
 ```
 
 ### POST `/api/v1/system/app/info/delete`
@@ -896,7 +943,7 @@ ur api /api/v1/system/app/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -930,15 +977,15 @@ ur api /api/v1/system/app/info/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `ids` | array[string] | 否 |  应用ID列表 |
-| `isSysCreated` | integer | 否 |  是否系统创建过滤 1-是 2-否 (格式: int64) |
 | `name` | string | 否 |  应用名称 |
 | `notID` | string | 否 |  排除某个应用ID |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 应用状态 1 上架 2 下架 (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
-| `tenantIsBind` | integer | 否 |  过滤企业是否已绑定的应用 1-是 2-否,如果要过滤指定企业,通过http头里指定 (格式: int64) |
+| `tenantIsBind` | integer | 否 |  过滤租户是否已绑定的应用 1-是 2-否,如果要过滤指定租户,通过http头里指定 (格式: int64) |
 | `type` | string | 否 |  应用类型 web:web页面  native:原生  mini:小程序 |
 | `useBy` | string | 否 |  使用对象 client:登录直接授权该应用 admin:管理员使用,需要邀请 |
 | `withAgreementCodes` | array[string] | 否 |  非空时按 code 回填已绑定协议 |
@@ -949,12 +996,17 @@ ur api /api/v1/system/app/info/delete \
   "ids": [
     "string"
   ],
-  "isSysCreated": 1,
   "name": "示例名称",
   "notID": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "subType": "string",
@@ -1002,7 +1054,6 @@ ur api /api/v1/system/app/info/delete \
           "appSecret": "string"
         },
         "id": "string",
-        "isSysCreated": 1,
         "isUseMenu": 1,
         "isUseProxy": 1,
         "loginTypes": [
@@ -1048,7 +1099,7 @@ ur api /api/v1/system/app/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/info/get-list \
-  --body '{"ids": ["string"], "isSysCreated": 1, "name": "示例名称", "notID": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "subType": "string", "tenantIsBind": 1, "type": "string", "useBy": "string", "withAgreementCodes": ["string"]}'
+  --body '{"ids": ["string"], "name": "示例名称", "notID": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "subType": "string", "tenantIsBind": 1, "type": "string", "useBy": "string", "withAgreementCodes": ["string"]}'
 ```
 
 ### POST `/api/v1/system/app/info/get-one`
@@ -1107,7 +1158,6 @@ ur api /api/v1/system/app/info/get-list \
       "appSecret": "string"
     },
     "id": "string",
-    "isSysCreated": 1,
     "isUseMenu": 1,
     "isUseProxy": 1,
     "loginTypes": [
@@ -1185,11 +1235,10 @@ ur api /api/v1/system/app/info/get-one \
 | `googleConfig.appKey` | string | 否 | 微信小程序无需填写 |
 | `googleConfig.appSecret` | string | 否 |  |
 | `id` | string | 否 |  编号,创建时自动生成(默认),也可以指定 |
-| `isSysCreated` | integer | 否 |  是否系统创建 1-是 2-否（系统创建的应用不允许删除，绑定时自动添加） (格式: int64) |
 | `isUseMenu` | integer | 否 |  是否使用菜单 1-是 2-否 (格式: int64) |
 | `isUseProxy` | integer | 否 |  是否使用代理 1-是 2-否 (格式: int64) |
 | `loginTypes` | array[string] | 否 | 选项取决于 app里是否配置了 支持的登录类型(不填支持全部登录方式):    "email":邮箱(系统配置里配置了才能开启) "phone":手机号(系统配置里配置了才能开启)  "wxMiniP":微信小程序(app里配置了微信小程序才能开启)  "wxOpen": 微信开放平台登录(app里配置了微信开放才能开启)   "ding":钉钉应用(包含小程序,h5等方式,app里配置了钉钉才能开启)  "pwd":账号密码注册 |
-| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-企业管理员 |
+| `menuRole` | string | 否 |  菜单角色类型 all-支持两类(菜单需选role) platform-平台管理员 tenant-租户管理员 |
 | `name` | string | 否 |  应用名称 |
 | `nativeConfig` | object | 否 |  |
 | `nativeConfig.filePath` | string | 否 |  文件路径,拿来下载文件 |
@@ -1199,8 +1248,8 @@ ur api /api/v1/system/app/info/get-one \
 | `sort` | integer | 否 | 排序,不能小于等于0 (格式: int64) |
 | `status` | integer | 否 |  应用状态 1:上架, 2:下架(默认) (格式: int64) |
 | `subType` | string | 否 |  子类型 mini:(wx:微信小程序,ding:钉钉小程序)  native:安卓,ios,鸿蒙,win |
-| `tenantCode` | string | 否 |  企业编码,common的是通用应用,非common的是企业应用 |
-| `tenantName` | string | 否 |  企业名称 |
+| `tenantCode` | string | 否 |  租户编码,common的是通用应用,非common的是租户应用 |
+| `tenantName` | string | 否 |  租户名称 |
 | `trialTime` | integer | 否 | 试用时间(单位为天,为0不限制,如果为0,是免费使用的,如果为-1 则不允许自己创建) (格式: int64) |
 | `type` | string | 否 |  应用类型 web:web页面  native:原生  mini:小程序 |
 | `url` | string | 否 |  应用地址 |
@@ -1245,7 +1294,6 @@ ur api /api/v1/system/app/info/get-one \
     "appSecret": "string"
   },
   "id": "string",
-  "isSysCreated": 1,
   "isUseMenu": 1,
   "isUseProxy": 1,
   "loginTypes": [
@@ -1292,7 +1340,7 @@ ur api /api/v1/system/app/info/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/system/app/info/update \
-  --body '{"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isSysCreated": 1, "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}'
+  --body '{"agreementsMap": {}, "appleConfig": {"appID": "string", "bundleID": "string", "keyID": "string", "privateKey": "string", "redirectURI": "string", "teamID": "string"}, "avatar": "string", "createdTime": "2026-01-01T00:00:00Z", "desc": "string", "dingConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "githubConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "googleConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "id": "string", "isUseMenu": 1, "isUseProxy": 1, "loginTypes": ["string"], "menuRole": "string", "name": "示例名称", "nativeConfig": {"filePath": "string", "version": "string", "versionDesc": "string"}, "proxy": "string", "sort": 1, "status": 1, "subType": "string", "tenantCode": "string", "tenantName": "示例名称", "trialTime": 1, "type": "string", "url": "string", "useBy": "string", "wxMiniConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "wxOpenConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}}'
 ```
 
 ### POST `/api/v1/system/app/menu/create`
@@ -1319,8 +1367,8 @@ ur api /api/v1/system/app/info/update \
 | `parentID` | string | 否 |  父菜单ID，一级菜单为1 |
 | `path` | string | 否 |  系统的path |
 | `redirect` | string | 否 |  路由重定向 |
-| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:企业管理员 |
-| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是企业应用 |
+| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:租户管理员 |
+| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是租户应用 |
 | `type` | integer | 否 |  类型 1：菜单或者页面 2：iframe嵌入 3：外链跳转 (格式: int64) |
 
 **请求示例**:
@@ -1413,7 +1461,7 @@ ur api /api/v1/system/app/menu/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -1542,8 +1590,8 @@ ur api /api/v1/system/app/menu/get-list \
 | `parentID` | string | 否 |  父菜单ID，一级菜单为1 |
 | `path` | string | 否 |  系统的path |
 | `redirect` | string | 否 |  路由重定向 |
-| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:企业管理员 |
-| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是企业应用 |
+| `role` | string | 否 |  角色类型 仅App.menuRole=all时有意义 all:两类都可以看 platform:平台管理员 tenant:租户管理员 |
+| `tenantCode` | string | 否 |  跟着应用走, common的是通用应用,非common的是租户应用 |
 | `type` | integer | 否 |  类型 1：菜单或者页面 2：iframe嵌入 3：外链跳转 (格式: int64) |
 
 **请求示例**:
@@ -1665,8 +1713,9 @@ ur api /api/v1/system/check-in/do \
 |------|------|------|------|
 | `endTime` | string | 否 |  结束时间(Unix毫秒) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `startTime` | string | 否 |  开始时间(Unix毫秒) |
 | `userID` | string | 否 |  管理员可指定用户ID |
 
@@ -1675,8 +1724,14 @@ ur api /api/v1/system/check-in/do \
 {
   "endTime": "2026-01-01T00:00:00Z",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "startTime": "2026-01-01T00:00:00Z",
   "userID": "string"
@@ -1709,7 +1764,7 @@ ur api /api/v1/system/check-in/do \
 **调用示例**:
 ```bash
 ur api /api/v1/system/check-in/get-list \
-  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"page": 1, "pageSize": 1}, "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
+  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
 ```
 
 ### POST `/api/v1/system/check-in/point-balance/get`
@@ -1784,8 +1839,9 @@ ur api /api/v1/system/check-in/point-log/adjust \
 |------|------|------|------|
 | `endTime` | string | 否 |  结束时间(Unix毫秒) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `source` | string | 否 |  来源过滤: checkIn/admin |
 | `startTime` | string | 否 |  开始时间(Unix毫秒) |
 | `userID` | string | 否 |  管理员可指定用户ID |
@@ -1795,8 +1851,14 @@ ur api /api/v1/system/check-in/point-log/adjust \
 {
   "endTime": "2026-01-01T00:00:00Z",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "source": "string",
   "startTime": "2026-01-01T00:00:00Z",
@@ -1831,7 +1893,7 @@ ur api /api/v1/system/check-in/point-log/adjust \
 **调用示例**:
 ```bash
 ur api /api/v1/system/check-in/point-log/get-list \
-  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"page": 1, "pageSize": 1}, "source": "string", "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
+  --body '{"endTime": "2026-01-01T00:00:00Z", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "source": "string", "startTime": "2026-01-01T00:00:00Z", "userID": "string"}'
 ```
 
 ### POST `/api/v1/system/common/api/batch-agg`
@@ -2247,17 +2309,17 @@ ur api /api/v1/system/common/sys-config/info/get-one \
 | `tenant` | object | 否 |  |
 | `tenant.defaultLimit` | object | 是 |  |
 | `tenant.defaultLimit.aiTokenMonthly` | integer | 否 |  默认 AI Token 月配额（单位：token） (格式: int64) |
-| `tenant.defaultLimit.deviceMsgPerDay` | integer | 否 |  默认企业每天设备消息总量上限 (格式: int64) |
-| `tenant.defaultLimit.deviceNum` | integer | 否 |  企业下的设备数量限制,0为不限制 (格式: int64) |
+| `tenant.defaultLimit.deviceMsgPerDay` | integer | 否 |  默认租户每天设备消息总量上限 (格式: int64) |
+| `tenant.defaultLimit.deviceNum` | integer | 否 |  租户下的设备数量限制,0为不限制 (格式: int64) |
 | `tenant.defaultLimit.diskSpaceGB` | integer | 否 |  默认磁盘空间 GB (格式: int64) |
-| `tenant.defaultLimit.userNum` | integer | 否 |  企业下的用户数量限制,0为不限制 (格式: int64) |
+| `tenant.defaultLimit.userNum` | integer | 否 |  租户下的用户数量限制,0为不限制 (格式: int64) |
 | `user` | object | 否 |  |
 | `user.captchaLen` | integer | 是 |  验证码长度 (格式: int32) |
 | `user.forceSetPassword` | integer | 是 |  是否强制未设置密码的用户登录后设置密码(1:是，2:否) (格式: int64) 可选: ['1', '2'] |
 | `user.ownerUserID` | string | 否 |  平台超级管理员ID 非平台超管不返回该参数,不可修改 |
 | `user.passLevel` | integer | 是 |  用户密码强度级别 1:长度大于等于8位即可 2:包含数字,大写字母,小写字母,特殊字符起码两种  3:包含数字,大写字母,小写字母,特殊字符起码3种 4:包含数字,大写字母,小写字母,特殊字符   特殊字符: !@#~$%^&*()+\|_ (格式: int64) |
 | `user.remindSetPassword` | integer | 是 |  是否提醒未设置密码的用户设置密码(1:是，2:否) (格式: int64) 可选: ['1', '2'] |
-| `user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费企业数量，0表示不可直接创建免费企业，需提供授权码 (格式: int64) |
+| `user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费租户数量，0表示不可直接创建免费租户，需提供授权码 (格式: int64) |
 | `weather` | object | 否 |  |
 | `weather.apiHost` | string | 是 |  天气API主机地址 |
 | `weather.apiKey` | string | 是 |  天气API密钥 |
@@ -2364,8 +2426,9 @@ ur api /api/v1/system/common/sys-config/info/update \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `parentID` | string | 否 | 父节点 |
 | `thirdConfig` | object | 是 |  |
 | `thirdConfig.appID` | string | 否 |  |
@@ -2377,8 +2440,14 @@ ur api /api/v1/system/common/sys-config/info/update \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "parentID": "string",
   "thirdConfig": {
@@ -2497,7 +2566,7 @@ ur api /api/v1/system/common/sys-config/info/update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/common/third/dept/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "parentID": "string", "thirdConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "thirdType": "string"}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "parentID": "string", "thirdConfig": {"appID": "string", "appKey": "string", "appSecret": "string"}, "thirdType": "string"}'
 ```
 
 ### POST `/api/v1/system/common/third/dept/get-one`
@@ -2855,7 +2924,7 @@ ur api /api/v1/system/common/upload-file \
 | `isPublic` | boolean | 否 | true时使用公开桶上传,返回永久fileUrl。用于通知富文本中的图片、封面图等需长期可访问的资源 (格式: boolean) |
 | `rename` | boolean | 否 | true 文件重命名，false 不重命名(默认) (格式: boolean) |
 | `scene` | string | 是 | 场景(业务定义 如产品图片 productImg) |
-| `useBy` | string | 否 | 公开桶时必填。上传用途: user=用户级, tenant=企业级, platform=平台级(需supper权限) |
+| `useBy` | string | 否 | 公开桶时必填。上传用途: user=用户级, tenant=租户级, platform=平台级(需supper权限) |
 
 **请求示例**:
 ```json
@@ -3127,7 +3196,7 @@ ur api /api/v1/system/common/sys-config/core/get-one \
 | `config.user.ownerUserID` | string | 否 |  平台超级管理员ID 非平台超管不返回该参数,不可修改 |
 | `config.user.passLevel` | integer | 是 |  用户密码强度级别 1:长度大于等于8位即可 2:包含数字,大写字母,小写字母,特殊字符起码两种  3:包含数字,大写字母,小写字母,特殊字符起码3种 4:包含数字,大写字母,小写字母,特殊字符   特殊字符: !@#~$%^&*()+\|_ (格式: int64) |
 | `config.user.remindSetPassword` | integer | 是 |  是否提醒未设置密码的用户设置密码(1:是，2:否) (格式: int64) 可选: ['1', '2'] |
-| `config.user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费企业数量，0表示不可直接创建免费企业，需提供授权码 (格式: int64) |
+| `config.user.userOwnTenantLimit` | integer | 是 |  用户可直接创建免费租户数量，0表示不可直接创建免费租户，需提供授权码 (格式: int64) |
 | `config.weather` | object | 否 |  |
 | `config.weather.apiHost` | string | 是 |  天气API主机地址 |
 | `config.weather.apiKey` | string | 是 |  天气API密钥 |
@@ -3254,6 +3323,7 @@ ur api /api/v1/system/common/system/init \
 | `code` | string | 否 |  能力编码 |
 | `desc` | string | 否 |  描述 |
 | `id` | string | 否 |  能力ID |
+| `kind` | string | 否 |  能力类型 sync=同步扩展点 async=异步事件通知（说明性元数据，默认 sync） |
 | `serverID` | string | 否 |  关联服务ID |
 | `subCode` | string | 否 |  子编码 |
 
@@ -3263,6 +3333,7 @@ ur api /api/v1/system/common/system/init \
   "code": "string",
   "desc": "string",
   "id": "string",
+  "kind": "string",
   "serverID": "string",
   "subCode": "string"
 }
@@ -3282,7 +3353,7 @@ ur api /api/v1/system/common/system/init \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/capability/create \
-  --body '{"code": "string", "desc": "string", "id": "string", "serverID": "string", "subCode": "string"}'
+  --body '{"code": "string", "desc": "string", "id": "string", "kind": "string", "serverID": "string", "subCode": "string"}'
 ```
 
 ### POST `/api/v1/system/hook/capability/delete`
@@ -3295,7 +3366,7 @@ ur api /api/v1/system/hook/capability/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -3330,8 +3401,9 @@ ur api /api/v1/system/hook/capability/delete \
 |------|------|------|------|
 | `code` | string | 否 |  能力编码筛选 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `serverID` | integer | 否 |  服务ID筛选 (格式: int64) |
 | `subCode` | string | 否 |  子编码筛选 |
 
@@ -3340,8 +3412,14 @@ ur api /api/v1/system/hook/capability/delete \
 {
   "code": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "serverID": 1,
   "subCode": "string"
@@ -3358,6 +3436,7 @@ ur api /api/v1/system/hook/capability/delete \
         "code": "string",
         "desc": "string",
         "id": "string",
+        "kind": "string",
         "serverID": "string",
         "subCode": "string"
       }
@@ -3373,7 +3452,7 @@ ur api /api/v1/system/hook/capability/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/capability/get-list \
-  --body '{"code": "string", "page": {"page": 1, "pageSize": 1}, "serverID": 1, "subCode": "string"}'
+  --body '{"code": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "serverID": 1, "subCode": "string"}'
 ```
 
 ### POST `/api/v1/system/hook/capability/update`
@@ -3389,6 +3468,7 @@ ur api /api/v1/system/hook/capability/get-list \
 | `code` | string | 否 |  能力编码 |
 | `desc` | string | 否 |  描述 |
 | `id` | string | 否 |  能力ID |
+| `kind` | string | 否 |  能力类型 sync=同步扩展点 async=异步事件通知（说明性元数据，默认 sync） |
 | `serverID` | string | 否 |  关联服务ID |
 | `subCode` | string | 否 |  子编码 |
 
@@ -3398,6 +3478,7 @@ ur api /api/v1/system/hook/capability/get-list \
   "code": "string",
   "desc": "string",
   "id": "string",
+  "kind": "string",
   "serverID": "string",
   "subCode": "string"
 }
@@ -3414,7 +3495,7 @@ ur api /api/v1/system/hook/capability/get-list \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/capability/update \
-  --body '{"code": "string", "desc": "string", "id": "string", "serverID": "string", "subCode": "string"}'
+  --body '{"code": "string", "desc": "string", "id": "string", "kind": "string", "serverID": "string", "subCode": "string"}'
 ```
 
 ### POST `/api/v1/system/hook/server/create`
@@ -3427,16 +3508,18 @@ ur api /api/v1/system/hook/capability/update \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `authConfig` | object | 否 |  鉴权配置 |
-| `authType` | string | 否 |  鉴权类型 none/hmac |
+| `authConfig` | object | 否 |  鉴权配置，hmac 时为 {"secret":"xxx"} |
+| `authType` | string | 否 |  鉴权类型 none/hmac/custom |
 | `capabilities` | array[HookCapabilityInfo] | 否 |  关联的能力列表 |
 | `desc` | string | 否 |  描述 |
 | `endpoint` | string | 否 |  服务端点URL |
 | `failPolicy` | string | 否 |  失败策略 fail/ignore |
+| `headers` | object | 否 |  自定义请求头（authType=custom 时使用） |
 | `id` | string | 否 |  服务ID |
 | `maxRetry` | integer | 否 |  最大重试次数 (格式: int64) |
-| `name` | string | 否 |  服务名称 |
+| `name` | string | 否 |  服务名称（租户内唯一） |
 | `status` | integer | 否 |  状态 1:启用 2:禁用 (格式: int64) |
+| `tenantCode` | string | 否 |  租户编码：common=全平台可用，其余=仅该租户（创建时默认 common） |
 | `timeoutSec` | integer | 否 |  超时秒数 (格式: int64) |
 
 **请求示例**:
@@ -3449,6 +3532,7 @@ ur api /api/v1/system/hook/capability/update \
       "code": "string",
       "desc": "string",
       "id": "string",
+      "kind": "string",
       "serverID": "string",
       "subCode": "string"
     }
@@ -3456,10 +3540,12 @@ ur api /api/v1/system/hook/capability/update \
   "desc": "string",
   "endpoint": "string",
   "failPolicy": "string",
+  "headers": {},
   "id": "string",
   "maxRetry": 1,
   "name": "示例名称",
   "status": 1,
+  "tenantCode": "string",
   "timeoutSec": 1
 }
 ```
@@ -3478,7 +3564,7 @@ ur api /api/v1/system/hook/capability/update \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/server/create \
-  --body '{"authConfig": {}, "authType": "string", "capabilities": [{"code": "string", "desc": "string", "id": "string", "serverID": "string", "subCode": "string"}], "desc": "string", "endpoint": "string", "failPolicy": "string", "id": "string", "maxRetry": 1, "name": "示例名称", "status": 1, "timeoutSec": 1}'
+  --body '{"authConfig": {}, "authType": "string", "capabilities": [{"code": "string", "desc": "string", "id": "string", "kind": "string", "serverID": "string", "subCode": "string"}], "desc": "string", "endpoint": "string", "failPolicy": "string", "headers": {}, "id": "string", "maxRetry": 1, "name": "示例名称", "status": 1, "tenantCode": "string", "timeoutSec": 1}'
 ```
 
 ### POST `/api/v1/system/hook/server/delete`
@@ -3491,7 +3577,7 @@ ur api /api/v1/system/hook/server/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -3526,19 +3612,28 @@ ur api /api/v1/system/hook/server/delete \
 |------|------|------|------|
 | `name` | string | 否 |  服务名称筛选 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  状态筛选 (格式: int64) |
+| `tenantCode` | string | 否 |  租户编码筛选 |
 
 **请求示例**:
 ```json
 {
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
-  "status": 1
+  "status": 1,
+  "tenantCode": "string"
 }
 ```
 
@@ -3556,6 +3651,7 @@ ur api /api/v1/system/hook/server/delete \
             "code": "string",
             "desc": "string",
             "id": "string",
+            "kind": "string",
             "serverID": "string",
             "subCode": "string"
           }
@@ -3563,10 +3659,12 @@ ur api /api/v1/system/hook/server/delete \
         "desc": "string",
         "endpoint": "string",
         "failPolicy": "string",
+        "headers": {},
         "id": "string",
         "maxRetry": 1,
         "name": "示例名称",
         "status": 1,
+        "tenantCode": "string",
         "timeoutSec": 1
       }
     ],
@@ -3581,7 +3679,7 @@ ur api /api/v1/system/hook/server/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/server/get-list \
-  --body '{"name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1}'
+  --body '{"name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "tenantCode": "string"}'
 ```
 
 ### POST `/api/v1/system/hook/server/get-one`
@@ -3594,7 +3692,7 @@ ur api /api/v1/system/hook/server/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -3615,6 +3713,7 @@ ur api /api/v1/system/hook/server/get-list \
         "code": "string",
         "desc": "string",
         "id": "string",
+        "kind": "string",
         "serverID": "string",
         "subCode": "string"
       }
@@ -3622,10 +3721,12 @@ ur api /api/v1/system/hook/server/get-list \
     "desc": "string",
     "endpoint": "string",
     "failPolicy": "string",
+    "headers": {},
     "id": "string",
     "maxRetry": 1,
     "name": "示例名称",
     "status": 1,
+    "tenantCode": "string",
     "timeoutSec": 1
   },
   "msg": "success"
@@ -3648,16 +3749,18 @@ ur api /api/v1/system/hook/server/get-one \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `authConfig` | object | 否 |  鉴权配置 |
-| `authType` | string | 否 |  鉴权类型 none/hmac |
+| `authConfig` | object | 否 |  鉴权配置，hmac 时为 {"secret":"xxx"} |
+| `authType` | string | 否 |  鉴权类型 none/hmac/custom |
 | `capabilities` | array[HookCapabilityInfo] | 否 |  关联的能力列表 |
 | `desc` | string | 否 |  描述 |
 | `endpoint` | string | 否 |  服务端点URL |
 | `failPolicy` | string | 否 |  失败策略 fail/ignore |
+| `headers` | object | 否 |  自定义请求头（authType=custom 时使用） |
 | `id` | string | 否 |  服务ID |
 | `maxRetry` | integer | 否 |  最大重试次数 (格式: int64) |
-| `name` | string | 否 |  服务名称 |
+| `name` | string | 否 |  服务名称（租户内唯一） |
 | `status` | integer | 否 |  状态 1:启用 2:禁用 (格式: int64) |
+| `tenantCode` | string | 否 |  租户编码：common=全平台可用，其余=仅该租户（创建时默认 common） |
 | `timeoutSec` | integer | 否 |  超时秒数 (格式: int64) |
 
 **请求示例**:
@@ -3670,6 +3773,7 @@ ur api /api/v1/system/hook/server/get-one \
       "code": "string",
       "desc": "string",
       "id": "string",
+      "kind": "string",
       "serverID": "string",
       "subCode": "string"
     }
@@ -3677,10 +3781,12 @@ ur api /api/v1/system/hook/server/get-one \
   "desc": "string",
   "endpoint": "string",
   "failPolicy": "string",
+  "headers": {},
   "id": "string",
   "maxRetry": 1,
   "name": "示例名称",
   "status": 1,
+  "tenantCode": "string",
   "timeoutSec": 1
 }
 ```
@@ -3696,7 +3802,1662 @@ ur api /api/v1/system/hook/server/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/system/hook/server/update \
-  --body '{"authConfig": {}, "authType": "string", "capabilities": [{"code": "string", "desc": "string", "id": "string", "serverID": "string", "subCode": "string"}], "desc": "string", "endpoint": "string", "failPolicy": "string", "id": "string", "maxRetry": 1, "name": "示例名称", "status": 1, "timeoutSec": 1}'
+  --body '{"authConfig": {}, "authType": "string", "capabilities": [{"code": "string", "desc": "string", "id": "string", "kind": "string", "serverID": "string", "subCode": "string"}], "desc": "string", "endpoint": "string", "failPolicy": "string", "headers": {}, "id": "string", "maxRetry": 1, "name": "示例名称", "status": 1, "tenantCode": "string", "timeoutSec": 1}'
+```
+
+### GET `/api/v1/system/im/call/active`
+
+**说明**: 查询群通话进行状态
+
+**权限**: all
+
+**路径参数**:
+
+| 参数 | 位置 | 类型 | 必填 | 说明 |
+|------|------|------|------|------|
+| `conversationId` | query | integer | 是 |  群聊会话 ID |
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "active": true,
+    "callId": "string",
+    "callType": "string",
+    "participantIds": [
+      "string"
+    ]
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/call/active \
+  --body '{}'
+```
+
+### POST `/api/v1/system/im/call/signal`
+
+**说明**: 通话信令统一入口
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `callId` | string | 否 |  通话 ID（invite 类信令为空，由服务端生成） |
+| `callType` | string | 否 |  通话媒体类型：voice / video |
+| `calleeId` | string | 否 |  1:1 被叫用户 ID |
+| `conversationId` | integer | 否 |  关联的 IM 会话 ID (格式: int64) |
+| `members` | array[string] | 否 |  群通话邀请成员用户 ID 列表 |
+| `payload` | string | 否 |  扩展 JSON（media_state 的 mute/video 状态等） |
+| `to` | string | 否 |  media_state 定向目标用户 ID（空=1:1 对端/群通话全员） |
+| `type` | string | 是 |  信令类型：call_invite/call_accept/call_reject/call_cancel/call_end/call_heartbeat/group_invite/group_join/group_leave/media_state |
+
+**请求示例**:
+```json
+{
+  "callId": "string",
+  "callType": "string",
+  "calleeId": "string",
+  "conversationId": 1,
+  "members": [
+    "string"
+  ],
+  "payload": "string",
+  "to": "string",
+  "type": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "callId": "string",
+    "event": "string",
+    "notifyUserIDs": [
+      1
+    ],
+    "payload": "string",
+    "state": "string",
+    "zlmPushUrl": "string",
+    "zlmServer": "string"
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/call/signal \
+  --body '{"callId": "string", "callType": "string", "calleeId": "string", "conversationId": 1, "members": ["string"], "payload": "string", "to": "string", "type": "string"}'
+```
+
+### POST `/api/v1/system/im/channel/bind`
+
+**说明**: 绑定渠道端点
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `channelId` | string | 是 |  渠道标识（device 为 {productID}:{deviceName}） |
+| `channelName` | string | 否 |  渠道展示名（设备名称） |
+| `channelType` | string | 是 |  渠道类型：device / ... |
+
+**请求示例**:
+```json
+{
+  "channelId": "string",
+  "channelName": "示例名称",
+  "channelType": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/channel/bind \
+  --body '{"channelId": "string", "channelName": "示例名称", "channelType": "string"}'
+```
+
+### POST `/api/v1/system/im/channel/get-list`
+
+**说明**: 查询渠道绑定列表
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "channelId": "string",
+        "channelName": "string",
+        "channelType": "string",
+        "createdTime": 1,
+        "id": 1,
+        "isMuted": 1,
+        "userId": 1
+      }
+    ]
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/channel/get-list \
+  --body '{}'
+```
+
+### POST `/api/v1/system/im/channel/set-mute`
+
+**说明**: 设置端点免打扰
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 是 |  绑定记录 ID (格式: int64) |
+| `isMuted` | integer | 是 |  0-下发 1-免打扰 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1,
+  "isMuted": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/channel/set-mute \
+  --body '{"id": 1, "isMuted": 1}'
+```
+
+### POST `/api/v1/system/im/channel/unbind`
+
+**说明**: 解绑渠道端点
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 是 |  绑定记录 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/channel/unbind \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/system/im/chatlog/get-list`
+
+**说明**: 获取消息列表
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+| `page` | integer | 是 |  页码 (格式: int64) |
+| `pageSize` | integer | 是 |  每页大小 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1,
+  "page": 1,
+  "pageSize": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "clientMsgId": "string",
+        "content": "string",
+        "conversationId": 1,
+        "extra": "string",
+        "id": 1,
+        "isAtAll": 1,
+        "mentionUserIDs": [
+          1
+        ],
+        "msgType": "string",
+        "sendTime": 1,
+        "senderId": "string",
+        "senderType": "string",
+        "seq": 1,
+        "status": 1
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/chatlog/get-list \
+  --body '{"conversationId": 1, "page": 1, "pageSize": 1}'
+```
+
+### POST `/api/v1/system/im/chatlog/mark-read`
+
+**说明**: 标记已读
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+| `readSeq` | integer | 否 |  已读到的序号 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1,
+  "readSeq": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/chatlog/mark-read \
+  --body '{"conversationId": 1, "readSeq": 1}'
+```
+
+### POST `/api/v1/system/im/chatlog/search`
+
+**说明**: 搜索聊天记录
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 否 |  会话 ID（可选，限定单个会话） (格式: int64) |
+| `keyword` | string | 是 |  搜索关键词 |
+| `page` | integer | 是 |  页码 (格式: int64) |
+| `pageSize` | integer | 是 |  每页大小 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1,
+  "keyword": "string",
+  "page": 1,
+  "pageSize": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "clientMsgId": "string",
+        "content": "string",
+        "conversationId": 1,
+        "extra": "string",
+        "id": 1,
+        "isAtAll": 1,
+        "mentionUserIDs": [
+          1
+        ],
+        "msgType": "string",
+        "sendTime": 1,
+        "senderId": "string",
+        "senderType": "string",
+        "seq": 1,
+        "status": 1
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/chatlog/search \
+  --body '{"conversationId": 1, "keyword": "string", "page": 1, "pageSize": 1}'
+```
+
+### POST `/api/v1/system/im/message/recall`
+
+**说明**: 撤回消息
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+| `msgId` | integer | 是 |  消息 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1,
+  "msgId": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/message/recall \
+  --body '{"conversationId": 1, "msgId": 1}'
+```
+
+### POST `/api/v1/system/im/message/send`
+
+**说明**: 发送消息
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `clientMsgId` | string | 否 |  客户端消息 ID |
+| `content` | string | 是 |  消息内容 |
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+| `extra` | string | 否 |  扩展字段 |
+| `isAtAll` | integer | 否 |  是否 @ 全体成员 (格式: int64) |
+| `mentionUserIDs` | array[integer] | 否 |  @ 的用户列表 |
+| `msgType` | string | 是 |  消息类型 |
+
+**请求示例**:
+```json
+{
+  "clientMsgId": "string",
+  "content": "string",
+  "conversationId": 1,
+  "extra": "string",
+  "isAtAll": 1,
+  "mentionUserIDs": [
+    1
+  ],
+  "msgType": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1,
+    "sendTime": 1,
+    "seq": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/message/send \
+  --body '{"clientMsgId": "string", "content": "string", "conversationId": 1, "extra": "string", "isAtAll": 1, "mentionUserIDs": [1], "msgType": "string"}'
+```
+
+### POST `/api/v1/system/im/conversation/add-members`
+
+**说明**: 群聊邀请成员
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+| `participants` | array[ImParticipant] | 是 |  被邀请的参与者列表 |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1,
+  "participants": [
+    {
+      "id": "string",
+      "type": "string"
+    }
+  ]
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/add-members \
+  --body '{"conversationId": 1, "participants": [{"id": "string", "type": "string"}]}'
+```
+
+### POST `/api/v1/system/im/conversation/create`
+
+**说明**: 创建会话
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `name` | string | 否 |  会话名称（群聊必填） |
+| `participants` | array[ImParticipant] | 是 |  参与者列表 |
+| `type` | string | 是 |  会话类型：single / group |
+
+**请求示例**:
+```json
+{
+  "name": "示例名称",
+  "participants": [
+    {
+      "id": "string",
+      "type": "string"
+    }
+  ],
+  "type": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/create \
+  --body '{"name": "示例名称", "participants": [{"id": "string", "type": "string"}], "type": "string"}'
+```
+
+### POST `/api/v1/system/im/conversation/create-ai`
+
+**说明**: 创建 AI 会话
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `cloneId` | integer | 是 |  AI 分身（Clone）ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "cloneId": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/create-ai \
+  --body '{"cloneId": 1}'
+```
+
+### POST `/api/v1/system/im/conversation/disband`
+
+**说明**: 群聊解散
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/disband \
+  --body '{"conversationId": 1}'
+```
+
+### POST `/api/v1/system/im/conversation/get`
+
+**说明**: 获取会话详情
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "info": {
+      "avatar": "string",
+      "createdTime": 1,
+      "id": 1,
+      "isMuted": 1,
+      "isPinned": 1,
+      "lastMsgContent": "string",
+      "lastMsgID": 1,
+      "lastMsgTime": 1,
+      "lastReadMsgID": 1,
+      "name": "示例名称",
+      "ownerID": 1,
+      "status": 1,
+      "type": "string",
+      "unreadCount": 1,
+      "updatedTime": 1
+    }
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/get \
+  --body '{"conversationId": 1}'
+```
+
+### POST `/api/v1/system/im/conversation/get-by-participants`
+
+**说明**: 按参与者查询单聊会话
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `userID1` | integer | 是 |  用户 1 ID (格式: int64) |
+| `userID2` | integer | 是 |  用户 2 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "userID1": 1,
+  "userID2": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "avatar": "string",
+    "createdTime": 1,
+    "id": 1,
+    "isMuted": 1,
+    "isPinned": 1,
+    "lastMsgContent": "string",
+    "lastMsgID": 1,
+    "lastMsgTime": 1,
+    "lastReadMsgID": 1,
+    "name": "示例名称",
+    "ownerID": 1,
+    "status": 1,
+    "type": "string",
+    "unreadCount": 1,
+    "updatedTime": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/get-by-participants \
+  --body '{"userID1": 1, "userID2": 1}'
+```
+
+### POST `/api/v1/system/im/conversation/get-list`
+
+**说明**: 获取会话列表
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `page` | integer | 是 |  页码 (格式: int64) |
+| `pageSize` | integer | 是 |  每页大小 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "page": 1,
+  "pageSize": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "avatar": "string",
+        "createdTime": 1,
+        "id": 1,
+        "isMuted": 1,
+        "isPinned": 1,
+        "lastMsgContent": "string",
+        "lastMsgID": 1,
+        "lastMsgTime": 1,
+        "lastReadMsgID": 1,
+        "name": "示例名称",
+        "ownerID": 1,
+        "status": 1,
+        "type": "string",
+        "unreadCount": 1,
+        "updatedTime": 1
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/get-list \
+  --body '{"page": 1, "pageSize": 1}'
+```
+
+### POST `/api/v1/system/im/conversation/get-members`
+
+**说明**: 获取会话成员列表
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "avatar": "string",
+        "groupNickname": "string",
+        "isMuted": 1,
+        "joinedTime": 1,
+        "nickName": "string",
+        "participantId": "string",
+        "participantType": "string",
+        "role": "string",
+        "userName": "string"
+      }
+    ]
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/get-members \
+  --body '{"conversationId": 1}'
+```
+
+### POST `/api/v1/system/im/conversation/mute-member`
+
+**说明**: 群聊禁言/取消禁言成员
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+| `isMuted` | integer | 是 |  是否禁言：1 禁言 / 0 取消禁言 (格式: int64) |
+| `participantId` | string | 是 |  参与者 ID |
+| `participantType` | string | 是 |  参与者类型 |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1,
+  "isMuted": 1,
+  "participantId": "string",
+  "participantType": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/mute-member \
+  --body '{"conversationId": 1, "isMuted": 1, "participantId": "string", "participantType": "string"}'
+```
+
+### POST `/api/v1/system/im/conversation/remove-member`
+
+**说明**: 群聊移除/退出成员
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+| `participantId` | string | 是 |  参与者 ID |
+| `participantType` | string | 是 |  参与者类型 |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1,
+  "participantId": "string",
+  "participantType": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/remove-member \
+  --body '{"conversationId": 1, "participantId": "string", "participantType": "string"}'
+```
+
+### POST `/api/v1/system/im/conversation/set-admin`
+
+**说明**: 群聊设置/取消管理员
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+| `isAdmin` | integer | 是 |  是否管理员：1 设置 / 0 取消 (格式: int64) |
+| `participantId` | string | 是 |  参与者 ID |
+| `participantType` | string | 是 |  参与者类型 |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1,
+  "isAdmin": 1,
+  "participantId": "string",
+  "participantType": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/set-admin \
+  --body '{"conversationId": 1, "isAdmin": 1, "participantId": "string", "participantType": "string"}'
+```
+
+### POST `/api/v1/system/im/conversation/transfer-owner`
+
+**说明**: 群聊转让群主
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+| `newOwnerID` | integer | 是 |  新群主用户 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1,
+  "newOwnerID": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/transfer-owner \
+  --body '{"conversationId": 1, "newOwnerID": 1}'
+```
+
+### POST `/api/v1/system/im/conversation/update-setting`
+
+**说明**: 更新会话设置
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `conversationId` | integer | 是 |  会话 ID (格式: int64) |
+| `isDeleted` | integer | 否 |  是否删除（退出会话列表） (格式: int64) |
+| `isMuted` | integer | 否 |  是否免打扰 (格式: int64) |
+| `isPinned` | integer | 否 |  是否置顶 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "conversationId": 1,
+  "isDeleted": 1,
+  "isMuted": 1,
+  "isPinned": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/conversation/update-setting \
+  --body '{"conversationId": 1, "isDeleted": 1, "isMuted": 1, "isPinned": 1}'
+```
+
+### POST `/api/v1/system/im/friend/apply`
+
+**说明**: 发起好友申请
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `recvUserID` | integer | 是 |  被申请人用户 ID (格式: int64) |
+| `reqMsg` | string | 否 |  申请附言 |
+
+**请求示例**:
+```json
+{
+  "recvUserID": 1,
+  "reqMsg": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/friend/apply \
+  --body '{"recvUserID": 1, "reqMsg": "string"}'
+```
+
+### POST `/api/v1/system/im/friend/delete`
+
+**说明**: 删除好友
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `friendUserID` | integer | 是 |  好友用户 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "friendUserID": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/friend/delete \
+  --body '{"friendUserID": 1}'
+```
+
+### POST `/api/v1/system/im/friend/get-list`
+
+**说明**: 获取好友列表
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `page` | integer | 是 |  页码 (格式: int64) |
+| `pageSize` | integer | 是 |  每页大小 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "page": 1,
+  "pageSize": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "avatar": "string",
+        "createdTime": 1,
+        "friendUserID": 1,
+        "id": 1,
+        "nickName": "string",
+        "remark": "string",
+        "userID": 1
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/friend/get-list \
+  --body '{"page": 1, "pageSize": 1}'
+```
+
+### POST `/api/v1/system/im/friend/handle`
+
+**说明**: 处理好友申请
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `handleMsg` | string | 否 |  处理附言 |
+| `handleResult` | integer | 是 |  处理结果：1 同意 / 2 拒绝 (格式: int64) |
+| `requestID` | integer | 是 |  申请记录 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "handleMsg": "string",
+  "handleResult": 1,
+  "requestID": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/friend/handle \
+  --body '{"handleMsg": "string", "handleResult": 1, "requestID": 1}'
+```
+
+### POST `/api/v1/system/im/friend/request/get-list`
+
+**说明**: 获取好友申请列表
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `direction` | integer | 是 |  方向：0 我收到的 / 1 我发起的 (格式: int64) |
+| `handleResult` | integer | 是 |  处理结果过滤：-1 全部 (格式: int64) |
+| `page` | integer | 是 |  页码 (格式: int64) |
+| `pageSize` | integer | 是 |  每页大小 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "direction": 1,
+  "handleResult": 1,
+  "page": 1,
+  "pageSize": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "createdTime": 1,
+        "handleMsg": "string",
+        "handleResult": 1,
+        "id": 1,
+        "recvUserAvatar": "string",
+        "recvUserID": 1,
+        "recvUserNickName": "string",
+        "reqMsg": "string",
+        "reqUserAvatar": "string",
+        "reqUserID": 1,
+        "reqUserNickName": "string",
+        "updatedTime": 1
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/friend/request/get-list \
+  --body '{"direction": 1, "handleResult": 1, "page": 1, "pageSize": 1}'
+```
+
+### POST `/api/v1/system/im/moment/comment/create`
+
+**说明**: 发表评论
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `content` | object | 是 |  |
+| `content.content` | string | 是 |  评论内容 |
+| `content.mentionUserIDs` | array[integer] | 是 |  @ 的用户列表 |
+| `id` | integer | 是 |  动态 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "content": {
+    "content": "string",
+    "mentionUserIDs": [
+      1
+    ]
+  },
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/moment/comment/create \
+  --body '{"content": {"content": "string", "mentionUserIDs": [1]}, "id": 1}'
+```
+
+### POST `/api/v1/system/im/moment/comment/delete`
+
+**说明**: 删除评论
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `commentID` | integer | 是 |  评论 ID (格式: int64) |
+| `momentID` | integer | 是 |  动态 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "commentID": 1,
+  "momentID": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/moment/comment/delete \
+  --body '{"commentID": 1, "momentID": 1}'
+```
+
+### POST `/api/v1/system/im/moment/create`
+
+**说明**: 发布动态
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `content` | string | 是 |  文本内容 |
+| `mediaList` | array[ImMomentMedia] | 是 |  媒体列表 |
+| `mentionUserIDs` | array[integer] | 是 |  @ 的用户列表 |
+| `projectIDs` | array[integer] | 是 |  可见项目列表（visibility=1 时生效） |
+| `visibility` | integer | 是 |  可见范围：0 公开 / 1 项目 / 2 指定人 (格式: int64) |
+| `visibleUserIDs` | array[integer] | 是 |  可见用户列表（visibility=2 时生效） |
+
+**请求示例**:
+```json
+{
+  "content": "string",
+  "mediaList": [
+    {
+      "duration": 1,
+      "name": "string",
+      "size": 1,
+      "thumb": "string",
+      "type": "string",
+      "url": "string"
+    }
+  ],
+  "mentionUserIDs": [
+    1
+  ],
+  "projectIDs": [
+    1
+  ],
+  "visibility": 1,
+  "visibleUserIDs": [
+    1
+  ]
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/moment/create \
+  --body '{"content": "string", "mediaList": [{"duration": 1, "name": "string", "size": 1, "thumb": "string", "type": "string", "url": "string"}], "mentionUserIDs": [1], "projectIDs": [1], "visibility": 1, "visibleUserIDs": [1]}'
+```
+
+### POST `/api/v1/system/im/moment/delete`
+
+**说明**: 删除动态
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 是 |  动态 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/moment/delete \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/system/im/moment/get`
+
+**说明**: 获取动态详情
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 是 |  动态 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "comments": [
+      {
+        "content": "string",
+        "createdTime": 1,
+        "id": 1,
+        "mentionUserIDs": [
+          1
+        ],
+        "momentID": 1,
+        "status": 1,
+        "updatedTime": 1,
+        "userID": 1
+      }
+    ],
+    "info": {
+      "commentCount": 1,
+      "content": "string",
+      "createdTime": 1,
+      "id": 1,
+      "isLiked": true,
+      "likeCount": 1,
+      "mediaList": [
+        {
+          "duration": 1,
+          "name": "string",
+          "size": 1,
+          "thumb": "string",
+          "type": "string",
+          "url": "string"
+        }
+      ],
+      "mentionUserIDs": [
+        1
+      ],
+      "projectIDs": [
+        1
+      ],
+      "status": 1,
+      "updatedTime": 1,
+      "userID": 1,
+      "visibility": 1,
+      "visibleUserIDs": [
+        1
+      ]
+    }
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/moment/get \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/system/im/moment/like`
+
+**说明**: 点赞动态
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 是 |  动态 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "likeCount": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/moment/like \
+  --body '{"id": 1}'
+```
+
+### POST `/api/v1/system/im/moment/list`
+
+**说明**: 查询动态列表
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `filterProjectID` | integer | 否 |  按项目过滤 (格式: int64) |
+| `filterUserID` | integer | 否 |  按发布人过滤 (格式: int64) |
+| `page` | integer | 是 |  页码 (格式: int64) |
+| `pageSize` | integer | 是 |  每页大小 (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "filterProjectID": 1,
+  "filterUserID": 1,
+  "page": 1,
+  "pageSize": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "commentCount": 1,
+        "content": "string",
+        "createdTime": 1,
+        "id": 1,
+        "isLiked": true,
+        "likeCount": 1,
+        "mediaList": [
+          {
+            "duration": 1,
+            "name": "string",
+            "size": 1,
+            "thumb": "string",
+            "type": "string",
+            "url": "string"
+          }
+        ],
+        "mentionUserIDs": [
+          1
+        ],
+        "projectIDs": [
+          1
+        ],
+        "status": 1,
+        "updatedTime": 1,
+        "userID": 1,
+        "visibility": 1,
+        "visibleUserIDs": [
+          1
+        ]
+      }
+    ],
+    "total": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/moment/list \
+  --body '{"filterProjectID": 1, "filterUserID": 1, "page": 1, "pageSize": 1}'
+```
+
+### POST `/api/v1/system/im/moment/unlike`
+
+**说明**: 取消点赞动态
+
+**权限**: all
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | integer | 是 |  动态 ID (格式: int64) |
+
+**请求示例**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "likeCount": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/im/moment/unlike \
+  --body '{"id": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/cancel`
@@ -3820,8 +5581,9 @@ ur api /api/v1/system/job/task/group/delete \
 |------|------|------|------|
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  状态过滤 1:启用 2:禁用 (格式: int64) |
 
 **请求示例**:
@@ -3829,8 +5591,14 @@ ur api /api/v1/system/job/task/group/delete \
 {
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1
 }
@@ -3862,7 +5630,7 @@ ur api /api/v1/system/job/task/group/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/group/get-list \
-  --body '{"name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1}'
+  --body '{"name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/group/get-one`
@@ -4048,7 +5816,7 @@ ur api /api/v1/system/job/task/info/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -4084,8 +5852,9 @@ ur api /api/v1/system/job/task/info/delete \
 | `groupCode` | string | 是 |  关联分组编码 |
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 |  按状态过滤 (格式: int64) |
 | `type` | integer | 否 |  按类型过滤 1:定时 2:延时 (格式: int64) |
 
@@ -4095,8 +5864,14 @@ ur api /api/v1/system/job/task/info/delete \
   "groupCode": "string",
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "type": 1
@@ -4142,7 +5917,7 @@ ur api /api/v1/system/job/task/info/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/job/task/info/get-list \
-  --body '{"groupCode": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": 1, "type": 1}'
+  --body '{"groupCode": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "type": 1}'
 ```
 
 ### POST `/api/v1/system/job/task/info/get-one`
@@ -4155,7 +5930,7 @@ ur api /api/v1/system/job/task/info/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -4209,7 +5984,7 @@ ur api /api/v1/system/job/task/info/get-one \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -4242,7 +6017,7 @@ ur api /api/v1/system/job/task/info/start \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -4493,8 +6268,9 @@ ur api /api/v1/system/mall/license/create \
 | `boundTargetID` | string | 否 |  |
 | `licenseCode` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `skuCode` | string | 否 |  |
 | `sourceID` | string | 否 |  |
 | `sourceType` | string | 否 |  |
@@ -4507,8 +6283,14 @@ ur api /api/v1/system/mall/license/create \
   "boundTargetID": "string",
   "licenseCode": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "skuCode": "string",
   "sourceID": "string",
@@ -4591,7 +6373,7 @@ ur api /api/v1/system/mall/license/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/license/get-list \
-  --body '{"boundTargetID": "string", "licenseCode": "string", "page": {"page": 1, "pageSize": 1}, "skuCode": "string", "sourceID": "string", "sourceType": "string", "status": "string", "withSource": true}'
+  --body '{"boundTargetID": "string", "licenseCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "skuCode": "string", "sourceID": "string", "sourceType": "string", "status": "string", "withSource": true}'
 ```
 
 ### POST `/api/v1/system/mall/license/get-one`
@@ -4786,7 +6568,7 @@ ur api /api/v1/system/mall/package/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -4823,8 +6605,9 @@ ur api /api/v1/system/mall/package/delete \
 | `packageCode` | string | 否 |  |
 | `packageName` | string | 否 |  |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int32 |
 
 **请求示例**:
@@ -4834,8 +6617,14 @@ ur api /api/v1/system/mall/package/delete \
   "packageCode": "string",
   "packageName": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1
 }
@@ -4875,7 +6664,7 @@ ur api /api/v1/system/mall/package/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/package/get-list \
-  --body '{"category": "string", "packageCode": "string", "packageName": "string", "page": {"page": 1, "pageSize": 1}, "status": 1}'
+  --body '{"category": "string", "packageCode": "string", "packageName": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1}'
 ```
 
 ### POST `/api/v1/system/mall/package/get-one`
@@ -4888,7 +6677,7 @@ ur api /api/v1/system/mall/package/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5049,7 +6838,7 @@ ur api /api/v1/system/mall/product/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5083,8 +6872,9 @@ ur api /api/v1/system/mall/product/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `productCode` | string | 否 |  |
 | `productName` | string | 否 |  |
 | `productType` | string | 否 |  |
@@ -5094,8 +6884,14 @@ ur api /api/v1/system/mall/product/delete \
 ```json
 {
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "productCode": "string",
   "productName": "string",
@@ -5141,7 +6937,7 @@ ur api /api/v1/system/mall/product/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/mall/product/get-list \
-  --body '{"page": {"page": 1, "pageSize": 1}, "productCode": "string", "productName": "string", "productType": "string", "status": 1}'
+  --body '{"page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "productCode": "string", "productName": "string", "productType": "string", "status": 1}'
 ```
 
 ### POST `/api/v1/system/mall/product/get-one`
@@ -5154,7 +6950,7 @@ ur api /api/v1/system/mall/product/get-list \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5253,6 +7049,26 @@ ur api /api/v1/system/mall/product/update \
   --body '{"desc": "string", "grantSchema": "string", "id": "string", "productName": "string", "productType": "string", "skus": [{"bindMode": "string", "configValues": {}, "durationDays": 1, "licenseMode": "string", "skuCode": "string", "skuName": "string", "status": 1}], "status": 1}'
 ```
 
+### POST `/api/v1/system/mcp/run`
+
+**说明**: Stateless MCP HTTP
+
+**权限**: all
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/system/mcp/run \
+  --body '{}'
+```
+
 ### POST `/api/v1/system/ops/feedback/create`
 
 **说明**: 添加帮助与反馈
@@ -5346,13 +7162,14 @@ ur api /api/v1/system/ops/feedback/create \
 |------|------|------|------|
 | `appID` | string | 否 | 按应用过滤 |
 | `feedbackType` | string | 否 | 按问题反馈类型过滤 |
-| `isAllTenant` | boolean | 否 | default企业获取所有企业的信息 (格式: boolean) |
+| `isAllTenant` | boolean | 否 | default租户获取所有租户的信息 (格式: boolean) |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `projectID` | string | 否 | 所属项目 |
 | `status` | integer | 否 |  状态（1 待处理 2:处理中 3:已完成） (格式: int64) |
-| `tenantCode` | string | 否 | 过滤所属企业,isAllTenant为true有效 |
+| `tenantCode` | string | 否 | 过滤所属租户,isAllTenant为true有效 |
 | `type` | string | 否 | 反馈类型 设备问题:thingsDevice 智能场景:thingsScene 体验问题: experience 其他: other |
 
 **请求示例**:
@@ -5362,8 +7179,14 @@ ur api /api/v1/system/ops/feedback/create \
   "feedbackType": "string",
   "isAllTenant": true,
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "projectID": "string",
   "status": 1,
@@ -5416,7 +7239,7 @@ ur api /api/v1/system/ops/feedback/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/ops/feedback/get-list \
-  --body '{"appID": "string", "feedbackType": "string", "isAllTenant": true, "page": {"page": 1, "pageSize": 1}, "projectID": "string", "status": 1, "tenantCode": "string", "type": "string"}'
+  --body '{"appID": "string", "feedbackType": "string", "isAllTenant": true, "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "projectID": "string", "status": 1, "tenantCode": "string", "type": "string"}'
 ```
 
 ### POST `/api/v1/system/ops/feedback/update`
@@ -5569,8 +7392,9 @@ ur api /api/v1/system/ops/work-order/create \
 | `areaID` | string | 否 | 区域ID过滤 |
 | `number` | string | 否 | 编号 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | integer | 否 | 格式: int64 |
 | `type` | string | 否 | 工单类型: deviceMaintenance:设备维修工单 |
 
@@ -5580,8 +7404,14 @@ ur api /api/v1/system/ops/work-order/create \
   "areaID": "string",
   "number": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "status": 1,
   "type": "string"
@@ -5619,7 +7449,7 @@ ur api /api/v1/system/ops/work-order/create \
 **调用示例**:
 ```bash
 ur api /api/v1/system/ops/work-order/get-list \
-  --body '{"areaID": "string", "number": "string", "page": {"page": 1, "pageSize": 1}, "status": 1, "type": "string"}'
+  --body '{"areaID": "string", "number": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": 1, "type": "string"}'
 ```
 
 ### POST `/api/v1/system/ops/work-order/update`
@@ -5737,7 +7567,7 @@ ur api /api/v1/system/resource/api/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -5771,15 +7601,16 @@ ur api /api/v1/system/resource/api/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `accessCode` | string | 否 |  应用编号 |
-| `authType` | integer | 否 |   1(all) 全部人可以操作 2(admin) 默认授予企业管理员权限 3(superAdmin,supper) default企业才可以操作(超管是跨企业的) (格式: int64) |
+| `authType` | integer | 否 |   1(all) 全部人可以操作 2(admin) 默认授予租户管理员权限 3(superAdmin,supper) default租户才可以操作(超管是跨租户的) (格式: int64) |
 | `authTypeCode` | string | 否 |  权限层级编码 |
 | `groupCode` | string | 否 |  分组标识 |
 | `method` | string | 否 |  接口请求方式: （1 GET 2 POST 3 HEAD 4 OPTIONS 5 PUT 6 DELETE 7 TRACE 8 CONNECT 9 其它） |
 | `name` | string | 否 |  接口名称 |
 | `operTypeCode` | string | 否 |  操作类型编码 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `resource` | string | 否 |  资源标识 |
 | `route` | string | 否 |  接口路由 |
 
@@ -5794,8 +7625,14 @@ ur api /api/v1/system/resource/api/delete \
   "name": "示例名称",
   "operTypeCode": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "resource": "string",
   "route": "string"
@@ -5846,7 +7683,7 @@ ur api /api/v1/system/resource/api/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/resource/api/get-list \
-  --body '{"accessCode": "string", "authType": 1, "authTypeCode": "string", "groupCode": "string", "method": "string", "name": "示例名称", "operTypeCode": "string", "page": {"page": 1, "pageSize": 1}, "resource": "string", "route": "string"}'
+  --body '{"accessCode": "string", "authType": 1, "authTypeCode": "string", "groupCode": "string", "method": "string", "name": "示例名称", "operTypeCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "resource": "string", "route": "string"}'
 ```
 
 ### POST `/api/v1/system/resource/api/update`

@@ -66,7 +66,6 @@
       "appSecret": "string"
     },
     "id": "string",
-    "isSysCreated": 1,
     "isUseMenu": 1,
     "isUseProxy": 1,
     "loginTypes": [

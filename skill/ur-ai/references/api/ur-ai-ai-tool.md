@@ -9,8 +9,10 @@
 | POST | `/api/v1/ai/tool/create` | 创建工具 | admin |
 | POST | `/api/v1/ai/tool/delete` | 删除工具 | admin |
 | POST | `/api/v1/ai/tool/disable` | 停用工具 | admin |
+| POST | `/api/v1/ai/tool/export` | 导出工具zip包 | admin |
 | POST | `/api/v1/ai/tool/get-list` | 获取工具列表 | admin |
 | POST | `/api/v1/ai/tool/get-one` | 获取工具详情 | admin |
+| POST | `/api/v1/ai/tool/import` | 导入工具zip包 | admin |
 | POST | `/api/v1/ai/tool/publish` | 发布工具 | admin |
 | POST | `/api/v1/ai/tool/save-artifact` | 保存三件套 | admin |
 | POST | `/api/v1/ai/tool/update` | 更新工具 | admin |
@@ -27,18 +29,26 @@
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `agentGroupID` | string | 是 |  关联AgentGroup ID |
+| `agentGroupID` | string | 否 |  关联AgentGroup ID（兼容） |
+| `cloneGroupID` | string | 否 |  所属CloneGroup ID |
 | `code` | string | 是 |  工具编码 |
+| `config` | string | 否 |  工具配置（JSON） |
 | `description` | string | 否 |  工具描述 |
+| `inputSchema` | string | 否 |  输入参数schema（JSON） |
 | `name` | string | 是 |  工具名称 |
+| `toolType` | string | 否 |  工具类型 |
 
 **请求示例**:
 ```json
 {
   "agentGroupID": "string",
+  "cloneGroupID": "string",
   "code": "string",
+  "config": "string",
   "description": "string",
-  "name": "示例名称"
+  "inputSchema": "string",
+  "name": "示例名称",
+  "toolType": "string"
 }
 ```
 
@@ -56,7 +66,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/ai/tool/create \
-  --body '{"agentGroupID": "string", "code": "string", "description": "string", "name": "示例名称"}'
+  --body '{"agentGroupID": "string", "cloneGroupID": "string", "code": "string", "config": "string", "description": "string", "inputSchema": "string", "name": "示例名称", "toolType": "string"}'
 ```
 
 ### POST `/api/v1/ai/tool/delete`
@@ -69,7 +79,7 @@ ur api /api/v1/ai/tool/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -102,7 +112,7 @@ ur api /api/v1/ai/tool/delete \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -125,6 +135,43 @@ ur api /api/v1/ai/tool/disable \
   --body '{"id": 1}'
 ```
 
+### POST `/api/v1/ai/tool/export`
+
+**说明**: 导出工具zip包
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 是 |  工具ID |
+
+**请求示例**:
+```json
+{
+  "id": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "fileName": "string",
+    "zipData": "string"
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/tool/export \
+  --body '{"id": "string"}'
+```
+
 ### POST `/api/v1/ai/tool/get-list`
 
 **说明**: 获取工具列表
@@ -135,23 +182,34 @@ ur api /api/v1/ai/tool/disable \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `agentGroupID` | string | 否 |  AgentGroup过滤 |
+| `agentGroupID` | string | 否 |  AgentGroup过滤（兼容） |
+| `cloneGroupID` | string | 否 |  CloneGroup过滤 |
 | `name` | string | 否 |  名称模糊搜索 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `status` | string | 否 |  状态过滤 |
+| `toolType` | string | 否 |  工具类型过滤 |
 
 **请求示例**:
 ```json
 {
   "agentGroupID": "string",
+  "cloneGroupID": "string",
   "name": "示例名称",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
-  "status": "string"
+  "status": "string",
+  "toolType": "string"
 }
 ```
 
@@ -163,14 +221,18 @@ ur api /api/v1/ai/tool/disable \
     "list": [
       {
         "agentGroupID": "string",
+        "cloneGroupID": "string",
         "code": "string",
+        "config": "string",
         "createdTime": 1,
         "description": "string",
         "groupName": "示例名称",
         "id": "string",
+        "inputSchema": "string",
         "name": "示例名称",
         "status": "string",
         "tenantCode": "string",
+        "toolType": "string",
         "version": "string"
       }
     ],
@@ -183,7 +245,7 @@ ur api /api/v1/ai/tool/disable \
 **调用示例**:
 ```bash
 ur api /api/v1/ai/tool/get-list \
-  --body '{"agentGroupID": "string", "name": "示例名称", "page": {"page": 1, "pageSize": 1}, "status": "string"}'
+  --body '{"agentGroupID": "string", "cloneGroupID": "string", "name": "示例名称", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "status": "string", "toolType": "string"}'
 ```
 
 ### POST `/api/v1/ai/tool/get-one`
@@ -217,14 +279,18 @@ ur api /api/v1/ai/tool/get-list \
     },
     "info": {
       "agentGroupID": "string",
+      "cloneGroupID": "string",
       "code": "string",
+      "config": "string",
       "createdTime": 1,
       "description": "string",
       "groupName": "示例名称",
       "id": "string",
+      "inputSchema": "string",
       "name": "示例名称",
       "status": "string",
       "tenantCode": "string",
+      "toolType": "string",
       "version": "string"
     }
   },
@@ -238,6 +304,44 @@ ur api /api/v1/ai/tool/get-one \
   --body '{"id": "string"}'
 ```
 
+### POST `/api/v1/ai/tool/import`
+
+**说明**: 导入工具zip包
+
+**权限**: admin
+
+**请求体字段**:
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 是 |  工具ID |
+| `zipData` | string | 是 |  Base64编码的zip包数据 |
+
+**请求示例**:
+```json
+{
+  "id": "string",
+  "zipData": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1
+  },
+  "msg": "success"
+}
+```
+
+**调用示例**:
+```bash
+ur api /api/v1/ai/tool/import \
+  --body '{"id": "string", "zipData": "string"}'
+```
+
 ### POST `/api/v1/ai/tool/publish`
 
 **说明**: 发布工具
@@ -248,7 +352,7 @@ ur api /api/v1/ai/tool/get-one \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json

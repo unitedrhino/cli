@@ -32,8 +32,7 @@
   "list": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -50,7 +49,7 @@
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/device/batch-create \
-  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/group/device/batch-delete`
@@ -73,8 +72,7 @@ ur api /api/v1/things/group/device/batch-create \
   "list": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -91,7 +89,7 @@ ur api /api/v1/things/group/device/batch-create \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/device/batch-delete \
-  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```
 
 ### POST `/api/v1/things/group/device/batch-update`
@@ -114,8 +112,7 @@ ur api /api/v1/things/group/device/batch-delete \
   "list": [
     {
       "deviceName": "示例名称",
-      "productID": "string",
-      "productName": "string"
+      "productID": "string"
     }
   ]
 }
@@ -132,5 +129,5 @@ ur api /api/v1/things/group/device/batch-delete \
 **调用示例**:
 ```bash
 ur api /api/v1/things/group/device/batch-update \
-  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string", "productName": "string"}]}'
+  --body '{"groupID": "string", "list": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```

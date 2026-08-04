@@ -75,7 +75,7 @@ ur api /api/v1/system/resource/api/create \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | integer | 是 |  资源ID (格式: int64) |
+| `id` | integer | 否 |  id (格式: int64) |
 
 **请求示例**:
 ```json
@@ -109,15 +109,16 @@ ur api /api/v1/system/resource/api/delete \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `accessCode` | string | 否 |  应用编号 |
-| `authType` | integer | 否 |   1(all) 全部人可以操作 2(admin) 默认授予企业管理员权限 3(superAdmin,supper) default企业才可以操作(超管是跨企业的) (格式: int64) |
+| `authType` | integer | 否 |   1(all) 全部人可以操作 2(admin) 默认授予租户管理员权限 3(superAdmin,supper) default租户才可以操作(超管是跨租户的) (格式: int64) |
 | `authTypeCode` | string | 否 |  权限层级编码 |
 | `groupCode` | string | 否 |  分组标识 |
 | `method` | string | 否 |  接口请求方式: （1 GET 2 POST 3 HEAD 4 OPTIONS 5 PUT 6 DELETE 7 TRACE 8 CONNECT 9 其它） |
 | `name` | string | 否 |  接口名称 |
 | `operTypeCode` | string | 否 |  操作类型编码 |
 | `page` | object | 否 |  |
-| `page.page` | integer | 否 |  页码（从1开始） (格式: int64) |
-| `page.pageSize` | integer | 否 |  每页大小 (格式: int64) |
+| `page.orders` | array[OrderBy] | 否 | 排序 |
+| `page.page` | integer | 否 |  页码 (格式: int64) |
+| `page.size` | integer | 否 |  每页大小 (格式: int64) |
 | `resource` | string | 否 |  资源标识 |
 | `route` | string | 否 |  接口路由 |
 
@@ -132,8 +133,14 @@ ur api /api/v1/system/resource/api/delete \
   "name": "示例名称",
   "operTypeCode": "string",
   "page": {
+    "orders": [
+      {
+        "field": "string",
+        "sort": 1
+      }
+    ],
     "page": 1,
-    "pageSize": 1
+    "size": 1
   },
   "resource": "string",
   "route": "string"
@@ -184,7 +191,7 @@ ur api /api/v1/system/resource/api/delete \
 **调用示例**:
 ```bash
 ur api /api/v1/system/resource/api/get-list \
-  --body '{"accessCode": "string", "authType": 1, "authTypeCode": "string", "groupCode": "string", "method": "string", "name": "示例名称", "operTypeCode": "string", "page": {"page": 1, "pageSize": 1}, "resource": "string", "route": "string"}'
+  --body '{"accessCode": "string", "authType": 1, "authTypeCode": "string", "groupCode": "string", "method": "string", "name": "示例名称", "operTypeCode": "string", "page": {"orders": [{"field": "string", "sort": 1}], "page": 1, "size": 1}, "resource": "string", "route": "string"}'
 ```
 
 ### POST `/api/v1/system/resource/api/update`

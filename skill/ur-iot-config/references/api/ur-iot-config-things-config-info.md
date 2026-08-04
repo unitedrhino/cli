@@ -24,6 +24,7 @@
   "data": {
     "cfgType": "string",
     "configID": "string",
+    "contextLength": 1,
     "enabled": true,
     "id": 1,
     "inputModalities": "string",
@@ -56,6 +57,7 @@ ur api /api/v1/things/config/info/get-one \
 |------|------|------|------|
 | `cfgType` | string | 否 |  配置类型：llm/tts/asr/vad |
 | `configID` | string | 否 |  配置唯一标识 |
+| `contextLength` | integer | 否 |  上下文长度 (格式: int64) |
 | `enabled` | boolean | 否 |  是否启用 (格式: boolean) |
 | `id` | integer | 否 |  配置ID (格式: int64) |
 | `inputModalities` | string | 否 |  输入模态（JSON字符串） |
@@ -64,13 +66,14 @@ ur api /api/v1/things/config/info/get-one \
 | `modelType` | string | 否 |  模型级别：small/medium/large/xlarge |
 | `name` | string | 否 |  配置名称 |
 | `outputModalities` | string | 否 |  输出模态（JSON字符串） |
-| `tenantCode` | string | 否 |  企业编码 |
+| `tenantCode` | string | 否 |  租户编码 |
 
 **请求示例**:
 ```json
 {
   "cfgType": "string",
   "configID": "string",
+  "contextLength": 1,
   "enabled": true,
   "id": 1,
   "inputModalities": "string",
@@ -94,5 +97,5 @@ ur api /api/v1/things/config/info/get-one \
 **调用示例**:
 ```bash
 ur api /api/v1/things/config/info/update \
-  --body '{"cfgType": "string", "configID": "string", "enabled": true, "id": 1, "inputModalities": "string", "isDefault": true, "jsonData": "string", "modelType": "string", "name": "示例名称", "outputModalities": "string", "tenantCode": "string"}'
+  --body '{"cfgType": "string", "configID": "string", "contextLength": 1, "enabled": true, "id": 1, "inputModalities": "string", "isDefault": true, "jsonData": "string", "modelType": "string", "name": "示例名称", "outputModalities": "string", "tenantCode": "string"}'
 ```

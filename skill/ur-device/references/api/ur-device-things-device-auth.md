@@ -110,7 +110,7 @@ ur api /api/v1/things/device/auth/login \
 | `productId` | string | 是 | 产品id 只读 |
 | `retEnc` | string | 否 | 返回使用的加密方式: aes128cbc(默认) aes128ecb |
 | `signature` | string | 是 | 签名信息 |
-| `tenantCode` | string | 否 | 企业号（可选）：产品为common企业或企业号与产品一致时生效 |
+| `tenantCode` | string | 否 | 租户号（可选）：产品为common租户或租户号与产品一致时生效 |
 | `timestamp` | integer | 是 | 秒级时间戳 (格式: int64) |
 
 **请求示例**:

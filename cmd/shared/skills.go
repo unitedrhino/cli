@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
+	"gitee.com/unitedrhino/cli/internal/skillinstall"
 	"gitee.com/unitedrhino/cli/internal/upgrade"
 	"gitee.com/unitedrhino/cli/internal/version"
 )
@@ -21,6 +23,8 @@ func runSkills(args []string, stdout, stderr io.Writer) int {
 		return runSkillsList(args[1:], stdout, stderr)
 	case "update", "upgrade":
 		return runSkillsUpdate(args[1:], stdout, stderr)
+	case "install":
+		return runSkillsInstall(args[1:], stdout, stderr)
 	case "version", "ver":
 		return runSkillsVersion(args[1:], stdout, stderr)
 	case "-h", "--help", "help":
@@ -31,6 +35,87 @@ func runSkills(args []string, stdout, stderr io.Writer) int {
 		printSkillsHelp(stderr)
 		return 2
 	}
+}
+
+// runSkillsInstall 把内置 ur-api skill 整体拷贝部署到各 AI 工具的 skills 目录，
+// 让对应 AI（Claude Code / Codex）重载后即可发现使用。
+// 未指定 --dir 时自动探测本机常用目录；指定 --dir（可多次）时只安装到指定目录。
+func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
+	dryRun := false
+	jsonOutput := false
+	customDirs := []string{}
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--dry-run":
+			dryRun = true
+		case "--json":
+			jsonOutput = true
+		case "--dir":
+			if i+1 < len(args) {
+				customDirs = append(customDirs, args[i+1])
+				i++
+			} else {
+				fmt.Fprintln(stderr, "--dir 需要指定目标目录")
+				return 2
+			}
+		case "-h", "--help":
+			fmt.Fprintln(stdout, "用法: ur skills install [--dry-run] [--dir <目录>...] [--json]")
+			fmt.Fprintln(stdout, "把内置 ur-api skill 整体部署到本机各 AI 工具（Claude Code / Codex 的用户级与项目级 skills 目录）")
+			fmt.Fprintln(stdout, "不指定 --dir 时自动探测；指定 --dir（可多次）时只安装到这些目录，ur-api 会装到 <目录>/ur-api/")
+			return 0
+		default:
+			fmt.Fprintf(stderr, "未知参数: %s\n", args[i])
+			return 2
+		}
+	}
+
+	src := upgrade.GetDefaultSkillsDir()
+
+	// 目标目录：显式 --dir 优先（只装指定目录，可多次指定不同目录）；
+	// 未指定时自动探测本机各 AI 工具的 skills 目录
+	var targets []skillinstall.Target
+	if len(customDirs) > 0 {
+		for _, dir := range customDirs {
+			targets = append(targets, skillinstall.Target{Path: dir, Scope: "custom", Kind: "custom"})
+		}
+	} else {
+		detected, err := skillinstall.DetectTargets(cwdOr("."))
+		if err != nil {
+			fmt.Fprintf(stderr, "探测 AI skills 目录失败: %v\n", err)
+			return 1
+		}
+		targets = detected
+	}
+	if len(targets) == 0 {
+		fmt.Fprintln(stdout, "未检测到可部署的 AI skills 目录（~/.claude/skills、~/.agents/skills 或项目 .claude/skills/.agents/skills 均不存在；可用 --dir 指定目标目录）")
+		return 0
+	}
+
+	result, err := skillinstall.Install(src, targets, dryRun)
+	if err != nil {
+		fmt.Fprintf(stderr, "安装失败: %v\n", err)
+		return 1
+	}
+	if jsonOutput {
+		output, _ := json.MarshalIndent(result, "", "  ")
+		fmt.Fprintln(stdout, string(output))
+		return 0
+	}
+	fmt.Fprintln(stdout, skillinstall.Summary(result))
+	if dryRun {
+		fmt.Fprintln(stdout, "（--dry-run 仅预览，未实际写入）")
+	} else {
+		fmt.Fprintln(stdout, "部署完成：重启对应 AI 工具会话后即可发现 ur-api skill")
+	}
+	return 0
+}
+
+// cwdOr 获取当前工作目录，失败时回退到给定默认值
+func cwdOr(fallback string) string {
+	if dir, err := os.Getwd(); err == nil {
+		return dir
+	}
+	return fallback
 }
 
 func runSkillsList(args []string, stdout, stderr io.Writer) int {
@@ -170,6 +255,7 @@ func printSkillsHelp(w io.Writer) {
 	fmt.Fprintln(w, "子命令:")
 	fmt.Fprintln(w, "  list, ls        列出已安装的 skills")
 	fmt.Fprintln(w, "  update, upgrade  升级 skills 到最新版本")
+	fmt.Fprintln(w, "  install         把内置 ur-api skill 部署到本机各 AI 工具的 skills 目录")
 	fmt.Fprintln(w, "  version, ver     查看 skills 版本信息")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "选项:")
@@ -180,5 +266,6 @@ func printSkillsHelp(w io.Writer) {
 	fmt.Fprintln(w, "  ur skills list              列出所有已安装的 skills")
 	fmt.Fprintln(w, "  ur skills update --dry-run  检查 skills 是否有更新")
 	fmt.Fprintln(w, "  ur skills update            升级 skills 到最新版本")
+	fmt.Fprintln(w, "  ur skills install           部署 ur-api 到本机各 AI 工具")
 	fmt.Fprintln(w, "  ur skills version           查看 skills 版本")
 }

@@ -20,6 +20,7 @@ import (
 type Options struct {
 	TargetVersion string // 指定升级到的版本（为空则升级到最新）
 	DryRun        bool   // 只检查不安装
+	InstallSkills bool   // 升级成功后自动部署 skills 到各 AI 工具（ur skills install）
 }
 
 // Result 升级结果
@@ -29,6 +30,12 @@ type Result struct {
 	UpToDate       bool   `json:"upToDate"`
 	DownloadURL    string `json:"downloadUrl,omitempty"`
 	ErrorMessage   string `json:"error,omitempty"`
+	// SkillsSynced 升级后内置 skills 是否已同步（从安装包内提取）
+	SkillsSynced bool `json:"skillsSynced,omitempty"`
+	// SkillsUpdated 同步的 skill 目录数量
+	SkillsUpdated int `json:"skillsUpdated,omitempty"`
+	// SkillsMessage skills 同步的提示或警告信息
+	SkillsMessage string `json:"skillsMessage,omitempty"`
 }
 
 // Check 检查是否有新版本可用
@@ -153,6 +160,19 @@ func Perform(opts Options) (*Result, error) {
 	if err := replaceBinary(newBinary, binaryPath); err != nil {
 		result.ErrorMessage = fmt.Sprintf("替换二进制失败: %v（旧版本已备份到 ~/.ur/backup/）", err)
 		return result, err
+	}
+
+	// 10. 同步内置 skills：复用本次已解压的包内 skill/ 目录，避免二次下载。
+	//     失败只记录警告，不阻断升级成功
+	if skillsDir := GetDefaultSkillsDir(); skillsDir != "" {
+		count, syncErr := SyncSkillsFromExtract(extractDir, skillsDir)
+		if syncErr != nil {
+			result.SkillsMessage = fmt.Sprintf("内置 skills 同步失败（可稍后运行 ur skills update）: %v", syncErr)
+		} else {
+			result.SkillsSynced = true
+			result.SkillsUpdated = count
+			result.SkillsMessage = "内置 skills 已随升级同步"
+		}
 	}
 
 	return result, nil

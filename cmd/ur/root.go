@@ -12,15 +12,13 @@ import (
 
 // Execute 是 ur 二进制入口
 func Execute(ctx context.Context, version string, args []string, stdout, stderr io.Writer) int {
-	// 再次检查 --version（处理 ur --app iot --version 场景）
-	for _, arg := range args {
-		if arg == "--version" || arg == "-v" {
-			fmt.Fprintln(stdout, version)
-			return 0
-		}
-	}
-
 	app, filtered := resolveApp(args)
+	// 顶层版本查询（ur --version / -v / ur --app iot --version）；
+	// 只检查过滤后的首参数，避免子命令参数（如 ur upgrade --version v0.3.5）被误判
+	if len(filtered) > 0 && (filtered[0] == "--version" || filtered[0] == "-v") {
+		fmt.Fprintln(stdout, version)
+		return 0
+	}
 	return cmd.Execute(app, version, filtered, stdout, stderr)
 }
 

@@ -41,12 +41,12 @@ func main() {
 }
 
 func argsHasVersion(args []string) bool {
-	for _, arg := range args {
-		if arg == "--version" || arg == "-v" {
-			return true
-		}
+	// 仅顶层位置（第一个参数）的 --version/-v 才是版本查询；
+	// 子命令参数里的 --version（如 ur upgrade --version v0.3.5）不应命中
+	if len(args) == 0 {
+		return false
 	}
-	return false
+	return args[0] == "--version" || args[0] == "-v"
 }
 
 func argsHasJSON(args []string) bool {

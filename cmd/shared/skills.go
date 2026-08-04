@@ -37,8 +37,9 @@ func runSkills(args []string, stdout, stderr io.Writer) int {
 	}
 }
 
-// runSkillsInstall 把内置 ur-api skill 整体拷贝部署到本机各 AI 工具的 skills 目录，
-// 让对应 AI（Claude Code / Codex）重载后即可发现使用
+// runSkillsInstall 把内置 ur-api skill 整体拷贝部署到各 AI 工具的 skills 目录，
+// 让对应 AI（Claude Code / Codex）重载后即可发现使用。
+// 未指定 --dir 时自动探测本机常用目录；指定 --dir（可多次）时只安装到指定目录。
 func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
 	dryRun := false
 	jsonOutput := false
@@ -58,8 +59,9 @@ func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
 				return 2
 			}
 		case "-h", "--help":
-			fmt.Fprintln(stdout, "用法: ur skills install [--dry-run] [--dir <目录>] [--json]")
+			fmt.Fprintln(stdout, "用法: ur skills install [--dry-run] [--dir <目录>...] [--json]")
 			fmt.Fprintln(stdout, "把内置 ur-api skill 整体部署到本机各 AI 工具（Claude Code / Codex 的用户级与项目级 skills 目录）")
+			fmt.Fprintln(stdout, "不指定 --dir 时自动探测；指定 --dir（可多次）时只安装到这些目录，ur-api 会装到 <目录>/ur-api/")
 			return 0
 		default:
 			fmt.Fprintf(stderr, "未知参数: %s\n", args[i])
@@ -68,16 +70,24 @@ func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
 	}
 
 	src := upgrade.GetDefaultSkillsDir()
-	targets, err := skillinstall.DetectTargets(cwdOr("."))
-	if err != nil {
-		fmt.Fprintf(stderr, "探测 AI skills 目录失败: %v\n", err)
-		return 1
-	}
-	for _, dir := range customDirs {
-		targets = append(targets, skillinstall.Target{Path: dir, Scope: "custom", Kind: "custom"})
+
+	// 目标目录：显式 --dir 优先（只装指定目录，可多次指定不同目录）；
+	// 未指定时自动探测本机各 AI 工具的 skills 目录
+	var targets []skillinstall.Target
+	if len(customDirs) > 0 {
+		for _, dir := range customDirs {
+			targets = append(targets, skillinstall.Target{Path: dir, Scope: "custom", Kind: "custom"})
+		}
+	} else {
+		detected, err := skillinstall.DetectTargets(cwdOr("."))
+		if err != nil {
+			fmt.Fprintf(stderr, "探测 AI skills 目录失败: %v\n", err)
+			return 1
+		}
+		targets = detected
 	}
 	if len(targets) == 0 {
-		fmt.Fprintln(stdout, "未检测到可部署的 AI skills 目录（~/.claude/skills、~/.agents/skills 或项目 .claude/skills/.agents/skills 均不存在）")
+		fmt.Fprintln(stdout, "未检测到可部署的 AI skills 目录（~/.claude/skills、~/.agents/skills 或项目 .claude/skills/.agents/skills 均不存在；可用 --dir 指定目标目录）")
 		return 0
 	}
 

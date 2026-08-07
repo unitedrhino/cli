@@ -1,6 +1,6 @@
 ---
 name: ur-view
-description: "大屏可视化管理：大屏（GoView）项目 CRUD、画布 JSON 本地编辑与推送、发布/取消发布、素材库管理、IoT 数据绑定、页面截图调优。triggers: 大屏, 数据可视化, GoView, 画布, 组件, 实时数据, 看板, 编辑大屏, 发布大屏, 大屏截图, 可视化大屏, bigscreen, view"
+description: "大屏可视化管理：大屏（GoView）项目 CRUD、画布 JSON 本地编辑与推送、发布/取消发布、素材库管理、IoT 数据绑定、页面截图调优、一次图/配电 CAD 底图+实时数据叠加案例（多模态核对）。triggers: 大屏, 数据可视化, GoView, 画布, 组件, 实时数据, 看板, 编辑大屏, 发布大屏, 大屏截图, 可视化大屏, bigscreen, view, 一次图, 配电, CAD, dwg, 底图"
 metadata:
   hermes:
     tags: [view, bigscreen, goview, visualization, iot]
@@ -42,7 +42,7 @@ metadata:
 
 ```bash
 # 1. 拉取远端编辑态画布到本地（同时落盘 <file>.meta.json 记录 projectID 等元信息）
-ur view screen pull --id 1976000000000000001 -o ./bigscreen.json
+ur view screen pull --id <screen-id> -o ./bigscreen.json
 
 # 2. 本地编辑 bigscreen.json（改布局、改样式、绑 IoT 数据）
 
@@ -58,8 +58,8 @@ ur view screen push -f ./bigscreen.json --publish
 # projectID 解析顺序：--id 参数 > <file>.meta.json > 文件名 bigscreen-<id>.json
 
 # 6. 截图看效果（发布态页面；依赖本机 agent-browser）
-ur view screen screenshot --id 1976000000000000001 -o ./out.png \
-  --front-base https://115.190.3.202:7777 --wait 8
+ur view screen screenshot --id <screen-id> -o ./out.png \
+  --front-base <front-base> --wait 8
 
 # 7. 看图 → 不满意回到第 2 步迭代
 ```
@@ -68,14 +68,14 @@ ur view screen screenshot --id 1976000000000000001 -o ./out.png \
 
 ```bash
 # 随时查看远端画布组件状态（不落盘）
-ur view screen describe --id 1976000000000000001
+ur view screen describe --id <screen-id>
 
 # 截编辑态页面（编辑器界面，用于核对画布而非发布效果）
-ur view screen screenshot --id 1976000000000000001 -o ./edit.png \
-  --front-base https://115.190.3.202:7777 --edit
+ur view screen screenshot --id <screen-id> -o ./edit.png \
+  --front-base <front-base> --edit
 
 # 前端地址也可走环境变量，省去每次 --front-base
-export UR_FRONT_BASE_URL=https://115.190.3.202:7777
+export UR_FRONT_BASE_URL=<front-base>
 ```
 
 ### 命令速查
@@ -331,6 +331,13 @@ GoView 共 **77 个静态注册组件**，分 8 类：Charts 图表（23）、In
 
 ---
 
+## 一次图 + 实时数据绑定案例
+
+案例专项内容独立成文，主文档仅留索引（避免占用上下文）：
+见 [references/primary-diagram-case.md](references/primary-diagram-case.md) ——
+一次图背景 + 回路实时 U/I/P/电能叠加、多模态核对流程、全量节点布局、
+列表封面回写与完整 CLI 命令序列（含生产案例实录，环境取值占位符化）。
+
 ## API 端点索引
 
 <!-- API_LIST:ur-view -->
@@ -351,7 +358,7 @@ GoView 共 **77 个静态注册组件**，分 8 类：Charts 图表（23）、In
   - 顶层：`editCanvasConfig` 存在且 `width`/`height` 为正数；`componentList` 为数组；`requestGlobalConfig` 缺失仅 warning。
   - 组件级：`id` 非空且全局唯一；`chartConfig.key` 非空且在组件 key 表内；`chartKey == "V"+key`、`conKey == "VC"+key`；`attr.w`/`attr.h` 为正数，`x`/`y`/`zIndex` 为数值；`status` / `events` 三件套缺失仅 warning。
   - IoT 级：`requestDataType=5` 时 `requestIoTDeviceConfig` 必填，`queryType` 必须在该组件支持矩阵内，`productID` 非空、`deviceNames` / `dataIDs` 为非空数组。
-- **screenshot 依赖本机 agent-browser**：依次执行 `open → wait（毫秒）→ screenshot`；`--wait` 单位是秒。前端地址取 `--front-base` 或环境变量 `UR_FRONT_BASE_URL`。115 实测：发布页默认模板 `{base}/app/iot/#/view/{id}`（`/view/` 兼容路由始终取已发布快照；`/iot/big-bigscreen/published/{id}` 在 iot 应用内会落入应用外壳不渲染画布，勿用），编辑态默认 `{base}/app/iot/#/iot/big-bigscreen/editor/{id}`；部署形态不同可用 `--url-template` 覆盖（支持 `{base}` / `{id}` 占位符）。发布页需登录态，建议先用 agent-browser 登录 115 iot（administrator + 选择企业）保持会话。
+- **screenshot 依赖本机 agent-browser**：依次执行 `open → wait（毫秒）→ screenshot`；`--wait` 单位是秒。前端地址取 `--front-base` 或环境变量 `UR_FRONT_BASE_URL`。实测：发布页默认模板 `{base}/app/iot/#/view/{id}`（`/view/` 兼容路由始终取已发布快照；`/iot/big-bigscreen/published/{id}` 在 iot 应用内会落入应用外壳不渲染画布，勿用），编辑态默认 `{base}/app/iot/#/iot/big-bigscreen/editor/{id}`；部署形态不同可用 `--url-template` 覆盖（支持 `{base}` / `{id}` 占位符）。发布页需登录态，建议先用 agent-browser 登录 iot 应用（租户管理员 + 选择企业）保持会话。
 - **鉴权口径**：view 域全部走 iot 应用上下文（app-id=200），运行时通过 `UR_*` 环境变量注入认证，先 `ur check` 确认身份。
 - **用户可见文案遵循根级文案规范**（禁用平台侧组织隔离术语，见仓库根 `AGENTS.md`）；代码层字段可保留原命名。
 - **组件数据快照**：`references/components.md` 由 `scripts/gen-view-components.py` 生成（快照日期 2026-08-03），前端组件变更后重新运行 `python3 scripts/gen-view-components.py` 刷新。

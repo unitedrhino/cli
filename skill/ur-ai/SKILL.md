@@ -35,9 +35,9 @@ metadata:
 | 功能组 | 说明 | 参考文档 |
 |--------|------|---------|
 | AI 对话 | 裸 LLM 调用（agentID=0，无上下文注入） | 本文"裸 LLM 调用"章节 |
-| 告警规则 | 告警规则查询/创建/更新/删除 | [alarm-info.md](references/alarm-info.md) |
-| 告警记录 | 告警记录查询/处理 | [alarm-record.md](references/alarm-record.md) |
-| 告警场景 | 告警场景查询/批量创建/删除 | [alarm-scene.md](references/alarm-scene.md) |
+| 告警规则 | 告警规则查询/创建/更新/删除/启停/手动评估 | [alarm-rule.md](references/alarm-rule.md) |
+| 告警事件 | 告警事件查询/详情/处理/误报/统计 | [alarm-event.md](references/alarm-event.md) |
+| 通知记录 | 告警通知记录查询/重发 | [alarm-notify-record.md](references/alarm-notify-record.md) |
 | 场景联动 | 场景查询/创建/更新/删除/触发 | [scene.md](references/scene.md) |
 | 场景日志 | 场景执行日志查询 | [scene.md](references/scene.md) |
 | 场景模板 | 场景JSON校验/模板生成 | [scene.md](references/scene.md) |
@@ -134,12 +134,9 @@ ur ai chat -m "写一首诗" --stream
 **场景描述**：创建告警规则 / 处理告警 / 通知推送
 
 **涉及 CLI**：
-- `ur alarm info create`
-- `ur alarm info get-list`
-- `ur alarm info get-one`
-- `ur alarm info update`
-- `ur alarm record get-list`
-- `ur alarm record deal`
+- `ur alarm rule get-list` / `ur alarm rule get-one` / `ur alarm rule create` / `ur alarm rule update` / `ur alarm rule status-update` / `ur alarm rule evaluate-trigger`
+- `ur alarm event get-list` / `ur alarm event get-one` / `ur alarm event deal` / `ur alarm event false-alarm` / `ur alarm event stat`
+- `ur alarm notify-record get-list` / `ur alarm notify-record resend`
 
 **工作流**：
 1. 定义告警条件（属性阈值、设备状态）

@@ -53,9 +53,6 @@
 | `things/protocol/script/device` | 5 | `references/groups/things-protocol-script-device.md` |
 | `things/protocol/service` | 2 | `references/groups/things-protocol-service.md` |
 | `things/protocol/sync` | 2 | `references/groups/things-protocol-sync.md` |
-| `things/rule/alarm/info` | 5 | `references/groups/things-rule-alarm-info.md` |
-| `things/rule/alarm/record` | 2 | `references/groups/things-rule-alarm-record.md` |
-| `things/rule/alarm/scene` | 3 | `references/groups/things-rule-alarm-scene.md` |
 | `things/rule/scene/info` | 6 | `references/groups/things-rule-scene-info.md` |
 | `things/rule/scene/log` | 1 | `references/groups/things-rule-scene-log.md` |
 | `things/scene/info` | 6 | `references/groups/things-scene-info.md` |

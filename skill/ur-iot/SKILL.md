@@ -122,11 +122,14 @@ ur things scene info get-list --page 1 --size 10
 # 手动触发场景
 ur things scene info manually-trigger --id <sceneID>
 
-# 查询告警配置
-ur alarm info get-list --page 1 --size 10
+# 查询告警规则
+ur alarm rule get-list --page 1 --size 10
 
-# 处理告警记录
-ur alarm record deal --id <recordID>
+# 查询告警事件
+ur alarm event get-list --size 10
+
+# 处理告警事件
+ur alarm event deal --id <eventID> --action acked
 ```
 
 ## 典型工作流

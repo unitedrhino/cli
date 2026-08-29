@@ -11,6 +11,699 @@ import (
 
 // RegisterSystemCommands 注册 system 组的 Layer 2 API 命令
 func RegisterSystemCommands(parent *cobra.Command) {
+	im_callCmd := &cobra.Command{
+		Use:   "im/call",
+		Short: "im/call API 操作",
+	}
+	im_call_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "查询群通话进行状态",
+		Long:  "业务说明：查询指定群聊当前是否有进行中的群通话，用于前端进入群聊时补拉通话横幅（离线期间错过的 group.state 事件）。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/call/active",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_callCmd.AddCommand(im_call_viewCmd)
+	im_call_createCmd := &cobra.Command{
+		Use:   "create",
+		Short: "通话信令统一入口",
+		Long:  "业务说明：音视频通话上行信令统一入口，按 type 分发：call_invite 发起 1:1 通话、call_accept 接听、call_reject 拒接、call_cancel 取消、call_end 挂断、call_heartbeat 通话中心跳（15s 一次）、group_invite 发起群通话（上限 9 人）、group_join 加入、group_leave 离开、media_state 静音/关摄像头同步。媒体由前端直连 ZLMediaKit 推拉流，本接口只负责状态机与通知扇出。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/call/signal",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_callCmd.AddCommand(im_call_createCmd)
+	parent.AddCommand(im_callCmd)
+	im_channelCmd := &cobra.Command{
+		Use:   "im/channel",
+		Short: "im/channel API 操作",
+	}
+	im_channel_createCmd := &cobra.Command{
+		Use:   "create",
+		Short: "绑定渠道端点",
+		Long:  "业务说明：把渠道端点（如设备 {productID}:{deviceName}）绑定到当前用户，绑定后该用户消息将下行到端点，端点上行消息进入用户最近单聊。重复绑定幂等更新名称。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/channel/bind",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_channelCmd.AddCommand(im_channel_createCmd)
+	im_channel_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "查询渠道绑定列表",
+		Long:  "业务说明：查询当前用户绑定的全部渠道端点及免打扰状态。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/channel/get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_channelCmd.AddCommand(im_channel_viewCmd)
+	im_channel_updateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "设置端点免打扰",
+		Long:  "业务说明：设置渠道端点级免打扰（isMuted=1 后站内消息不再下行到该端点，不影响端点上行）。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/channel/set-mute",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_channelCmd.AddCommand(im_channel_updateCmd)
+	im_channel_deleteCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "解绑渠道端点",
+		Long:  "业务说明：解除当前用户与渠道端点的绑定（仅本人可操作）。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/channel/unbind",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_channelCmd.AddCommand(im_channel_deleteCmd)
+	parent.AddCommand(im_channelCmd)
+	im_chatlogCmd := &cobra.Command{
+		Use:   "im/chatlog",
+		Short: "im/chatlog API 操作",
+	}
+	im_chatlog_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取消息列表",
+		Long:  "业务说明：分页查询会话内的历史消息，按序号倒序返回。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/chatlog/get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_chatlogCmd.AddCommand(im_chatlog_viewCmd)
+	im_chatlog_updateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "标记已读",
+		Long:  "业务说明：标记会话消息已读，同步更新会话未读数并向相关用户推送已读状态。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/chatlog/mark-read",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_chatlogCmd.AddCommand(im_chatlog_updateCmd)
+	im_chatlog_update_2Cmd := &cobra.Command{
+		Use:   "update",
+		Short: "未读数对账",
+		Long:  "业务说明：按已读游标重算当前用户在会话内的未读数并持久化，用于修复撤回不回扣等造成的未读漂移。已撤回与系统消息不计入未读。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/chatlog/recalc-unread",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_chatlogCmd.AddCommand(im_chatlog_update_2Cmd)
+	im_chatlog_view_2Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "搜索聊天记录",
+		Long:  "业务说明：按关键词搜索当前用户可见的聊天记录，可限定单个会话。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/chatlog/search",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_chatlogCmd.AddCommand(im_chatlog_view_2Cmd)
+	im_chatlog_view_3Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "增量同步消息",
+		Long:  "业务说明：客户端以本地最大消息序号为游标，增量拉取会话内其后的消息，用于断线重连补齐与后台对账。只读语义，不触发已读、不清未读。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/chatlog/sync",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_chatlogCmd.AddCommand(im_chatlog_view_3Cmd)
+	im_chatlog_update_3Cmd := &cobra.Command{
+		Use:   "update",
+		Short: "撤回消息",
+		Long:  "业务说明：撤回本人在会话中已发送的消息。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/message/recall",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_chatlogCmd.AddCommand(im_chatlog_update_3Cmd)
+	im_chatlog_createCmd := &cobra.Command{
+		Use:   "create",
+		Short: "发送消息",
+		Long:  "业务说明：向会话发送消息，支持文本、图片等消息类型，clientMsgId 用于客户端幂等去重。单聊会话先按好友关系放行，非好友回退共享项目校验。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/message/send",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_chatlogCmd.AddCommand(im_chatlog_createCmd)
+	parent.AddCommand(im_chatlogCmd)
+	im_conversationCmd := &cobra.Command{
+		Use:   "im/conversation",
+		Short: "im/conversation API 操作",
+	}
+	im_conversation_updateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "群聊邀请成员",
+		Long:  "业务说明：向已有群聊会话中邀请新成员，支持一次邀请多个参与者。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/add-members",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_updateCmd)
+	im_conversation_createCmd := &cobra.Command{
+		Use:   "create",
+		Short: "创建会话",
+		Long:  "业务说明：创建单聊或群聊会话，指定参与者列表。单聊会话按参与者去重，群聊可设置会话名称。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/create",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_createCmd)
+	im_conversation_create_2Cmd := &cobra.Command{
+		Use:   "create",
+		Short: "创建 AI 会话",
+		Long:  "业务说明：创建当前用户与指定 AI 分身（Clone）的单聊会话，已存在时复用原会话。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/create-ai",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_create_2Cmd)
+	im_conversation_deleteCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "群聊解散",
+		Long:  "业务说明：群主解散群聊会话，解散后所有成员不可再发送消息。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/disband",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_deleteCmd)
+	im_conversation_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取会话详情",
+		Long:  "业务说明：按会话 ID 查询会话详情，含未读数与个人设置状态。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/get",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_viewCmd)
+	im_conversation_view_2Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "按参与者查询单聊会话",
+		Long:  "业务说明：按两个用户 ID 查询其单聊会话，用于发起单聊前定位已有会话。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/get-by-participants",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_view_2Cmd)
+	im_conversation_view_3Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取会话列表",
+		Long:  "业务说明：分页查询当前用户的会话列表，含最后一条消息摘要、未读数、置顶/免打扰状态。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_view_3Cmd)
+	im_conversation_view_4Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取会话成员列表",
+		Long:  "业务说明：查询会话全部成员及其角色、禁言状态，用户基础信息（昵称、头像）由 apisvr 富化返回。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/get-members",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_view_4Cmd)
+	im_conversation_update_2Cmd := &cobra.Command{
+		Use:   "update",
+		Short: "群聊禁言/取消禁言成员",
+		Long:  "业务说明：群主或管理员对群成员执行禁言或取消禁言。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/mute-member",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_update_2Cmd)
+	im_conversation_delete_2Cmd := &cobra.Command{
+		Use:   "delete",
+		Short: "群聊移除/退出成员",
+		Long:  "业务说明：将指定成员移出群聊，或成员主动退出群聊。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/remove-member",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_delete_2Cmd)
+	im_conversation_update_3Cmd := &cobra.Command{
+		Use:   "update",
+		Short: "群聊设置/取消管理员",
+		Long:  "业务说明：群主设置或取消群成员的管理员身份。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/set-admin",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_update_3Cmd)
+	im_conversation_update_4Cmd := &cobra.Command{
+		Use:   "update",
+		Short: "群聊转让群主",
+		Long:  "业务说明：群主将会话所有权转让给其他成员。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/transfer-owner",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_update_4Cmd)
+	im_conversation_update_5Cmd := &cobra.Command{
+		Use:   "update",
+		Short: "更新会话设置",
+		Long:  "业务说明：更新当前用户在会话中的个人设置，包括置顶、免打扰、从会话列表删除。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/conversation/update-setting",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_conversationCmd.AddCommand(im_conversation_update_5Cmd)
+	parent.AddCommand(im_conversationCmd)
+	im_friendCmd := &cobra.Command{
+		Use:   "im/friend",
+		Short: "im/friend API 操作",
+	}
+	im_friend_createCmd := &cobra.Command{
+		Use:   "create",
+		Short: "发起好友申请",
+		Long:  "业务说明：向指定用户发起好友申请，可附申请留言，申请通过后双方建立双向好友关系。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/friend/apply",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_friendCmd.AddCommand(im_friend_createCmd)
+	im_friend_deleteCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "删除好友",
+		Long:  "业务说明：删除指定好友，双向好友关系同时解除。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/friend/delete",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_friendCmd.AddCommand(im_friend_deleteCmd)
+	im_friend_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取好友列表",
+		Long:  "业务说明：分页查询当前用户的好友列表，含好友昵称、头像等用户资料。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/friend/get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_friendCmd.AddCommand(im_friend_viewCmd)
+	im_friend_executeCmd := &cobra.Command{
+		Use:   "execute",
+		Short: "处理好友申请",
+		Long:  "业务说明：被申请人处理好友申请，同意则双方成为好友，拒绝则申请关闭。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/friend/handle",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_friendCmd.AddCommand(im_friend_executeCmd)
+	im_friend_view_2Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取好友申请列表",
+		Long:  "业务说明：分页查询好友申请列表，支持按方向（我收到的/我发起的）与处理结果过滤，含双方用户资料。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/friend/request/get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_friendCmd.AddCommand(im_friend_view_2Cmd)
+	parent.AddCommand(im_friendCmd)
+	im_momentCmd := &cobra.Command{
+		Use:   "im/moment",
+		Short: "im/moment API 操作",
+	}
+	im_moment_createCmd := &cobra.Command{
+		Use:   "create",
+		Short: "发表评论",
+		Long:  "业务说明：对指定动态发表评论，可 @ 其他用户，并向动态发布人推送评论通知。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/moment/comment/create",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_momentCmd.AddCommand(im_moment_createCmd)
+	im_moment_deleteCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "删除评论",
+		Long:  "业务说明：删除本人在指定动态下的评论。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/moment/comment/delete",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_momentCmd.AddCommand(im_moment_deleteCmd)
+	im_moment_create_2Cmd := &cobra.Command{
+		Use:   "create",
+		Short: "发布动态",
+		Long:  "业务说明：发布朋友圈动态，支持文本与多媒体内容，可设置可见范围（公开/项目/指定人）并 @ 指定用户。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/moment/create",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_momentCmd.AddCommand(im_moment_create_2Cmd)
+	im_moment_delete_2Cmd := &cobra.Command{
+		Use:   "delete",
+		Short: "删除动态",
+		Long:  "业务说明：删除本人发布的朋友圈动态。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/moment/delete",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_momentCmd.AddCommand(im_moment_delete_2Cmd)
+	im_moment_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取动态详情",
+		Long:  "业务说明：按动态 ID 查询详情及评论列表。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/moment/get",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_momentCmd.AddCommand(im_moment_viewCmd)
+	im_moment_executeCmd := &cobra.Command{
+		Use:   "execute",
+		Short: "点赞动态",
+		Long:  "业务说明：对指定动态点赞，返回最新点赞数，并向动态发布人推送点赞通知。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/moment/like",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_momentCmd.AddCommand(im_moment_executeCmd)
+	im_moment_view_2Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "查询动态列表",
+		Long:  "业务说明：分页查询当前用户可见的朋友圈动态列表，支持按发布人、项目过滤。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/moment/list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_momentCmd.AddCommand(im_moment_view_2Cmd)
+	im_moment_execute_2Cmd := &cobra.Command{
+		Use:   "execute",
+		Short: "取消点赞动态",
+		Long:  "业务说明：取消对指定动态的点赞，返回最新点赞数。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/im/moment/unlike",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	im_momentCmd.AddCommand(im_moment_execute_2Cmd)
+	parent.AddCommand(im_momentCmd)
 	system_agreementCmd := &cobra.Command{
 		Use:   "system/agreement",
 		Short: "system/agreement API 操作",
@@ -179,6 +872,79 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_app_coreCmd.AddCommand(system_app_core_viewCmd)
 	parent.AddCommand(system_app_coreCmd)
+	system_app_groupCmd := &cobra.Command{
+		Use:   "system/app/group",
+		Short: "system/app/group API 操作",
+	}
+	system_app_group_createCmd := &cobra.Command{
+		Use:   "create",
+		Short: "创建应用分组",
+		Long:  "业务说明：创建新的应用分组，包括分组名称、图标、描述、排序。应用分组用于把相关应用按业务场景归类，应用最多属于一个分组，未分组应用 group_id=2。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/app/group/create",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_app_groupCmd.AddCommand(system_app_group_createCmd)
+	system_app_group_deleteCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "删除应用分组",
+		Long:  "业务说明：删除指定应用分组，删除后组内应用自动回置未分组(group_id=2)，不删除应用本身。默认组(ID=2,全部应用)不允许删除。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/app/group/delete",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_app_groupCmd.AddCommand(system_app_group_deleteCmd)
+	system_app_group_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取应用分组列表",
+		Long:  "业务说明：查询应用分组列表，支持按名称模糊筛选。所有登录用户可读，用于控制台首页按组展示、租户/角色授权界面按组展示。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/app/group/get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_app_groupCmd.AddCommand(system_app_group_viewCmd)
+	system_app_group_updateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "更新应用分组",
+		Long:  "业务说明：修改应用分组信息，包括名称、图标、描述、排序，支持部分更新。默认组(全部应用,ID=2)不允许删除但可调整展示字段。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/app/group/update",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_app_groupCmd.AddCommand(system_app_group_updateCmd)
+	parent.AddCommand(system_app_groupCmd)
 	system_app_infoCmd := &cobra.Command{
 		Use:   "system/app/info",
 		Short: "system/app/info API 操作",
@@ -186,7 +952,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_app_info_createCmd := &cobra.Command{
 		Use:   "create",
 		Short: "添加应用",
-		Long:  "业务说明：创建新的应用配置，包括应用名称、类型（web/小程序/原生）、使用对象、试用时长等。应用是平台的功能模块单元，企业可通过绑定应用获取相应功能权限。",
+		Long:  "业务说明：创建新的应用配置，包括应用名称、类型（web/小程序/原生）、使用对象、试用时长等。应用是平台的功能模块单元，租户可通过绑定应用获取相应功能权限。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/app/info/create",
@@ -203,7 +969,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_app_info_deleteCmd := &cobra.Command{
 		Use:   "delete",
 		Short: "删除应用",
-		Long:  "业务说明：删除指定应用，删除后企业无法再绑定该应用。删除前需确认无企业已绑定该应用，避免影响已开通的功能。通常用于清理废弃的应用配置。",
+		Long:  "业务说明：删除指定应用，删除后租户无法再绑定该应用。删除前需确认无租户已绑定该应用，避免影响已开通的功能。通常用于清理废弃的应用配置。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/app/info/delete",
@@ -220,7 +986,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_app_info_viewCmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取应用列表",
-		Long:  "业务说明：查询平台应用列表，支持按名称、类型、状态、企业绑定状态等条件筛选。用于应用管理页面的列表展示，平台管理员可查看所有应用及企业绑定情况。",
+		Long:  "业务说明：查询平台应用列表，支持按名称、类型、状态、租户绑定状态等条件筛选。用于应用管理页面的列表展示，平台管理员可查看所有应用及租户绑定情况。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/app/info/get-list",
@@ -254,7 +1020,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_app_info_updateCmd := &cobra.Command{
 		Use:   "update",
 		Short: "更新应用",
-		Long:  "业务说明：修改应用配置，包括名称、类型、试用时长、状态等，支持部分更新。应用上架/下架通过状态字段控制，上架后企业可申请绑定。",
+		Long:  "业务说明：修改应用配置，包括名称、类型、试用时长、状态等，支持部分更新。应用上架/下架通过状态字段控制，上架后租户可申请绑定。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/app/info/update",
@@ -268,6 +1034,23 @@ func RegisterSystemCommands(parent *cobra.Command) {
 		},
 	}
 	system_app_infoCmd.AddCommand(system_app_info_updateCmd)
+	system_app_info_view_3Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取微信小程序 URL Link",
+		Long:  "业务说明：根据平台应用 ID 动态调用微信服务端接口生成小程序 URL Link，用于微信外扫码或 H5 页面拉起小程序。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/app/info/wx-mini/get-url-link",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_app_infoCmd.AddCommand(system_app_info_view_3Cmd)
 	parent.AddCommand(system_app_infoCmd)
 	system_app_menuCmd := &cobra.Command{
 		Use:   "system/app/menu",
@@ -521,6 +1304,23 @@ func RegisterSystemCommands(parent *cobra.Command) {
 		},
 	}
 	system_commonCmd.AddCommand(system_common_downloadCmd)
+	system_common_view_5Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "对象存储文件代理",
+		Long:  "业务说明：流式代理返回本站对象存储公开桶/临时桶中的文件，用于浏览器跨域拉取文件字节受限的场景（如大屏 CAD 渲染器 fetch COS 文件被 CORS 拦截）。仅接受当前环境配置的公开桶/临时桶 URL，私有桶与任意外部 URL 一律拒绝，无 SSRF 面。需登录。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/common/file-proxy",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_commonCmd.AddCommand(system_common_view_5Cmd)
 	system_common_uploadCmd := &cobra.Command{
 		Use:   "upload",
 		Short: "初始化上传文件",
@@ -538,7 +1338,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 		},
 	}
 	system_commonCmd.AddCommand(system_common_uploadCmd)
-	system_common_view_5Cmd := &cobra.Command{
+	system_common_view_6Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "ntp时间同步",
 		Long:  "业务说明：网络时间协议接口，用于客户端与服务器时间同步。返回设备发送时间、服务器接收时间、服务器发送时间，客户端可据此计算网络延迟并校正本地时钟。适用于物联网设备时间校准、分布式系统时钟同步。",
@@ -554,8 +1354,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	system_commonCmd.AddCommand(system_common_view_5Cmd)
-	system_common_view_6Cmd := &cobra.Command{
+	system_commonCmd.AddCommand(system_common_view_6Cmd)
+	system_common_view_7Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取小程序二维码",
 		Long:  "业务说明：生成微信小程序二维码图片。用于扫码进入指定页面、设备绑定二维码、分享推广等场景。支持指定页面路径、场景参数、环境版本（开发/体验/正式）。返回二维码图片Buffer数据。",
@@ -571,8 +1371,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	system_commonCmd.AddCommand(system_common_view_6Cmd)
-	system_common_view_7Cmd := &cobra.Command{
+	system_commonCmd.AddCommand(system_common_view_7Cmd)
+	system_common_view_8Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "读取系统配置信息",
 		Long:  "业务说明：平台管理员查询系统全局配置详情。返回完整配置包括OEM、短信、邮件、地图、天气、用户策略等。用于配置管理页面展示和编辑初始化。敏感信息（如短信密钥）仅平台超管可见。",
@@ -588,11 +1388,11 @@ func RegisterSystemCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	system_commonCmd.AddCommand(system_common_view_7Cmd)
+	system_commonCmd.AddCommand(system_common_view_8Cmd)
 	system_common_updateCmd := &cobra.Command{
 		Use:   "update",
 		Short: "更新系统配置信息",
-		Long:  "业务说明：平台管理员修改系统全局配置。包括OEM定制（Logo/标题/页脚）、短信配置、邮件配置、地图配置、天气配置等。修改后立即生效，影响所有企业用户体验。",
+		Long:  "业务说明：平台管理员修改系统全局配置。包括OEM定制（Logo/标题/页脚）、短信配置、邮件配置、地图配置、天气配置等。修改后立即生效，影响所有租户用户体验。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/common/sys-config/info/update",
@@ -606,7 +1406,24 @@ func RegisterSystemCommands(parent *cobra.Command) {
 		},
 	}
 	system_commonCmd.AddCommand(system_common_updateCmd)
-	system_common_view_8Cmd := &cobra.Command{
+	system_common_operateCmd := &cobra.Command{
+		Use:   "operate",
+		Short: "生成OAuth Provider RSA私钥",
+		Long:  "业务说明：平台管理员生成新的RS256签名私钥（RSA-2048，PKCS8 PEM格式），用于OIDC/OAuth2 Provider签发ID Token。生成结果返回给前端填入表单，点击保存后生效。生成新密钥后，使用旧密钥签发的ID Token将失效，接入方需重新获取公钥。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/common/sys-config/oauth/key/generate",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_commonCmd.AddCommand(system_common_operateCmd)
+	system_common_view_9Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取第三方部门列表",
 		Long:  "业务说明：从钉钉、企业微信等第三方平台获取部门列表。用于部门同步、组织架构导入等场景。支持按父节点筛选获取下级部门，实现递归同步完整组织架构。",
@@ -622,8 +1439,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	system_commonCmd.AddCommand(system_common_view_8Cmd)
-	system_common_view_9Cmd := &cobra.Command{
+	system_commonCmd.AddCommand(system_common_view_9Cmd)
+	system_common_view_10Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取第三方部门详情",
 		Long:  "业务说明：从钉钉、企业微信等第三方平台获取单个部门信息。用于部门同步、组织架构对接等场景。Children只返回一层，需递归调用获取完整树结构。支持获取父级和子级部门。",
@@ -639,11 +1456,11 @@ func RegisterSystemCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	system_commonCmd.AddCommand(system_common_view_9Cmd)
+	system_commonCmd.AddCommand(system_common_view_10Cmd)
 	system_common_upload_2Cmd := &cobra.Command{
 		Use:   "upload",
 		Short: "文件直传",
-		Long:  "业务说明：通过multipart/formdata直接上传文件。isPublic=false走临时桶返回临时路径；isPublic=true走公开桶返回永久fileUrl。公开桶需传business(业务)、scene(场景)、useBy(用途)。useBy=user路径前缀user/{userID}；useBy=tenant需企业管理员权限路径前缀tenant/{tenantCode}；useBy=platform需平台管理员权限路径前缀platform/。禁止上传html/php/jsp等危险文件。",
+		Long:  "业务说明：通过multipart/formdata直接上传文件。isPublic=false走临时桶返回临时路径；isPublic=true走公开桶返回永久fileUrl。公开桶需传business(业务)、scene(场景)、useBy(用途)。useBy=user路径前缀user/{userID}；useBy=tenant需租户管理员权限路径前缀tenant/{tenantCode}；useBy=platform需平台管理员权限路径前缀platform/。禁止上传html/php/jsp等危险文件。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/common/upload-file",
@@ -674,7 +1491,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 		},
 	}
 	system_commonCmd.AddCommand(system_common_upload_3Cmd)
-	system_common_view_10Cmd := &cobra.Command{
+	system_common_view_11Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取天气情况",
 		Long:  "业务说明：根据地理位置或项目ID获取实时天气和空气质量数据。用于物联网设备环境展示、户外作业提醒、能耗分析辅助等场景。数据来源于配置的天气API服务。",
@@ -690,7 +1507,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	system_commonCmd.AddCommand(system_common_view_10Cmd)
+	system_commonCmd.AddCommand(system_common_view_11Cmd)
 	system_common_connectCmd := &cobra.Command{
 		Use:   "connect",
 		Short: "websocket连接",
@@ -821,6 +1638,62 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_dept_infoCmd.AddCommand(system_dept_info_updateCmd)
 	parent.AddCommand(system_dept_infoCmd)
+	system_dept_roleCmd := &cobra.Command{
+		Use:   "system/dept/role",
+		Short: "system/dept/role API 操作",
+	}
+	system_dept_role_createCmd := &cobra.Command{
+		Use:   "create",
+		Short: "批量添加部门角色",
+		Long:  "业务说明：批量将角色绑定到指定部门。用于部门管理页面按部门批量分配角色，重复绑定自动忽略。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/dept/role/batch-create",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_dept_roleCmd.AddCommand(system_dept_role_createCmd)
+	system_dept_role_deleteCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "批量移除部门角色",
+		Long:  "业务说明：批量将角色从指定部门解绑。用于部门管理页面回收部门角色授权，按部门ID与角色ID列表匹配删除。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/dept/role/batch-delete",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_dept_roleCmd.AddCommand(system_dept_role_deleteCmd)
+	system_dept_role_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取部门角色列表",
+		Long:  "业务说明：查询指定部门关联的角色列表。用于部门管理页面的部门角色标签页，展示已绑定到该部门的角色信息。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/dept/role/get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_dept_roleCmd.AddCommand(system_dept_role_viewCmd)
+	parent.AddCommand(system_dept_roleCmd)
 	system_dept_syncJobCmd := &cobra.Command{
 		Use:   "system/dept/syncJob",
 		Short: "system/dept/syncJob API 操作",
@@ -1368,7 +2241,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_init_executeCmd := &cobra.Command{
 		Use:   "execute",
 		Short: "初始化系统",
-		Long:  "业务说明：系统首次部署时的初始化接口。创建平台超级管理员用户、平台企业、默认角色（admin/client/supper）、写入OEM配置。仅在sys_user_info表为空时可执行，已初始化系统调用会报错。",
+		Long:  "业务说明：系统首次部署时的初始化接口。创建平台超级管理员用户、平台租户、默认角色（admin/client/supper）、写入OEM配置。仅在sys_user_info表为空时可执行，已初始化系统调用会报错。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/common/system/init",
@@ -1935,6 +2808,28 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_mall_productCmd.AddCommand(system_mall_product_updateCmd)
 	parent.AddCommand(system_mall_productCmd)
+	system_mcpCmd := &cobra.Command{
+		Use:   "system/mcp",
+		Short: "system/mcp API 操作",
+	}
+	system_mcp_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "Stateless MCP HTTP",
+		Long:  "业务说明：提供给 aisvr 直连调用的无状态 MCP HTTP 入口，用于 tools/list 与 tools/call 等 JSON-RPC 请求。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/mcp/run",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_mcpCmd.AddCommand(system_mcp_viewCmd)
+	parent.AddCommand(system_mcpCmd)
 	system_notify_configCmd := &cobra.Command{
 		Use:   "system/notify/config",
 		Short: "system/notify/config API 操作",
@@ -2353,7 +3248,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_notify_notification_view_3Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取手动通知列表",
-		Long:  "业务说明：分页查询手动通知任务列表，支持按状态、分组、优先级、企业、标题筛选。用于通知任务管理页面的列表展示，管理员可查看所有状态的通知任务（草稿/已计划/发送中/已发送/已撤回）。",
+		Long:  "业务说明：分页查询手动通知任务列表，支持按状态、分组、优先级、租户、标题筛选。用于通知任务管理页面的列表展示，管理员可查看所有状态的通知任务（草稿/已计划/发送中/已发送/已撤回）。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/notify/notification/index",
@@ -2550,7 +3445,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_ops_feedback_viewCmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取帮助与反馈",
-		Long:  "业务说明：查询反馈列表，支持按类型、状态、项目、企业等条件筛选。普通用户查看自己提交的反馈，平台管理员可查看所有企业的反馈。用于反馈管理页面的列表展示。",
+		Long:  "业务说明：查询反馈列表，支持按类型、状态、项目、租户等条件筛选。普通用户查看自己提交的反馈，平台管理员可查看所有租户的反馈。用于反馈管理页面的列表展示。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/ops/feedback/get-list",
@@ -2603,10 +3498,27 @@ func RegisterSystemCommands(parent *cobra.Command) {
 		},
 	}
 	system_ops_workOrderCmd.AddCommand(system_ops_workOrder_createCmd)
+	system_ops_workOrder_deleteCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "删除工单",
+		Long:  "业务说明：软删除指定工单。仅租户管理员及以上可删除。用于工单管理页面的删除操作。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/ops/work-order/delete",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_ops_workOrderCmd.AddCommand(system_ops_workOrder_deleteCmd)
 	system_ops_workOrder_viewCmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取工单列表",
-		Long:  "业务说明：查询运维工单列表，支持按状态、类型、区域、编号等条件筛选。普通用户查看自己提交的工单，平台管理员可查看所有企业的工单。用于工单管理页面的列表展示。",
+		Long:  "业务说明：查询运维工单列表，支持按状态、类型、区域、编号等条件筛选。普通用户查看自己提交的工单，平台管理员可查看所有租户的工单。用于工单管理页面的列表展示。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/ops/work-order/get-list",
@@ -2620,6 +3532,23 @@ func RegisterSystemCommands(parent *cobra.Command) {
 		},
 	}
 	system_ops_workOrderCmd.AddCommand(system_ops_workOrder_viewCmd)
+	system_ops_workOrder_view_2Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取工单详情",
+		Long:  "业务说明：根据工单 ID 查询单个工单的完整信息。支持所有登录用户查看，非管理员只能查看自己提交的工单。用于工单详情抽屉展示。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/ops/work-order/get-one",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_ops_workOrderCmd.AddCommand(system_ops_workOrder_view_2Cmd)
 	system_ops_workOrder_updateCmd := &cobra.Command{
 		Use:   "update",
 		Short: "更新工单",
@@ -2901,6 +3830,62 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_role_resourceCmd.AddCommand(system_role_resource_viewCmd)
 	parent.AddCommand(system_role_resourceCmd)
+	system_routeCmd := &cobra.Command{
+		Use:   "system/route",
+		Short: "system/route API 操作",
+	}
+	system_route_deleteCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "删除网关路由",
+		Long:  "业务说明：删除数据库动态路由（软删）。仅允许删除来源为服务自注册/手工的数据库路由；配置文件与应用代理路由不允许删除。删除后经 NATS 事件触发热重载。注意：若对应服务仍在运行，其下次重启会重新注册该路由，需长期下线请使用停用。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/route/delete",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_routeCmd.AddCommand(system_route_deleteCmd)
+	system_route_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取网关路由列表",
+		Long:  "业务说明：查询网关反向代理的全量路由清单，合并三个来源：数据库动态路由（各后端服务启动时自注册）、应用代理（应用管理中开启代理的应用）、配置文件路由（apisvr etc/*.yaml 的 Proxy 段）。支持按来源、服务标识、状态、location 关键字过滤并分页。数据库路由可启停/删除；配置文件与应用代理路由仅展示。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/route/get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_routeCmd.AddCommand(system_route_viewCmd)
+	system_route_updateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "更新网关路由",
+		Long:  "业务说明：更新数据库动态路由的状态（启用/停用）、描述与排序。出于安全考虑（防 SSRF/越权转发），location/proxy 等转发配置字段不接受修改，仅状态类字段生效。配置来源与应用代理路由不允许修改。状态变更经 NATS 事件触发热重载，无需重启网关。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/route/update",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_routeCmd.AddCommand(system_route_updateCmd)
+	parent.AddCommand(system_routeCmd)
 	system_tenant_agreementCmd := &cobra.Command{
 		Use:   "system/tenant/agreement",
 		Short: "system/tenant/agreement API 操作",
@@ -2908,7 +3893,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_agreement_createCmd := &cobra.Command{
 		Use:   "create",
 		Short: "添加协议",
-		Long:  "创建新的企业协议，如用户协议、隐私政策等，协议内容支持富文本格式",
+		Long:  "创建新的租户协议，如用户协议、隐私政策等，协议内容支持富文本格式",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/agreement/create",
@@ -2925,7 +3910,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_agreement_deleteCmd := &cobra.Command{
 		Use:   "delete",
 		Short: "删除协议",
-		Long:  "删除指定的企业协议，删除后不可恢复",
+		Long:  "删除指定的租户协议，删除后不可恢复",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/agreement/delete",
@@ -2942,7 +3927,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_agreement_viewCmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取协议列表",
-		Long:  "获取企业协议列表，支持按类型筛选，返回协议基本信息（不含完整内容）",
+		Long:  "获取租户协议列表，支持按类型筛选，返回协议基本信息（不含完整内容）",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/agreement/get-list",
@@ -2976,7 +3961,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_agreement_updateCmd := &cobra.Command{
 		Use:   "update",
 		Short: "更新协议",
-		Long:  "更新企业协议内容和配置，支持更新名称、内容、状态等字段",
+		Long:  "更新租户协议内容和配置，支持更新名称、内容、状态等字段",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/agreement/update",
@@ -2997,8 +3982,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_tenant_app_createCmd := &cobra.Command{
 		Use:   "create",
-		Short: "绑定企业应用",
-		Long:  "业务说明：为企业开通指定应用，付费应用需提供授权码。平台管理员可跨企业操作；企业用户只能为自己的企业开通，需提供授权码。开通后企业用户可使用该应用。",
+		Short: "绑定租户应用",
+		Long:  "业务说明：为租户开通指定应用，付费应用需提供授权码。平台管理员可跨租户操作；租户用户只能为自己的租户开通，需提供授权码。开通后租户用户可使用该应用。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/app/create",
@@ -3014,8 +3999,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_appCmd.AddCommand(system_tenant_app_createCmd)
 	system_tenant_app_deleteCmd := &cobra.Command{
 		Use:   "delete",
-		Short: "解绑企业应用",
-		Long:  "业务说明：解除企业与应用的绑定关系，企业用户将无法继续使用该应用。仅平台管理员可操作，用于平台后台的应用授权注销功能。",
+		Short: "解绑租户应用",
+		Long:  "业务说明：解除租户与应用的绑定关系，租户用户将无法继续使用该应用。仅平台管理员可操作，用于平台后台的应用授权注销功能。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/app/delete",
@@ -3031,8 +4016,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_appCmd.AddCommand(system_tenant_app_deleteCmd)
 	system_tenant_app_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取企业应用列表",
-		Long:  "业务说明：查询企业已开通的应用列表，支持按应用类型、状态过滤。企业管理员可查看自己企业的应用，平台管理员可查看任意企业的应用绑定情况。用于应用管理列表页。",
+		Short: "获取租户应用列表",
+		Long:  "业务说明：查询租户已开通的应用列表，支持按应用类型、状态过滤。租户管理员可查看自己租户的应用，平台管理员可查看任意租户的应用绑定情况。用于应用管理列表页。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/app/get-list",
@@ -3049,7 +4034,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_app_view_2Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取应用信息",
-		Long:  "业务说明：查询单个企业应用的详细配置信息，包括状态、过期时间、应用详情等。用于应用详情页或编辑表单初始化。",
+		Long:  "业务说明：查询单个租户应用的详细配置信息，包括状态、过期时间、应用详情等。用于应用详情页或编辑表单初始化。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/app/get-one",
@@ -3065,8 +4050,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_appCmd.AddCommand(system_tenant_app_view_2Cmd)
 	system_tenant_app_updateCmd := &cobra.Command{
 		Use:   "update",
-		Short: "更新企业应用",
-		Long:  "业务说明：修改企业应用的配置，如状态、排序、过期时间等。仅平台管理员可操作，用于平台后台的应用配置管理。",
+		Short: "更新租户应用",
+		Long:  "业务说明：修改租户应用的配置，如状态、排序、过期时间等。仅平台管理员可操作，用于平台后台的应用配置管理。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/app/update",
@@ -3087,8 +4072,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_tenant_app_menu_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取企业应用菜单列表",
-		Long:  "业务说明：查询企业在指定应用下的菜单配置列表，支持返回树形结构。用于应用菜单配置管理页面，可查看和编辑企业对应用菜单的定制。",
+		Short: "获取租户应用菜单列表",
+		Long:  "业务说明：查询租户在指定应用下的菜单配置列表，支持返回树形结构。用于应用菜单配置管理页面，可查看和编辑租户对应用菜单的定制。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/app/menu/get-list",
@@ -3104,8 +4089,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_app_menuCmd.AddCommand(system_tenant_app_menu_viewCmd)
 	system_tenant_app_menu_updateCmd := &cobra.Command{
 		Use:   "update",
-		Short: "更新企业应用菜单",
-		Long:  "业务说明：修改企业应用菜单的配置，如菜单名称、图标、排序、是否收藏/隐藏等。企业管理员可修改本企业的菜单配置，平台管理员可修改任意企业的菜单配置。",
+		Short: "更新租户应用菜单",
+		Long:  "业务说明：修改租户应用菜单的配置，如菜单名称、图标、排序、是否收藏/隐藏等。租户管理员可修改本租户的菜单配置，平台管理员可修改任意租户的菜单配置。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/app/menu/update",
@@ -3126,8 +4111,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_tenant_config_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取企业配置",
-		Long:  "业务说明：查询当前企业的配置详情，包括注册默认角色、自动创建项目/区域策略等。用于企业管理页面展示和编辑配置。",
+		Short: "获取租户配置",
+		Long:  "业务说明：查询当前租户的配置详情，包括注册默认角色、自动创建项目/区域策略等。用于租户管理页面展示和编辑配置。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/config/get-one",
@@ -3143,8 +4128,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_configCmd.AddCommand(system_tenant_config_viewCmd)
 	system_tenant_config_updateCmd := &cobra.Command{
 		Use:   "update",
-		Short: "更新企业配置",
-		Long:  "业务说明：更新企业级配置信息，如注册角色、自动创建项目等配置项。仅企业管理员可操作，用于定制企业的默认行为策略。",
+		Short: "更新租户配置",
+		Long:  "业务说明：更新租户级配置信息，如注册角色、自动创建项目等配置项。仅租户管理员可操作，用于定制租户的默认行为策略。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/config/update",
@@ -3165,8 +4150,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_tenant_core_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "搜索企业信息",
-		Long:  "搜索企业列表，用于企业选择、企业发现等场景，支持按名称、代码模糊搜索，无需登录即可调用",
+		Short: "搜索租户信息",
+		Long:  "搜索租户列表，用于租户选择、租户发现等场景，支持按名称、代码模糊搜索，无需登录即可调用",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/core/get-list",
@@ -3182,8 +4167,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_coreCmd.AddCommand(system_tenant_core_viewCmd)
 	system_tenant_core_view_2Cmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取企业信息",
-		Long:  "根据ID或企业代码获取企业基本信息，用于登录页展示企业配置（Logo、名称等），无需登录即可调用",
+		Short: "获取租户信息",
+		Long:  "根据ID或租户代码获取租户基本信息，用于登录页展示租户配置（Logo、名称等），无需登录即可调用",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/core/get-one",
@@ -3204,8 +4189,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_tenant_info_createCmd := &cobra.Command{
 		Use:   "create",
-		Short: "添加企业",
-		Long:  "业务说明：创建新的企业实体，设置企业名称、编码、状态等基本信息。已登录用户可为自己创建首个企业，平台管理员也可用于平台管理后台的企业开通功能。",
+		Short: "添加租户",
+		Long:  "业务说明：创建新的租户实体，设置租户名称、编码、状态等基本信息。已登录用户可为自己创建首个企业，平台管理员也可用于平台管理后台的租户开通功能。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/info/create",
@@ -3221,8 +4206,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_infoCmd.AddCommand(system_tenant_info_createCmd)
 	system_tenant_info_deleteCmd := &cobra.Command{
 		Use:   "delete",
-		Short: "删除企业",
-		Long:  "业务说明：删除企业实体及其关联数据（用户、角色、配置等）。仅平台管理员可操作，用于平台管理后台的企业注销功能。删除前需确保企业下无活跃资源。",
+		Short: "删除租户",
+		Long:  "业务说明：删除租户实体及其关联数据（用户、角色、配置等）。仅平台管理员可操作，用于平台管理后台的租户注销功能。删除前需确保租户下无活跃资源。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/info/delete",
@@ -3238,8 +4223,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_infoCmd.AddCommand(system_tenant_info_deleteCmd)
 	system_tenant_info_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取企业列表",
-		Long:  "业务说明：分页查询企业列表，支持按名称、编码、状态过滤。平台管理员可查看所有企业，普通企业管理员只能查看自己企业。用于企业管理列表页。",
+		Short: "获取租户列表",
+		Long:  "业务说明：分页查询租户列表，支持按名称、编码、状态过滤。平台管理员可查看所有租户，普通租户管理员只能查看自己租户。用于租户管理列表页。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/info/get-list",
@@ -3255,8 +4240,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_infoCmd.AddCommand(system_tenant_info_viewCmd)
 	system_tenant_info_view_2Cmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取企业详情",
-		Long:  "业务说明：查询单个企业的完整信息，包括名称、编码、状态、所有者等。用于企业详情页展示、编辑表单初始化。企业管理员可查看自己企业，平台管理员可查看任意企业。",
+		Short: "获取租户详情",
+		Long:  "业务说明：查询单个租户的完整信息，包括名称、编码、状态、所有者等。用于租户详情页展示、编辑表单初始化。租户管理员可查看自己租户，平台管理员可查看任意租户。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/info/get-one",
@@ -3272,8 +4257,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_infoCmd.AddCommand(system_tenant_info_view_2Cmd)
 	system_tenant_info_transferCmd := &cobra.Command{
 		Use:   "transfer",
-		Short: "转让企业（仅企业所有者）",
-		Long:  "业务说明：将企业所有权转让给其他用户，仅当前企业所有者可操作。转让后原所有者变为普通管理员，新所有者获得最高权限。用于企业所有权变更场景。",
+		Short: "转让租户（仅租户所有者）",
+		Long:  "业务说明：将租户所有权转让给其他用户，仅当前租户所有者可操作。转让后原所有者变为普通管理员，新所有者获得最高权限。用于租户所有权变更场景。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/info/transfer",
@@ -3289,8 +4274,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_infoCmd.AddCommand(system_tenant_info_transferCmd)
 	system_tenant_info_updateCmd := &cobra.Command{
 		Use:   "update",
-		Short: "更新企业",
-		Long:  "业务说明：修改企业的基本信息，如名称、状态、联系人等。企业管理员可更新自己企业，平台管理员可更新任意企业。用于企业编辑功能。",
+		Short: "更新租户",
+		Long:  "业务说明：修改租户的基本信息，如名称、状态、联系人等。租户管理员可更新自己租户，平台管理员可更新任意租户。用于租户编辑功能。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/info/update",
@@ -3312,7 +4297,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_renewal_renewCmd := &cobra.Command{
 		Use:   "renew",
 		Short: "直接授权",
-		Long:  "业务说明：平台管理员直接选择商品或套餐授权给指定企业，无需生成 License 码。支持 plan/subscription/quotaRecharge/balanceTopup 类型，支持数量倍数。plan 类型不同商品需要确认替换。",
+		Long:  "业务说明：平台管理员直接选择商品或套餐授权给指定租户，无需生成 License 码。支持 plan/subscription/quotaRecharge/balanceTopup 类型，支持数量倍数。plan 类型不同商品需要确认替换。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/renewal/direct-grant",
@@ -3346,7 +4331,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_renewal_renew_2Cmd := &cobra.Command{
 		Use:   "renew",
 		Short: "续费",
-		Long:  "业务说明：使用授权码对指定企业或应用进行续费或扩容。企业套餐授权码会刷新企业套餐信息，扩容授权码会叠加支持的企业配额。企业管理员只能续费自己的企业，平台管理员可指定 tenantCode 为任意企业续费。",
+		Long:  "业务说明：使用授权码对指定企业或应用进行续费或扩容。企业套餐授权码会刷新企业套餐信息，扩容授权码会叠加支持的企业配额。租户管理员只能续费自己的租户，平台管理员可指定 tenantCode 为任意租户续费。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/renewal/renew",
@@ -3367,8 +4352,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_tenant_user_createCmd := &cobra.Command{
 		Use:   "create",
-		Short: "批量添加用户加入企业",
-		Long:  "业务说明：批量将用户添加到企业，可设置状态、部门、角色、标签等。仅企业管理员可操作，用于批量导入用户或系统初始化场景。",
+		Short: "批量添加用户加入租户",
+		Long:  "业务说明：批量将用户添加到租户，可设置状态、部门、角色、标签等。仅租户管理员可操作，用于批量导入用户或系统初始化场景。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/batch-create",
@@ -3384,8 +4369,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_userCmd.AddCommand(system_tenant_user_createCmd)
 	system_tenant_user_deleteCmd := &cobra.Command{
 		Use:   "delete",
-		Short: "删除企业用户",
-		Long:  "业务说明：将用户从企业中移除，用户将无法访问该企业的资源。仅企业管理员可操作，用于用户管理中的移除功能。",
+		Short: "删除租户用户",
+		Long:  "业务说明：将用户从租户中移除，用户将无法访问该租户的资源。仅租户管理员可操作，用于用户管理中的移除功能。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/delete",
@@ -3401,8 +4386,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_userCmd.AddCommand(system_tenant_user_deleteCmd)
 	system_tenant_user_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取企业用户列表",
-		Long:  "业务说明：分页查询企业下的用户列表，支持按状态、用户名、手机号、邮箱、部门、角色过滤。用于用户管理列表页，企业管理员可管理本企业用户。",
+		Short: "获取租户用户列表",
+		Long:  "业务说明：分页查询租户下的用户列表，支持按状态、用户名、手机号、邮箱、部门、角色过滤。用于用户管理列表页，租户管理员可管理本租户用户。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/get-list",
@@ -3418,8 +4403,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_userCmd.AddCommand(system_tenant_user_viewCmd)
 	system_tenant_user_view_2Cmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取企业用户详情,会同时返回所拥有的角色列表",
-		Long:  "业务说明：查询单个企业用户的完整信息，包括用户基本信息、角色分配、部门归属等。用于用户详情页或编辑表单初始化。",
+		Short: "获取租户用户详情,会同时返回所拥有的角色列表",
+		Long:  "业务说明：查询单个租户用户的完整信息，包括用户基本信息、角色分配、部门归属等。用于用户详情页或编辑表单初始化。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/get-one",
@@ -3435,8 +4420,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_userCmd.AddCommand(system_tenant_user_view_2Cmd)
 	system_tenant_user_inviteCmd := &cobra.Command{
 		Use:   "invite",
-		Short: "邀请用户加入企业",
-		Long:  "业务说明：邀请已注册用户加入当前企业，可指定分配的角色。被邀请用户将收到通知，确认后成为企业成员。用于用户邀请功能。",
+		Short: "邀请用户加入租户",
+		Long:  "业务说明：邀请已注册用户加入当前租户，可指定分配的角色。被邀请用户将收到通知，确认后成为租户成员。用于用户邀请功能。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/invite",
@@ -3452,8 +4437,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_userCmd.AddCommand(system_tenant_user_inviteCmd)
 	system_tenant_user_invite_2Cmd := &cobra.Command{
 		Use:   "invite",
-		Short: "生成企业用户邀请码",
-		Long:  "业务说明：生成企业邀请码，可设置有效期和默认角色。邀请码可用于邀请新用户加入企业，用户注册时填写邀请码自动分配角色。",
+		Short: "生成租户用户邀请码",
+		Long:  "业务说明：生成租户邀请码，可设置有效期和默认角色。邀请码可用于邀请新用户加入租户，用户注册时填写邀请码自动分配角色。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/invite-code/gen",
@@ -3469,8 +4454,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_userCmd.AddCommand(system_tenant_user_invite_2Cmd)
 	system_tenant_user_invite_3Cmd := &cobra.Command{
 		Use:   "invite",
-		Short: "获取当前有效的企业用户邀请码",
-		Long:  "业务说明：查询企业当前有效的邀请码信息，包括邀请码、有效期、关联角色。用于邀请码管理页面展示。",
+		Short: "获取当前有效的租户用户邀请码",
+		Long:  "业务说明：查询租户当前有效的邀请码信息，包括邀请码、有效期、关联角色。用于邀请码管理页面展示。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/invite-code/get-one",
@@ -3487,7 +4472,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_user_invite_4Cmd := &cobra.Command{
 		Use:   "invite",
 		Short: "删除待处理邀请",
-		Long:  "业务说明：撤销已发送的邀请，被邀请用户将无法通过该邀请加入企业。用于邀请管理中的撤销功能。",
+		Long:  "业务说明：撤销已发送的邀请，被邀请用户将无法通过该邀请加入租户。用于邀请管理中的撤销功能。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/invite-pending/delete",
@@ -3504,7 +4489,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_user_invite_5Cmd := &cobra.Command{
 		Use:   "invite",
 		Short: "获取待处理邀请列表",
-		Long:  "业务说明：查询企业已发送但尚未被接受的邀请列表，支持按邀请类型（邮件/手机号）过滤。用于邀请状态管理和撤销功能。",
+		Long:  "业务说明：查询租户已发送但尚未被接受的邀请列表，支持按邀请类型（邮件/手机号）过滤。用于邀请状态管理和撤销功能。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/invite-pending/get-list",
@@ -3521,7 +4506,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_user_sendCmd := &cobra.Command{
 		Use:   "send",
 		Short: "发送邀请（支持邮件和手机号）",
-		Long:  "业务说明：通过邮件或手机号向未注册用户发送企业邀请，系统自动识别地址类型。被邀请用户收到邀请链接/短信，注册后自动加入企业。",
+		Long:  "业务说明：通过邮件或手机号向未注册用户发送租户邀请，系统自动识别地址类型。被邀请用户收到邀请链接/短信，注册后自动加入租户。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/invite-send",
@@ -3537,8 +4522,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_userCmd.AddCommand(system_tenant_user_sendCmd)
 	system_tenant_user_updateCmd := &cobra.Command{
 		Use:   "update",
-		Short: "更新企业用户",
-		Long:  "业务说明：修改企业用户的信息，如状态、部门、角色、标签等。仅企业管理员可操作，用于用户编辑功能。",
+		Short: "更新租户用户",
+		Long:  "业务说明：修改租户用户的信息，如状态、部门、角色、标签等。仅租户管理员可操作，用于用户编辑功能。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/update",
@@ -3559,8 +4544,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_tenant_user_role_updateCmd := &cobra.Command{
 		Use:   "update",
-		Short: "更新企业用户的角色列表",
-		Long:  "业务说明：批量更新指定用户在企业中的角色分配，可新增或移除角色。仅企业管理员可操作，用于用户角色管理功能。",
+		Short: "更新租户用户的角色列表",
+		Long:  "业务说明：批量更新指定用户在租户中的角色分配，可新增或移除角色。仅租户管理员可操作，用于用户角色管理功能。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/role/batch-update",
@@ -3576,8 +4561,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_tenant_user_roleCmd.AddCommand(system_tenant_user_role_updateCmd)
 	system_tenant_user_role_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取企业用户角色列表",
-		Long:  "业务说明：查询指定用户在企业中已分配的角色列表。用于用户管理页面展示用户角色、编辑角色分配时的初始数据加载。",
+		Short: "获取租户用户角色列表",
+		Long:  "业务说明：查询指定用户在租户中已分配的角色列表。用于用户管理页面展示用户角色、编辑角色分配时的初始数据加载。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/tenant/user/role/get-list",
@@ -3677,7 +4662,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_info_createCmd := &cobra.Command{
 		Use:   "create",
 		Short: "创建用户信息",
-		Long:  "业务说明：管理员创建新用户账号，设置用户名、密码、邮箱、手机号等基本信息，并可为用户分配角色。创建成功后返回用户ID。用于平台管理员或企业管理员添加新用户。",
+		Long:  "业务说明：管理员创建新用户账号，设置用户名、密码、邮箱、手机号等基本信息，并可为用户分配角色。创建成功后返回用户ID。用于平台管理员或租户管理员添加新用户。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/info/create",
@@ -3694,7 +4679,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_info_deleteCmd := &cobra.Command{
 		Use:   "delete",
 		Short: "刪除用户",
-		Long:  "业务说明：删除指定用户账号。删除后用户无法登录，相关数据（企业归属、角色绑定等）同步清理。用于用户账号注销、离职员工账号清理等场景。需确认用户无重要业务数据关联后再执行。",
+		Long:  "业务说明：删除指定用户账号。删除后用户无法登录，相关数据（租户归属、角色绑定等）同步清理。用于用户账号注销、离职员工账号清理等场景。需确认用户无重要业务数据关联后再执行。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/info/delete",
@@ -3711,7 +4696,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_info_viewCmd := &cobra.Command{
 		Use:   "view",
 		Short: "查询用户信息列表",
-		Long:  "业务说明：分页查询用户列表，支持按用户名、手机号、邮箱、昵称等条件过滤。用于用户管理界面的列表展示、用户搜索等场景。返回用户基本信息及所属企业列表。",
+		Long:  "业务说明：分页查询用户列表，支持按用户名、手机号、邮箱、昵称等条件过滤。用于用户管理界面的列表展示、用户搜索等场景。返回用户基本信息及所属租户列表。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/info/get-list",
@@ -3728,7 +4713,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_info_view_2Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取用户信息",
-		Long:  "业务说明：获取单个用户的详细信息，包括用户基本信息、所属企业列表、绑定的第三方账号等。可指定是否同时返回企业详情。用于用户详情页、用户编辑前的数据加载等场景。",
+		Long:  "业务说明：获取单个用户的详细信息，包括用户基本信息、所属租户列表、绑定的第三方账号等。可指定是否同时返回租户详情。用于用户详情页、用户编辑前的数据加载等场景。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/info/get-one",
@@ -3745,7 +4730,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_info_updateCmd := &cobra.Command{
 		Use:   "update",
 		Short: "更新用户基本数据",
-		Long:  "业务说明：管理员更新用户的基本信息，包括用户名、昵称、邮箱、手机号、性别、头像等。平台管理员可修改敏感字段（用户名、邮箱、手机号），普通企业管理员权限受限。支持部分更新，未传字段保持原值。",
+		Long:  "业务说明：管理员更新用户的基本信息，包括用户名、昵称、邮箱、手机号、性别、头像等。平台管理员可修改敏感字段（用户名、邮箱、手机号），普通租户管理员权限受限。支持部分更新，未传字段保持原值。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/info/update",
@@ -3767,7 +4752,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_viewCmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取用户应用列表",
-		Long:  "业务说明：获取当前登录用户可访问的应用列表，根据用户所在企业的应用开通情况过滤。返回应用基本信息包括应用ID、名称等。用于应用选择器、用户可用应用展示等场景。",
+		Long:  "业务说明：获取当前登录用户可访问的应用列表，根据用户所在租户的应用开通情况过滤。返回应用基本信息包括应用ID、名称等。用于应用选择器、用户可用应用展示等场景。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/app/get-list",
@@ -3784,7 +4769,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_view_2Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取用户应用详情",
-		Long:  "业务说明：获取指定应用的详细信息，包括应用ID、名称、拥有该应用的企业列表等。用于查看应用详情、了解应用覆盖的企业范围等场景。需指定应用ID和类型（应用/小程序）。",
+		Long:  "业务说明：获取指定应用的详细信息，包括应用ID、名称、拥有该应用的租户列表等。用于查看应用详情、了解应用覆盖的租户范围等场景。需指定应用ID和类型（应用/小程序）。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/app/get-one",
@@ -3886,7 +4871,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_view_3Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取用户信息",
-		Long:  "业务说明：获取当前登录用户的详细信息，包括用户基本信息、所属企业列表、绑定的第三方账号等。可指定是否同时返回企业详情。用于个人中心、用户资料展示等场景。",
+		Long:  "业务说明：获取当前登录用户的详细信息，包括用户基本信息、所属租户列表、绑定的第三方账号等。可指定是否同时返回租户详情。用于个人中心、用户资料展示等场景。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/get-one",
@@ -3937,7 +4922,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_view_4Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取用户菜单列表",
-		Long:  "业务说明：获取当前登录用户在当前企业下可访问的菜单列表，根据用户角色权限过滤。返回菜单树结构，包含菜单名称、路径、图标等信息。用于前端动态渲染侧边栏导航、权限菜单展示等场景。可按应用ID和常用标记过滤。",
+		Long:  "业务说明：获取当前登录用户在当前租户下可访问的菜单列表，根据用户角色权限过滤。返回菜单树结构，包含菜单名称、路径、图标等信息。用于前端动态渲染侧边栏导航、权限菜单展示等场景。可按应用ID和常用标记过滤。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/menu/get-list",
@@ -4104,6 +5089,23 @@ func RegisterSystemCommands(parent *cobra.Command) {
 		},
 	}
 	system_user_selfCmd.AddCommand(system_user_self_update_4Cmd)
+	system_user_self_delete_3Cmd := &cobra.Command{
+		Use:   "delete",
+		Short: "删除用户配置",
+		Long:  "业务说明：删除当前用户指定编码的个性化配置项。仅允许删除当前登录用户自己的配置，供旧版 App 清理已失效的本地偏好。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/user/self/profile/delete",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_user_selfCmd.AddCommand(system_user_self_delete_3Cmd)
 	system_user_self_view_9Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取用户配置列表",
@@ -4155,6 +5157,23 @@ func RegisterSystemCommands(parent *cobra.Command) {
 		},
 	}
 	system_user_selfCmd.AddCommand(system_user_self_update_5Cmd)
+	system_user_self_update_6Cmd := &cobra.Command{
+		Use:   "update",
+		Short: "上报推送客户端",
+		Long:  "业务说明：保存当前用户的 uni-push 客户端 ID；platform=unbind 时解绑当前用户与该客户端 ID。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/system/user/self/push-client/report",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	system_user_selfCmd.AddCommand(system_user_self_update_6Cmd)
 	system_user_self_registerCmd := &cobra.Command{
 		Use:   "register",
 		Short: "普通用户注册",
@@ -4192,7 +5211,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_login_2Cmd := &cobra.Command{
 		Use:   "login",
 		Short: "第三方登录授权起跳",
-		Long:  "业务说明：根据当前应用配置生成 Google、GitHub、Apple 的授权跳转地址，前端只传 provider 与平台类型，不允许覆盖 redirectURI。",
+		Long:  "业务说明：根据当前应用配置生成 Huawei、Google、GitHub、Apple 的授权跳转地址，前端只传 provider 与平台类型，不允许覆盖 redirectURI。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/third-auth/start",
@@ -4240,7 +5259,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 		},
 	}
 	system_user_selfCmd.AddCommand(system_user_self_register_2Cmd)
-	system_user_self_update_6Cmd := &cobra.Command{
+	system_user_self_update_7Cmd := &cobra.Command{
 		Use:   "update",
 		Short: "更新用户基本数据",
 		Long:  "业务说明：当前用户更新自己的个人信息，包括昵称、性别、头像等非敏感字段。用户名、邮箱、手机号等敏感字段需管理员修改。支持部分更新，未传字段保持原值。",
@@ -4256,7 +5275,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	system_user_selfCmd.AddCommand(system_user_self_update_6Cmd)
+	system_user_selfCmd.AddCommand(system_user_self_update_7Cmd)
 	system_user_self_view_12Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "精准搜索用户",
@@ -4282,7 +5301,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_accessToken_createCmd := &cobra.Command{
 		Use:   "create",
 		Short: "创建访问令牌",
-		Long:  "业务说明：为当前用户创建个人访问令牌（类似GitHub PAT），用于API调用认证、脚本自动化等场景。可设置可访问的企业范围、到期时间和用途描述。创建成功后返回完整的访问密钥，密钥仅在创建时可见，后续查询只显示访问密钥标识。",
+		Long:  "业务说明：为当前用户创建个人访问令牌（类似GitHub PAT），用于API调用认证、脚本自动化等场景。可设置可访问的租户范围、到期时间和用途描述。创建成功后返回完整的访问密钥，密钥仅在创建时可见，后续查询只显示访问密钥标识。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/access-token/create",
@@ -4333,7 +5352,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_accessToken_view_2Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取访问令牌详情",
-		Long:  "业务说明：获取指定访问令牌的详细信息，包括访问密钥标识、可访问企业范围、到期时间、创建时间等。注意：访问密钥（secret）仅在创建时返回，后续查询不显示。用于令牌管理、查看令牌配置等场景。",
+		Long:  "业务说明：获取指定访问令牌的详细信息，包括访问密钥标识、可访问租户范围、到期时间、创建时间等。注意：访问密钥（secret）仅在创建时返回，后续查询不显示。用于令牌管理、查看令牌配置等场景。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/access-token/get-one",
@@ -4350,7 +5369,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_accessToken_updateCmd := &cobra.Command{
 		Use:   "update",
 		Short: "更新访问令牌",
-		Long:  "业务说明：更新指定访问令牌的配置，包括可访问企业范围、到期时间、用途描述等。用于调整令牌权限范围、延长或缩短有效期等场景。不支持更新访问密钥本身。",
+		Long:  "业务说明：更新指定访问令牌的配置，包括可访问租户范围、到期时间、用途描述等。用于调整令牌权限范围、延长或缩短有效期等场景。不支持更新访问密钥本身。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/access-token/update",
@@ -4410,8 +5429,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_user_self_tenant_deleteCmd := &cobra.Command{
 		Use:   "delete",
-		Short: "退出当前企业",
-		Long:  "业务说明：当前用户退出当前所在的企业。退出后用户不再属于该企业，失去该企业的所有权限和数据访问资格。用于用户主动离开企业、清理企业归属等场景。退出后需切换到其他企业或重新加入。",
+		Short: "退出当前租户",
+		Long:  "业务说明：当前用户退出当前所在的租户。退出后用户不再属于该租户，失去该租户的所有权限和数据访问资格。用于用户主动离开租户、清理租户归属等场景。退出后需切换到其他租户或重新加入。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/tenant/delete",
@@ -4427,8 +5446,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_tenantCmd.AddCommand(system_user_self_tenant_deleteCmd)
 	system_user_self_tenant_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取用户所处的企业列表",
-		Long:  "业务说明：查询当前登录用户所属的所有企业列表，返回企业编码、用户在各企业的状态、角色等信息。用于用户切换企业、查看可访问的企业范围等场景。可同时返回角色详情。",
+		Short: "获取用户所处的租户列表",
+		Long:  "业务说明：查询当前登录用户所属的所有租户列表，返回租户编码、用户在各租户的状态、角色等信息。用于用户切换租户、查看可访问的租户范围等场景。可同时返回角色详情。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/tenant/get-list",
@@ -4444,8 +5463,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_tenantCmd.AddCommand(system_user_self_tenant_viewCmd)
 	system_user_self_tenant_view_2Cmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取当前用户在当前企业的详情",
-		Long:  "业务说明：获取当前登录用户在当前请求企业下的详细信息，包括用户状态、部门归属、角色列表、标签等。可指定是否同时返回角色详情和用户基本信息。用于用户个人中心展示、当前企业权限查看等场景。",
+		Short: "获取当前用户在当前租户的详情",
+		Long:  "业务说明：获取当前登录用户在当前请求租户下的详细信息，包括用户状态、部门归属、角色列表、标签等。可指定是否同时返回角色详情和用户基本信息。用于用户个人中心展示、当前租户权限查看等场景。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/tenant/get-one",
@@ -4461,8 +5480,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_tenantCmd.AddCommand(system_user_self_tenant_view_2Cmd)
 	system_user_self_tenant_inviteCmd := &cobra.Command{
 		Use:   "invite",
-		Short: "用户加入企业（通过邀请码、邮件或手机邀请）",
-		Long:  "业务说明：用户通过邀请码或接受邮件/手机邀请加入指定企业。传入邀请码或指定加入方式（code/email/phone）。加入成功后用户成为该企业成员，获得对应权限。用于新用户加入团队、接受邀请等场景。",
+		Short: "用户加入租户（通过邀请码、邮件、手机或客户端应用）",
+		Long:  "业务说明：用户加入指定租户。支持多种加入方式：code（邀请码）、email（邮件邀请）、phone（手机邀请）、client（客户端应用直接加入）。client 方式无需邀请码，只需传入 tenantCode 和 method=client，角色自动使用租户配置的注册角色。加入成功后用户成为该租户成员，获得对应权限。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/tenant/join",
@@ -4478,8 +5497,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_tenantCmd.AddCommand(system_user_self_tenant_inviteCmd)
 	system_user_self_tenant_updateCmd := &cobra.Command{
 		Use:   "update",
-		Short: "更新当前用户在当前企业的信息",
-		Long:  "业务说明：更新当前用户在当前企业下的个人信息，如公共标签（pubTags）等用户可自行修改的字段。管理员设置的私有标签（tags）用户无权修改。用于用户设置个人偏好标签等场景。",
+		Short: "更新当前用户在当前租户的信息",
+		Long:  "业务说明：更新当前用户在当前租户下的个人信息，如公共标签（pubTags）等用户可自行修改的字段。管理员设置的私有标签（tags）用户无权修改。用于用户设置个人偏好标签等场景。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/self/tenant/update",
@@ -4500,8 +5519,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_user_tenant_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "用户所处的企业列表",
-		Long:  "业务说明：查询指定用户所属的所有企业信息，返回企业编码、用户在该企业的状态、角色等信息。用于管理员查看用户的企业归属、跨企业用户管理等场景。可同时返回用户在各企业的角色信息。",
+		Short: "用户所处的租户列表",
+		Long:  "业务说明：查询指定用户所属的所有租户信息，返回租户编码、用户在该租户的状态、角色等信息。用于管理员查看用户的租户归属、跨租户用户管理等场景。可同时返回用户在各租户的角色信息。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/system/user/tenant/get-list",

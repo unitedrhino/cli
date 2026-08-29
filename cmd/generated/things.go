@@ -84,14 +84,216 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	}
 	things_ai_mcpCmd.AddCommand(things_ai_mcp_view_3Cmd)
 	parent.AddCommand(things_ai_mcpCmd)
+	things_alarm_capabilityCmd := &cobra.Command{
+		Use:   "things/alarm/capability",
+		Short: "things/alarm/capability API 操作",
+	}
+	things_alarm_capability_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取告警能力矩阵",
+		Long:  "返回告警数据源、判据、目标和通知的统一可配置能力",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/capability/get-one",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_capabilityCmd.AddCommand(things_alarm_capability_viewCmd)
+	parent.AddCommand(things_alarm_capabilityCmd)
+	things_alarm_conditionTemplateCmd := &cobra.Command{
+		Use:   "things/alarm/conditionTemplate",
+		Short: "things/alarm/conditionTemplate API 操作",
+	}
+	things_alarm_conditionTemplate_createCmd := &cobra.Command{
+		Use:   "create",
+		Short: "创建触发条件模板",
+		Long:  "创建触发条件模板",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/condition-template/create",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_conditionTemplateCmd.AddCommand(things_alarm_conditionTemplate_createCmd)
+	things_alarm_conditionTemplate_deleteCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "删除触发条件模板",
+		Long:  "删除触发条件模板",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/condition-template/delete",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_conditionTemplateCmd.AddCommand(things_alarm_conditionTemplate_deleteCmd)
+	things_alarm_conditionTemplate_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取触发条件模板列表",
+		Long:  "获取触发条件模板列表",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/condition-template/get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_conditionTemplateCmd.AddCommand(things_alarm_conditionTemplate_viewCmd)
+	things_alarm_conditionTemplate_view_2Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取触发条件模板详情",
+		Long:  "获取触发条件模板详情",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/condition-template/get-one",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_conditionTemplateCmd.AddCommand(things_alarm_conditionTemplate_view_2Cmd)
+	things_alarm_conditionTemplate_updateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "更新触发条件模板",
+		Long:  "更新触发条件模板",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/condition-template/update",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_conditionTemplateCmd.AddCommand(things_alarm_conditionTemplate_updateCmd)
+	parent.AddCommand(things_alarm_conditionTemplateCmd)
+	things_alarm_eventCmd := &cobra.Command{
+		Use:   "things/alarm/event",
+		Short: "things/alarm/event API 操作",
+	}
+	things_alarm_event_dealCmd := &cobra.Command{
+		Use:   "deal",
+		Short: "处理告警事件",
+		Long:  "处理告警事件",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/event/deal",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_eventCmd.AddCommand(things_alarm_event_dealCmd)
+	things_alarm_event_deal_2Cmd := &cobra.Command{
+		Use:   "deal",
+		Short: "标记误报",
+		Long:  "标记误报",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/event/false-alarm",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_eventCmd.AddCommand(things_alarm_event_deal_2Cmd)
+	things_alarm_event_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取告警事件列表",
+		Long:  "获取告警事件列表",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/event/get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_eventCmd.AddCommand(things_alarm_event_viewCmd)
+	things_alarm_event_view_2Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取告警事件详情",
+		Long:  "获取告警事件详情",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/event/get-one",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_eventCmd.AddCommand(things_alarm_event_view_2Cmd)
+	things_alarm_event_view_3Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "告警事件统计",
+		Long:  "告警事件统计",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/event/stat",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_eventCmd.AddCommand(things_alarm_event_view_3Cmd)
+	parent.AddCommand(things_alarm_eventCmd)
 	things_alarm_infoCmd := &cobra.Command{
 		Use:   "things/alarm/info",
 		Short: "things/alarm/info API 操作",
 	}
 	things_alarm_info_createCmd := &cobra.Command{
 		Use:   "create",
-		Short: "新增告警",
-		Long:  "业务说明：创建告警规则配置，支持设置告警级别【提醒、一般、严重、紧急、超紧急】、通知方式【短信、邮件、推送】、触发场景绑定。告警触发时自动向指定用户发送通知",
+		Short: "创建告警规则",
+		Long:  "创建告警规则",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/alarm/info/create",
@@ -107,8 +309,8 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_alarm_infoCmd.AddCommand(things_alarm_info_createCmd)
 	things_alarm_info_deleteCmd := &cobra.Command{
 		Use:   "delete",
-		Short: "删除告警",
-		Long:  "业务说明：删除告警规则配置，删除后该告警不再触发，绑定的场景联动关系同步解除。需确保告警ID有效且存在",
+		Short: "删除告警规则",
+		Long:  "删除告警规则",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/alarm/info/delete",
@@ -122,10 +324,27 @@ func RegisterThingsCommands(parent *cobra.Command) {
 		},
 	}
 	things_alarm_infoCmd.AddCommand(things_alarm_info_deleteCmd)
+	things_alarm_info_create_2Cmd := &cobra.Command{
+		Use:   "create",
+		Short: "手动触发评估",
+		Long:  "手动触发评估",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/info/evaluate-trigger",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_infoCmd.AddCommand(things_alarm_info_create_2Cmd)
 	things_alarm_info_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取告警信息列表",
-		Long:  "业务说明：分页查询告警规则列表，支持按告警名称模糊搜索、按告警编码精确过滤。返回告警基本信息、级别、状态、通知配置、绑定场景列表",
+		Short: "获取告警规则列表",
+		Long:  "获取告警规则列表",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/alarm/info/get-list",
@@ -141,8 +360,8 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_alarm_infoCmd.AddCommand(things_alarm_info_viewCmd)
 	things_alarm_info_view_2Cmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取告警信息",
-		Long:  "业务说明：根据告警ID查询告警规则详情，返回完整配置信息包括告警级别、通知方式、绑定的场景ID列表及场景核心信息",
+		Short: "获取告警规则详情",
+		Long:  "获取告警规则详情",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/alarm/info/get-one",
@@ -158,8 +377,25 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_alarm_infoCmd.AddCommand(things_alarm_info_view_2Cmd)
 	things_alarm_info_updateCmd := &cobra.Command{
 		Use:   "update",
-		Short: "更新告警",
-		Long:  "业务说明：修改告警规则配置，可更新告警名称、级别、状态【启用/禁用】、通知方式、绑定场景等。支持部分更新，空值字段保持原值不变",
+		Short: "更新告警规则状态",
+		Long:  "更新告警规则状态",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/info/status-update",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_infoCmd.AddCommand(things_alarm_info_updateCmd)
+	things_alarm_info_update_2Cmd := &cobra.Command{
+		Use:   "update",
+		Short: "更新告警规则",
+		Long:  "更新告警规则",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/alarm/info/update",
@@ -172,36 +408,19 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_alarm_infoCmd.AddCommand(things_alarm_info_updateCmd)
+	things_alarm_infoCmd.AddCommand(things_alarm_info_update_2Cmd)
 	parent.AddCommand(things_alarm_infoCmd)
-	things_alarm_recordCmd := &cobra.Command{
-		Use:   "things/alarm/record",
-		Short: "things/alarm/record API 操作",
+	things_alarm_notifyRecordCmd := &cobra.Command{
+		Use:   "things/alarm/notifyRecord",
+		Short: "things/alarm/notifyRecord API 操作",
 	}
-	things_alarm_record_dealCmd := &cobra.Command{
-		Use:   "deal",
-		Short: "处理告警",
-		Long:  "业务说明：对告警记录进行人工处理确认。处理方式：1=标记为无效（告警误触发无需关注）、2=派单（走工作流转交运维人员处理）。处理后告警状态变更，用于告警闭环管理",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/alarm/record/deal",
-				Body: map[string]any{},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println(resp)
-			return nil
-		},
-	}
-	things_alarm_recordCmd.AddCommand(things_alarm_record_dealCmd)
-	things_alarm_record_viewCmd := &cobra.Command{
+	things_alarm_notifyRecord_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取告警记录列表",
-		Long:  "业务说明：分页查询告警触发的历史记录。每次告警触发生成一条记录，包含告警时间、触发设备、场景信息、告警等级【提醒、一般、严重、紧急、超紧急】、处理状态【告警中、忽略、正在处理、已处理】。支持按区域、时间范围、告警名称、处理状态过滤",
+		Short: "获取通知记录列表",
+		Long:  "获取通知记录列表",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/alarm/record/get-list",
+				Path: "/api/v1/things/alarm/notify-record/get-list",
 				Body: map[string]any{},
 			})
 			if err != nil {
@@ -211,19 +430,36 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_alarm_recordCmd.AddCommand(things_alarm_record_viewCmd)
-	parent.AddCommand(things_alarm_recordCmd)
-	things_alarm_sceneCmd := &cobra.Command{
-		Use:   "things/alarm/scene",
-		Short: "things/alarm/scene API 操作",
+	things_alarm_notifyRecordCmd.AddCommand(things_alarm_notifyRecord_viewCmd)
+	things_alarm_notifyRecord_updateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "重新发送通知",
+		Long:  "重新发送通知",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/notify-record/resend",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
 	}
-	things_alarm_scene_createCmd := &cobra.Command{
+	things_alarm_notifyRecordCmd.AddCommand(things_alarm_notifyRecord_updateCmd)
+	parent.AddCommand(things_alarm_notifyRecordCmd)
+	things_alarm_notifyTemplateCmd := &cobra.Command{
+		Use:   "things/alarm/notifyTemplate",
+		Short: "things/alarm/notifyTemplate API 操作",
+	}
+	things_alarm_notifyTemplate_createCmd := &cobra.Command{
 		Use:   "create",
-		Short: "更新告警和场景的关联",
-		Long:  "业务说明：批量设置告警规则与场景联动的绑定关系。一个告警可绑定多个场景，告警触发时自动执行绑定的场景动作【如发送通知、控制设备】。传入的场景ID列表会完全替换原有绑定",
+		Short: "创建通知内容模板",
+		Long:  "创建通知内容模板",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/alarm/scene/batch-create",
+				Path: "/api/v1/things/alarm/notify-template/create",
 				Body: map[string]any{},
 			})
 			if err != nil {
@@ -233,14 +469,14 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_alarm_sceneCmd.AddCommand(things_alarm_scene_createCmd)
-	things_alarm_scene_deleteCmd := &cobra.Command{
+	things_alarm_notifyTemplateCmd.AddCommand(things_alarm_notifyTemplate_createCmd)
+	things_alarm_notifyTemplate_deleteCmd := &cobra.Command{
 		Use:   "delete",
-		Short: "删除告警和场景的关联",
-		Long:  "业务说明：解除告警规则与单个场景的绑定关系。删除后该场景不再随告警触发执行，告警本身配置不受影响",
+		Short: "删除通知内容模板",
+		Long:  "删除通知内容模板",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/alarm/scene/delete",
+				Path: "/api/v1/things/alarm/notify-template/delete",
 				Body: map[string]any{},
 			})
 			if err != nil {
@@ -250,14 +486,14 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_alarm_sceneCmd.AddCommand(things_alarm_scene_deleteCmd)
-	things_alarm_scene_viewCmd := &cobra.Command{
+	things_alarm_notifyTemplateCmd.AddCommand(things_alarm_notifyTemplate_deleteCmd)
+	things_alarm_notifyTemplate_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "获取告警和场景的关联列表",
-		Long:  "业务说明：查询告警规则绑定的场景列表。返回告警ID及关联的场景详情【场景ID、场景名称、场景类型】。用于告警配置查看、关联场景展示",
+		Short: "获取通知内容模板列表",
+		Long:  "获取通知内容模板列表",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/alarm/scene/get-list",
+				Path: "/api/v1/things/alarm/notify-template/get-list",
 				Body: map[string]any{},
 			})
 			if err != nil {
@@ -267,8 +503,59 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_alarm_sceneCmd.AddCommand(things_alarm_scene_viewCmd)
-	parent.AddCommand(things_alarm_sceneCmd)
+	things_alarm_notifyTemplateCmd.AddCommand(things_alarm_notifyTemplate_viewCmd)
+	things_alarm_notifyTemplate_view_2Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取通知内容模板详情",
+		Long:  "获取通知内容模板详情",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/notify-template/get-one",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_notifyTemplateCmd.AddCommand(things_alarm_notifyTemplate_view_2Cmd)
+	things_alarm_notifyTemplate_create_2Cmd := &cobra.Command{
+		Use:   "create",
+		Short: "测试发送通知",
+		Long:  "测试发送通知",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/notify-template/test-send",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_notifyTemplateCmd.AddCommand(things_alarm_notifyTemplate_create_2Cmd)
+	things_alarm_notifyTemplate_updateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "更新通知内容模板",
+		Long:  "更新通知内容模板",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/alarm/notify-template/update",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_alarm_notifyTemplateCmd.AddCommand(things_alarm_notifyTemplate_updateCmd)
+	parent.AddCommand(things_alarm_notifyTemplateCmd)
 	things_area_infoCmd := &cobra.Command{
 		Use:   "things/area/info",
 		Short: "things/area/info API 操作",
@@ -639,6 +926,28 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	}
 	things_data_projectCmd.AddCommand(things_data_project_viewCmd)
 	parent.AddCommand(things_data_projectCmd)
+	things_data_userCmd := &cobra.Command{
+		Use:   "things/data/user",
+		Short: "things/data/user API 操作",
+	}
+	things_data_user_viewCmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取有区域权限的用户列表",
+		Long:  "查询指定区域下已授权的用户列表，支持传入多个区域ID。仅项目管理员或租户管理员可调用。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/data/user/get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_data_userCmd.AddCommand(things_data_user_viewCmd)
+	parent.AddCommand(things_data_userCmd)
 	things_device_authCmd := &cobra.Command{
 		Use:   "things/device/auth",
 		Short: "things/device/auth API 操作",
@@ -1050,7 +1359,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_device_info_view_2Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "是否可以绑定设备",
-		Long:  "检查指定设备是否可以被绑定。验证设备的绑定限制（如是否已被他人绑定、是否属于其他企业、是否在线等）。在绑定操作前调用，提前发现绑定障碍。",
+		Long:  "检查指定设备是否可以被绑定。验证设备的绑定限制（如是否已被他人绑定、是否属于其他租户、是否在线等）。在绑定操作前调用，提前发现绑定障碍。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/device/info/can-bind",
@@ -1275,6 +1584,23 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_device_interactCmd.AddCommand(things_device_interact_send_2Cmd)
 	things_device_interact_send_3Cmd := &cobra.Command{
 		Use:   "send",
+		Short: "下行透传消息给设备",
+		Long:  "通过平台标准设备下行通道发送原始文本载荷。仅组织管理员和平台管理员可操作；接口成功仅表示消息已交给设备通信链路。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/device/interact/message-send",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_device_interactCmd.AddCommand(things_device_interact_send_3Cmd)
+	things_device_interact_send_4Cmd := &cobra.Command{
+		Use:   "send",
 		Short: "批量调用设备属性",
 		Long:  "批量向多个设备下发相同的属性控制指令。支持按区域、分组、设备列表批量控制。适用于批量开关灯、批量调温等场景。返回每个设备的执行结果。",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -1289,7 +1615,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_device_interactCmd.AddCommand(things_device_interact_send_3Cmd)
+	things_device_interactCmd.AddCommand(things_device_interact_send_4Cmd)
 	things_device_interact_view_2Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取调用设备属性的结果",
@@ -1307,7 +1633,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 		},
 	}
 	things_device_interactCmd.AddCommand(things_device_interact_view_2Cmd)
-	things_device_interact_send_4Cmd := &cobra.Command{
+	things_device_interact_send_5Cmd := &cobra.Command{
 		Use:   "send",
 		Short: "调用设备属性",
 		Long:  "向设备下发属性控制指令，修改设备的属性值。属性控制是物模型中最常用的交互方式，如开关设备、设置温度、调节亮度等。支持同步/异步模式，支持设备影子机制（离线时写影子，在线时下发）。",
@@ -1323,8 +1649,8 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_device_interactCmd.AddCommand(things_device_interact_send_4Cmd)
-	things_device_interact_send_5Cmd := &cobra.Command{
+	things_device_interactCmd.AddCommand(things_device_interact_send_5Cmd)
+	things_device_interact_send_6Cmd := &cobra.Command{
 		Use:   "send",
 		Short: "批量请求设备获取设备最新属性",
 		Long:  "批量向多个设备下发获取属性请求。支持按区域、分组、设备列表批量请求。适用于需要刷新多个设备实时状态的场景，如大屏展示前获取最新数据。",
@@ -1340,8 +1666,8 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_device_interactCmd.AddCommand(things_device_interact_send_5Cmd)
-	things_device_interact_send_6Cmd := &cobra.Command{
+	things_device_interactCmd.AddCommand(things_device_interact_send_6Cmd)
+	things_device_interact_send_7Cmd := &cobra.Command{
 		Use:   "send",
 		Short: "请求设备获取设备最新属性",
 		Long:  "向设备下发获取属性请求，要求设备上报最新的属性值。设备收到请求后，主动上报当前属性状态。用于需要获取设备实时状态但设备未自动上报的场景。",
@@ -1357,7 +1683,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_device_interactCmd.AddCommand(things_device_interact_send_6Cmd)
+	things_device_interactCmd.AddCommand(things_device_interact_send_7Cmd)
 	things_device_interact_generateCmd := &cobra.Command{
 		Use:   "generate",
 		Short: "生成物模型模拟数据",
@@ -2643,7 +2969,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_product_config_updateCmd := &cobra.Command{
 		Use:   "update",
 		Short: "更新配置",
-		Long:  "业务说明：更新产品设备初始化配置，设置设备首次接入时自动分配的企业、项目、区域、部门。用于批量设备自动归属配置",
+		Long:  "业务说明：更新产品设备初始化配置，设置设备首次接入时自动分配的租户、项目、区域、部门。用于批量设备自动归属配置",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/product/config/update",
@@ -2806,7 +3132,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_product_info_create_2Cmd := &cobra.Command{
 		Use:   "create",
 		Short: "初始化产品",
-		Long:  "业务说明：批量初始化产品的基础配置，包括设备初始化默认分配的企业、项目、区域等。用于产品首次启用前的快速配置",
+		Long:  "业务说明：批量初始化产品的基础配置，包括设备初始化默认分配的租户、项目、区域等。用于产品首次启用前的快速配置",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/product/info/init",
@@ -3171,7 +3497,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	things_project_info_viewCmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取项目列表",
-		Long:  "查询用户有权限的项目列表，支持按名称模糊搜索、按状态过滤。平台管理员可通过isGetAll获取所有企业的项目。返回数据包含设备统计和报警状态。",
+		Long:  "查询用户有权限的项目列表，支持按名称模糊搜索、按状态过滤。平台管理员可通过isGetAll获取所有租户的项目。返回数据包含设备统计和报警状态。",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
 				Path: "/api/v1/things/project/info/get-list",
@@ -3877,191 +4203,6 @@ func RegisterThingsCommands(parent *cobra.Command) {
 	}
 	things_protocol_syncCmd.AddCommand(things_protocol_sync_sync_2Cmd)
 	parent.AddCommand(things_protocol_syncCmd)
-	things_rule_alarm_infoCmd := &cobra.Command{
-		Use:   "things/rule/alarm/info",
-		Short: "things/rule/alarm/info API 操作",
-	}
-	things_rule_alarm_info_createCmd := &cobra.Command{
-		Use:   "create",
-		Short: "新增告警(弃用)",
-		Long:  "业务说明：创建告警规则定义（已弃用，请使用新版告警管理接口）。告警规则用于定义设备异常状态的监测条件，如设备离线、属性值超阈值、故障状态上报等。创建后可关联场景联动，触发告警时执行通知或控制动作。适用于：设备状态监控、异常预警配置。",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/rule/alarm/info/create",
-				Body: map[string]any{},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println(resp)
-			return nil
-		},
-	}
-	things_rule_alarm_infoCmd.AddCommand(things_rule_alarm_info_createCmd)
-	things_rule_alarm_info_deleteCmd := &cobra.Command{
-		Use:   "delete",
-		Short: "删除告警(弃用)",
-		Long:  "业务说明：删除告警规则定义（已弃用）。删除后告警规则不再触发，历史告警记录保留。适用于：清理废弃告警配置、简化监控规则。注意：删除操作不可恢复，关联的场景联动需先解除关联。",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/rule/alarm/info/delete",
-				Body: map[string]any{},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println(resp)
-			return nil
-		},
-	}
-	things_rule_alarm_infoCmd.AddCommand(things_rule_alarm_info_deleteCmd)
-	things_rule_alarm_info_viewCmd := &cobra.Command{
-		Use:   "view",
-		Short: "获取告警信息列表(弃用)",
-		Long:  "业务说明：查询告警规则列表（已弃用）。返回告警规则基本信息（名称、告警等级、触发条件、关联场景、创建时间等），支持分页查询。用于管理界面展示告警规则清单、告警配置状态查看。",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/rule/alarm/info/get-list",
-				Body: map[string]any{},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println(resp)
-			return nil
-		},
-	}
-	things_rule_alarm_infoCmd.AddCommand(things_rule_alarm_info_viewCmd)
-	things_rule_alarm_info_view_2Cmd := &cobra.Command{
-		Use:   "view",
-		Short: "获取告警信息(弃用)",
-		Long:  "业务说明：获取单个告警规则的完整配置（已弃用）。包括告警名称、告警等级、触发条件定义（设备属性条件、状态判断）、关联的场景联动ID、通知配置等。用于告警详情查看、复制告警配置、调试告警触发逻辑。",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/rule/alarm/info/get-one",
-				Body: map[string]any{},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println(resp)
-			return nil
-		},
-	}
-	things_rule_alarm_infoCmd.AddCommand(things_rule_alarm_info_view_2Cmd)
-	things_rule_alarm_info_updateCmd := &cobra.Command{
-		Use:   "update",
-		Short: "更新告警(弃用)",
-		Long:  "业务说明：修改告警规则配置（已弃用）。可调整告警名称、告警等级、触发条件、通知配置等。注意：更新后新告警按新规则判断，历史告警记录不受影响。适用于：调整告警阈值、优化告警触发逻辑、修改通知方式。",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/rule/alarm/info/update",
-				Body: map[string]any{},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println(resp)
-			return nil
-		},
-	}
-	things_rule_alarm_infoCmd.AddCommand(things_rule_alarm_info_updateCmd)
-	parent.AddCommand(things_rule_alarm_infoCmd)
-	things_rule_alarm_recordCmd := &cobra.Command{
-		Use:   "things/rule/alarm/record",
-		Short: "things/rule/alarm/record API 操作",
-	}
-	things_rule_alarm_record_dealCmd := &cobra.Command{
-		Use:   "deal",
-		Short: "处理告警(弃用)",
-		Long:  "业务说明：对告警记录进行处理确认（已弃用）。处理方式包括确认告警（标记为已知悉）、忽略告警（不再提醒）、关闭告警（问题已解决）。处理后告警状态变更，记录处理人和处理时间。用于告警闭环管理、运维工作记录、告警统计分析。",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/rule/alarm/record/deal",
-				Body: map[string]any{},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println(resp)
-			return nil
-		},
-	}
-	things_rule_alarm_recordCmd.AddCommand(things_rule_alarm_record_dealCmd)
-	things_rule_alarm_record_viewCmd := &cobra.Command{
-		Use:   "view",
-		Short: "获取告警记录列表(弃用)",
-		Long:  "业务说明：查询告警触发的历史记录（已弃用）。每次告警触发生成一条记录，包含告警时间、告警设备、告警内容、告警等级、处理状态等。用于告警历史分析、告警统计、异常趋势监控。支持按告警等级、时间范围、处理状态过滤。",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/rule/alarm/record/get-list",
-				Body: map[string]any{},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println(resp)
-			return nil
-		},
-	}
-	things_rule_alarm_recordCmd.AddCommand(things_rule_alarm_record_viewCmd)
-	parent.AddCommand(things_rule_alarm_recordCmd)
-	things_rule_alarm_sceneCmd := &cobra.Command{
-		Use:   "things/rule/alarm/scene",
-		Short: "things/rule/alarm/scene API 操作",
-	}
-	things_rule_alarm_scene_createCmd := &cobra.Command{
-		Use:   "create",
-		Short: "更新告警和场景的关联(弃用)",
-		Long:  "业务说明：批量创建告警规则与场景联动的关联关系（已弃用）。告警触发时可自动执行关联的场景动作（如发送通知、控制设备）。支持一个告警关联多个场景，一个场景关联多个告警。用于配置告警响应自动化流程、告警触发后的处理动作。",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/rule/alarm/scene/batch-create",
-				Body: map[string]any{},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println(resp)
-			return nil
-		},
-	}
-	things_rule_alarm_sceneCmd.AddCommand(things_rule_alarm_scene_createCmd)
-	things_rule_alarm_scene_deleteCmd := &cobra.Command{
-		Use:   "delete",
-		Short: "删除告警和场景的关联(弃用)",
-		Long:  "业务说明：删除告警规则与场景联动的关联关系（已弃用）。解除关联后告警触发时不再执行该场景的动作。适用于：调整告警响应流程、移除不再需要的自动化处理、场景废弃时清理关联。",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/rule/alarm/scene/delete",
-				Body: map[string]any{},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println(resp)
-			return nil
-		},
-	}
-	things_rule_alarm_sceneCmd.AddCommand(things_rule_alarm_scene_deleteCmd)
-	things_rule_alarm_scene_viewCmd := &cobra.Command{
-		Use:   "view",
-		Short: "获取告警和场景的关联列表(弃用)",
-		Long:  "业务说明：查询告警规则与场景联动的关联关系列表（已弃用）。返回告警ID、场景ID及关联配置信息。用于管理界面展示告警-场景关联关系、分析告警响应流程配置、确认关联是否正确。",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/things/rule/alarm/scene/get-list",
-				Body: map[string]any{},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println(resp)
-			return nil
-		},
-	}
-	things_rule_alarm_sceneCmd.AddCommand(things_rule_alarm_scene_viewCmd)
-	parent.AddCommand(things_rule_alarm_sceneCmd)
 	things_rule_scene_infoCmd := &cobra.Command{
 		Use:   "things/rule/scene/info",
 		Short: "things/rule/scene/info API 操作",
@@ -4594,6 +4735,23 @@ func RegisterThingsCommands(parent *cobra.Command) {
 		},
 	}
 	things_user_device_shareCmd.AddCommand(things_user_device_share_deleteCmd)
+	things_user_device_share_delete_2Cmd := &cobra.Command{
+		Use:   "delete",
+		Short: "删除批量分享 Token",
+		Long:  "业务说明：分享者手动删除自己生成的批量分享 Token，使其立即失效。删除后该 Token 不可再被接受，被分享者查询时返回【分享 Token 不存在或已过期】。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/user/device/share/batch-delete-token",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_user_device_shareCmd.AddCommand(things_user_device_share_delete_2Cmd)
 	things_user_device_share_viewCmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取批量分享的设备列表",
@@ -4611,6 +4769,23 @@ func RegisterThingsCommands(parent *cobra.Command) {
 		},
 	}
 	things_user_device_shareCmd.AddCommand(things_user_device_share_viewCmd)
+	things_user_device_share_view_2Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取批量分享 Token 列表",
+		Long:  "业务说明：查询当前登录用户生成的所有有效批量分享 Token 列表，包括设备数量、授权类型、有效期等。用于分享者在管理页面查看自己发出的批量分享。列表自动过滤已过期的 Token。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/user/device/share/batch-get-token-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_user_device_shareCmd.AddCommand(things_user_device_share_view_2Cmd)
 	things_user_device_share_create_3Cmd := &cobra.Command{
 		Use:   "create",
 		Short: "分享设备",
@@ -4628,7 +4803,7 @@ func RegisterThingsCommands(parent *cobra.Command) {
 		},
 	}
 	things_user_device_shareCmd.AddCommand(things_user_device_share_create_3Cmd)
-	things_user_device_share_delete_2Cmd := &cobra.Command{
+	things_user_device_share_delete_3Cmd := &cobra.Command{
 		Use:   "delete",
 		Short: "取消分享设备",
 		Long:  "业务说明：设备所有者取消对单个用户的设备分享，删除分享记录，被分享用户立即失去该设备的访问权限。不影响设备所有者的所有权。",
@@ -4644,8 +4819,8 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_user_device_shareCmd.AddCommand(things_user_device_share_delete_2Cmd)
-	things_user_device_share_view_2Cmd := &cobra.Command{
+	things_user_device_shareCmd.AddCommand(things_user_device_share_delete_3Cmd)
+	things_user_device_share_view_3Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取分享设备列表",
 		Long:  "业务说明：查询设备分享记录列表，支持按设备维度筛选，可选同时返回被分享用户信息。用于分享管理页面展示当前用户作为分享者或被分享者的所有设备分享关系。",
@@ -4661,8 +4836,8 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_user_device_shareCmd.AddCommand(things_user_device_share_view_2Cmd)
-	things_user_device_share_view_3Cmd := &cobra.Command{
+	things_user_device_shareCmd.AddCommand(things_user_device_share_view_3Cmd)
+	things_user_device_share_view_4Cmd := &cobra.Command{
 		Use:   "view",
 		Short: "获取分享设备详情",
 		Long:  "业务说明：查询单条设备分享记录的完整信息，包括设备信息、被分享用户、授权类型、权限配置、过期时间等。用于分享管理页面的详情查看或权限编辑前的数据获取。",
@@ -4678,7 +4853,92 @@ func RegisterThingsCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	things_user_device_shareCmd.AddCommand(things_user_device_share_view_3Cmd)
+	things_user_device_shareCmd.AddCommand(things_user_device_share_view_4Cmd)
+	things_user_device_share_create_4Cmd := &cobra.Command{
+		Use:   "create",
+		Short: "通过分享码接受设备",
+		Long:  "业务说明：用户输入分享码，验证有效性后将设备权限绑定到当前用户。验证通过后创建 dm_user_device_share 记录，并删除分享码（一次性使用）。支持单设备和批量设备接受。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/user/device/share/share-code-accept",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_user_device_shareCmd.AddCommand(things_user_device_share_create_4Cmd)
+	things_user_device_share_delete_4Cmd := &cobra.Command{
+		Use:   "delete",
+		Short: "删除分享码",
+		Long:  "业务说明：分享者手动删除自己生成的分享码，使其立即失效。删除后该分享码不可再被接受，被分享者查询时返回【分享码不存在或已过期】。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/user/device/share/share-code-delete",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_user_device_shareCmd.AddCommand(things_user_device_share_delete_4Cmd)
+	things_user_device_share_create_5Cmd := &cobra.Command{
+		Use:   "create",
+		Short: "生成设备分享码",
+		Long:  "业务说明：设备所有者选择设备及权限配置后生成分享码，支持单设备或批量设备。分享码默认有效期24小时，最长72小时（3天），可通过纯文本方式分享给其他用户。被分享者输入分享码即可接受设备权限。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/user/device/share/share-code-gen",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_user_device_shareCmd.AddCommand(things_user_device_share_create_5Cmd)
+	things_user_device_share_view_5Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "通过分享码查询分享信息",
+		Long:  "业务说明：无需登录，通过分享码查询对应的设备列表和分享权限信息。用于被分享者在未登录状态下预览即将接受的设备信息。分享码过期或无效时返回对应错误。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/user/device/share/share-code-get-info",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_user_device_shareCmd.AddCommand(things_user_device_share_view_5Cmd)
+	things_user_device_share_view_6Cmd := &cobra.Command{
+		Use:   "view",
+		Short: "获取分享码列表",
+		Long:  "业务说明：查询当前登录用户生成的所有有效分享码列表，包括设备信息、权限配置、有效期等。用于分享者在管理页面查看自己发出的分享码。列表自动过滤已过期的分享码。",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
+				Path: "/api/v1/things/user/device/share/share-code-get-list",
+				Body: map[string]any{},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println(resp)
+			return nil
+		},
+	}
+	things_user_device_shareCmd.AddCommand(things_user_device_share_view_6Cmd)
 	things_user_device_share_updateCmd := &cobra.Command{
 		Use:   "update",
 		Short: "更新分享设备信息",

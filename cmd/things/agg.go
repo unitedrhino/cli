@@ -1,8 +1,8 @@
 package things
 
 import (
-	"github.com/spf13/cobra"
 	"gitee.com/unitedrhino/cli/cmd/shared"
+	"github.com/spf13/cobra"
 )
 
 var aggCmd = &cobra.Command{
@@ -13,7 +13,8 @@ var aggCmd = &cobra.Command{
 示例:
   ur things agg -p p_smartswitch_001 -d switch-001 -i CpuUsage -f avg
   ur things agg -p p_smartswitch_001 -i Temperature -f max,min`,
-	RunE: wrapOldCommand(shared.CobraBridge{}.RunAgg),
+	DisableFlagParsing: true,
+	RunE:               wrapOldCommand(shared.CobraBridge{}.RunAgg),
 }
 
 func init() {

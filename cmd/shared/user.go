@@ -318,8 +318,9 @@ func runUserSelf(ctx context.Context, args []string, stdout, stderr io.Writer) i
 		return runUserSelfMenu(ctx, args[1:], stdout, stderr)
 	case "notify-preference":
 		return runUserSelfNotifyPreference(ctx, args[1:], stdout, stderr)
-	case "openclaw":
-		return runUserSelfOpenclaw(ctx, args[1:], stdout, stderr)
+	// thirdparty 为正名；openclaw 为旧命令别名，保留以兼容老脚本，两者行为完全一致
+	case "thirdparty", "openclaw":
+		return runUserSelfThirdparty(ctx, args[1:], stdout, stderr)
 	case "resource":
 		return runUserSelfResource(ctx, args[1:], stdout, stderr)
 	case "help", "--help", "-h":
@@ -360,7 +361,7 @@ func printUserSelfHelp(w io.Writer) {
 	fmt.Fprintln(w, "  app\t\tApp management (get-list, get-one)")
 	fmt.Fprintln(w, "  menu\t\tMenu management (get-list)")
 	fmt.Fprintln(w, "  notify-preference\tNotification preference (read, update)")
-	fmt.Fprintln(w, "  openclaw\t\tOpenClaw setup (setup-check, setup-complete)")
+	fmt.Fprintln(w, "  thirdparty\t\tThird-party client setup (setup-check, setup-complete; legacy alias: openclaw)")
 	fmt.Fprintln(w, "  resource\t\tResource/action permissions (action)")
 	fmt.Fprintln(w, "  help\t\tShow this help message")
 }
@@ -1906,39 +1907,41 @@ func runUserSelfNotifyPreferenceUpdate(ctx context.Context, args []string, stdou
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-// runUserSelfOpenclaw 执行 OpenClaw 管理命令
-func runUserSelfOpenclaw(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+// runUserSelfThirdparty 执行第三方客户端（CLI 绑定）管理命令；
+// `ur user self openclaw` 是本命令的旧名称别名，行为完全一致
+func runUserSelfThirdparty(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		printUserSelfOpenclawHelp(stdout)
+		printUserSelfThirdpartyHelp(stdout)
 		return 0
 	}
 
 	switch args[0] {
 	case "setup-check":
-		return runUserSelfOpenclawSetupCheck(ctx, args[1:], stdout, stderr)
+		return runUserSelfThirdpartySetupCheck(ctx, args[1:], stdout, stderr)
 	case "setup-complete":
-		return runUserSelfOpenclawSetupComplete(ctx, args[1:], stdout, stderr)
+		return runUserSelfThirdpartySetupComplete(ctx, args[1:], stdout, stderr)
 	case "help", "--help", "-h":
-		printUserSelfOpenclawHelp(stdout)
+		printUserSelfThirdpartyHelp(stdout)
 		return 0
 	default:
-		fmt.Fprintf(stderr, "unknown openclaw subcommand: %s\n", args[0])
-		printUserSelfOpenclawHelp(stderr)
+		fmt.Fprintf(stderr, "unknown thirdparty subcommand: %s\n", args[0])
+		printUserSelfThirdpartyHelp(stderr)
 		return 2
 	}
 }
 
-func printUserSelfOpenclawHelp(w io.Writer) {
-	fmt.Fprintln(w, "Usage: ur user self openclaw <subcommand> [options]")
+func printUserSelfThirdpartyHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur user self thirdparty <subcommand> [options]")
+	fmt.Fprintln(w, "       ur user self openclaw <subcommand> [options]    (legacy alias)")
 	fmt.Fprintln(w, "")
-	fmt.Fprintln(w, "OpenClaw setup management")
+	fmt.Fprintln(w, "Third-party client setup management (e.g. OpenClaw)")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "Subcommands:")
 	fmt.Fprintln(w, "  setup-check     Check CLI binding status")
 	fmt.Fprintln(w, "  setup-complete  Complete CLI binding")
 }
 
-func runUserSelfOpenclawSetupCheck(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+func runUserSelfThirdpartySetupCheck(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput := false
 	bodyJSON := ""
 	for i := 0; i < len(args); i++ {
@@ -1965,7 +1968,7 @@ func runUserSelfOpenclawSetupCheck(ctx context.Context, args []string, stdout, s
 	}
 
 	resp, err := client.DoAPI(ctx, client.APIRequest{
-		Path: "/api/v1/system/user/self/openclaw/setup-check",
+		Path: "/api/v1/system/user/self/thirdparty/setup-check",
 		Body: reqBody,
 	})
 	if err != nil {
@@ -1976,7 +1979,7 @@ func runUserSelfOpenclawSetupCheck(ctx context.Context, args []string, stdout, s
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-func runUserSelfOpenclawSetupComplete(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+func runUserSelfThirdpartySetupComplete(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	jsonOutput := false
 	bodyJSON := ""
 	for i := 0; i < len(args); i++ {
@@ -2003,7 +2006,7 @@ func runUserSelfOpenclawSetupComplete(ctx context.Context, args []string, stdout
 	}
 
 	resp, err := client.DoAPI(ctx, client.APIRequest{
-		Path: "/api/v1/system/user/self/openclaw/setup-complete",
+		Path: "/api/v1/system/user/self/thirdparty/setup-complete",
 		Body: reqBody,
 	})
 	if err != nil {

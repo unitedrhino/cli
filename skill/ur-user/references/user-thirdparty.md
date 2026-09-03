@@ -2,8 +2,10 @@
 
 ## 命令语法
 ```
-ur user self openclaw <subcommand> [选项]
+ur user self thirdparty <subcommand> [选项]
 ```
+
+> 旧命令名 `ur user self openclaw` 仍可作为别名使用（行为完全一致），新脚本请统一使用 `thirdparty`。
 
 ## 子命令
 
@@ -23,17 +25,17 @@ ur user self openclaw <subcommand> [选项]
 
 ### 示例 1：检查 CLI 绑定状态
 ```bash
-ur user self openclaw setup-check --body '{"deviceCode":"xxx"}'
+ur user self thirdparty setup-check --body '{"deviceCode":"xxx"}'
 ```
 
 ### 示例 2：完成 CLI 绑定
 ```bash
-ur user self openclaw setup-complete --body '{"deviceCode":"xxx","userCode":"yyy"}'
+ur user self thirdparty setup-complete --body '{"deviceCode":"xxx","userCode":"yyy"}'
 ```
 
 ## 对应 API
 
 | 子命令 | API 端点 |
 |--------|----------|
-| setup-check | `POST /api/v1/system/user/self/openclaw/setup-check` |
-| setup-complete | `POST /api/v1/system/user/self/openclaw/setup-complete` |
+| setup-check | `POST /api/v1/system/user/self/thirdparty/setup-check` |
+| setup-complete | `POST /api/v1/system/user/self/thirdparty/setup-complete` |

@@ -120,8 +120,8 @@
 | POST | `/api/v1/system/user/self/third-register` | 第三方补全注册 | public |
 | POST | `/api/v1/system/user/self/update` | 更新用户基本数据 | all |
 | POST | `/api/v1/system/user/self/user/search` | 精准搜索用户 | all |
-| POST | `/api/v1/system/user/self/openclaw/setup-check` | 查询 CLI 绑定状态 | public |
-| POST | `/api/v1/system/user/self/openclaw/setup-complete` | 完成 CLI 绑定 | all |
+| POST | `/api/v1/system/user/self/thirdparty/setup-check` | 查询 CLI 绑定状态 | public |
+| POST | `/api/v1/system/user/self/thirdparty/setup-complete` | 完成 CLI 绑定 | all |
 | POST | `/api/v1/system/user/self/tenant/delete` | 退出当前租户 | all |
 | POST | `/api/v1/system/user/self/tenant/get-list` | 获取用户所处的租户列表 | all |
 | POST | `/api/v1/system/user/self/tenant/get-one` | 获取当前用户在当前租户的详情 | all |
@@ -8752,7 +8752,7 @@ ur api /api/v1/system/user/self/user/search \
   --body '{"account": "string"}'
 ```
 
-### POST `/api/v1/system/user/self/openclaw/setup-check`
+### POST `/api/v1/system/user/self/thirdparty/setup-check`
 
 **说明**: 查询 CLI 绑定状态
 
@@ -8787,11 +8787,11 @@ ur api /api/v1/system/user/self/user/search \
 
 **调用示例**:
 ```bash
-ur api /api/v1/system/user/self/openclaw/setup-check \
+ur api /api/v1/system/user/self/thirdparty/setup-check \
   --body '{"setupCode": "string"}'
 ```
 
-### POST `/api/v1/system/user/self/openclaw/setup-complete`
+### POST `/api/v1/system/user/self/thirdparty/setup-complete`
 
 **说明**: 完成 CLI 绑定
 
@@ -8829,7 +8829,7 @@ ur api /api/v1/system/user/self/openclaw/setup-check \
 
 **调用示例**:
 ```bash
-ur api /api/v1/system/user/self/openclaw/setup-complete \
+ur api /api/v1/system/user/self/thirdparty/setup-complete \
   --body '{"accessKey": "string", "accessSecret": "string", "accessTokenID": "string", "setupCode": "string"}'
 ```
 

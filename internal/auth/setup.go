@@ -17,10 +17,10 @@ const (
 	setupCodeLength   = 8
 	pollInterval      = 5 * time.Second
 	maxPollCount      = 120 // 10 分钟
-	openclawSetupPath = "/api/v1/system/user/self/openclaw/setup-check"
-	// openclawSetupInitPath 登记绑定码接口：在生成绑定码时先调用，
+	thirdpartySetupPath = "/api/v1/system/user/self/thirdparty/setup-check"
+	// thirdpartySetupInitPath 登记绑定码接口：在生成绑定码时先调用，
 	// 让后端从登记时刻开始计算 10 分钟有效期
-	openclawSetupInitPath = "/api/v1/system/user/self/openclaw/setup-init"
+	thirdpartySetupInitPath = "/api/v1/system/user/self/thirdparty/setup-init"
 )
 
 // ErrSetupInitUnsupported 表示后端尚未部署 setup-init 接口（旧版后端，接口返回 404）。
@@ -52,7 +52,7 @@ func BuildConsoleURL(baseURL, setupCode string) string {
 	if idx := strings.LastIndex(consoleURL, "/api/"); idx > 0 {
 		consoleURL = consoleURL[:idx]
 	}
-	return fmt.Sprintf("%s/#/user/settings?tab=access-tokens&setup=%s&redirect=openclaw", consoleURL, setupCode)
+	return fmt.Sprintf("%s/#/user/settings?tab=access-tokens&setup=%s&redirect=thirdparty", consoleURL, setupCode)
 }
 
 // InitSetup 向后端登记绑定码，使「10 分钟有效期」从生成起算：
@@ -60,7 +60,7 @@ func BuildConsoleURL(baseURL, setupCode string) string {
 // 返回 ErrSetupInitUnsupported 表示旧版后端未部署该接口，调用方可降级继续（不阻断登录）。
 func InitSetup(ctx context.Context, baseURL, setupCode string) error {
 	client := &http.Client{Timeout: 10 * time.Second}
-	url := strings.TrimRight(baseURL, "/") + openclawSetupInitPath
+	url := strings.TrimRight(baseURL, "/") + thirdpartySetupInitPath
 
 	body, _ := json.Marshal(map[string]string{"setupCode": setupCode})
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
@@ -100,7 +100,7 @@ func InitSetup(ctx context.Context, baseURL, setupCode string) error {
 // onPoll 回调：每次轮询时调用，参数为 (当前次数, 总次数, 是否完成, 错误)
 func PollSetupCheck(ctx context.Context, baseURL, setupCode string, onPoll func(current, total int, done bool, err error)) (SetupResult, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
-	url := strings.TrimRight(baseURL, "/") + openclawSetupPath
+	url := strings.TrimRight(baseURL, "/") + thirdpartySetupPath
 
 	for i := 0; i < maxPollCount; i++ {
 		select {
@@ -131,7 +131,7 @@ func PollSetupCheck(ctx context.Context, baseURL, setupCode string, onPoll func(
 		// 检查 404：后端接口未部署
 		if resp.StatusCode == http.StatusNotFound {
 			resp.Body.Close()
-			err := fmt.Errorf("后端尚未支持 CLI 绑定功能（接口 %s 返回 404），请联系管理员升级后端版本", openclawSetupPath)
+			err := fmt.Errorf("后端尚未支持 CLI 绑定功能（接口 %s 返回 404），请联系管理员升级后端版本", thirdpartySetupPath)
 			if onPoll != nil {
 				onPoll(i, maxPollCount, false, err)
 			}

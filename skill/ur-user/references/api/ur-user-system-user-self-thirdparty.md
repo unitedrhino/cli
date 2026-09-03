@@ -1,4 +1,4 @@
-# ur-user system/user/self/openclaw
+# ur-user system/user/self/thirdparty
 
 查询 CLI 绑定状态 等
 
@@ -6,12 +6,12 @@
 
 | 方法 | 端点 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/api/v1/system/user/self/openclaw/setup-check` | 查询 CLI 绑定状态 | public |
-| POST | `/api/v1/system/user/self/openclaw/setup-complete` | 完成 CLI 绑定 | all |
+| POST | `/api/v1/system/user/self/thirdparty/setup-check` | 查询 CLI 绑定状态 | public |
+| POST | `/api/v1/system/user/self/thirdparty/setup-complete` | 完成 CLI 绑定 | all |
 
 ## 详细说明
 
-### POST `/api/v1/system/user/self/openclaw/setup-check`
+### POST `/api/v1/system/user/self/thirdparty/setup-check`
 
 **说明**: 查询 CLI 绑定状态
 
@@ -46,11 +46,11 @@
 
 **调用示例**:
 ```bash
-ur api /api/v1/system/user/self/openclaw/setup-check \
+ur api /api/v1/system/user/self/thirdparty/setup-check \
   --body '{"setupCode": "string"}'
 ```
 
-### POST `/api/v1/system/user/self/openclaw/setup-complete`
+### POST `/api/v1/system/user/self/thirdparty/setup-complete`
 
 **说明**: 完成 CLI 绑定
 
@@ -88,6 +88,6 @@ ur api /api/v1/system/user/self/openclaw/setup-check \
 
 **调用示例**:
 ```bash
-ur api /api/v1/system/user/self/openclaw/setup-complete \
+ur api /api/v1/system/user/self/thirdparty/setup-complete \
   --body '{"accessKey": "string", "accessSecret": "string", "accessTokenID": "string", "setupCode": "string"}'
 ```

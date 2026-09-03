@@ -26,7 +26,7 @@ func TestInitSetup_Success(t *testing.T) {
 	if err := InitSetup(context.Background(), srv.URL, "ABCD2345"); err != nil {
 		t.Fatalf("InitSetup: %v", err)
 	}
-	if gotPath != "/api/v1/system/user/self/openclaw/setup-init" {
+	if gotPath != "/api/v1/system/user/self/thirdparty/setup-init" {
 		t.Errorf("path = %q", gotPath)
 	}
 	if gotCode != "ABCD2345" {

@@ -5384,17 +5384,17 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_user_self_accessTokenCmd.AddCommand(system_user_self_accessToken_updateCmd)
 	parent.AddCommand(system_user_self_accessTokenCmd)
-	system_user_self_openclawCmd := &cobra.Command{
-		Use:   "system/user/self/openclaw",
-		Short: "system/user/self/openclaw API 操作",
+	system_user_self_thirdpartyCmd := &cobra.Command{
+		Use:   "system/user/self/thirdparty",
+		Short: "system/user/self/thirdparty API 操作",
 	}
-	system_user_self_openclaw_viewCmd := &cobra.Command{
+	system_user_self_thirdparty_viewCmd := &cobra.Command{
 		Use:   "view",
 		Short: "查询 CLI 绑定状态",
 		Long:  "CLI 轮询接口，public 无需登录，通过 setup_code 查询绑定结果",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/system/user/self/openclaw/setup-check",
+				Path: "/api/v1/system/user/self/thirdparty/setup-check",
 				Body: map[string]any{},
 			})
 			if err != nil {
@@ -5404,14 +5404,14 @@ func RegisterSystemCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	system_user_self_openclawCmd.AddCommand(system_user_self_openclaw_viewCmd)
-	system_user_self_openclaw_createCmd := &cobra.Command{
+	system_user_self_thirdpartyCmd.AddCommand(system_user_self_thirdparty_viewCmd)
+	system_user_self_thirdparty_createCmd := &cobra.Command{
 		Use:   "create",
 		Short: "完成 CLI 绑定",
 		Long:  "前端在访问令牌创建成功后调用，将 AK/SK 与 setup_code 关联写入 Redis",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
-				Path: "/api/v1/system/user/self/openclaw/setup-complete",
+				Path: "/api/v1/system/user/self/thirdparty/setup-complete",
 				Body: map[string]any{},
 			})
 			if err != nil {
@@ -5421,8 +5421,8 @@ func RegisterSystemCommands(parent *cobra.Command) {
 			return nil
 		},
 	}
-	system_user_self_openclawCmd.AddCommand(system_user_self_openclaw_createCmd)
-	parent.AddCommand(system_user_self_openclawCmd)
+	system_user_self_thirdpartyCmd.AddCommand(system_user_self_thirdparty_createCmd)
+	parent.AddCommand(system_user_self_thirdpartyCmd)
 	system_user_self_tenantCmd := &cobra.Command{
 		Use:   "system/user/self/tenant",
 		Short: "system/user/self/tenant API 操作",

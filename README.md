@@ -212,7 +212,7 @@ ur login --no-wait --json
 ```json
 {
   "status": "authorization_required",
-  "verification_url": "https://saas.unitedrhino.com/#/user/settings?tab=access-tokens&setup=ABC123&redirect=openclaw",
+  "verification_url": "https://saas.unitedrhino.com/#/user/settings?tab=access-tokens&setup=ABC123&redirect=thirdparty",
   "setup_code": "ABC123",
   "expires_in": 600,
   "next_command": "ur login --setup-code ABC123"
@@ -220,7 +220,7 @@ ur login --no-wait --json
 ```
 
 AI 解析 JSON，向用户发送：
-> 请在浏览器中打开链接完成 CLI 授权：https://saas.unitedrhino.com/#/user/settings?tab=access-tokens&setup=ABC123&redirect=openclaw
+> 请在浏览器中打开链接完成 CLI 授权：https://saas.unitedrhino.com/#/user/settings?tab=access-tokens&setup=ABC123&redirect=thirdparty
 
 用户确认在浏览器中点击「完成 CLI 绑定」后，AI 自动执行：
 

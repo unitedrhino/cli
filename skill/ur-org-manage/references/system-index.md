@@ -52,7 +52,7 @@
 | `system/user/info` | 5 | `references/groups/system-user-info.md` |
 | `system/user/self` | 30 | `references/groups/system-user-self.md` |
 | `system/user/self/accessToken` | 5 | `references/groups/system-user-self-accessToken.md` |
-| `system/user/self/openclaw` | 2 | `references/groups/system-user-self-openclaw.md` |
+| `system/user/self/thirdparty` | 2 | `references/groups/system-user-self-thirdparty.md` |
 | `system/user/self/tenant` | 5 | `references/groups/system-user-self-tenant.md` |
 | `system/user/tenant` | 1 | `references/groups/system-user-tenant.md` |
 

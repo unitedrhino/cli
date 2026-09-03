@@ -144,10 +144,10 @@ func copyDir(src, dst string) error {
 // dryRun 为 true 时只模拟，不写盘。
 func Install(src string, targets []Target, dryRun bool) (*Result, error) {
 	if src == "" {
-		return nil, fmt.Errorf("内置 skills 源目录为空（未安装 skills？可先运行 ur skills update）")
+		return nil, fmt.Errorf("内置 skills 源目录为空：发布包需完整解压（应包含 skill/ 目录与 ur 二进制同级）；若只有二进制，请重新下载完整安装包，或运行 ur skills download 获取 skills 后自行拷贝到目标 AI 工具的 skills 目录")
 	}
 	if !dirExists(src) {
-		return nil, fmt.Errorf("内置 skills 源目录不存在: %s", src)
+		return nil, fmt.Errorf("内置 skills 源目录不存在: %s：发布包需完整解压（应包含 skill/ 目录与 ur 二进制同级）；若只有二进制，请重新下载完整安装包，或运行 ur skills download 获取 skills 后自行拷贝到目标 AI 工具的 skills 目录", src)
 	}
 
 	result := &Result{Source: src}

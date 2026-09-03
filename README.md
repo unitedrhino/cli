@@ -62,6 +62,30 @@ ur --app iot generate-skills --output ./skills/ur-iot
 | `thing-model` | 物模型 — 模板生成、JSON 校验、affordance 定义 |
 | `protocol-script` | 协议脚本 — yaegi 脚本模板、Go 代码校验 |
 
+### AI 自助下载 skills（推荐，对所有 AI 工具通用）
+
+AI 工具自己最清楚自身的 skills 目录在哪，CLI 只提供下载能力：先下载并解压 skills 包，再把 `ur-api` 目录整体拷贝到所用 AI 工具的 skills 目录下，重启 AI 工具生效。
+
+```bash
+# 下载最新 release 的 skills 包（ur-api-skills-<版本>.zip）并解压，默认输出到 ~/.ur/downloads/
+ur skills download
+
+# 指定下载目录 / 直接指定 zip 地址（私有化、离线场景）
+ur skills download --output ~/skills-pkg
+ur skills download --url "https://example.com/ur-api-skills-v0.4.1.zip"
+
+# JSON 输出（AI 解析 localPath 后自行拷贝）
+ur skills download --json
+```
+
+`--json` 输出示例：
+
+```json
+{"event":"skills_downloaded","downloadUrl":"https://github.com/unitedrhino/cli/releases/download/v0.4.1/ur-api-skills-v0.4.1.zip","localPath":"/home/user/.ur/downloads/ur-api","installHint":"请将上述 ur-api 目录整体拷贝到你所用 AI 工具的 skills 目录下（各 AI 工具的 skills 目录由 AI 自行确认，例如 Claude Code 为 ~/.claude/skills/），拷贝后重启 AI 工具生效"}
+```
+
+`ur skills install` 仍是 Claude Code / Codex 的便捷方式（自动探测本机 skills 目录并部署）；其他 AI 工具建议统一走 `ur skills download` 自助下载后自行拷贝。
+
 ---
 
 ## 安装与快速开始
@@ -81,18 +105,23 @@ ur --app iot generate-skills --output ./skills/ur-iot
 **方式一 — 下载预编译二进制（推荐）：**
 
 ```bash
-# 1. 确定平台和架构
-PLATFORM="linux-amd64"    # linux-amd64 / linux-arm64 / darwin-amd64 / darwin-arm64 / windows-amd64
-VERSION="v0.3.4"
+# 1. 确定平台（注意使用 release 资产中的友好平台名）
+PLATFORM="Linux-x86_64"    # Linux-x86_64 / Linux-aarch64 / macOS-x86_64 / macOS-arm64 / Windows-x86_64
+VERSION="v0.4.1"
 
 # 2. 下载
-wget "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-${VERSION}-${PLATFORM}.tar.gz"
+wget "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz"
 
-# 3. 解压
-mkdir -p ~/.local/bin
-tar -xzf "ur-${VERSION}-${PLATFORM}.tar.gz" -C ~/.local/bin --strip-components=1 bin/ur
+# 3. 解压完整发布包（包内结构为 <goos>-<goarch>/{ur, skill/}）
+#    ur 二进制必须与 skill/ 目录保持同级，否则 ur skills 相关命令找不到内置 skills
+mkdir -p ~/.local/lib/ur
+tar -xzf "ur-cli-${VERSION}-${PLATFORM}.tar.gz" -C ~/.local/lib/ur --strip-components=1
 
-# Windows: 下载 .zip 包，解压后将 ur.exe 添加到系统 PATH
+# 4. 把 ur 暴露到 PATH（软链不影响 skill/ 的查找）
+mkdir -p ~/.local/bin && ln -sf ~/.local/lib/ur/ur ~/.local/bin/ur
+
+# Windows: 下载 .zip 包并完整解压，保持 ur.exe 与 skill/ 目录同级，
+# 再将 ur.exe 所在目录加入系统 PATH
 ```
 
 **方式二 — 从源码构建：**
@@ -121,7 +150,13 @@ ur upgrade --install-skills
 ur skills install
 ur skills install --dry-run     # 预览目标，不实际写入
 ur skills install --json        # JSON 输出
-ur skills install --dir <path>  # 额外指定自定义目标目录
+ur skills install --dir <path>  # 指定自定义目标目录（支持 ~ 路径展开）
+
+# 仅下载 skills 包到本地（不部署）：AI 自助下载后自行拷贝到所用 AI 工具的 skills 目录，
+# 对所有 AI 工具通用；详见「Agent Skills」章节
+ur skills download
+ur skills download --output ~/skills-pkg  # 指定下载目录（支持 ~ 路径展开）
+ur skills download --url <zip地址>         # 直接指定 skills zip 地址（私有化/离线场景）
 
 # 跳过自动版本检查（环境变量）
 export UR_NO_UPDATE_CHECK=1
@@ -157,16 +192,19 @@ ur generate-skills --output ./my-skills/
 
 ```bash
 # 1. 下载对应平台的 release（AI 根据用户系统自动选择 PLATFORM）
-VERSION="v0.3.4"
-PLATFORM="linux-amd64"   # linux-amd64 / linux-arm64 / darwin-amd64 / darwin-arm64 / windows-amd64
+VERSION="v0.4.1"
+PLATFORM="Linux-x86_64"   # Linux-x86_64 / Linux-aarch64 / macOS-x86_64 / macOS-arm64 / Windows-x86_64
 
-# Linux / macOS
-curl -L "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz" | tar -xz -C ~/.local/bin --strip-components=1
+# Linux / macOS：解压完整发布包（包内为 <goos>-<goarch>/{ur, skill/}），
+# 保持 ur 二进制与 skill/ 目录同级，再把 ur 暴露到 PATH
+curl -L "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz" -o /tmp/ur-cli.tar.gz
+mkdir -p ~/.local/lib/ur && tar -xzf /tmp/ur-cli.tar.gz -C ~/.local/lib/ur --strip-components=1
+mkdir -p ~/.local/bin && ln -sf ~/.local/lib/ur/ur ~/.local/bin/ur
 
-# Windows (PowerShell)
-# Invoke-WebRequest -Uri "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.zip" -OutFile "ur.zip"; Expand-Archive "ur.zip" -DestinationPath "$env:USERPROFILE\.local\bin"
+# Windows (PowerShell)：完整解压 .zip 包，保持 ur.exe 与 skill/ 同级，再把所在目录加入 PATH
+# Invoke-WebRequest -Uri "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.zip" -OutFile "ur.zip"; Expand-Archive "ur.zip" -DestinationPath "$env:USERPROFILE\.local\lib\ur"
 
-# 2. 立即生成认证 URL
+# 2. 立即生成认证 URL（无需指定 --base-url，默认联犀 SaaS；私有化部署用 --base-url 或 UR_BASE_URL 覆盖）
 ur login --no-wait --json
 ```
 

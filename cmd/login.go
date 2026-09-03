@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -51,6 +52,21 @@ func runLogin(cmd *cobra.Command, args []string) error {
 	}
 
 	setupCode := auth.GenerateSetupCode()
+
+	// 先向后端登记绑定码，使 10 分钟有效期从生成起算；
+	// 旧版后端未部署 setup-init（404）时降级继续，不阻断登录流程。
+	// --setup-code 恢复轮询分支（上方提前 return）不登记，保持对既有流程无影响。
+	if err := auth.InitSetup(ctx, baseURL, setupCode); err != nil {
+		if !errors.Is(err, auth.ErrSetupInitUnsupported) {
+			return outputLoginError(cmd, fmt.Errorf("登记绑定码失败: %w", err))
+		}
+		if loginOpts.jsonMode {
+			cmd.Printf(`{"event":"setup_init_skipped","reason":%q}`+"\n", err.Error())
+		} else {
+			cmd.Printf("提示: %v\n", err)
+		}
+	}
+
 	consoleURL := auth.BuildConsoleURL(baseURL, setupCode)
 
 	if loginOpts.noWait {
@@ -114,6 +130,11 @@ func runLoginPoll(cmd *cobra.Command, ctx context.Context, baseURL, setupCode st
 	return nil
 }
 
+// defaultLoginBaseURL 未指定平台地址时使用的联犀 SaaS 默认地址，
+// 使 `ur login` 不传 --base-url 也能开箱即用（文档示例通常省略该参数）
+const defaultLoginBaseURL = "https://saas.unitedrhino.com"
+
+// resolveLoginBaseURL 确定登录平台地址：--base-url > UR_BASE_URL 环境变量 > 默认 SaaS 地址
 func resolveLoginBaseURL(baseURL string) (string, error) {
 	if baseURL != "" {
 		return strings.TrimRight(baseURL, "/"), nil
@@ -121,7 +142,7 @@ func resolveLoginBaseURL(baseURL string) (string, error) {
 	if envURL := os.Getenv("UR_BASE_URL"); envURL != "" {
 		return strings.TrimRight(envURL, "/"), nil
 	}
-	return "", fmt.Errorf("请指定 --base-url 或设置 UR_BASE_URL 环境变量")
+	return defaultLoginBaseURL, nil
 }
 
 func outputLoginError(cmd *cobra.Command, err error) error {

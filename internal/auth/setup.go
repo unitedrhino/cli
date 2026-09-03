@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/rand"
 	"net/http"
@@ -17,7 +18,14 @@ const (
 	pollInterval      = 5 * time.Second
 	maxPollCount      = 120 // 10 分钟
 	openclawSetupPath = "/api/v1/system/user/self/openclaw/setup-check"
+	// openclawSetupInitPath 登记绑定码接口：在生成绑定码时先调用，
+	// 让后端从登记时刻开始计算 10 分钟有效期
+	openclawSetupInitPath = "/api/v1/system/user/self/openclaw/setup-init"
 )
+
+// ErrSetupInitUnsupported 表示后端尚未部署 setup-init 接口（旧版后端，接口返回 404）。
+// 调用方应据此降级继续登录流程（绑定码有效期回退为从首次轮询起算），不阻断登录。
+var ErrSetupInitUnsupported = errors.New("后端尚未支持 setup-init 绑定码登记（旧版后端），绑定码有效期改为从首次轮询起算")
 
 // SetupResult CLI 绑定结果
 type SetupResult struct {
@@ -45,6 +53,47 @@ func BuildConsoleURL(baseURL, setupCode string) string {
 		consoleURL = consoleURL[:idx]
 	}
 	return fmt.Sprintf("%s/#/user/settings?tab=access-tokens&setup=%s&redirect=openclaw", consoleURL, setupCode)
+}
+
+// InitSetup 向后端登记绑定码，使「10 分钟有效期」从生成起算：
+// 后端在 setup-init 成功后即开始计时，避免 AI 拿到授权 URL 后用户迟迟未操作导致时间窗口错位。
+// 返回 ErrSetupInitUnsupported 表示旧版后端未部署该接口，调用方可降级继续（不阻断登录）。
+func InitSetup(ctx context.Context, baseURL, setupCode string) error {
+	client := &http.Client{Timeout: 10 * time.Second}
+	url := strings.TrimRight(baseURL, "/") + openclawSetupInitPath
+
+	body, _ := json.Marshal(map[string]string{"setupCode": setupCode})
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("构建 setup-init 请求失败: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("登记绑定码请求失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// 404：后端接口未部署（旧版后端），返回可识别错误让调用方降级
+	if resp.StatusCode == http.StatusNotFound {
+		return ErrSetupInitUnsupported
+	}
+
+	var result struct {
+		Code int    `json:"code"`
+		Msg  string `json:"msg"`
+		Data struct {
+			Success bool `json:"success"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return fmt.Errorf("解析 setup-init 响应失败: %w", err)
+	}
+	if result.Code != 200 {
+		return fmt.Errorf("setup-init failed: %s", result.Msg)
+	}
+	return nil
 }
 
 // PollSetupCheck 轮询绑定状态

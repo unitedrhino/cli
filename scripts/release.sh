@@ -47,6 +47,32 @@ platform_name() {
   esac
 }
 
+# 把 ${ROOT}/skill 内容复制到目标目录（排除 scripts/ 子目录）。
+# 供平台发布包（build_one）与独立 skills 资产打包共用，保证两处内容一致
+copy_skills_into() {
+  local dest="$1"
+  mkdir -p "${dest}"
+  for item in "${ROOT}/skill"/*; do
+    local skill_name=$(basename "$item")
+    if [[ "$skill_name" == "scripts" ]]; then
+      continue
+    fi
+    if [[ -d "$item" ]]; then
+      # 子 skill 目录：复制整个目录但排除其中的 scripts/
+      mkdir -p "${dest}/${skill_name}"
+      for subitem in "$item"/*; do
+        local sub_skill_name=$(basename "$subitem")
+        if [[ "$sub_skill_name" == "scripts" ]]; then
+          continue
+        fi
+        cp -R "$subitem" "${dest}/${skill_name}/"
+      done
+    else
+      cp -R "$item" "${dest}/"
+    fi
+  done
+}
+
 # 检查是否需要排除
 is_excluded() {
   local platform="$1"
@@ -120,26 +146,7 @@ build_one() {
   fi
 
   # 复制 skill 资源到发布包（排除 scripts/ 子目录）
-  mkdir -p "${platform_dir}/skill"
-  for item in "${ROOT}/skill"/*; do
-    local skill_name=$(basename "$item")
-    if [[ "$skill_name" == "scripts" ]]; then
-      continue
-    fi
-    if [[ -d "$item" ]]; then
-      # 子 skill 目录：复制整个目录但排除其中的 scripts/
-      mkdir -p "${platform_dir}/skill/${skill_name}"
-      for subitem in "$item"/*; do
-        local sub_skill_name=$(basename "$subitem")
-        if [[ "$sub_skill_name" == "scripts" ]]; then
-          continue
-        fi
-        cp -R "$subitem" "${platform_dir}/skill/${skill_name}/"
-      done
-    else
-      cp -R "$item" "${platform_dir}/skill/"
-    fi
-  done
+  copy_skills_into "${platform_dir}/skill"
 
   # 写入 skills 版本元数据（供 ur skills update 查询本地版本）
   cat > "${platform_dir}/skill/_meta.json" << EOF
@@ -151,7 +158,7 @@ EOF
 
   echo "OK:${platform}:${name}"
 }
-export -f build_one platform_name
+export -f build_one platform_name copy_skills_into
 export ROOT BUILD_DIR VERSION
 
 # 并行构建
@@ -198,6 +205,28 @@ if [[ ${#FAILED_PLATFORMS[@]} -gt 0 ]]; then
     echo "    - ${fp}"
   done
 fi
+echo ""
+
+# ========================================
+# 独立打包 skills 资产（构建循环之外，全平台共用一份）
+# zip 内顶层目录为 ur-api/，解压后直接是 ur-api/SKILL.md ...，
+# 供 `ur skills download` 下载后由 AI 自行拷贝到所用 AI 工具的 skills 目录
+# ========================================
+echo "[skills] 打包独立 skills 资产 ur-api-skills-${VERSION}.zip ..."
+SKILLS_STAGE="${BUILD_DIR}/skills-stage"
+rm -rf "${SKILLS_STAGE}"
+mkdir -p "${SKILLS_STAGE}/ur-api"
+copy_skills_into "${SKILLS_STAGE}/ur-api"
+# 写入 skills 版本元数据（供 ur skills download/version 与 AI 侧识别版本）
+cat > "${SKILLS_STAGE}/ur-api/_meta.json" << EOF
+{
+  "version": "${VERSION}",
+  "updatedAt": "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+}
+EOF
+(cd "${SKILLS_STAGE}" && zip -rq "${RELEASE_DIR}/ur-api-skills-${VERSION}.zip" ur-api)
+rm -rf "${SKILLS_STAGE}"
+echo "[skills] 已生成 ${RELEASE_DIR}/ur-api-skills-${VERSION}.zip"
 echo ""
 
 # 生成 checksums
@@ -313,6 +342,8 @@ release_gitee() {
 }
 
 # 尝试发布
+# 注：GitHub/Gitee 上传均遍历 ${RELEASE_DIR} 下全部文件，
+# 独立 skills 资产（ur-api-skills-<版本>.zip）会随平台包一并上传，无需单独处理
 echo "========================================"
 echo "  发布阶段"
 echo "========================================"

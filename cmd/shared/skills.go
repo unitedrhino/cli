@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"gitee.com/unitedrhino/cli/internal/skillinstall"
@@ -25,6 +26,8 @@ func runSkills(args []string, stdout, stderr io.Writer) int {
 		return runSkillsUpdate(args[1:], stdout, stderr)
 	case "install":
 		return runSkillsInstall(args[1:], stdout, stderr)
+	case "download":
+		return runSkillsDownload(args[1:], stdout, stderr)
 	case "version", "ver":
 		return runSkillsVersion(args[1:], stdout, stderr)
 	case "-h", "--help", "help":
@@ -35,6 +38,26 @@ func runSkills(args []string, stdout, stderr io.Writer) int {
 		printSkillsHelp(stderr)
 		return 2
 	}
+}
+
+// expandHomePath 展开路径开头表示主目录的 "~"（~、~/、~\）为当前用户主目录。
+// Windows 原生 exe 不会自动展开 Git Bash 风格的 "~/xxx" 路径，直接使用会把字面 "~"
+// 当成目录名写入错误位置，因此各命令的路径参数统一在此展开。
+// 非 ~ 开头（含 ~user 形式，不支持展开）或无法获取主目录时原样返回。
+func expandHomePath(path string) string {
+	if path != "~" && !strings.HasPrefix(path, "~/") && !strings.HasPrefix(path, `~\`) {
+		return path
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return path
+	}
+	if path == "~" {
+		return home
+	}
+	// "~\xxx" 是 Windows 风格路径，统一按当前平台的路径分隔符处理
+	rest := strings.ReplaceAll(path[2:], `\`, string(filepath.Separator))
+	return filepath.Join(home, rest)
 }
 
 // runSkillsInstall 把内置 ur-api skill 整体拷贝部署到各 AI 工具的 skills 目录，
@@ -52,7 +75,7 @@ func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
 			jsonOutput = true
 		case "--dir":
 			if i+1 < len(args) {
-				customDirs = append(customDirs, args[i+1])
+				customDirs = append(customDirs, expandHomePath(args[i+1]))
 				i++
 			} else {
 				fmt.Fprintln(stderr, "--dir 需要指定目标目录")
@@ -116,6 +139,75 @@ func cwdOr(fallback string) string {
 		return dir
 	}
 	return fallback
+}
+
+// runSkillsDownload 从最新 release 下载 skills 独立包（ur-api-skills-<版本>.zip）并解压到本地，
+// 供 AI 工具自助获取 ur-api skill 后自行拷贝到自己的 skills 目录。
+// CLI 不再感知各 AI 工具的目录约定——skills 目录位置由 AI 根据自身工具确认。
+// 参数说明：--output DIR 指定下载与解压目录（默认 ~/.ur/downloads/，支持 ~ 展开）；
+// --url URL 直接指定 skills zip 地址（私有化/离线场景），跳过 release 查询；
+// --json 以单行 JSON 事件输出结果。
+func runSkillsDownload(args []string, stdout, stderr io.Writer) int {
+	outputDir := ""
+	zipURL := ""
+	jsonOutput := false
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--output":
+			if i+1 < len(args) {
+				outputDir = expandHomePath(args[i+1])
+				i++
+			} else {
+				fmt.Fprintln(stderr, "--output 需要指定目录")
+				return 2
+			}
+		case "--url":
+			if i+1 < len(args) {
+				zipURL = args[i+1]
+				i++
+			} else {
+				fmt.Fprintln(stderr, "--url 需要指定 zip 下载地址")
+				return 2
+			}
+		case "--json":
+			jsonOutput = true
+		case "-h", "--help":
+			fmt.Fprintln(stdout, "用法: ur skills download [--output <目录>] [--url <zip地址>] [--json]")
+			fmt.Fprintln(stdout, "从最新 release 下载 skills 包（ur-api-skills-<版本>.zip）并解压到本地目录，")
+			fmt.Fprintln(stdout, "之后把其中的 ur-api 目录整体拷贝到你所用 AI 工具的 skills 目录即可（对所有 AI 工具通用）")
+			fmt.Fprintln(stdout, "--url 可直接指定 zip 地址（私有化/离线场景）")
+			return 0
+		default:
+			fmt.Fprintf(stderr, "未知参数: %s\n", args[i])
+			return 2
+		}
+	}
+
+	if outputDir == "" {
+		outputDir = expandHomePath("~/.ur/downloads")
+	}
+
+	result, err := upgrade.DownloadSkills(upgrade.SkillsDownloadOptions{OutputDir: outputDir, ZipURL: zipURL})
+	if err != nil {
+		fmt.Fprintf(stderr, "下载 skills 失败: %v\n", err)
+		return 1
+	}
+	fmt.Fprintln(stdout, formatSkillsDownloadResult(result, jsonOutput))
+	return 0
+}
+
+// skillsDownloadHint 下载成功后的拷贝指引：skills 目录位置由各 AI 工具自行确认，
+// CLI 不再硬编码各工具目录（对所有 AI 工具通用）
+const skillsDownloadHint = "请将上述 ur-api 目录整体拷贝到你所用 AI 工具的 skills 目录下（各 AI 工具的 skills 目录由 AI 自行确认，例如 Claude Code 为 ~/.claude/skills/），拷贝后重启 AI 工具生效"
+
+// formatSkillsDownloadResult 构造 download 成功输出：
+// JSON 模式为单行事件 {"event":"skills_downloaded",...}，否则为人类可读文本
+func formatSkillsDownloadResult(res *upgrade.SkillsDownloadResult, jsonMode bool) string {
+	if jsonMode {
+		return fmt.Sprintf(`{"event":"skills_downloaded","downloadUrl":%q,"localPath":%q,"installHint":%q}`,
+			res.DownloadURL, res.LocalPath, skillsDownloadHint)
+	}
+	return fmt.Sprintf("下载来源: %s\n本地解压路径: %s\n%s", res.DownloadURL, res.LocalPath, skillsDownloadHint)
 }
 
 func runSkillsList(args []string, stdout, stderr io.Writer) int {
@@ -254,6 +346,7 @@ func printSkillsHelp(w io.Writer) {
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "子命令:")
 	fmt.Fprintln(w, "  list, ls        列出已安装的 skills")
+	fmt.Fprintln(w, "  download        从最新 release 下载 skills 包并解压到本地（AI 自助获取后自行拷贝）")
 	fmt.Fprintln(w, "  update, upgrade  升级 skills 到最新版本")
 	fmt.Fprintln(w, "  install         把内置 ur-api skill 部署到本机各 AI 工具的 skills 目录")
 	fmt.Fprintln(w, "  version, ver     查看 skills 版本信息")
@@ -264,6 +357,8 @@ func printSkillsHelp(w io.Writer) {
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "示例:")
 	fmt.Fprintln(w, "  ur skills list              列出所有已安装的 skills")
+	fmt.Fprintln(w, "  ur skills download          下载最新 skills 包到 ~/.ur/downloads/ 并解压")
+	fmt.Fprintln(w, "  ur skills download --output ~/skills-pkg   指定下载目录")
 	fmt.Fprintln(w, "  ur skills update --dry-run  检查 skills 是否有更新")
 	fmt.Fprintln(w, "  ur skills update            升级 skills 到最新版本")
 	fmt.Fprintln(w, "  ur skills install           部署 ur-api 到本机各 AI 工具")

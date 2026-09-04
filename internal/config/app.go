@@ -45,13 +45,16 @@ func (a CLIApp) AppID() string {
 	}
 }
 
-// DefaultTenantCode 返回默认企业代码，空字符串表示需要用户输入
+// DefaultTenantCode 返回默认企业代码，空字符串表示跟随登录租户（Device Flow 授权返回值）
 func (a CLIApp) DefaultTenantCode() string {
 	switch a {
-	case AppPlatformManage, AppIoT, AppConsole:
+	case AppPlatformManage:
+		// 平台管理为平台视角，固定使用 platform 租户
 		return "platform"
 	default:
-		return "" // 组织类应用由用户输入
+		// 物联网/组织管理/能源/控制台均为租户级业务，跟随登录租户；
+		// 此前 iot/console 写死 platform，导致普通租户用户查询不到租户数据（设备列表 total=0）
+		return ""
 	}
 }
 

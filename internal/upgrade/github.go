@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"runtime"
 	"strings"
 	"time"
@@ -60,8 +61,54 @@ func platformReleaseName() string {
 	}
 }
 
-// FetchLatestRelease 从 GitHub API 获取最新 Release
+// GiteeAPI Gitee 开放 API 地址（国内直连可达，作为默认源；GitHub 不可达时兜底）
+const GiteeAPI = "https://gitee.com/api/v5"
+
+// FetchLatestRelease 获取最新 Release：默认优先 Gitee（国内网络可达），
+// Gitee 失败时回退 GitHub。可用环境变量 UR_RELEASE_SOURCE=github 强制走 GitHub。
 func FetchLatestRelease() (*Release, error) {
+	if strings.TrimSpace(os.Getenv("UR_RELEASE_SOURCE")) == "github" {
+		return fetchLatestReleaseFromGitHub()
+	}
+	release, giteeErr := fetchLatestReleaseFromGitee()
+	if giteeErr == nil {
+		return release, nil
+	}
+	release, ghErr := fetchLatestReleaseFromGitHub()
+	if ghErr != nil {
+		return nil, fmt.Errorf("Gitee 与 GitHub 均查询失败: Gitee: %v; GitHub: %w", giteeErr, ghErr)
+	}
+	return release, nil
+}
+
+// fetchLatestReleaseFromGitee 从 Gitee API 获取最新 Release（与 GitHub Release JSON 结构兼容）
+func fetchLatestReleaseFromGitee() (*Release, error) {
+	url := fmt.Sprintf("%s/repos/%s/%s/releases/latest", GiteeAPI, RepoOwner, RepoName)
+
+	client := &http.Client{Timeout: 15 * time.Second}
+	resp, err := client.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("无法连接 Gitee API: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Gitee API 返回状态码 %d", resp.StatusCode)
+	}
+
+	var release Release
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return nil, fmt.Errorf("解析 Gitee Release 信息失败: %w", err)
+	}
+	if release.TagName == "" {
+		return nil, fmt.Errorf("Gitee Release 信息为空")
+	}
+
+	return &release, nil
+}
+
+// fetchLatestReleaseFromGitHub 从 GitHub API 获取最新 Release
+func fetchLatestReleaseFromGitHub() (*Release, error) {
 	url := fmt.Sprintf("%s/repos/%s/%s/releases/latest", GitHubAPI, RepoOwner, RepoName)
 
 	client := &http.Client{Timeout: 15 * time.Second}

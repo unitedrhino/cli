@@ -359,8 +359,8 @@
 - `POST /api/v1/system/user/self/message/statistics` [all] 用户消息统计
 - `POST /api/v1/system/user/self/notify-preference/read` [all] 用户通知偏好读取
 - `POST /api/v1/system/user/self/notify-preference/update` [all] 用户通知偏好更新
-- `POST /api/v1/system/user/self/thirdparty/setup-check` [public] 查询 CLI 绑定状态
-- `POST /api/v1/system/user/self/thirdparty/setup-complete` [all] 完成 CLI 绑定
+- `POST /api/v1/system/user/self/thirdparty/setup-check` [public] 查询第三方客户端绑定状态
+- `POST /api/v1/system/user/self/thirdparty/setup-complete` [all] 完成第三方客户端绑定
 - `POST /api/v1/system/user/self/profile/get-list` [all] 获取用户配置列表
 - `POST /api/v1/system/user/self/profile/get-one` [all] 获取用户配置详情
 - `POST /api/v1/system/user/self/profile/update` [all] 更新用户配置

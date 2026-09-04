@@ -5390,7 +5390,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	}
 	system_user_self_thirdparty_viewCmd := &cobra.Command{
 		Use:   "view",
-		Short: "查询 CLI 绑定状态",
+		Short: "查询第三方客户端绑定状态",
 		Long:  "CLI 轮询接口，public 无需登录，通过 setup_code 查询绑定结果",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{
@@ -5407,7 +5407,7 @@ func RegisterSystemCommands(parent *cobra.Command) {
 	system_user_self_thirdpartyCmd.AddCommand(system_user_self_thirdparty_viewCmd)
 	system_user_self_thirdparty_createCmd := &cobra.Command{
 		Use:   "create",
-		Short: "完成 CLI 绑定",
+		Short: "完成第三方客户端绑定",
 		Long:  "前端在访问令牌创建成功后调用，将 AK/SK 与 setup_code 关联写入 Redis",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.DoAPI(cmd.Context(), client.APIRequest{

@@ -3,7 +3,7 @@
 ## Device Auth（推荐）
 
 ```
-ur login → 生成 setup code → 浏览器授权 → 创建访问令牌 → 点击「完成 CLI 绑定」
+ur login → 生成 setup code → 浏览器授权 → 创建访问令牌 → 点击「完成第三方客户端绑定」
     → CLI 轮询 /setup-check → 获取 AK/SK → 保存到 ~/.ur/config.json
 ```
 

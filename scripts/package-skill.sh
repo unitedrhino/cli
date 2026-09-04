@@ -169,7 +169,7 @@ ur-iot login --no-wait --json
 ```
 AI 解析 JSON，向用户展示 `verification_url` 和操作步骤。
 
-**第 2 步 — 完成授权**（用户确认在浏览器中点击「完成 CLI 绑定」后）：
+**第 2 步 — 完成授权**（用户确认在浏览器中点击「完成第三方客户端绑定」后）：
 ```bash
 ur-iot login --setup-code ABC123 --json
 ```

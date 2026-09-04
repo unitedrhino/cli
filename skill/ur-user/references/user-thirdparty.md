@@ -1,4 +1,4 @@
-# CLI 命令 — CLI 绑定
+# CLI 命令 — 第三方客户端绑定
 
 ## 命令语法
 ```
@@ -11,8 +11,8 @@ ur user self thirdparty <subcommand> [选项]
 
 | 子命令 | 说明 |
 |--------|------|
-| `setup-check` | 检查 CLI 绑定状态 |
-| `setup-complete` | 完成 CLI 绑定 |
+| `setup-check` | 检查第三方客户端绑定状态 |
+| `setup-complete` | 完成第三方客户端绑定 |
 
 ## 参数说明
 
@@ -23,12 +23,12 @@ ur user self thirdparty <subcommand> [选项]
 
 ## 使用示例
 
-### 示例 1：检查 CLI 绑定状态
+### 示例 1：检查第三方客户端绑定状态
 ```bash
 ur user self thirdparty setup-check --body '{"deviceCode":"xxx"}'
 ```
 
-### 示例 2：完成 CLI 绑定
+### 示例 2：完成第三方客户端绑定
 ```bash
 ur user self thirdparty setup-complete --body '{"deviceCode":"xxx","userCode":"yyy"}'
 ```

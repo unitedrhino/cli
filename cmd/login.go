@@ -84,7 +84,7 @@ func runLogin(cmd *cobra.Command, args []string) error {
 	cmd.Println("\n步骤：")
 	cmd.Println("  1. 点击链接进入控制台「访问令牌」页面")
 	cmd.Println("  2. 创建或选择一个访问令牌")
-	cmd.Println("  3. 点击「完成 CLI 绑定」")
+	cmd.Println("  3. 点击「完成第三方客户端绑定」")
 	cmd.Println("\n正在等待授权...（每5秒检测一次，最多10分钟）")
 
 	return runLoginPoll(cmd, ctx, baseURL, setupCode)

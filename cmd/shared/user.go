@@ -1907,7 +1907,7 @@ func runUserSelfNotifyPreferenceUpdate(ctx context.Context, args []string, stdou
 	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
-// runUserSelfThirdparty 执行第三方客户端（CLI 绑定）管理命令；
+// runUserSelfThirdparty 执行第三方客户端绑定管理命令；
 // `ur user self openclaw` 是本命令的旧名称别名，行为完全一致
 func runUserSelfThirdparty(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {

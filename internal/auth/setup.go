@@ -27,7 +27,7 @@ const (
 // 调用方应据此降级继续登录流程（绑定码有效期回退为从首次轮询起算），不阻断登录。
 var ErrSetupInitUnsupported = errors.New("后端尚未支持 setup-init 绑定码登记（旧版后端），绑定码有效期改为从首次轮询起算")
 
-// SetupResult CLI 绑定结果
+// SetupResult 第三方客户端绑定结果
 type SetupResult struct {
 	AccessKey    string
 	AccessSecret string
@@ -131,7 +131,7 @@ func PollSetupCheck(ctx context.Context, baseURL, setupCode string, onPoll func(
 		// 检查 404：后端接口未部署
 		if resp.StatusCode == http.StatusNotFound {
 			resp.Body.Close()
-			err := fmt.Errorf("后端尚未支持 CLI 绑定功能（接口 %s 返回 404），请联系管理员升级后端版本", thirdpartySetupPath)
+			err := fmt.Errorf("后端尚未支持第三方客户端绑定功能（接口 %s 返回 404），请联系管理员升级后端版本", thirdpartySetupPath)
 			if onPoll != nil {
 				onPoll(i, maxPollCount, false, err)
 			}

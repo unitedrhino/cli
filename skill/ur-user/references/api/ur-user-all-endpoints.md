@@ -120,8 +120,8 @@
 | POST | `/api/v1/system/user/self/third-register` | 第三方补全注册 | public |
 | POST | `/api/v1/system/user/self/update` | 更新用户基本数据 | all |
 | POST | `/api/v1/system/user/self/user/search` | 精准搜索用户 | all |
-| POST | `/api/v1/system/user/self/thirdparty/setup-check` | 查询 CLI 绑定状态 | public |
-| POST | `/api/v1/system/user/self/thirdparty/setup-complete` | 完成 CLI 绑定 | all |
+| POST | `/api/v1/system/user/self/thirdparty/setup-check` | 查询第三方客户端绑定状态 | public |
+| POST | `/api/v1/system/user/self/thirdparty/setup-complete` | 完成第三方客户端绑定 | all |
 | POST | `/api/v1/system/user/self/tenant/delete` | 退出当前租户 | all |
 | POST | `/api/v1/system/user/self/tenant/get-list` | 获取用户所处的租户列表 | all |
 | POST | `/api/v1/system/user/self/tenant/get-one` | 获取当前用户在当前租户的详情 | all |
@@ -8754,7 +8754,7 @@ ur api /api/v1/system/user/self/user/search \
 
 ### POST `/api/v1/system/user/self/thirdparty/setup-check`
 
-**说明**: 查询 CLI 绑定状态
+**说明**: 查询第三方客户端绑定状态
 
 **权限**: public
 
@@ -8793,7 +8793,7 @@ ur api /api/v1/system/user/self/thirdparty/setup-check \
 
 ### POST `/api/v1/system/user/self/thirdparty/setup-complete`
 
-**说明**: 完成 CLI 绑定
+**说明**: 完成第三方客户端绑定
 
 **权限**: all
 

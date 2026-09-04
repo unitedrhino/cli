@@ -1,19 +1,19 @@
 # ur-user system/user/self/thirdparty
 
-查询 CLI 绑定状态 等
+查询第三方客户端绑定状态 等
 
 ## 端点概览
 
 | 方法 | 端点 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/api/v1/system/user/self/thirdparty/setup-check` | 查询 CLI 绑定状态 | public |
-| POST | `/api/v1/system/user/self/thirdparty/setup-complete` | 完成 CLI 绑定 | all |
+| POST | `/api/v1/system/user/self/thirdparty/setup-check` | 查询第三方客户端绑定状态 | public |
+| POST | `/api/v1/system/user/self/thirdparty/setup-complete` | 完成第三方客户端绑定 | all |
 
 ## 详细说明
 
 ### POST `/api/v1/system/user/self/thirdparty/setup-check`
 
-**说明**: 查询 CLI 绑定状态
+**说明**: 查询第三方客户端绑定状态
 
 **权限**: public
 
@@ -52,7 +52,7 @@ ur api /api/v1/system/user/self/thirdparty/setup-check \
 
 ### POST `/api/v1/system/user/self/thirdparty/setup-complete`
 
-**说明**: 完成 CLI 绑定
+**说明**: 完成第三方客户端绑定
 
 **权限**: all
 

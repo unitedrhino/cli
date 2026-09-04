@@ -145,7 +145,7 @@ metadata:
 | 应用与菜单 | **查询当前用户可用应用列表**（`ur user self app get-list`）/详情、查询菜单列表 | [user-app-menu.md](references/user-app-menu.md) |
 | 消息管理 | 查询/处理/标记消息 | [user-message.md](references/user-message.md) |
 | 通知偏好 | 读取/更新通知偏好 | [user-notify.md](references/user-notify.md) |
-| CLI 绑定 | 检查/完成 CLI 绑定 | [user-thirdparty.md](references/user-thirdparty.md) |
+| 第三方客户端绑定 | 检查/完成第三方客户端绑定 | [user-thirdparty.md](references/user-thirdparty.md) |
 | 部门用户管理 | 批量创建/删除部门用户 | [user-dept.md](references/user-dept.md) |
 | 数据权限 | 查询项目/区域权限列表 | [user-data.md](references/user-data.md) |
 

@@ -198,6 +198,7 @@ ur view asset delete --id <assetID>
 - 五类模板的月度趋势使用当月范围、按日 `sum`；区域排行、设备排行和设备占比使用当月范围、`sum` 聚合，分别按区域或设备分组。所有用量组件必须绑定变化量字段，不能用累计字段直接求和。
 - 校验非电模板时，应递归检查分组子组件，不得残留 `dianbiao`、`P`、`TotalEnergyChange`、`templateAutoField=P`、“总功率/用电”或 kW 单位。
 - 视觉验收以数据可读性优先：3D 背景降低对比度；数据面板使用深蓝半透明渐变、低亮度青色边框、12px 圆角和轻阴影；正文、次要文本与网格线分级；高饱和色只用于关键指标和告警等级。
+- 模板装饰图片必须使用随 IoT 前端发布的稳定静态资源（当前统一为 `/app/iot/bigscreen/`），不得引用 `/oss/temporary/` 或写死部署域名；否则新环境或离线部署会直接裂图。
 - 画布及每个分组都要做边界检查，禁止负坐标、越界、数值或单位裁切、告警列过窄、图表重叠。大数使用千分位与合适小数位；拥挤标签隐藏，完整值通过 tooltip 查看。
 - 每张模板恰有一个 `AlarmRecord`，列表走 `POST /api/v1/things/alarm/event/get-list`，请求体使用 `{"page":{"page":1,"pageSize":20}}`；详情走 `POST /api/v1/things/alarm/event/get-one`。不得新增或恢复 `AlarmScrollList`。
 - `AlarmRecord` 的 `normal` 与历史兼容值 `recovered` 均展示“已恢复”。仅预览/发布态允许点击行或按 Enter/Space 打开只读详情；编辑态点击仍用于选中组件。详情应包含事件、触发/恢复时间、触发次数、误报、处置和通知记录，不提供处置操作。

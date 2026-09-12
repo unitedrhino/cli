@@ -1,6 +1,6 @@
 ---
 name: ur-view
-description: "大屏可视化管理：大屏（GoView）项目 CRUD、画布 JSON 本地编辑与推送、发布/取消发布、素材库管理、IoT 数据绑定、页面截图调优、一次图/配电 CAD 底图+实时数据叠加案例（多模态核对）。triggers: 大屏, 数据可视化, GoView, 画布, 组件, 实时数据, 看板, 编辑大屏, 发布大屏, 大屏截图, 可视化大屏, bigscreen, view, 一次图, 配电, CAD, dwg, 底图"
+description: "大屏可视化管理：大屏（GoView）项目 CRUD、画布 JSON 本地编辑与推送、发布/取消发布、素材库管理、IoT 数据绑定、页面截图调优、一次图/配电 CAD 底图+实时数据叠加案例（多模态核对）。triggers: 大屏, 数据可视化, GoView, 画布, 组件, 实时数据, 看板, 编辑大屏, 发布大屏, 大屏截图, 可视化大屏, bigscreen, view, 一次图, 配电, CAD, dwg, 底图, 3D场景, 数字孪生, EmbedPage, 内嵌页面, 场景包"
 metadata:
   hermes:
     tags: [view, bigscreen, goview, visualization, iot]
@@ -372,6 +372,13 @@ GoView 共 **77 个静态注册组件**，分 8 类：Charts 图表（23）、In
 见 [references/primary-diagram-case.md](references/primary-diagram-case.md) ——
 一次图背景 + 回路实时 U/I/P/电能叠加、多模态核对流程、全量节点布局、
 列表封面回写与完整 CLI 命令序列（含生产案例实录，环境取值占位符化）。
+
+## 3D 场景页接入案例（EmbedPage 内嵌页面，数字孪生）
+
+见 [references/embed-page-3d-case.md](references/embed-page-3d-case.md) ——
+自研/AI 生成 three.js 场景页 zip 托管上传（upload-zip）、EmbedPage 画布接入与锚点批量绑定、
+封面补录（goView/projectIndexImage）、agent-browser 验证与缓存/代理排障。
+完整方法论与可复用案例包在 saas 主仓 `docs/大屏/功能说明/内嵌页面组件/`。
 
 ## API 端点索引
 

@@ -404,3 +404,8 @@ GoView 共 **77 个静态注册组件**，分 8 类：Charts 图表（23）、In
 - **鉴权口径**：view 域全部走 iot 应用上下文（app-id=200），运行时通过 `UR_*` 环境变量注入认证，先 `ur check` 确认身份。
 - **用户可见文案遵循根级文案规范**（禁用平台侧组织隔离术语，见仓库根 `AGENTS.md`）；代码层字段可保留原命名。
 - **组件数据快照**：`references/components.md` 由 `scripts/gen-view-components.py` 生成（快照日期 2026-08-03），前端组件变更后重新运行 `python3 scripts/gen-view-components.py` 刷新。
+
+
+## 建筑与配电站通用源码模板
+
+制作建筑能耗、分层功率分布或配电站机房时，使用 [通用场景源码指南](references/scene-templates.md)。完整源码、本地依赖、真实数据适配、打包和测试随技能提供；默认无绑定、无模拟回退，不依赖业务案例仓库。

@@ -5,11 +5,17 @@ description: "Use when calling 联犀 SaaS 平台 API: device management, user m
 
 # ur-api — 联犀 SaaS 平台 API 工具
 
-当前主实现位于 `backend/cli/ur`，通过 Go CLI `ur` 提供能力；runtime / AI 调用只走 `UR_*` 环境变量，不再依赖 profile / `~/.ur/config.json`。
+CLI实现位于本独立仓库（`unitedrhino/cli`），入口为根目录`main.go`，命令和认证分别在`cmd/`、`internal/auth/`；runtime / AI 调用只走 `UR_*` 环境变量，不再依赖 profile / `~/.ur/config.json`。
 
-所有接口均为 POST 方法。请求格式 `{code, msg, data}`。
+所有接口均为 POST 方法。统一响应格式为 `{code, msg, data}`。
 
 ---
+
+## 密码登录与直调接口
+
+- `ur login`及CLI的账号密码认证入口接收原始密码，`internal/auth/auth.go`会做一次SHA-256十六进制摘要并发送`pwdType: 1`；不要先自行摘要再交给这些入口，以免二次摘要。
+- 直接调用`/api/v1/system/user/self/login`或使用透传请求体时，调用方负责按登录模式生成密码摘要。SHA-256对应`pwdType: 1`，MD5对应`pwdType: 2`。生成接口表中的“1，明文”是历史字段注释，不能据此发送原始密码。SaaS前端依据`apps/web/packages/saas/src/password-login/payload.ts`组装凭证。
+- 凭据取已核对环境的授权来源，不把密码或令牌写入skill、截图和版本库。此处仅解释现有登录口径，不修改账号密码或登录协议。
 
 ## 角色权限区分
 

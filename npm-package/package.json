@@ -11,6 +11,8 @@
     "ur-*/SKILL.md",
     "ur-*/references/**",
     "ur-*/scripts/**",
+    "ur-*/assets/**",
+    "ur-*/ur-view/**",
     "ur-*/swagger-index.md"
   ],
   "scripts": {

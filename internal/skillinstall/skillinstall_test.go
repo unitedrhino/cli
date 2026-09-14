@@ -158,3 +158,28 @@ func indexOf(s, sub string) int {
 	}
 	return -1
 }
+
+// TestInstall_NestedSceneAssets 校验安装器保留两套场景的嵌套源码、纹理及许可证内容。
+func TestInstall_NestedSceneAssets(t *testing.T) {
+	// 隔离目录只用于安装验证，避免写入当前用户的真实技能目录。
+	source := makeFakeSource(t)
+	destination := t.TempDir()
+	// 文件类型覆盖运行资源与打包工具，防止未来加入仅复制文档的过滤。
+	assets := []string{"index.html", "js/data.js", "css/style.css", "libs/three.min.js", "libs/LICENSE", "assets/textures/panel.png", "package.py"}
+	for _, scene := range []string{"building", "power-station"} {
+		for _, asset := range assets {
+			mustWrite(t, filepath.Join(source, "ur-view", "assets", "scene-templates", scene, asset), scene+"/"+asset)
+		}
+	}
+	if _, err := Install(source, []Target{{Path: destination, Scope: "project", Kind: "codex"}}, false); err != nil {
+		t.Fatalf("安装场景技能失败：%v", err)
+	}
+	for _, scene := range []string{"building", "power-station"} {
+		for _, asset := range assets {
+			content, err := os.ReadFile(filepath.Join(destination, "ur-api", "ur-view", "assets", "scene-templates", scene, asset))
+			if err != nil || string(content) != scene+"/"+asset {
+				t.Errorf("场景资源 %s/%s 安装后丢失或变化：%v", scene, asset, err)
+			}
+		}
+	}
+}

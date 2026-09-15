@@ -213,8 +213,8 @@ if $BUILD; then
     bash "${CLI_DIR}/scripts/package-skill.sh" "$DIST_DIR" || die "打包失败"
 
     # 找到 ur-api 的 zip（package-skill.sh 生成的是 skill 目录，不是 zip）
-    # 需要先压缩
-    SKILL_DIR="${DIST_DIR}/$(ls "$DIST_DIR" | head -1)/skill/ur-api"
+    # 需要先压缩；产物目录下除架构目录（x64-linux 等）外还有 ur-wrapper.sh 文件，须跳过
+    SKILL_DIR="${DIST_DIR}/$(ls "$DIST_DIR" | grep -E '^(x64|x86|arm)' | head -1)/skill/ur-api"
     if [[ ! -d "$SKILL_DIR" ]]; then
       die "打包后找不到 skill 目录: $SKILL_DIR"
     fi

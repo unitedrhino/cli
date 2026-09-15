@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>配电站三维运维 · 三维可视化</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="viewport"></div>
+
+  <!-- 顶栏 -->
+  <header id="topbar">
+    <div class="brand">
+      <span class="logo"></span>
+      <div>
+        <h1>配电站三维运维</h1>
+        <p>三维可视化运维 · 2 台变压器 · GCS 低压柜 · 电表数据监测</p>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><label>进线功率</label><b id="sum-load">--</b></div>
+      <div class="stat"><label>有效读数</label><b id="sum-online">--</b></div>
+      <div class="stat"><label>累计电量</label><b id="sum-kwh">--</b></div>
+      <div class="stat"><label>时间</label><b id="sum-clock">--</b></div>
+    </div>
+  </header>
+
+  <!-- 视角工具栏 -->
+  <nav id="toolbar">
+    <button data-view="overview" class="active">总览</button>
+    <button data-view="hv">高压区</button>
+    <button data-view="trans">变压器区</button>
+    <button data-view="s1">低压柜列 A</button>
+    <button data-view="s2">低压柜列 B</button>
+    <button id="btn-auto">自动巡航</button>
+    <button id="btn-patrol">自动巡检</button>
+    <button id="btn-about">数据说明</button>
+  </nav>
+
+  <!-- 左侧设备树 -->
+  <aside id="sidebar">
+    <div class="side-title">设备台账 <span id="tree-count"></span></div>
+    <div id="device-tree"></div>
+  </aside>
+
+  <!-- 悬停提示 -->
+  <div id="tooltip"></div>
+
+  <!-- 右侧电表信息面板 -->
+  <section id="info-panel">
+    <header>
+      <div>
+        <h2 id="p-name">--</h2>
+        <p id="p-id">--</p>
+      </div>
+      <span id="p-status" class="badge on">--</span>
+      <button id="panel-close" title="关闭">×</button>
+    </header>
+    <div id="p-body"></div>
+    <footer>
+      <div id="trend-tabs"></div>
+      <div class="trend-chart">
+        <canvas id="trend" width="368" height="150"></canvas>
+        <div id="trend-status" role="status" aria-live="polite" hidden>
+          <span class="trend-status-icon" aria-hidden="true">· · ·</span>
+          <strong id="trend-status-title"></strong>
+          <span id="trend-status-hint"></span>
+          <button id="trend-retry" type="button" hidden>重新加载</button>
+        </div>
+      </div>
+      <p class="src">数据来源：正在接入平台实时数据…</p>
+    </footer>
+  </section>
+
+  <!-- 操作提示 -->
+  <div id="hint">左键拖动 旋转 · 滚轮 缩放 · 右键拖动 平移 · 单击电表 查看详情 · 双击电表 聚焦</div>
+
+  <!-- 数据说明弹窗 -->
+  <div id="about-modal">
+    <div class="modal-card">
+      <h3>数据说明</h3>
+      <ul>
+        <li>柜体与仪表编号为可替换的通用布局；实际设备由宿主锚点绑定。</li>
+        <li>读取真实物模型数据，未绑定、失败和过期字段分别显示状态，不填充演示读数。</li>
+        <li>单位、有效期和进线计量关系须核验后配置；尚未配置时不显示汇总值。</li>
+        <li>高压柜、变压器和母联为结构展示，不代表已验证的实际电气连接。</li>
+      </ul>
+      <button id="about-close">我知道了</button>
+    </div>
+  </div>
+
+  <div id="scene-progress" hidden>正在完善场景细节…</div>
+
+  <!-- 加载遮罩 -->
+  <div id="loading"><div class="spinner"></div><p>正在构建三维配电站场景…</p></div>
+
+  <script>
+    /* 加载遮罩由真实首帧驱动；后续细节在非阻塞角标提示。 */
+    window.addEventListener('station:interactive', () => {
+      document.getElementById('loading').classList.add('done');
+      document.getElementById('scene-progress').hidden = false;
+    });
+    window.addEventListener('station:ready', () => {
+      document.getElementById('scene-progress').hidden = true;
+    });
+    window.addEventListener('error', e => {
+      const loading = document.getElementById('loading');
+      if (!loading.classList.contains('done')) loading.querySelector('p').textContent = '加载出错: ' + e.message;
+    });
+  </script>
+  <script src="libs/three.min.js"></script>
+  <script src="libs/OrbitControls.js"></script>
+  <script src="libs/scene-sdk.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/urscene-provider.js"></script>
+  <script src="js/finish.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/interaction.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>

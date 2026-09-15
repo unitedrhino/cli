@@ -1,6 +1,6 @@
 ---
 name: ur-view
-description: "大屏可视化管理：大屏（GoView）项目 CRUD、画布 JSON 本地编辑与推送、发布/取消发布、素材库管理、IoT 数据绑定、页面截图调优、一次图/配电 CAD 底图+实时数据叠加案例（多模态核对）。triggers: 大屏, 数据可视化, GoView, 画布, 组件, 实时数据, 看板, 编辑大屏, 发布大屏, 大屏截图, 可视化大屏, bigscreen, view, 一次图, 配电, CAD, dwg, 底图"
+description: "大屏可视化管理：大屏（GoView）项目 CRUD、画布 JSON 本地编辑与推送、发布/取消发布、素材库管理、IoT 数据绑定、页面截图调优、一次图/配电 CAD 底图+实时数据叠加案例（多模态核对）。triggers: 大屏, 数据可视化, GoView, 画布, 组件, 实时数据, 看板, 编辑大屏, 发布大屏, 大屏截图, 可视化大屏, bigscreen, view, 一次图, 配电, CAD, dwg, 底图, 3D场景, 数字孪生, EmbedPage, 内嵌页面, 场景包"
 metadata:
   hermes:
     tags: [view, bigscreen, goview, visualization, iot]
@@ -33,6 +33,13 @@ metadata:
 |------|---------|
 | 企业管理员 | 大屏 CRUD、画布编辑、发布管理、素材管理（app-id=200，iot 应用上下文） |
 | 平台管理员 / 普通用户 | 无大屏管理入口 |
+
+### 企业边界与菜单判定
+
+- `platform` 只负责维护 `tenantCode=common`、`type=template` 的系统模板；**不得在平台企业下创建 IoT 验收项目、业务产品/设备或 `type=screen` 的大屏实例**。
+- 基于模板创建大屏时，必须先切换到已正式开通物联网应用的普通企业，以该企业管理员身份创建 IoT 项目和 `type=screen` 实例；请求同时使用该企业的 `tenant-code` 与 IoT 项目的 `project-id`。
+- 平台管理员没有“大屏项目”菜单是正常产品边界。当前企业或角色没有对应菜单时，先核对企业应用开通和角色授权；若正常配置下仍不可见，应按“当前身份不具备该能力”记录并停止该项验收，**不得通过改库补菜单、伪造权限或直接拼接隐藏路由强行处理**。
+- 浏览器验收必须从当前身份真实可见的“物联网 → 大屏管理 → 大屏项目”菜单进入；CLI/API 验收也必须使用同一普通企业上下文，不能用平台数据代替。
 
 ---
 
@@ -174,6 +181,34 @@ ur view asset delete --id <assetID>
 | 静态/装饰组件 | ✗ | ✗ | ✗ |
 
 单值自渲染组件（Dial / PieCircle / Process / WaterPolo）拿到 IoT 单值后自行渲染，不走 ECharts dataset 覆盖。
+
+### 能源模板数据与视觉验收合同
+
+五类系统模板均为 `1920×1080`、14 个顶层组件。系统模板只在 `common` 企业维护；业务大屏必须切换到已开通物联网应用的普通企业，再基于模板创建。
+
+| 模板标题 | 品类 | 主指标 | 用量变化量 | 单位 |
+|---|---|---|---|---|
+| 能源电力数据中心 | `dianbiao` | `P` | `TotalEnergyChange` | 主指标 kW；用量 kWh |
+| 能源水务数据中心 | `shuibiao` | `PostiveFlux` | `PostiveFluxChange` | m³ |
+| 能源燃气数据中心 | `ranqibiao` | `TotalGas` | `TotalGasChange` | m³ |
+| 能源热力数据中心 | `liangrebiao` | `TotalHeat` | `TotalHeatChange` | kWh |
+| 能源燃煤数据中心 | `meibiao` | `TotalCoal` | `TotalCoalChange` | t |
+
+- 电力辅助指标为今日功率 `max/min/avg`，左侧展示 `Ua/Ub/Uc` 和 `Ia/Ib/Ic` 趋势；非电模板辅助指标按变化量字段分别求今日、本周、本月 `sum`，左侧展示近 7 日按日用量趋势。
+- 五类模板的月度趋势使用当月范围、按日 `sum`；区域排行、设备排行和设备占比使用当月范围、`sum` 聚合，分别按区域或设备分组。所有用量组件必须绑定变化量字段，不能用累计字段直接求和。
+- 校验非电模板时，应递归检查分组子组件，不得残留 `dianbiao`、`P`、`TotalEnergyChange`、`templateAutoField=P`、“总功率/用电”或 kW 单位。
+- 视觉验收以数据可读性优先：3D 背景降低对比度；数据面板使用深蓝半透明渐变、低亮度青色边框、12px 圆角和轻阴影；正文、次要文本与网格线分级；高饱和色只用于关键指标和告警等级。
+- 模板装饰图片必须使用随 IoT 前端发布的稳定静态资源（当前统一为 `/app/iot/bigscreen/`），不得引用 `/oss/temporary/` 或写死部署域名；否则新环境或离线部署会直接裂图。
+- 画布及每个分组都要做边界检查，禁止负坐标、越界、数值或单位裁切、告警列过窄、图表重叠。大数使用千分位与合适小数位；拥挤标签隐藏，完整值通过 tooltip 查看。
+- 每张模板恰有一个 `AlarmRecord`，列表走 `POST /api/v1/things/alarm/event/get-list`，请求体使用 `{"page":{"page":1,"pageSize":20}}`；详情走 `POST /api/v1/things/alarm/event/get-one`。不得新增或恢复 `AlarmScrollList`。
+- `AlarmRecord` 的 `normal` 与历史兼容值 `recovered` 均展示“已恢复”。仅预览/发布态允许点击行或按 Enter/Space 打开只读详情；编辑态点击仍用于选中组件。详情应包含事件、触发/恢复时间、触发次数、误报、处置和通知记录，不提供处置操作。
+
+### 能源模板验收顺序
+
+1. 先校验五个种子的名称、封面、14 个顶层组件、布局边界和数据合同。
+2. 在普通企业的同一个正式 IoT 项目下创建五类产品和多台设备，通过正式 API/MQTT 生成今日、近 7 日及当月数据；累计值由差值链路生成对应 `*Change`。
+3. 从当前身份真实可见的菜单为普通企业创建五个大屏，逐张检查主指标、趋势、排行、占比、告警列表与详情弹窗。
+4. 重启服务后确认产品、系统模板和业务大屏没有重复，种子内容与 data URL 封面保持正确。
 
 ### 常见配方
 
@@ -338,6 +373,13 @@ GoView 共 **77 个静态注册组件**，分 8 类：Charts 图表（23）、In
 一次图背景 + 回路实时 U/I/P/电能叠加、多模态核对流程、全量节点布局、
 列表封面回写与完整 CLI 命令序列（含生产案例实录，环境取值占位符化）。
 
+## 3D 场景页接入案例（EmbedPage 内嵌页面，数字孪生）
+
+见 [references/embed-page-3d-case.md](references/embed-page-3d-case.md) ——
+自研/AI 生成 three.js 场景页 zip 托管上传（upload-zip）、EmbedPage 画布接入与锚点批量绑定、
+封面补录（goView/projectIndexImage）、agent-browser 验证与缓存/代理排障。
+完整方法论与可复用案例包在 saas 主仓 `docs/大屏/功能说明/内嵌页面组件/`。
+
 ## API 端点索引
 
 <!-- API_LIST:ur-view -->
@@ -362,3 +404,8 @@ GoView 共 **77 个静态注册组件**，分 8 类：Charts 图表（23）、In
 - **鉴权口径**：view 域全部走 iot 应用上下文（app-id=200），运行时通过 `UR_*` 环境变量注入认证，先 `ur check` 确认身份。
 - **用户可见文案遵循根级文案规范**（禁用平台侧组织隔离术语，见仓库根 `AGENTS.md`）；代码层字段可保留原命名。
 - **组件数据快照**：`references/components.md` 由 `scripts/gen-view-components.py` 生成（快照日期 2026-08-03），前端组件变更后重新运行 `python3 scripts/gen-view-components.py` 刷新。
+
+
+## 建筑与配电站通用源码模板
+
+制作建筑能耗、分层功率分布或配电站机房时，使用 [通用场景源码指南](references/scene-templates.md)。完整源码、本地依赖、真实数据适配、打包和测试随技能提供；默认无绑定、无模拟回退，不依赖业务案例仓库。

@@ -132,6 +132,19 @@ build_for_arch() {
   (cd "${ROOT}" && go run . generate-skills --all --output "${api_skill_dir}")
   cp -R "${ROOT}/references" "${api_skill_dir}/references" 2>/dev/null || true
 
+  # Swagger 导出不包含手写场景模板，必须随统一技能递归分发源码和本地资源。
+  mkdir -p "${api_skill_dir}/ur-view"
+  cp -R "${ROOT}/skill/ur-view/." "${api_skill_dir}/ur-view/"
+  if ! grep -Fq '[大屏技能](ur-view/SKILL.md)' "${api_skill_dir}/SKILL.md"; then
+    cat >> "${api_skill_dir}/SKILL.md" <<'SCENES'
+
+## 大屏场景源码
+
+建筑能耗与配电站的通用场景模板、配置和验证说明见 [大屏技能](ur-view/SKILL.md)。
+模板源码随技能提供，不依赖业务案例仓库。
+SCENES
+  fi
+
   # 保留顶层 SKILL.md 作为向后兼容的入口（内容指向 ur-api）
   cat > "${skill_dir}/SKILL.md" <<'INDEX'
 ---

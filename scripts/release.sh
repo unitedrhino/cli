@@ -9,6 +9,8 @@ set -euo pipefail
 #   GITHUB_TOKEN  - GitHub Personal Access Token
 #   GITEE_TOKEN   - Gitee 私人令牌
 #   PARALLEL      - 并发构建数（默认 8）
+#   KEEP_RELEASES - 发布成功后本地保留的历史 release 构建目录数（默认 0，
+#                   即清掉全部历史产物；资产已上传远端 Release，本地无保留价值）
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
@@ -22,6 +24,7 @@ VERSION="${1:-v0.1.0}"
 BUILD_DIR="${ROOT}/dist/release-${VERSION}"
 RELEASE_DIR="${BUILD_DIR}/packages"
 PARALLEL="${PARALLEL:-8}"
+KEEP_RELEASES="${KEEP_RELEASES:-0}"
 
 # 排除的平台（非原生或不需要）
 EXCLUDE_PLATFORMS="js/wasm wasip1/wasm android/386 android/amd64 android/arm android/arm64 ios/amd64 ios/arm64"
@@ -352,6 +355,36 @@ echo ""
 release_github || true
 echo ""
 release_gitee || true
+
+# ─── 发布成功后清理本地构建产物 ──────────────────────────────────────────
+# 资产已上传远端 Release（GitHub/Gitee），本地 dist/release-* 无保留价值。
+# 全平台包体积约 700MB+/版本，历史上多次发布累计可占数 GB。
+# KEEP_RELEASES=N 可保留最近 N 个历史版本目录（默认 0=全部清理）。
+# 任一平台发布失败（目录缺 sha256sums.txt 视为未完成）时跳过清理，便于重传。
+if [[ -f "${RELEASE_DIR}/sha256sums.txt" ]]; then
+  echo ""
+  echo "========================================"
+  echo "  清理本地构建产物（KEEP_RELEASES=${KEEP_RELEASES}）"
+  echo "========================================"
+  removed_total=0
+  if [[ "${KEEP_RELEASES}" -gt 0 ]]; then
+    # 保留最近 N 个版本：按版本号倒序，跳过前 N 个，其余删除
+    old_releases=$(ls -1d "${ROOT}"/dist/release-v* 2>/dev/null | sort -rV | tail -n +$((KEEP_RELEASES + 1)))
+  else
+    old_releases=$(ls -1d "${ROOT}"/dist/release-v* 2>/dev/null)
+  fi
+  for old_dir in ${old_releases}; do
+    rm -rf "${old_dir}"
+    echo "已清理 $(basename "${old_dir}")"
+    removed_total=$((removed_total + 1))
+  done
+  if [[ "${removed_total}" -eq 0 ]]; then
+    echo "无历史产物需要清理"
+  fi
+else
+  echo ""
+  echo "[cleanup] 检测到发布可能未完成（缺 sha256sums.txt），保留 ${BUILD_DIR} 便于排查/重传"
+fi
 
 echo ""
 echo "========================================"

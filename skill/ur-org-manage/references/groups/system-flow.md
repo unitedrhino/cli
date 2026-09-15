@@ -1,0 +1,43 @@
+# system/flow
+
+> 该 group 共 39 个端点。
+
+- `POST /api/v1/system/flow/category/create` [admin] 创建流程分类
+- `POST /api/v1/system/flow/category/delete` [admin] 删除流程分类
+- `POST /api/v1/system/flow/category/get-list` [admin] 获取流程分类分页
+- `POST /api/v1/system/flow/category/update` [admin] 更新流程分类
+- `POST /api/v1/system/flow/cc/get-list` [all] 我收到的抄送分页
+- `POST /api/v1/system/flow/cc/mark-read` [all] 抄送标记已阅
+- `POST /api/v1/system/flow/def/create` [admin] 创建流程定义
+- `POST /api/v1/system/flow/def/delete` [admin] 删除流程定义
+- `POST /api/v1/system/flow/def/deploy` [admin] 发布流程定义
+- `POST /api/v1/system/flow/def/get-list` [admin] 获取流程定义分页
+- `POST /api/v1/system/flow/def/get-one` [admin] 获取流程定义详情
+- `POST /api/v1/system/flow/def/unpublish` [admin] 停用流程定义
+- `POST /api/v1/system/flow/def/update` [admin] 更新流程定义
+- `POST /api/v1/system/flow/form/create` [admin] 创建表单模板
+- `POST /api/v1/system/flow/form/delete` [admin] 删除表单模板
+- `POST /api/v1/system/flow/form/get-list` [admin] 获取表单模板分页
+- `POST /api/v1/system/flow/form/get-one` [admin] 获取表单模板详情
+- `POST /api/v1/system/flow/form/update` [admin] 更新表单模板
+- `POST /api/v1/system/flow/instance/destroy` [admin] 作废流程实例
+- `POST /api/v1/system/flow/instance/get-monitor-list` [admin] 实例监控分页
+- `POST /api/v1/system/flow/instance/get-my-list` [all] 我的申请分页
+- `POST /api/v1/system/flow/instance/get-record` [all] 获取审批记录时间线
+- `POST /api/v1/system/flow/instance/resume` [admin] 恢复流程实例
+- `POST /api/v1/system/flow/instance/revoke` [all] 撤销流程实例
+- `POST /api/v1/system/flow/instance/terminate` [admin] 终止流程实例
+- `POST /api/v1/system/flow/process/get-launch-list` [all] 获取可发起流程列表
+- `POST /api/v1/system/flow/process/launch` [all] 发起流程
+- `POST /api/v1/system/flow/task/add-sign` [all] 加签
+- `POST /api/v1/system/flow/task/claim` [all] 认领任务
+- `POST /api/v1/system/flow/task/consent` [all] 同意审批
+- `POST /api/v1/system/flow/task/get-approved-list` [all] 我的已办任务分页
+- `POST /api/v1/system/flow/task/get-claim-list` [all] 可认领任务分页
+- `POST /api/v1/system/flow/task/get-detail` [all] 获取审批详情
+- `POST /api/v1/system/flow/task/get-pending-list` [all] 我的待办任务分页
+- `POST /api/v1/system/flow/task/reclaim` [all] 拿回任务
+- `POST /api/v1/system/flow/task/reject` [all] 驳回审批
+- `POST /api/v1/system/flow/task/remove-sign` [all] 减签
+- `POST /api/v1/system/flow/task/transfer` [all] 转办任务
+- `POST /api/v1/system/flow/task/urge` [all] 催办任务

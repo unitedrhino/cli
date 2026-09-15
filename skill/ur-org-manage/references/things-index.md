@@ -5,15 +5,20 @@
 | Group | 端点数量 | 对应文件 |
 |-------|---------|---------|
 | `things/ai/mcp` | 4 | `references/groups/things-ai-mcp.md` |
-| `things/alarm/info` | 5 | `references/groups/things-alarm-info.md` |
-| `things/alarm/record` | 2 | `references/groups/things-alarm-record.md` |
-| `things/alarm/scene` | 3 | `references/groups/things-alarm-scene.md` |
+| `things/alarm/ai` | 1 | `references/groups/things-alarm-ai.md` |
+| `things/alarm/capability` | 1 | `references/groups/things-alarm-capability.md` |
+| `things/alarm/conditionTemplate` | 5 | `references/groups/things-alarm-conditionTemplate.md` |
+| `things/alarm/event` | 5 | `references/groups/things-alarm-event.md` |
+| `things/alarm/info` | 7 | `references/groups/things-alarm-info.md` |
+| `things/alarm/notifyRecord` | 2 | `references/groups/things-alarm-notifyRecord.md` |
+| `things/alarm/notifyTemplate` | 6 | `references/groups/things-alarm-notifyTemplate.md` |
 | `things/area/info` | 5 | `references/groups/things-area-info.md` |
 | `things/area/profile` | 3 | `references/groups/things-area-profile.md` |
 | `things/config/info` | 2 | `references/groups/things-config-info.md` |
 | `things/data/area` | 3 | `references/groups/things-data-area.md` |
 | `things/data/area/user/apply` | 2 | `references/groups/things-data-area-user-apply.md` |
 | `things/data/project` | 5 | `references/groups/things-data-project.md` |
+| `things/data/user` | 1 | `references/groups/things-data-user.md` |
 | `things/device/auth` | 4 | `references/groups/things-device-auth.md` |
 | `things/device/auth5` | 2 | `references/groups/things-device-auth5.md` |
 | `things/device/bind-token` | 2 | `references/groups/things-device-bind-token.md` |
@@ -21,10 +26,11 @@
 | `things/device/gateway` | 3 | `references/groups/things-device-gateway.md` |
 | `things/device/group` | 3 | `references/groups/things-device-group.md` |
 | `things/device/info` | 15 | `references/groups/things-device-info.md` |
-| `things/device/interact` | 10 | `references/groups/things-device-interact.md` |
+| `things/device/interact` | 11 | `references/groups/things-device-interact.md` |
 | `things/device/interact/gateway` | 2 | `references/groups/things-device-interact-gateway.md` |
 | `things/device/msg` | 17 | `references/groups/things-device-msg.md` |
 | `things/device/ota` | 1 | `references/groups/things-device-ota.md` |
+| `things/device/pair` | 2 | `references/groups/things-device-pair.md` |
 | `things/device/profile` | 4 | `references/groups/things-device-profile.md` |
 | `things/device/schema` | 6 | `references/groups/things-device-schema.md` |
 | `things/device/version` | 2 | `references/groups/things-device-version.md` |
@@ -60,5 +66,5 @@
 | `things/schema/common` | 8 | `references/groups/things-schema-common.md` |
 | `things/user/area/apply` | 1 | `references/groups/things-user-area-apply.md` |
 | `things/user/device/collect` | 3 | `references/groups/things-user-device-collect.md` |
-| `things/user/device/share` | 14 | `references/groups/things-user-device-share.md` |
+| `things/user/device/share` | 17 | `references/groups/things-user-device-share.md` |
 

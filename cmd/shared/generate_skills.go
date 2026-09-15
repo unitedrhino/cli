@@ -250,6 +250,8 @@ func generateSkillMD(app config.CLIApp, endpoints []swagger.Endpoint, allEndpoin
 		b.WriteString("| 查询设备列表 | `ur-iot` | `api /api/v1/things/device/info/get-list` | admin/tenant |\n")
 		b.WriteString("| 查询产品列表 | `ur-iot` | `api /api/v1/things/product/info/get-list` | admin/tenant |\n")
 		b.WriteString("| 查询项目列表 | `ur-iot` | `api /api/v1/things/project/info/get-list` | admin/tenant |\n")
+		b.WriteString("| 发起流程/办审批 | `ur-org-manage` | 专用命令 `flow process launch` / `flow task consent`（详见其 references/flow-approval.md） | all（任何登录用户） |\n")
+		b.WriteString("| 流程定义/表单管理 | `ur-org-manage` | 专用命令 `flow def create` / `flow def deploy`（仅租户管理员可用） | admin（租户管理员） |\n")
 		b.WriteString("\n")
 		b.WriteString("> **空结果说明**：如果 `user/self/app/get-list` 返回空列表（`list: []`），表示**当前用户没有任何应用权限**。\n")
 		b.WriteString("> 此时应直接告知用户『您当前没有分配任何应用』，**不要**再去 `system/app/info/get-list`（platform 权限）查找。\n")

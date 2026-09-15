@@ -7,16 +7,20 @@
 | `system/agreement` | 6 | `references/groups/system-agreement.md` |
 | `system/app/agreement` | 2 | `references/groups/system-app-agreement.md` |
 | `system/app/core` | 1 | `references/groups/system-app-core.md` |
-| `system/app/info` | 5 | `references/groups/system-app-info.md` |
+| `system/app/group` | 4 | `references/groups/system-app-group.md` |
+| `system/app/info` | 6 | `references/groups/system-app-info.md` |
 | `system/app/menu` | 4 | `references/groups/system-app-menu.md` |
+| `system/app/role` | 6 | `references/groups/system-app-role.md` |
 | `system/checkIn` | 5 | `references/groups/system-checkIn.md` |
-| `system/common` | 16 | `references/groups/system-common.md` |
+| `system/common` | 18 | `references/groups/system-common.md` |
 | `system/config/core` | 1 | `references/groups/system-config-core.md` |
 | `system/dept/info` | 5 | `references/groups/system-dept-info.md` |
+| `system/dept/role` | 3 | `references/groups/system-dept-role.md` |
 | `system/dept/syncJob` | 6 | `references/groups/system-dept-syncJob.md` |
 | `system/dept/user` | 3 | `references/groups/system-dept-user.md` |
 | `system/dict/detail` | 5 | `references/groups/system-dict-detail.md` |
 | `system/dict/info` | 7 | `references/groups/system-dict-info.md` |
+| `system/flow` | 39 | `references/groups/system-flow.md` |
 | `system/hook/capability` | 4 | `references/groups/system-hook-capability.md` |
 | `system/hook/server` | 5 | `references/groups/system-hook-server.md` |
 | `system/init` | 1 | `references/groups/system-init.md` |
@@ -25,6 +29,7 @@
 | `system/mall/license` | 5 | `references/groups/system-mall-license.md` |
 | `system/mall/package` | 5 | `references/groups/system-mall-package.md` |
 | `system/mall/product` | 5 | `references/groups/system-mall-product.md` |
+| `system/mcp` | 1 | `references/groups/system-mcp.md` |
 | `system/notify/config` | 7 | `references/groups/system-notify-config.md` |
 | `system/notify/config/template` | 3 | `references/groups/system-notify-config-template.md` |
 | `system/notify/message/info` | 4 | `references/groups/system-notify-message-info.md` |
@@ -32,12 +37,13 @@
 | `system/notify/notification` | 9 | `references/groups/system-notify-notification.md` |
 | `system/notify/template` | 5 | `references/groups/system-notify-template.md` |
 | `system/ops/feedback` | 3 | `references/groups/system-ops-feedback.md` |
-| `system/ops/workOrder` | 3 | `references/groups/system-ops-workOrder.md` |
+| `system/ops/workOrder` | 5 | `references/groups/system-ops-workOrder.md` |
 | `system/resource/api` | 4 | `references/groups/system-resource-api.md` |
 | `system/role/app` | 2 | `references/groups/system-role-app.md` |
 | `system/role/info` | 4 | `references/groups/system-role-info.md` |
 | `system/role/menu` | 2 | `references/groups/system-role-menu.md` |
 | `system/role/resource` | 2 | `references/groups/system-role-resource.md` |
+| `system/route` | 3 | `references/groups/system-route.md` |
 | `system/tenant/agreement` | 5 | `references/groups/system-tenant-agreement.md` |
 | `system/tenant/app` | 5 | `references/groups/system-tenant-app.md` |
 | `system/tenant/app/menu` | 2 | `references/groups/system-tenant-app-menu.md` |
@@ -50,9 +56,9 @@
 | `system/user/data` | 2 | `references/groups/system-user-data.md` |
 | `system/user/dept` | 2 | `references/groups/system-user-dept.md` |
 | `system/user/info` | 5 | `references/groups/system-user-info.md` |
-| `system/user/self` | 30 | `references/groups/system-user-self.md` |
+| `system/user/self` | 32 | `references/groups/system-user-self.md` |
 | `system/user/self/accessToken` | 5 | `references/groups/system-user-self-accessToken.md` |
-| `system/user/self/thirdparty` | 2 | `references/groups/system-user-self-thirdparty.md` |
 | `system/user/self/tenant` | 5 | `references/groups/system-user-self-tenant.md` |
+| `system/user/self/thirdparty` | 3 | `references/groups/system-user-self-thirdparty.md` |
 | `system/user/tenant` | 1 | `references/groups/system-user-tenant.md` |
 

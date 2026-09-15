@@ -328,6 +328,58 @@ func orgManageFeatures() []Feature {
 			APIs:        []string{"/api/v1/system/license/record/get-list"},
 		},
 		{
+			Name:        "流程审批",
+			Description: "发起审批、待办办理、我的申请（全员动线）",
+			APIs: []string{
+				"/api/v1/system/flow/process/get-launch-list", "/api/v1/system/flow/process/launch",
+				"/api/v1/system/flow/task/get-pending-list", "/api/v1/system/flow/task/get-approved-list",
+				"/api/v1/system/flow/task/get-detail", "/api/v1/system/flow/task/consent", "/api/v1/system/flow/task/reject",
+				"/api/v1/system/flow/task/transfer", "/api/v1/system/flow/task/add-sign", "/api/v1/system/flow/task/remove-sign",
+				"/api/v1/system/flow/instance/get-my-list", "/api/v1/system/flow/instance/get-record", "/api/v1/system/flow/instance/revoke",
+				"/api/v1/system/flow/cc/get-list",
+			},
+		},
+		{
+			Name:        "审批管理",
+			Description: "流程定义、表单模板、分类管理与实例管控（仅租户管理员）",
+			Authority:   []string{"admin"},
+			SubFeatures: []Feature{
+				{
+					Name:        "流程定义",
+					Description: "流程定义 CRUD 与发布/停用",
+					APIs: []string{
+						"/api/v1/system/flow/def/get-list", "/api/v1/system/flow/def/get-one", "/api/v1/system/flow/def/create",
+						"/api/v1/system/flow/def/update", "/api/v1/system/flow/def/delete", "/api/v1/system/flow/def/deploy",
+						"/api/v1/system/flow/def/unpublish",
+					},
+				},
+				{
+					Name:        "表单管理",
+					Description: "表单模板 CRUD",
+					APIs: []string{
+						"/api/v1/system/flow/form/get-list", "/api/v1/system/flow/form/get-one", "/api/v1/system/flow/form/create",
+						"/api/v1/system/flow/form/update", "/api/v1/system/flow/form/delete",
+					},
+				},
+				{
+					Name:        "流程分类",
+					Description: "流程分类管理",
+					APIs: []string{
+						"/api/v1/system/flow/category/get-list", "/api/v1/system/flow/category/create",
+						"/api/v1/system/flow/category/update", "/api/v1/system/flow/category/delete",
+					},
+				},
+				{
+					Name:        "流程监控",
+					Description: "实例监控列表与终止/恢复/作废",
+					APIs: []string{
+						"/api/v1/system/flow/instance/get-monitor-list", "/api/v1/system/flow/instance/terminate",
+						"/api/v1/system/flow/instance/resume", "/api/v1/system/flow/instance/destroy",
+					},
+				},
+			},
+		},
+		{
 			Name:        "AI 管理",
 			Description: "智能体、数字分身、会话管理",
 			SubFeatures: []Feature{

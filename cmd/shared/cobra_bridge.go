@@ -31,6 +31,11 @@ func (b CobraBridge) RunAlarm(ctx context.Context, args []string, stdout, stderr
 	return runAlarm(ctx, args, stdout, stderr)
 }
 
+// RunFlow 桥接 flow 命令
+func (b CobraBridge) RunFlow(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	return runFlow(ctx, args, stdout, stderr)
+}
+
 // RunDevice 桥接 device 命令
 func (b CobraBridge) RunDevice(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	return runDevice(ctx, args, stdout, stderr)

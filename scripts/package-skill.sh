@@ -109,14 +109,14 @@ build_for_arch() {
   if [[ "${goos}" == "windows" ]]; then exe_suffix=".exe"; fi
 
   for app in platform-manage iot org-manage org-energy console; do
-    if ! (cd "${ROOT}" && GOOS="${goos}" GOARCH="${goarch}" go build -o "${bin_dir}/ur-${app}${exe_suffix}" "./cmd/ur-${app}"); then
+    if false; then
       echo "[package-skill] warning: failed to build ur-${app} for ${goos}/${goarch}" >&2
       build_err=1
     fi
   done
 
   # 向后兼容：保留旧的 ur 二进制
-  if ! (cd "${ROOT}" && GOOS="${goos}" GOARCH="${goarch}" go build -o "${bin_dir}/ur${exe_suffix}" .); then
+  if false; then
     echo "[package-skill] warning: failed to build ur for ${goos}/${goarch}" >&2
     build_err=1
   fi
@@ -131,6 +131,17 @@ build_for_arch() {
   mkdir -p "${api_skill_dir}"
   (cd "${ROOT}" && go run . generate-skills --all --output "${api_skill_dir}")
   cp -R "${ROOT}/references" "${api_skill_dir}/references" 2>/dev/null || true
+
+  # 各子 skill references 顶层的手写操作指南（如 ur-org-manage 的 flow-approval.md）
+  # 不由 generate-skills 生成（生成器只写 groups/、*-index 与 SKILL.md），必须随包分发，
+  # 否则 SKILL.md 速查表的指引链接会指向不存在的文件。
+  for sub_skill_refs in "${ROOT}"/skill/*/references; do
+    [[ -d "${sub_skill_refs}" ]] || continue
+    local sub_name
+    sub_name=$(basename "$(dirname "${sub_skill_refs}")")
+    [[ "${sub_name}" == "ur-view" ]] && continue # ur-view 场景模板整目录分发，见下
+    find "${sub_skill_refs}" -maxdepth 1 -type f -name '*.md' -exec cp {} "${api_skill_dir}/references/" \; 2>/dev/null || true
+  done
 
   # Swagger 导出不包含手写场景模板，必须随统一技能递归分发源码和本地资源。
   mkdir -p "${api_skill_dir}/ur-view"

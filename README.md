@@ -536,6 +536,8 @@ go test -cover ./...
 # .env 文件内容
 GITHUB_TOKEN="ghp_xxxxxxxx"    # GitHub Personal Access Token（需要 repo 权限）
 GITEE_TOKEN="xxxxxxxx"         # Gitee 私人令牌
+# 可选：设为 all 时尝试向 Gitee 上传全平台资产；默认 common
+GITEE_RELEASE_ASSET_MODE="common"
 ```
 
 `release.sh` 启动时会自动加载 `.env`，无需手动 export。
@@ -553,7 +555,9 @@ bash scripts/release.sh v0.3.7
 3. 打包 tar.gz（Unix）或 zip（Windows）
 4. 生成 SHA256 校验和文件 `sha256sums.txt`
 5. 创建 GitHub Release 并上传所有资产
-6. 创建 Gitee Release 并上传所有资产
+6. 创建 Gitee Release，默认上传校验文件、Skills 包和 Linux x86_64 常用包；完整跨平台资产由 GitHub Release 提供
+
+上传使用超时和 HTTP 状态检查，任一资产失败都会明确报错。认证信息通过文件描述符或标准输入传给 `curl`，不会出现在进程参数中。
 
 ### 手动发布（仅某个平台）
 

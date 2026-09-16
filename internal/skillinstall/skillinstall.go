@@ -1,8 +1,10 @@
-// skillinstall — 把内置 ur-api skill 部署到各 AI 工具的 skills 目录
+// skillinstall — 把内置 ur-api skill 部署到各 AI 工具的 skills 目录。
 //
-// 不同 AI 工具（Claude Code / Codex 等）存放 skills 的位置不同：
+// 不同 AI 工具（Claude Code / Codex / WorkBuddy 等）存放 skills 的位置不同：
 //   - Claude Code：~/.claude/skills/ 与项目 .claude/skills/
 //   - Codex：~/.agents/skills/ 与项目 .agents/skills/（项目级常为软链目录）
+//   - WorkBuddy / CodeBuddy：~/.codebuddy/skills/、项目 .codebuddy/skills/，
+//     或 CODEBUDDY_CONFIG_DIR 指定配置目录下的 skills/
 //
 // 部署单元是唯一的 ur-api 整个 skill（SKILL.md + 内部子域内容 + _meta.json），
 // 整体拷贝覆盖到各目标的 ur-api/ 目录；只覆盖 ur-api，保留目标里其他 AI 自有 skill。
@@ -19,28 +21,43 @@ import (
 
 // Target AI 工具的 skills 目标目录
 type Target struct {
+	// Name 是目标的稳定名称，供配置、筛选和诊断输出使用。
+	Name string `json:"name"`
 	// Path 目标 skills 根目录（ur-api 将被安装为 <Path>/ur-api/）
 	Path string `json:"path"`
 	// Scope 作用域：user（用户级）/ project（项目级）
 	Scope string `json:"scope"`
-	// Kind AI 工具类型：claude / codex
+	// Kind AI 工具类型：claude / codex / workbuddy / custom。
 	Kind string `json:"kind"`
+	// Origin 表示目标来自自动探测、用户配置、环境变量或命令行参数。
+	Origin string `json:"origin"`
 }
 
 // TargetResult 单个目标的安装结果
 type TargetResult struct {
-	Path      string `json:"path"`
-	Scope     string `json:"scope"`
-	Kind      string `json:"kind"`
-	Installed bool   `json:"installed"`
-	Updated   bool   `json:"updated,omitempty"`
-	Error     string `json:"error,omitempty"`
+	// Name 是目标稳定名称。
+	Name string `json:"name"`
+	// Path 是客户端 Skills 根目录。
+	Path string `json:"path"`
+	// Scope 是用户级、项目级或自定义作用域。
+	Scope string `json:"scope"`
+	// Kind 是客户端类型。
+	Kind string `json:"kind"`
+	// Origin 是目标来源。
+	Origin string `json:"origin"`
+	// Installed 表示本次安装是否完成。
+	Installed bool `json:"installed"`
+	// Updated 表示目标原先已有 ur-api 并被覆盖更新。
+	Updated bool `json:"updated,omitempty"`
+	// Error 是单个目标的安装错误。
+	Error string `json:"error,omitempty"`
 }
 
 // Result 整体安装结果
 type Result struct {
 	// Source 内置 skills 源目录
-	Source string        `json:"source"`
+	Source string `json:"source"`
+	// Targets 是逐目标安装结果。
 	Targets []TargetResult `json:"targets"`
 }
 
@@ -68,23 +85,87 @@ func DetectTargets(cwd string) ([]Target, error) {
 	}
 
 	// 用户级
-	if dirExists(filepath.Join(home, ".claude", "skills")) {
-		targets = append(targets, Target{Path: filepath.Join(home, ".claude", "skills"), Scope: "user", Kind: "claude"})
+	if dirExists(filepath.Join(home, ".claude")) {
+		targets = append(targets, Target{Name: "claude-user", Path: filepath.Join(home, ".claude", "skills"), Scope: "user", Kind: "claude", Origin: "detected"})
 	}
-	if dirExists(filepath.Join(home, ".agents", "skills")) {
-		targets = append(targets, Target{Path: filepath.Join(home, ".agents", "skills"), Scope: "user", Kind: "codex"})
+	if dirExists(filepath.Join(home, ".agents")) {
+		targets = append(targets, Target{Name: "codex-user", Path: filepath.Join(home, ".agents", "skills"), Scope: "user", Kind: "codex", Origin: "detected"})
+	}
+	if dirExists(filepath.Join(home, ".codebuddy")) {
+		targets = append(targets, Target{Name: "workbuddy-user", Path: filepath.Join(home, ".codebuddy", "skills"), Scope: "user", Kind: "workbuddy", Origin: "detected"})
+	}
+	if configDir := strings.TrimSpace(os.Getenv("CODEBUDDY_CONFIG_DIR")); configDir != "" {
+		targets = append(targets, Target{Name: "workbuddy-config", Path: filepath.Join(configDir, "skills"), Scope: "user", Kind: "workbuddy", Origin: "environment"})
+	}
+	if envDirs := strings.TrimSpace(os.Getenv("UR_SKILLS_DIRS")); envDirs != "" {
+		for index, dir := range filepath.SplitList(envDirs) {
+			if strings.TrimSpace(dir) == "" {
+				continue
+			}
+			targets = append(targets, Target{
+				Name:   fmt.Sprintf("environment-%d", index+1),
+				Path:   dir,
+				Scope:  "custom",
+				Kind:   "custom",
+				Origin: "environment",
+			})
+		}
 	}
 
 	// 项目级（当前 git 仓库根下）
 	if root := findRepoRoot(cwd); root != "" {
-		if dirExists(filepath.Join(root, ".claude", "skills")) {
-			targets = append(targets, Target{Path: filepath.Join(root, ".claude", "skills"), Scope: "project", Kind: "claude"})
+		if dirExists(filepath.Join(root, ".claude")) {
+			targets = append(targets, Target{Name: "claude-project", Path: filepath.Join(root, ".claude", "skills"), Scope: "project", Kind: "claude", Origin: "detected"})
 		}
-		if dirExists(filepath.Join(root, ".agents", "skills")) {
-			targets = append(targets, Target{Path: filepath.Join(root, ".agents", "skills"), Scope: "project", Kind: "codex"})
+		if dirExists(filepath.Join(root, ".agents")) {
+			targets = append(targets, Target{Name: "codex-project", Path: filepath.Join(root, ".agents", "skills"), Scope: "project", Kind: "codex", Origin: "detected"})
+		}
+		if dirExists(filepath.Join(root, ".codebuddy")) {
+			targets = append(targets, Target{Name: "workbuddy-project", Path: filepath.Join(root, ".codebuddy", "skills"), Scope: "project", Kind: "workbuddy", Origin: "detected"})
 		}
 	}
-	return targets, nil
+	return DedupeTargets(targets), nil
+}
+
+// DedupeTargets 按规范化绝对路径去重目标，保留同一路径最先出现的配置。
+func DedupeTargets(targets []Target) []Target {
+	seen := make(map[string]struct{}, len(targets))
+	result := make([]Target, 0, len(targets))
+	for _, target := range targets {
+		target.Path = normalizePath(target.Path)
+		if target.Path == "" {
+			continue
+		}
+		key := filepath.Clean(target.Path)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		result = append(result, target)
+	}
+	return result
+}
+
+// normalizePath 将用户或环境变量提供的目标路径转换为干净的绝对路径。
+func normalizePath(path string) string {
+	path = strings.TrimSpace(path)
+	if path == "" {
+		return ""
+	}
+	if path == "~" || strings.HasPrefix(path, "~/") || strings.HasPrefix(path, `~\`) {
+		if home, err := os.UserHomeDir(); err == nil {
+			if path == "~" {
+				path = home
+			} else {
+				rest := strings.ReplaceAll(path[2:], `\`, string(filepath.Separator))
+				path = filepath.Join(home, rest)
+			}
+		}
+	}
+	if abs, err := filepath.Abs(path); err == nil {
+		return filepath.Clean(abs)
+	}
+	return filepath.Clean(path)
 }
 
 // dirExists 目录是否存在
@@ -128,14 +209,21 @@ func copyDir(src, dst string) error {
 		if err != nil {
 			return err
 		}
-		defer in.Close()
 		out, err := os.OpenFile(target, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, info.Mode())
 		if err != nil {
+			in.Close()
 			return err
 		}
-		defer out.Close()
-		_, err = io.Copy(out, in)
-		return err
+		_, copyErr := io.Copy(out, in)
+		inCloseErr := in.Close()
+		outCloseErr := out.Close()
+		if copyErr != nil {
+			return copyErr
+		}
+		if inCloseErr != nil {
+			return inCloseErr
+		}
+		return outCloseErr
 	})
 }
 
@@ -152,7 +240,8 @@ func Install(src string, targets []Target, dryRun bool) (*Result, error) {
 
 	result := &Result{Source: src}
 	for _, target := range targets {
-		tr := TargetResult{Path: target.Path, Scope: target.Scope, Kind: target.Kind}
+		target.Path = normalizePath(target.Path)
+		tr := TargetResult{Name: target.Name, Path: target.Path, Scope: target.Scope, Kind: target.Kind, Origin: target.Origin}
 		dest := filepath.Join(target.Path, "ur-api")
 		exists := dirExists(dest)
 		tr.Updated = exists
@@ -192,6 +281,19 @@ func Install(src string, targets []Target, dryRun bool) (*Result, error) {
 	return result, nil
 }
 
+// HasErrors 判断安装结果中是否有目标失败，便于命令行返回非零退出码。
+func HasErrors(result *Result) bool {
+	if result == nil {
+		return false
+	}
+	for _, target := range result.Targets {
+		if target.Error != "" {
+			return true
+		}
+	}
+	return false
+}
+
 // Summary 生成人类可读的安装结果摘要
 func Summary(r *Result) string {
 	if r == nil || len(r.Targets) == 0 {
@@ -205,7 +307,7 @@ func Summary(r *Result) string {
 		} else if t.Updated {
 			status = "已覆盖更新"
 		}
-		lines = append(lines, fmt.Sprintf("  %s [%s/%s] %s → %s", status, t.Scope, t.Kind, t.Path, filepath.Join(t.Path, "ur-api")))
+		lines = append(lines, fmt.Sprintf("  %s %s [%s/%s] %s → %s", status, t.Name, t.Scope, t.Kind, t.Path, filepath.Join(t.Path, "ur-api")))
 	}
 	return "ur-api 部署结果:\n" + strings.Join(lines, "\n")
 }

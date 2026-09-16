@@ -28,6 +28,12 @@ func runSkills(args []string, stdout, stderr io.Writer) int {
 		return runSkillsInstall(args[1:], stdout, stderr)
 	case "download":
 		return runSkillsDownload(args[1:], stdout, stderr)
+	case "export":
+		return runSkillsExport(args[1:], stdout, stderr)
+	case "status", "doctor":
+		return runSkillsStatus(args[1:], stdout, stderr)
+	case "target", "targets":
+		return runSkillsTarget(args[1:], stdout, stderr)
 	case "version", "ver":
 		return runSkillsVersion(args[1:], stdout, stderr)
 	case "-h", "--help", "help":
@@ -60,9 +66,8 @@ func expandHomePath(path string) string {
 	return filepath.Join(home, rest)
 }
 
-// runSkillsInstall 把内置 ur-api skill 整体拷贝部署到各 AI 工具的 skills 目录，
-// 让对应 AI（Claude Code / Codex）重载后即可发现使用。
-// 未指定 --dir 时自动探测本机常用目录；指定 --dir（可多次）时只安装到指定目录。
+// runSkillsInstall 把内置 ur-api skill 整体部署到自动发现和用户登记的目标。
+// 未指定 --dir 时合并已登记目标与本机客户端目录；指定 --dir 时只安装到显式目录。
 func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
 	dryRun := false
 	jsonOutput := false
@@ -73,6 +78,8 @@ func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
 			dryRun = true
 		case "--json":
 			jsonOutput = true
+		case "--all":
+			// 默认已经覆盖所有自动发现与登记目标；保留 --all 作为明确表达和脚本兼容入口。
 		case "--dir":
 			if i+1 < len(args) {
 				customDirs = append(customDirs, expandHomePath(args[i+1]))
@@ -82,9 +89,9 @@ func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
 				return 2
 			}
 		case "-h", "--help":
-			fmt.Fprintln(stdout, "用法: ur skills install [--dry-run] [--dir <目录>...] [--json]")
-			fmt.Fprintln(stdout, "把内置 ur-api skill 整体部署到本机各 AI 工具（Claude Code / Codex 的用户级与项目级 skills 目录）")
-			fmt.Fprintln(stdout, "不指定 --dir 时自动探测；指定 --dir（可多次）时只安装到这些目录，ur-api 会装到 <目录>/ur-api/")
+			fmt.Fprintln(stdout, "用法: ur skills install [--all] [--dry-run] [--dir <目录>...] [--json]")
+			fmt.Fprintln(stdout, "把内置 ur-api 整体部署到自动发现和用户登记的 AI Skills 目录")
+			fmt.Fprintln(stdout, "不指定 --dir 时安装到全部目标；指定 --dir（可多次）时只安装到这些目录")
 			return 0
 		default:
 			fmt.Fprintf(stderr, "未知参数: %s\n", args[i])
@@ -98,11 +105,11 @@ func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
 	// 未指定时自动探测本机各 AI 工具的 skills 目录
 	var targets []skillinstall.Target
 	if len(customDirs) > 0 {
-		for _, dir := range customDirs {
-			targets = append(targets, skillinstall.Target{Path: dir, Scope: "custom", Kind: "custom"})
+		for index, dir := range customDirs {
+			targets = append(targets, skillinstall.Target{Name: fmt.Sprintf("command-line-%d", index+1), Path: dir, Scope: "custom", Kind: "custom", Origin: "command-line"})
 		}
 	} else {
-		detected, err := skillinstall.DetectTargets(cwdOr("."))
+		detected, err := skillinstall.ResolveTargets(cwdOr("."))
 		if err != nil {
 			fmt.Fprintf(stderr, "探测 AI skills 目录失败: %v\n", err)
 			return 1
@@ -110,7 +117,7 @@ func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
 		targets = detected
 	}
 	if len(targets) == 0 {
-		fmt.Fprintln(stdout, "未检测到可部署的 AI skills 目录（~/.claude/skills、~/.agents/skills 或项目 .claude/skills/.agents/skills 均不存在；可用 --dir 指定目标目录）")
+		fmt.Fprintln(stdout, "未发现可部署目标；可用 ur skills target add 登记目录，或用 --dir 临时指定")
 		return 0
 	}
 
@@ -122,13 +129,282 @@ func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
 	if jsonOutput {
 		output, _ := json.MarshalIndent(result, "", "  ")
 		fmt.Fprintln(stdout, string(output))
+		if skillinstall.HasErrors(result) {
+			return 1
+		}
 		return 0
 	}
 	fmt.Fprintln(stdout, skillinstall.Summary(result))
+	if skillinstall.HasErrors(result) {
+		return 1
+	}
 	if dryRun {
 		fmt.Fprintln(stdout, "（--dry-run 仅预览，未实际写入）")
 	} else {
 		fmt.Fprintln(stdout, "部署完成：重启对应 AI 工具会话后即可发现 ur-api skill")
+	}
+	return 0
+}
+
+// runSkillsTarget 管理任意 AI 客户端的可复用 Skills 安装目标。
+func runSkillsTarget(args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 || args[0] == "help" || args[0] == "-h" || args[0] == "--help" {
+		printSkillsTargetHelp(stdout)
+		return 0
+	}
+	switch args[0] {
+	case "detect":
+		return runSkillsTargetDetect(args[1:], stdout, stderr)
+	case "list", "ls":
+		return runSkillsTargetList(args[1:], stdout, stderr)
+	case "add", "set":
+		return runSkillsTargetAdd(args[1:], stdout, stderr)
+	case "remove", "rm", "delete":
+		return runSkillsTargetRemove(args[1:], stdout, stderr)
+	default:
+		fmt.Fprintf(stderr, "未知 target 子命令: %s\n", args[0])
+		printSkillsTargetHelp(stderr)
+		return 2
+	}
+}
+
+// runSkillsTargetDetect 输出当前环境自动识别到的客户端目录。
+func runSkillsTargetDetect(args []string, stdout, stderr io.Writer) int {
+	jsonOutput, ok := parseJSONOnlyArgs(args, stderr)
+	if !ok {
+		return 2
+	}
+	targets, err := skillinstall.DetectTargets(cwdOr("."))
+	if err != nil {
+		fmt.Fprintf(stderr, "探测 Skills 目标失败: %v\n", err)
+		return 1
+	}
+	return printSkillsTargets(targets, jsonOutput, stdout)
+}
+
+// runSkillsTargetList 输出登记目标和自动发现目标的合并结果。
+func runSkillsTargetList(args []string, stdout, stderr io.Writer) int {
+	jsonOutput, ok := parseJSONOnlyArgs(args, stderr)
+	if !ok {
+		return 2
+	}
+	targets, err := skillinstall.ResolveTargets(cwdOr("."))
+	if err != nil {
+		fmt.Fprintf(stderr, "读取 Skills 目标失败: %v\n", err)
+		return 1
+	}
+	return printSkillsTargets(targets, jsonOutput, stdout)
+}
+
+// runSkillsTargetAdd 新增或更新一个文件系统目标。
+func runSkillsTargetAdd(args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		fmt.Fprintln(stderr, "用法: ur skills target add <名称> --dir <目录> [--json]")
+		return 2
+	}
+	name := args[0]
+	directory := ""
+	targetType := skillinstall.TargetTypeFilesystem
+	jsonOutput := false
+	for index := 1; index < len(args); index++ {
+		switch args[index] {
+		case "--dir":
+			if index+1 >= len(args) {
+				fmt.Fprintln(stderr, "--dir 需要指定目录")
+				return 2
+			}
+			directory = expandHomePath(args[index+1])
+			index++
+		case "--type":
+			if index+1 >= len(args) {
+				fmt.Fprintln(stderr, "--type 需要指定类型")
+				return 2
+			}
+			targetType = args[index+1]
+			index++
+		case "--json":
+			jsonOutput = true
+		default:
+			fmt.Fprintf(stderr, "未知参数: %s\n", args[index])
+			return 2
+		}
+	}
+	updated, err := skillinstall.UpsertConfiguredTarget(skillinstall.ConfiguredTarget{Name: name, Type: targetType, Path: directory, Enabled: true})
+	if err != nil {
+		fmt.Fprintf(stderr, "登记 Skills 目标失败: %v\n", err)
+		return 1
+	}
+	result := map[string]any{"name": name, "type": targetType, "path": directory, "updated": updated}
+	if jsonOutput {
+		output, _ := json.MarshalIndent(result, "", "  ")
+		fmt.Fprintln(stdout, string(output))
+	} else if updated {
+		fmt.Fprintf(stdout, "已更新 Skills 目标 %s → %s\n", name, directory)
+	} else {
+		fmt.Fprintf(stdout, "已登记 Skills 目标 %s → %s\n", name, directory)
+	}
+	return 0
+}
+
+// runSkillsTargetRemove 删除一个用户登记的目标。
+func runSkillsTargetRemove(args []string, stdout, stderr io.Writer) int {
+	if len(args) == 0 {
+		fmt.Fprintln(stderr, "用法: ur skills target remove <名称> [--json]")
+		return 2
+	}
+	name := args[0]
+	jsonOutput, ok := parseJSONOnlyArgs(args[1:], stderr)
+	if !ok {
+		return 2
+	}
+	removed, err := skillinstall.RemoveConfiguredTarget(name)
+	if err != nil {
+		fmt.Fprintf(stderr, "删除 Skills 目标失败: %v\n", err)
+		return 1
+	}
+	if jsonOutput {
+		output, _ := json.MarshalIndent(map[string]any{"name": name, "removed": removed}, "", "  ")
+		fmt.Fprintln(stdout, string(output))
+	} else if removed {
+		fmt.Fprintf(stdout, "已删除 Skills 目标 %s\n", name)
+	} else {
+		fmt.Fprintf(stdout, "Skills 目标 %s 不存在\n", name)
+	}
+	return 0
+}
+
+// parseJSONOnlyArgs 解析仅支持 --json 的简单子命令参数。
+func parseJSONOnlyArgs(args []string, stderr io.Writer) (bool, bool) {
+	jsonOutput := false
+	for _, arg := range args {
+		if arg == "--json" {
+			jsonOutput = true
+			continue
+		}
+		fmt.Fprintf(stderr, "未知参数: %s\n", arg)
+		return false, false
+	}
+	return jsonOutput, true
+}
+
+// printSkillsTargets 以 JSON 或表格文本输出目标列表。
+func printSkillsTargets(targets []skillinstall.Target, jsonOutput bool, stdout io.Writer) int {
+	if jsonOutput {
+		output, _ := json.MarshalIndent(map[string]any{"targets": targets}, "", "  ")
+		fmt.Fprintln(stdout, string(output))
+		return 0
+	}
+	if len(targets) == 0 {
+		fmt.Fprintln(stdout, "未发现 Skills 目标")
+		return 0
+	}
+	for _, target := range targets {
+		fmt.Fprintf(stdout, "%-22s %-10s %-10s %s\n", target.Name, target.Kind, target.Origin, target.Path)
+	}
+	return 0
+}
+
+// printSkillsTargetHelp 输出目标管理命令说明。
+func printSkillsTargetHelp(w io.Writer) {
+	fmt.Fprintln(w, "用法: ur skills target <子命令>")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "子命令:")
+	fmt.Fprintln(w, "  detect                    自动探测本机支持的 Skills 目录")
+	fmt.Fprintln(w, "  list                      列出登记和自动发现的全部目标")
+	fmt.Fprintln(w, "  add <名称> --dir <目录>   登记或更新任意客户端目录")
+	fmt.Fprintln(w, "  remove <名称>             删除登记目标")
+}
+
+// runSkillsStatus 检查所有目标的版本和文件完整性。
+func runSkillsStatus(args []string, stdout, stderr io.Writer) int {
+	jsonOutput, ok := parseJSONOnlyArgs(args, stderr)
+	if !ok {
+		return 2
+	}
+	targets, err := skillinstall.ResolveTargets(cwdOr("."))
+	if err != nil {
+		fmt.Fprintf(stderr, "读取 Skills 目标失败: %v\n", err)
+		return 1
+	}
+	source := upgrade.GetDefaultSkillsDir()
+	result, err := skillinstall.InspectTargets(source, targets)
+	if err != nil {
+		fmt.Fprintf(stderr, "检查 Skills 状态失败: %v\n", err)
+		return 1
+	}
+	skillinstall.SortTargetStatuses(result.Targets)
+	if jsonOutput {
+		output, _ := json.MarshalIndent(result, "", "  ")
+		fmt.Fprintln(stdout, string(output))
+	} else {
+		fmt.Fprintf(stdout, "内置 Skills: %s (%s)\n", result.Version, result.Source)
+		if len(result.Targets) == 0 {
+			fmt.Fprintln(stdout, "未发现 Skills 目标")
+		}
+		for _, target := range result.Targets {
+			fmt.Fprintf(stdout, "%-22s %-10s %-10s %s", target.Name, target.Kind, target.State, target.Path)
+			if target.Version != "" {
+				fmt.Fprintf(stdout, "  版本=%s", target.Version)
+			}
+			if target.MissingFiles+target.ChangedFiles+target.ExtraFiles > 0 {
+				fmt.Fprintf(stdout, "  缺失=%d 变化=%d 多余=%d", target.MissingFiles, target.ChangedFiles, target.ExtraFiles)
+			}
+			fmt.Fprintln(stdout)
+		}
+	}
+	for _, target := range result.Targets {
+		if target.State != skillinstall.StatusCurrent || target.Error != "" {
+			return 1
+		}
+	}
+	return 0
+}
+
+// runSkillsExport 导出可由技能市场或没有固定目录的客户端导入的标准 ZIP。
+func runSkillsExport(args []string, stdout, stderr io.Writer) int {
+	format := "zip"
+	outputPath := ""
+	jsonOutput := false
+	for index := 0; index < len(args); index++ {
+		switch args[index] {
+		case "--format":
+			if index+1 >= len(args) {
+				fmt.Fprintln(stderr, "--format 需要指定格式")
+				return 2
+			}
+			format = args[index+1]
+			index++
+		case "--output", "-o":
+			if index+1 >= len(args) {
+				fmt.Fprintln(stderr, "--output 需要指定路径")
+				return 2
+			}
+			outputPath = expandHomePath(args[index+1])
+			index++
+		case "--json":
+			jsonOutput = true
+		case "-h", "--help":
+			fmt.Fprintln(stdout, "用法: ur skills export [--format zip] [--output <文件或目录>] [--json]")
+			return 0
+		default:
+			fmt.Fprintf(stderr, "未知参数: %s\n", args[index])
+			return 2
+		}
+	}
+	if format != "zip" {
+		fmt.Fprintf(stderr, "不支持的导出格式 %q，当前仅支持 zip\n", format)
+		return 2
+	}
+	result, err := skillinstall.ExportZIP(upgrade.GetDefaultSkillsDir(), outputPath)
+	if err != nil {
+		fmt.Fprintf(stderr, "导出 Skills 失败: %v\n", err)
+		return 1
+	}
+	if jsonOutput {
+		encoded, _ := json.MarshalIndent(result, "", "  ")
+		fmt.Fprintln(stdout, string(encoded))
+	} else {
+		fmt.Fprintf(stdout, "Skills ZIP 已导出: %s\n版本: %s\n文件: %d\n大小: %d 字节\n", result.Path, result.Version, result.Files, result.Bytes)
 	}
 	return 0
 }
@@ -347,13 +623,16 @@ func printSkillsHelp(w io.Writer) {
 	fmt.Fprintln(w, "子命令:")
 	fmt.Fprintln(w, "  list, ls        列出已安装的 skills")
 	fmt.Fprintln(w, "  download        从最新 release 下载 skills 包并解压到本地（AI 自助获取后自行拷贝）")
+	fmt.Fprintln(w, "  export          导出标准 ZIP，供扣子等平台导入")
+	fmt.Fprintln(w, "  target          管理任意 AI 客户端的 Skills 安装目录")
+	fmt.Fprintln(w, "  status, doctor  检查各目标的版本和文件完整性")
 	fmt.Fprintln(w, "  update, upgrade  升级 skills 到最新版本")
 	fmt.Fprintln(w, "  install         把内置 ur-api skill 部署到本机各 AI 工具的 skills 目录")
 	fmt.Fprintln(w, "  version, ver     查看 skills 版本信息")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "选项:")
 	fmt.Fprintln(w, "  --json           以 JSON 格式输出")
-	fmt.Fprintln(w, "  --dry-run        只检查更新，不安装（仅 update）")
+	fmt.Fprintln(w, "  --dry-run        预览更新或安装，不写入文件")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "示例:")
 	fmt.Fprintln(w, "  ur skills list              列出所有已安装的 skills")
@@ -362,5 +641,8 @@ func printSkillsHelp(w io.Writer) {
 	fmt.Fprintln(w, "  ur skills update --dry-run  检查 skills 是否有更新")
 	fmt.Fprintln(w, "  ur skills update            升级 skills 到最新版本")
 	fmt.Fprintln(w, "  ur skills install           部署 ur-api 到本机各 AI 工具")
+	fmt.Fprintln(w, "  ur skills target add workbuddy --dir ~/.codebuddy/skills")
+	fmt.Fprintln(w, "  ur skills status            检查所有安装目标")
+	fmt.Fprintln(w, "  ur skills export            导出标准技能 ZIP")
 	fmt.Fprintln(w, "  ur skills version           查看 skills 版本")
 }

@@ -103,6 +103,9 @@ func runUpgrade(args []string, stdout, stderr io.Writer) int {
 	if err != nil {
 		if result.UpToDate {
 			fmt.Fprintf(stdout, "已是最新版本 %s\n", result.LatestVersion)
+			if opts.InstallSkills {
+				return installEmbeddedSkills(stdout, stderr)
+			}
 			return 0
 		}
 		fmt.Fprintf(stderr, "升级失败: %v\n", err)
@@ -114,6 +117,9 @@ func runUpgrade(args []string, stdout, stderr io.Writer) int {
 
 	if result.UpToDate {
 		fmt.Fprintf(stdout, "已是最新版本 %s\n", result.LatestVersion)
+		if opts.InstallSkills {
+			return installEmbeddedSkills(stdout, stderr)
+		}
 		return 0
 	}
 
@@ -134,22 +140,36 @@ func runUpgrade(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "警告: %s\n", result.SkillsMessage)
 	}
 
-	// --install-skills：自动部署到各 AI 工具
+	// --install-skills：部署到自动发现和用户登记的全部 AI Skills 目标。
 	if opts.InstallSkills {
-		src := upgrade.GetDefaultSkillsDir()
-		targets, err := skillinstall.DetectTargets(cwdOr("."))
-		if err != nil {
-			fmt.Fprintf(stderr, "探测 AI skills 目录失败: %v\n", err)
-			return 1
-		}
-		installResult, err := skillinstall.Install(src, targets, false)
-		if err != nil {
-			fmt.Fprintf(stderr, "部署 skills 到 AI 工具失败: %v\n", err)
-			return 1
-		}
-		fmt.Fprintln(stdout, skillinstall.Summary(installResult))
+		return installEmbeddedSkills(stdout, stderr)
 	} else if result.SkillsSynced {
-		fmt.Fprintln(stdout, "提示: 运行 ur skills install 可将内置 skills 部署到各 AI 工具（Claude Code / Codex）")
+		fmt.Fprintln(stdout, "提示: 运行 ur skills install 可将内置 Skills 部署到自动发现和用户登记的 AI 客户端")
+	}
+	return 0
+}
+
+// installEmbeddedSkills 把当前内置 Skills 部署到自动发现和用户登记的全部目标。
+// 即使 CLI 已是最新版也会执行，避免二进制已升级但客户端仍保留旧副本。
+func installEmbeddedSkills(stdout, stderr io.Writer) int {
+	src := upgrade.GetDefaultSkillsDir()
+	targets, err := skillinstall.ResolveTargets(cwdOr("."))
+	if err != nil {
+		fmt.Fprintf(stderr, "探测 AI Skills 目录失败: %v\n", err)
+		return 1
+	}
+	if len(targets) == 0 {
+		fmt.Fprintln(stdout, "未发现可部署目标；可用 ur skills target add 登记目录")
+		return 0
+	}
+	installResult, err := skillinstall.Install(src, targets, false)
+	if err != nil {
+		fmt.Fprintf(stderr, "部署 Skills 到 AI 工具失败: %v\n", err)
+		return 1
+	}
+	fmt.Fprintln(stdout, skillinstall.Summary(installResult))
+	if skillinstall.HasErrors(installResult) {
+		return 1
 	}
 	return 0
 }
@@ -159,7 +179,7 @@ func printUpgradeHelp(w io.Writer) {
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "选项:")
 	fmt.Fprintln(w, "  --dry-run          只检查更新，不安装")
-	fmt.Fprintln(w, "  --install-skills   升级成功后自动把内置 skills 部署到各 AI 工具")
+	fmt.Fprintln(w, "  --install-skills   把内置 Skills 部署到自动发现和登记的全部目标")
 	fmt.Fprintln(w, "  --version <tag>    升级到指定版本（如 --version v0.3.3）")
 	fmt.Fprintln(w, "  --json             以 JSON 格式输出结果")
 	fmt.Fprintln(w, "  -h, --help         显示帮助信息")

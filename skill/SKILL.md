@@ -239,7 +239,7 @@ ur check --json
 | 文档 | 说明 |
 |------|------|
 | `references/auth.md` | 认证方式详解（Device Auth / JWT / 环境变量） |
-| `references/cli-usage.md` | CLI 命令用法（全局选项、API调用、物模型、场景联动、协议脚本、schema） |
+| `references/cli-usage.md` | CLI 命令用法（多客户端 Skills 分发、API 调用、物模型、场景联动、协议脚本、schema） |
 | `references/api-conventions.md` | API 通用约定（请求格式、响应格式、分页、权限标注） |
 | `references/troubleshooting.md` | 常见问题排查（登录失败、401/403、连接问题、问题反馈） |
 | `references/quick-reference.md` | 高频端点速查（Top 15 最常用端点） |

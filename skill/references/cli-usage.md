@@ -42,6 +42,66 @@ ur token --raw
 
 Sandbox 只需设置 `UR_BASE_URL`、`UR_APP_ID`、`UR_TENANT_CODE` 及以下完整认证组之一：`UR_TOKEN`；`UR_ACCESS_KEY` + `UR_ACCESS_SECRET`；`UR_ACCOUNT` + `UR_PASSWORD`。该模式不读取或改写磁盘 profile。
 
+## Skills 多客户端安装与校验（v0.6.1+）
+
+同一份 `ur-api` 可以部署到多个本地 AI 客户端，也可以导出为标准 ZIP，供没有固定本机目录的平台导入。
+
+### 自动识别与安装
+
+```bash
+# 先确认 CLI 识别到了哪些目录
+ur skills target detect
+ur skills target list
+
+# 安装到全部自动识别和已登记目标
+ur skills install --all
+
+# 按版本与 SHA256 文件清单检查安装结果
+ur skills status
+```
+
+CLI 自动识别 Claude Code、Codex 与 WorkBuddy / CodeBuddy 的用户级目录；在 Git 仓库内执行时，还会从**当前工作目录向上**查找仓库根，并识别该项目现有的 `.claude/skills`、`.agents/skills`、`.codebuddy/skills`。执行批量安装前应先运行 `ur skills target detect`，确认没有选中不希望覆盖的项目级 `ur-api`。
+
+`status` 的状态含义：
+
+| 状态 | 含义 | 处理方式 |
+|------|------|----------|
+| `current` | 版本和文件内容均一致 | 无需处理 |
+| `missing` | 目标中没有 `ur-api` | 重新安装 |
+| `outdated` | 目标版本落后 | 重新安装或运行 `ur upgrade --install-skills` |
+| `incomplete` | 文件缺失、变化或存在多余文件 | 重新安装恢复完整副本 |
+
+### 登记其他客户端
+
+任何使用本地 Skills 目录的客户端都可以登记，不需要在 CLI 中写死客户端名称：
+
+```bash
+ur skills target add my-ai --dir /path/to/client/skills
+ur skills target list
+ur skills install --all
+
+# 不再使用时只删除登记信息，不删除客户端中的文件
+ur skills target remove my-ai
+```
+
+长期目标保存在 `~/.ur/skill-targets.json`。自动化环境可使用系统路径分隔符设置多个目录：
+
+```bash
+export UR_SKILLS_DIRS=/path/to/client-a/skills:/path/to/client-b/skills
+```
+
+WorkBuddy / CodeBuddy 的自定义配置根目录可通过 `CODEBUDDY_CONFIG_DIR` 指定。临时只安装一个或多个明确目录时使用 `ur skills install --dir <目录>`；一旦提供 `--dir`，本次不会写入自动识别和长期登记的其他目标。
+
+### 导出 ZIP
+
+对于不提供本地 Skills 目录、需要通过页面上传或转换能力包的客户端，导出标准 ZIP：
+
+```bash
+ur skills export --format zip --output ~/Downloads
+```
+
+ZIP 以 `ur-api/` 为根目录，不包含凭证。也可以直接下载 Release 中的 `ur-api-skills-<版本>.zip`。如果豆包、扣子等目标平台要求自己的清单或字段格式，应以该 ZIP 为统一输入再做平台适配，不能假定能够原样导入。完成目录安装或 ZIP 导入后，需要重启对应 AI 客户端，使其重新发现 Skill。
+
 ## API 调用
 
 ```bash

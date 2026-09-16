@@ -100,6 +100,8 @@ ur skills download --json
 
 目标配置保存在 `~/.ur/skill-targets.json`。自动化环境也可用系统路径分隔符设置多个目录：`UR_SKILLS_DIRS=/path/a:/path/b`。WorkBuddy / CodeBuddy 的自定义配置目录通过 `CODEBUDDY_CONFIG_DIR` 自动识别。
 
+项目级目标取决于命令执行位置：CLI 会从当前工作目录向上查找 Git 仓库根，并识别其中已经存在的 `.claude/skills`、`.agents/skills`、`.codebuddy/skills`。运行 `install --all` 前先用 `ur skills target detect` 核对目标；如果只想写入明确目录，使用 `ur skills install --dir <目录>`，该次不会写入其他自动识别或已登记目标。
+
 ---
 
 ## 安装与快速开始

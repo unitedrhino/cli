@@ -91,9 +91,9 @@ var validModes = map[string]bool{
 }
 
 var validEventTypes = map[string]bool{
-	"info":   true,
-	"alert":  true,
-	"fault":  true,
+	"info":  true,
+	"alert": true,
+	"fault": true,
 }
 
 var validDirs = map[string]bool{

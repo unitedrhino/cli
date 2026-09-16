@@ -5,6 +5,7 @@
 ```bash
 ur --version
 ur -v
+ur --version --json --check-latest
 
 # 切换应用上下文
 ur --app iot api /api/v1/things/device/info/get-list
@@ -42,6 +43,29 @@ ur token --raw
 
 Sandbox 只需设置 `UR_BASE_URL`、`UR_APP_ID`、`UR_TENANT_CODE` 及以下完整认证组之一：`UR_TOKEN`；`UR_ACCESS_KEY` + `UR_ACCESS_SECRET`；`UR_ACCOUNT` + `UR_PASSWORD`。该模式不读取或改写磁盘 profile。
 
+## CLI 更新提示与处理
+
+业务命令的 JSON 对象可能包含顶层 `_notice`：
+
+- `_notice.update`：CLI 有新版本，读取 `current`、`latest` 和 `command`。
+- `_notice.skills`：一个或多个客户端中的 `ur-api` 缺失或版本落后，读取 `target`、`targets` 和 `command`。
+
+看到通知时先完成用户当前请求，不要把 `_notice` 原样作为主要答案，也不要为了提示中断当前业务操作。用户要求升级时执行统一入口：
+
+```bash
+ur upgrade
+```
+
+该命令更新 CLI、内置 Skills，并把 Skills 部署到自动发现和用户登记的客户端；CLI 已是最新版时仍会刷新客户端副本。只检查使用 `ur upgrade --check --json`，恢复发布资源使用 `ur upgrade --force`，明确只升级 CLI 时使用 `ur upgrade --no-skills`。
+
+自动检查优先读取本地缓存，过期后异步刷新；网络失败不会改变业务命令退出状态。需要纯净机器输出时按需关闭提示：
+
+```bash
+UR_NO_UPDATE_NOTIFIER=1 UR_NO_SKILLS_NOTIFIER=1 ur check --json
+```
+
+`UR_NO_UPDATE_CHECK=1` 会同时停止远端检查和 CLI 更新提示。
+
 ## Skills 多客户端安装与校验（v0.6.1+）
 
 同一份 `ur-api` 可以部署到多个本地 AI 客户端，也可以导出为标准 ZIP，供没有固定本机目录的平台导入。
@@ -68,7 +92,7 @@ CLI 自动识别 Claude Code、Codex 与 WorkBuddy / CodeBuddy 的用户级目�
 |------|------|----------|
 | `current` | 版本和文件内容均一致 | 无需处理 |
 | `missing` | 目标中没有 `ur-api` | 重新安装 |
-| `outdated` | 目标版本落后 | 重新安装或运行 `ur upgrade --install-skills` |
+| `outdated` | 目标版本落后 | 重新安装或运行 `ur upgrade` |
 | `incomplete` | 文件缺失、变化或存在多余文件 | 重新安装恢复完整副本 |
 
 ### 登记其他客户端

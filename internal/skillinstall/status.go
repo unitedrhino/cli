@@ -73,7 +73,7 @@ func InspectTargets(src string, targets []Target) (*StatusResult, error) {
 	if err != nil {
 		return nil, fmt.Errorf("读取内置 Skills 失败: %w", err)
 	}
-	result := &StatusResult{Source: src, Version: readVersion(src)}
+	result := &StatusResult{Source: src, Version: ReadVersion(src)}
 	for _, target := range targets {
 		destination := filepath.Join(target.Path, "ur-api")
 		status := TargetStatus{
@@ -97,7 +97,7 @@ func InspectTargets(src string, targets []Target) (*StatusResult, error) {
 			result.Targets = append(result.Targets, status)
 			continue
 		}
-		status.Version = readVersion(destination)
+		status.Version = ReadVersion(destination)
 		status.FileCount = len(targetFiles)
 		for path, signature := range sourceFiles {
 			got, ok := targetFiles[path]
@@ -127,8 +127,8 @@ func InspectTargets(src string, targets []Target) (*StatusResult, error) {
 	return result, nil
 }
 
-// readVersion 读取 ur-api 根目录中的版本元数据。
-func readVersion(root string) string {
+// ReadVersion 读取 ur-api 根目录中的版本元数据。
+func ReadVersion(root string) string {
 	raw, err := os.ReadFile(filepath.Join(root, "_meta.json"))
 	if err != nil {
 		return "unknown"
@@ -140,6 +140,11 @@ func readVersion(root string) string {
 		return "unknown"
 	}
 	return metadata.Version
+}
+
+// readVersion 保留包内旧调用入口，统一委托给公开的 ReadVersion。
+func readVersion(root string) string {
+	return ReadVersion(root)
 }
 
 // treeSignatures 计算目录下每个普通文件的 SHA-256，用于完整性对比。

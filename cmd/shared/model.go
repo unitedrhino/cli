@@ -6,9 +6,10 @@ import (
 )
 
 // runModel 物模型相关命令
-//   model template [property|event|action|full] [--json|--yaml] [--output file]
-//   model validate <file>
-//   model generate-script <model-file> [--mode up-before|up-after|down-before|down-after] [--output file]
+//
+//	model template [property|event|action|full] [--json|--yaml] [--output file]
+//	model validate <file>
+//	model generate-script <model-file> [--mode up-before|up-after|down-before|down-after] [--output file]
 func runModel(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
 		printModelHelp(stderr)

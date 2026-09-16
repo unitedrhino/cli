@@ -1,19 +1,19 @@
 package cmd
 
 import (
-	"context"
 	"io"
 	"os"
-	"strings"
 
-	"github.com/spf13/cobra"
 	"gitee.com/unitedrhino/cli/cmd/ai"
 	"gitee.com/unitedrhino/cli/cmd/generated"
 	"gitee.com/unitedrhino/cli/cmd/things"
 	"gitee.com/unitedrhino/cli/cmd/view"
 	"gitee.com/unitedrhino/cli/internal/cmdutil"
 	"gitee.com/unitedrhino/cli/internal/config"
+	"gitee.com/unitedrhino/cli/internal/notice"
+	"gitee.com/unitedrhino/cli/internal/skillscheck"
 	"gitee.com/unitedrhino/cli/internal/updatecheck"
+	"github.com/spf13/cobra"
 )
 
 // RootCmd 是 ur 的根命令
@@ -59,16 +59,30 @@ func Execute(app config.CLIApp, version string, args []string, stdout, stderr io
 	// 解析 --app 并注入环境变量
 	resolveAppAndInject(app)
 
-	// 自动版本检查提醒（只读命令跳过；非阻塞，不干扰命令输出）
-	if !isReadOnlyCommand(args) {
-		go updatecheck.Run(context.Background(), stderr)
+	// 自动提示先同步读取本地缓存，再异步刷新远端版本，避免短命令漏掉已有提醒。
+	noticesEnabled := !isReadOnlyCommand(args)
+	if noticesEnabled {
+		notice.Reset()
+		updatecheck.LoadCachedNotice(version)
+		workingDirectory, err := os.Getwd()
+		if err != nil {
+			workingDirectory = "."
+		}
+		skillscheck.LoadNotice(workingDirectory)
+		go updatecheck.Refresh(version)
 	}
 
 	if err := RootCmd.Execute(); err != nil {
+		if noticesEnabled {
+			notice.WriteHuman(stderr)
+		}
 		if exitErr, ok := err.(interface{ ExitCode() int }); ok {
 			return exitErr.ExitCode()
 		}
 		return 1
+	}
+	if noticesEnabled {
+		notice.WriteHuman(stderr)
 	}
 	return 0
 }
@@ -81,10 +95,10 @@ func isReadOnlyCommand(args []string) bool {
 	}
 	first := args[0]
 	switch first {
-	case "--help", "-h", "help", "--version", "version", "--check-latest", "completion", "setup", "login":
+	case "--help", "-h", "help", "--version", "version", "--check-latest", "completion", "setup", "login", "upgrade":
 		return true
 	}
-	return strings.HasPrefix(first, "--")
+	return false
 }
 
 func resolveAppAndInject(defaultApp config.CLIApp) {

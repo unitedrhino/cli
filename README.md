@@ -151,16 +151,17 @@ go build -ldflags "-X main.version=$(git describe --tags)" -o dist/bin/ur .
 #### 版本升级与 Skills
 
 ```bash
-# 检查是否有新版本（--dry-run 只检查不安装）
-ur upgrade --dry-run
+# 检查是否有新版本，不安装
+ur upgrade --check --json
 
-# 升级到最新版本（升级成功后内置 skills 会随安装包自动同步；
-# 每次运行命令时会自动低频检查（默认每天一次），发现新版本或版本过旧会在终端提醒）
+# 升级到最新版本，同时刷新内置 Skills 及自动发现、已登记客户端中的副本
 ur upgrade
 
-# 升级并把内置 skills 部署到自动发现和已登记的全部 AI 客户端；
-# CLI 已是最新版时仍会刷新客户端中的旧 Skills 副本
-ur upgrade --install-skills
+# 即使已是最新版也重新安装；适合恢复缺失的发布资源
+ur upgrade --force
+
+# 仅升级 CLI，不写入客户端 Skills 目录
+ur upgrade --no-skills
 
 # 手动把内置 ur-api skill 部署到本机各 AI 工具的 skills 目录
 # （ur-api 是一个统一 skill，整体部署，不拆分；部署后重启对应 AI 会话即可发现）
@@ -178,9 +179,31 @@ ur skills download
 ur skills download --output ~/skills-pkg  # 指定下载目录（支持 ~ 路径展开）
 ur skills download --url <zip地址>         # 直接指定 skills zip 地址（私有化/离线场景）
 
-# 跳过自动版本检查（环境变量）
+# 完全跳过自动版本检查
 export UR_NO_UPDATE_CHECK=1
+
+# 保留缓存刷新，仅隐藏 CLI 或 Skills 提示
+export UR_NO_UPDATE_NOTIFIER=1
+export UR_NO_SKILLS_NOTIFIER=1
 ```
+
+业务命令启动时会先读取 `~/.ur/update-state.json`，因此短命令也能稳定返回已缓存的升级信息；缓存超过 24 小时后再异步刷新 Gitee/GitHub Release。显式 JSON 输出会在原对象顶层增加 `_notice.update` 或 `_notice.skills`，已有 `code`、`msg`、`data` 字段保持不变：
+
+```json
+{
+  "code": 200,
+  "data": {},
+  "_notice": {
+    "update": {
+      "current": "v0.6.1",
+      "latest": "v0.6.2",
+      "command": "ur upgrade"
+    }
+  }
+}
+```
+
+AI 应先完成当前请求，再根据 `_notice` 简短说明升级；不要把提示原样当作业务结果。`ur upgrade --install-skills` 作为兼容参数继续可用，但从 v0.6.2 起 `ur upgrade` 默认已经同步客户端 Skills。
 
 #### 配置与使用
 

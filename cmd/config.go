@@ -1,12 +1,11 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 
-	"github.com/spf13/cobra"
 	"gitee.com/unitedrhino/cli/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var configCmd = &cobra.Command{
@@ -23,8 +22,7 @@ var configListCmd = &cobra.Command{
 		if err != nil {
 			return &CLIError{Message: err.Error(), ExitCode: 1}
 		}
-		raw, _ := json.MarshalIndent(cfg, "", "  ")
-		cmd.Println(string(raw))
+		_ = writeJSON(cmd.OutOrStdout(), cfg)
 		return nil
 	},
 }

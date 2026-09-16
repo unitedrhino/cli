@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"gitee.com/unitedrhino/cli/cmd/ur"
+	"gitee.com/unitedrhino/cli/internal/upgrade"
 	"gitee.com/unitedrhino/cli/internal/version"
 )
 
@@ -29,6 +30,21 @@ func main() {
 				if binaryPath != "" {
 					binaryPath = filepath.Join(binaryPath, "ur")
 				}
+			}
+			if argsHasCheckLatest(os.Args[1:]) {
+				release, err := upgrade.FetchLatestRelease()
+				if err != nil {
+					fmt.Println(version.FormatVersionJSONWithLatest(binaryPath, nil, err.Error()))
+					os.Exit(1)
+				}
+				latest := &version.LatestInfo{
+					Version:     release.TagName,
+					PublishedAt: release.PublishedAt.Format("2006-01-02T15:04:05Z07:00"),
+					URL:         release.HTMLURL,
+					UpToDate:    !upgrade.IsNewer(version.BuildVersion, release.TagName),
+				}
+				fmt.Println(version.FormatVersionJSONWithLatest(binaryPath, latest, ""))
+				os.Exit(0)
 			}
 			fmt.Println(version.FormatVersionJSON(binaryPath))
 			os.Exit(0)

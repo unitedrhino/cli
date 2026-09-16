@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"gitee.com/unitedrhino/cli/internal/notice"
 	"github.com/tidwall/gjson"
 )
 
@@ -30,7 +31,7 @@ func FormatOutput(data any, opts FormatOptions) ([]byte, error) {
 	// 2. 按 format 序列化
 	switch opts.Format {
 	case "", "json":
-		return json.MarshalIndent(data, "", "  ")
+		return notice.MarshalJSON(data, true)
 	case "raw":
 		return json.Marshal(data)
 	case "yaml":

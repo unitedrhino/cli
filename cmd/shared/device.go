@@ -309,8 +309,7 @@ func runDeviceLogProperty(ctx context.Context, args []string, stdout, stderr io.
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		formatDeviceResult(resp, stdout, stderr)
 	}
@@ -386,8 +385,7 @@ func runDeviceLogEvent(ctx context.Context, args []string, stdout, stderr io.Wri
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		formatDeviceResult(resp, stdout, stderr)
 	}
@@ -480,8 +478,7 @@ func runDeviceLogSend(ctx context.Context, args []string, stdout, stderr io.Writ
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		formatDeviceResult(resp, stdout, stderr)
 	}
@@ -546,8 +543,7 @@ func runDeviceLogStatus(ctx context.Context, args []string, stdout, stderr io.Wr
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		formatDeviceResult(resp, stdout, stderr)
 	}
@@ -645,8 +641,7 @@ func runDeviceLogHub(ctx context.Context, args []string, stdout, stderr io.Write
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		formatDeviceResult(resp, stdout, stderr)
 	}
@@ -722,8 +717,7 @@ func runDeviceLogAbnormal(ctx context.Context, args []string, stdout, stderr io.
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		formatDeviceResult(resp, stdout, stderr)
 	}
@@ -788,8 +782,7 @@ func runDeviceLogSDK(ctx context.Context, args []string, stdout, stderr io.Write
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		formatDeviceResult(resp, stdout, stderr)
 	}
@@ -857,8 +850,7 @@ func runDeviceControl(ctx context.Context, args []string, stdout, stderr io.Writ
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		if resp.Code != 200 {
 			fmt.Fprintf(stderr, "Error: %s\n", resp.Msg)
@@ -987,8 +979,7 @@ func runDeviceActionSend(ctx context.Context, args []string, stdout, stderr io.W
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		if resp.Code != 200 {
 			fmt.Fprintf(stderr, "Error: %s\n", resp.Msg)
@@ -1053,8 +1044,7 @@ func runDeviceActionGet(ctx context.Context, args []string, stdout, stderr io.Wr
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		if resp.Code != 200 {
 			fmt.Fprintf(stderr, "Error: %s\n", resp.Msg)
@@ -1153,8 +1143,7 @@ func runDeviceActionResp(ctx context.Context, args []string, stdout, stderr io.W
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		if resp.Code != 200 {
 			fmt.Fprintf(stderr, "Error: %s\n", resp.Msg)
@@ -1228,8 +1217,7 @@ func runDeviceMock(ctx context.Context, args []string, stdout, stderr io.Writer)
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		if resp.Code != 200 {
 			fmt.Fprintf(stderr, "Error: %s\n", resp.Msg)
@@ -1373,8 +1361,8 @@ func runDeviceReport(ctx context.Context, args []string, stdout, stderr io.Write
 	// 构建请求头（使用自动生成的 MQTT 凭据进行 Basic Auth）
 	authValue := base64.StdEncoding.EncodeToString([]byte(userName + ":" + password))
 	headers := map[string]string{
-		"productID":    productID,
-		"deviceName":   deviceName,
+		"productID":     productID,
+		"deviceName":    deviceName,
 		"Authorization": "Basic " + authValue,
 	}
 
@@ -1391,8 +1379,7 @@ func runDeviceReport(ctx context.Context, args []string, stdout, stderr io.Write
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		if resp.Code != 200 {
 			fmt.Fprintf(stderr, "Error: %s\n", resp.Msg)
@@ -2195,8 +2182,10 @@ func runDeviceInfoCount(ctx context.Context, args []string, stdout, stderr io.Wr
 // outputResult 统一输出 API 响应结果
 func outputResult(resp client.APIResponse, jsonOutput bool, stdout, stderr io.Writer) int {
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		if err := writeJSON(stdout, resp); err != nil {
+			fmt.Fprintf(stderr, "Error: %v\n", err)
+			return 1
+		}
 		// --json 模式下业务失败同样返回非 0 退出码，保证脚本可判断成败
 		if resp.Code != 200 {
 			return 1

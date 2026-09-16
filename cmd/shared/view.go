@@ -766,12 +766,10 @@ func runViewScreenDescribe(ctx context.Context, args []string, stdout, stderr io
 
 	summaries := describeScreenComponents(content)
 	if jsonOutput {
-		raw, err := json.MarshalIndent(summaries, "", "  ")
-		if err != nil {
+		if err := writeJSON(stdout, summaries); err != nil {
 			fmt.Fprintf(stderr, "Error: %v\n", err)
 			return 1
 		}
-		fmt.Fprintln(stdout, string(raw))
 		return 0
 	}
 

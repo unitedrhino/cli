@@ -2,7 +2,6 @@ package shared
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -107,11 +106,10 @@ func runAiToolArtifactGet(ctx context.Context, args []string, stdout, stderr io.
 	} else {
 		out := map[string]string{
 			"executorJs":   executorJs,
-			"skillMd":   skillMd,
+			"skillMd":      skillMd,
 			"manifestJson": manifestJson,
 		}
-		raw, _ := json.MarshalIndent(out, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, out)
 	}
 	return 0
 }

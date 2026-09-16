@@ -2,7 +2,6 @@ package shared
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -128,8 +127,7 @@ func runAgg(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 
 	// 输出结果
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 	} else {
 		formatAggResult(resp, stdout, stderr)
 	}

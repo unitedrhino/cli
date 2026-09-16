@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -75,20 +74,17 @@ func runCheck(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			status["auth_status"] = "error"
 			status["auth_status_msg"] = err.Error()
-			b, _ := json.Marshal(status)
-			cmd.Println(string(b))
+			_ = writeJSON(cmd.OutOrStdout(), status)
 			return &CLIError{Message: err.Error(), ExitCode: 1}
 		}
 		if resp.Code != 200 {
 			status["auth_status"] = "failed"
 			status["auth_status_msg"] = resp.Msg
-			b, _ := json.Marshal(status)
-			cmd.Println(string(b))
+			_ = writeJSON(cmd.OutOrStdout(), status)
 			return &CLIError{Message: resp.Msg, ExitCode: 1}
 		}
 		status["auth_status"] = "ok"
-		b, _ := json.Marshal(status)
-		cmd.Println(string(b))
+		_ = writeJSON(cmd.OutOrStdout(), status)
 		return nil
 	}
 
@@ -118,11 +114,10 @@ func runCheck(cmd *cobra.Command, args []string) error {
 
 func outputCheckError(cmd *cobra.Command, jsonMode bool, err error) error {
 	if jsonMode {
-		b, _ := json.Marshal(map[string]any{
+		_ = writeJSON(cmd.ErrOrStderr(), map[string]any{
 			"auth_status":     "error",
 			"auth_status_msg": err.Error(),
 		})
-		cmd.PrintErrln(string(b))
 	} else {
 		cmd.PrintErrln(err.Error())
 	}

@@ -130,7 +130,8 @@ build_for_arch() {
   local api_skill_dir="${skill_dir}/ur-api"
   mkdir -p "${api_skill_dir}"
   (cd "${ROOT}" && go run . generate-skills --all --output "${api_skill_dir}")
-  cp -R "${ROOT}/references" "${api_skill_dir}/references" 2>/dev/null || true
+  mkdir -p "${api_skill_dir}/references"
+  cp -R "${ROOT}/references/." "${api_skill_dir}/references/"
 
   # 各子 skill references 顶层的手写操作指南（如 ur-org-manage 的 flow-approval.md）
   # 不由 generate-skills 生成（生成器只写 groups/、*-index 与 SKILL.md），必须随包分发，
@@ -140,8 +141,24 @@ build_for_arch() {
     local sub_name
     sub_name=$(basename "$(dirname "${sub_skill_refs}")")
     [[ "${sub_name}" == "ur-view" ]] && continue # ur-view 场景模板整目录分发，见下
-    find "${sub_skill_refs}" -maxdepth 1 -type f -name '*.md' -exec cp {} "${api_skill_dir}/references/" \; 2>/dev/null || true
+    # 保留域级路径供 persona 和相对链接读取，同时保留旧扁平副本以兼容既有索引。
+    mkdir -p "${api_skill_dir}/${sub_name}/references"
+    find "${sub_skill_refs}" -maxdepth 1 -type f -name '*.md' \
+      -exec cp {} "${api_skill_dir}/${sub_name}/references/" \; \
+      -exec cp {} "${api_skill_dir}/references/" \;
   done
+
+  # 生成器不包含手写业务导航；指南已分发时补入口，重入时仅补一次。
+  if [[ -f "${api_skill_dir}/ur-device/references/device-control.md" ]] && \
+    ! grep -Fq '(ur-device/references/device-control.md)' "${api_skill_dir}/SKILL.md"; then
+    cat >> "${api_skill_dir}/SKILL.md" <<'DEVICE_CONTROL'
+
+## 设备模拟与属性控制
+
+云端演示、模拟设备上报、实体控制和只生成样例，先按用户意图区分。
+开发或运行前必读 [属性控制与模拟数据](ur-device/references/device-control.md)，不要默认向实体设备下发。
+DEVICE_CONTROL
+  fi
 
   # Swagger 导出不包含手写场景模板，必须随统一技能递归分发源码和本地资源。
   mkdir -p "${api_skill_dir}/ur-view"

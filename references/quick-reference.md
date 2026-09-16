@@ -11,6 +11,21 @@ metadata:
 
 > 补充文档，与各子域 SKILL.md 配合使用。
 
+## 设备模拟与控制意图
+
+先读 [属性控制与模拟数据](../ur-device/references/device-control.md)，不能将以下路径混用：
+
+| 用户目的 | 调用合同 | 验证 |
+|---|---|---|
+| 仅云端演示、不下发 | `/api/v1/things/device/interact/property-control-send`，`shadowControl=4`，`data` 为 JSON 字符串 | CLI 退出码 0、外层及内层 code 均 200，再核对最新属性和操作日志 |
+| 模拟设备上报、测试历史/规则/告警 | `/api/v1/things/device/simulate/report`，`data` 为属性值字符串对象 | 标准上报链路；仅检查外层 code，另核对用户要求的实际效果 |
+| 操作实体设备 | 属性控制接口按需求选择实时或影子模式 | 设备回执/实际状态，不用云端改值假装成功 |
+| 只生成样例 | 本地生成或 mock，不调用写入接口 | 展示结果，不宣称设备属性改变 |
+
+泛称“模拟数据”先询问目的；项目 ID 保持字符串并传 `--project-id`。
+控制 body 示例：`{"productID":"<productID>","deviceName":"<deviceName>","data":"{\"temperature\":25.5}","shadowControl":4}`。
+执行前查询目标归属和物模型；属性标识、类型、范围、步长以查询结果为准。继承任务创建者环境，不构造 UR_TOKEN 或借用他人凭据。
+
 ## 路径前缀 → 域映射
 
 | 路径前缀 | 所属域 | 典型操作 |
@@ -133,6 +148,6 @@ ur schema --json
 |------|---------|
 | JWT 中 `userID` | 兼容字段，AK/SK 登录不要求提供；CLI 缺失时使用字符串 `"0"` |
 | `deviceName` 误以为是名称 | `deviceName` 是设备唯一 ID，显示名称是 `deviceAlias` |
-| 属性标识符大小写 | 必须与物模型完全一致，通常是**大驼峰**（`CurrentTemperature`） |
+| 属性标识符大小写 | 必须与查询到的物模型 identifier 完全一致，不假设命名风格 |
 | 分页起始值 | `page.page=1`，不是 `0` |
-| 控制离线设备 | 命令会写入影子设备（期望值），设备上线后自动同步 |
+| 控制离线设备 | 是否写影子取决于模式；模式 4 仅改云端，不会在设备上线后下发 |

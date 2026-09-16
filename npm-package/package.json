@@ -13,6 +13,7 @@
     "ur-*/scripts/**",
     "ur-*/assets/**",
     "ur-*/ur-view/**",
+    "ur-*/ur-*/references/**",
     "ur-*/swagger-index.md"
   ],
   "scripts": {

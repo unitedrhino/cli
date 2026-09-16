@@ -34,6 +34,7 @@ func makeFakeHome(t *testing.T) string {
 	home := t.TempDir()
 	mustWrite(t, filepath.Join(home, ".claude", "skills", "other-skill", "SKILL.md"), "# other\n")
 	mustWrite(t, filepath.Join(home, ".agents", "skills", "other2", "SKILL.md"), "# other2\n")
+	mustWrite(t, filepath.Join(home, ".codebuddy", "skills", "other3", "SKILL.md"), "# other3\n")
 	return home
 }
 
@@ -47,28 +48,101 @@ func TestDetectTargets(t *testing.T) {
 	mustWrite(t, filepath.Join(proj, ".git", "HEAD"), "ref: refs/heads/main\n")
 	mustWrite(t, filepath.Join(proj, ".claude", "skills", "x", "SKILL.md"), "# x\n")
 	mustWrite(t, filepath.Join(proj, ".agents", "skills", "y", "SKILL.md"), "# y\n")
+	mustWrite(t, filepath.Join(proj, ".codebuddy", "skills", "z", "SKILL.md"), "# z\n")
 
 	targets, err := DetectTargets(proj)
 	if err != nil {
 		t.Fatalf("DetectTargets: %v", err)
 	}
-	if len(targets) != 4 {
-		t.Fatalf("expect 4 targets (user claude+codex, project claude+codex), got %d: %+v", len(targets), targets)
+	if len(targets) != 6 {
+		t.Fatalf("expect 6 targets (user/project claude+codex+workbuddy), got %d: %+v", len(targets), targets)
 	}
 	got := map[string]bool{}
 	for _, tg := range targets {
 		got[tg.Scope+"/"+tg.Kind] = true
 	}
-	for _, want := range []string{"user/claude", "user/codex", "project/claude", "project/codex"} {
+	for _, want := range []string{"user/claude", "user/codex", "user/workbuddy", "project/claude", "project/codex", "project/workbuddy"} {
 		if !got[want] {
 			t.Errorf("missing target %s in %+v", want, targets)
 		}
 	}
 }
 
+// TestDetectTargets_CustomEnvironment 校验 WorkBuddy 自定义配置目录与通用环境变量目标。
+func TestDetectTargets_CustomEnvironment(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	workbuddyRoot := filepath.Join(t.TempDir(), "codebuddy")
+	customA := filepath.Join(t.TempDir(), "client-a")
+	customB := filepath.Join(t.TempDir(), "client-b")
+	t.Setenv("CODEBUDDY_CONFIG_DIR", workbuddyRoot)
+	t.Setenv("UR_SKILLS_DIRS", customA+string(os.PathListSeparator)+customB)
+
+	targets, err := DetectTargets(t.TempDir())
+	if err != nil {
+		t.Fatalf("DetectTargets: %v", err)
+	}
+	want := map[string]bool{
+		filepath.Join(workbuddyRoot, "skills"): false,
+		customA:                                false,
+		customB:                                false,
+	}
+	for _, target := range targets {
+		if _, ok := want[target.Path]; ok {
+			want[target.Path] = true
+		}
+	}
+	for path, found := range want {
+		if !found {
+			t.Errorf("missing environment target %s in %+v", path, targets)
+		}
+	}
+}
+
+// TestDetectTargets_WorkBuddyRoot 校验仅存在 .codebuddy 根目录时也会创建 skills 目标。
+func TestDetectTargets_WorkBuddyRoot(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("CODEBUDDY_CONFIG_DIR", "")
+	t.Setenv("UR_SKILLS_DIRS", "")
+	if err := os.MkdirAll(filepath.Join(home, ".codebuddy"), 0o755); err != nil {
+		t.Fatalf("mkdir .codebuddy: %v", err)
+	}
+	targets, err := DetectTargets(t.TempDir())
+	if err != nil {
+		t.Fatalf("DetectTargets: %v", err)
+	}
+	if len(targets) != 1 || targets[0].Kind != "workbuddy" || targets[0].Path != filepath.Join(home, ".codebuddy", "skills") {
+		t.Fatalf("unexpected WorkBuddy targets: %+v", targets)
+	}
+}
+
+// TestDedupeTargets 校验同一路径只安装一次，并保留优先目标的名称。
+func TestDedupeTargets(t *testing.T) {
+	dir := t.TempDir()
+	targets := DedupeTargets([]Target{
+		{Name: "configured", Path: dir},
+		{Name: "detected", Path: filepath.Join(dir, ".")},
+	})
+	if len(targets) != 1 || targets[0].Name != "configured" {
+		t.Fatalf("unexpected deduplicated targets: %+v", targets)
+	}
+}
+
+// TestNormalizePathExpandsHome 校验环境变量或配置中的 ~ 路径可跨客户端展开。
+func TestNormalizePathExpandsHome(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	if got, want := normalizePath("~/.custom/skills"), filepath.Join(home, ".custom", "skills"); got != want {
+		t.Fatalf("normalizePath = %s, want %s", got, want)
+	}
+}
+
 // TestDetectTargets_NoTargets 无任何 AI 目录时返回空
 func TestDetectTargets_NoTargets(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
+	t.Setenv("CODEBUDDY_CONFIG_DIR", "")
+	t.Setenv("UR_SKILLS_DIRS", "")
 	targets, err := DetectTargets(t.TempDir())
 	if err != nil {
 		t.Fatalf("DetectTargets: %v", err)

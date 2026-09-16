@@ -62,15 +62,29 @@ ur --app iot generate-skills --output ./skills/ur-iot
 | `thing-model` | 物模型 — 模板生成、JSON 校验、affordance 定义 |
 | `protocol-script` | 协议脚本 — yaegi 脚本模板、Go 代码校验 |
 
-### AI 自助下载 skills（推荐，对所有 AI 工具通用）
+### Skills 多客户端分发
 
-AI 工具自己最清楚自身的 skills 目录在哪，CLI 只提供下载能力：先下载并解压 skills 包，再把 `ur-api` 目录整体拷贝到所用 AI 工具的 skills 目录下，重启 AI 工具生效。
+CLI 使用同一份 `ur-api` 为所有 AI 客户端提供三种分发方式：已知客户端自动探测、任意本机目录登记，以及标准 ZIP 导出。自动探测当前覆盖 Claude Code、Codex 和 WorkBuddy / CodeBuddy；没有固定本机目录的平台可直接导入 ZIP。
 
 ```bash
-# 下载最新 release 的 skills 包（ur-api-skills-<版本>.zip）并解压，默认输出到 ~/.ur/downloads/
-ur skills download
+# 查看自动发现与已登记目标
+ur skills target detect
+ur skills target list
 
-# 指定下载目录 / 直接指定 zip 地址（私有化、离线场景）
+# 登记任意支持本地 SKILL.md 的客户端目录
+ur skills target add workbuddy --dir ~/.codebuddy/skills
+ur skills target add another-ai --dir /path/to/client/skills
+
+# 部署并检查所有目标；重复部署会原子覆盖旧 ur-api，保留其他技能
+ur skills install --all
+ur skills status
+
+# 导出标准 ZIP，供扣子等支持技能包上传的平台导入
+ur skills export
+ur skills export --output ~/Downloads
+
+# 下载最新 release 的 skills 包并解压（适合离线或由 AI 自行复制）
+ur skills download
 ur skills download --output ~/skills-pkg
 ur skills download --url "https://example.com/ur-api-skills-v0.4.1.zip"
 
@@ -84,7 +98,7 @@ ur skills download --json
 {"event":"skills_downloaded","downloadUrl":"https://github.com/unitedrhino/cli/releases/download/v0.4.1/ur-api-skills-v0.4.1.zip","localPath":"/home/user/.ur/downloads/ur-api","installHint":"请将上述 ur-api 目录整体拷贝到你所用 AI 工具的 skills 目录下（各 AI 工具的 skills 目录由 AI 自行确认，例如 Claude Code 为 ~/.claude/skills/），拷贝后重启 AI 工具生效"}
 ```
 
-`ur skills install` 仍是 Claude Code / Codex 的便捷方式（自动探测本机 skills 目录并部署）；其他 AI 工具建议统一走 `ur skills download` 自助下载后自行拷贝。
+目标配置保存在 `~/.ur/skill-targets.json`。自动化环境也可用系统路径分隔符设置多个目录：`UR_SKILLS_DIRS=/path/a:/path/b`。WorkBuddy / CodeBuddy 的自定义配置目录通过 `CODEBUDDY_CONFIG_DIR` 自动识别。
 
 ---
 
@@ -142,7 +156,8 @@ ur upgrade --dry-run
 # 每次运行命令时会自动低频检查（默认每天一次），发现新版本或版本过旧会在终端提醒）
 ur upgrade
 
-# 升级并自动把内置 skills 部署到本机各 AI 工具（Claude Code / Codex）
+# 升级并把内置 skills 部署到自动发现和已登记的全部 AI 客户端；
+# CLI 已是最新版时仍会刷新客户端中的旧 Skills 副本
 ur upgrade --install-skills
 
 # 手动把内置 ur-api skill 部署到本机各 AI 工具的 skills 目录
@@ -151,6 +166,9 @@ ur skills install
 ur skills install --dry-run     # 预览目标，不实际写入
 ur skills install --json        # JSON 输出
 ur skills install --dir <path>  # 指定自定义目标目录（支持 ~ 路径展开）
+ur skills target add <name> --dir <path>  # 长期登记任意客户端目录
+ur skills status                # 核对版本和文件完整性
+ur skills export                # 导出标准 ZIP 到 ~/.ur/exports/
 
 # 仅下载 skills 包到本地（不部署）：AI 自助下载后自行拷贝到所用 AI 工具的 skills 目录，
 # 对所有 AI 工具通用；详见「Agent Skills」章节

@@ -192,3 +192,88 @@ func TestRunSkillsDownload_ArgErrors(t *testing.T) {
 		}
 	}
 }
+
+// writeSharedTestFile 创建命令层测试所需的文件及父目录。
+func writeSharedTestFile(t *testing.T, path, content string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatalf("mkdir %s: %v", path, err)
+	}
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("write %s: %v", path, err)
+	}
+}
+
+// TestRunSkillsTargetLifecycle 校验命令层的目标登记、列表和删除流程。
+func TestRunSkillsTargetLifecycle(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("UR_SKILL_TARGETS_FILE", filepath.Join(home, ".ur", "skill-targets.json"))
+	targetDir := filepath.Join(home, "desktop-ai", "skills")
+
+	var stdout, stderr bytes.Buffer
+	if code := runSkillsTarget([]string{"add", "desktop-ai", "--dir", targetDir, "--json"}, &stdout, &stderr); code != 0 {
+		t.Fatalf("target add code=%d stderr=%s", code, stderr.String())
+	}
+	stdout.Reset()
+	stderr.Reset()
+	if code := runSkillsTarget([]string{"list", "--json"}, &stdout, &stderr); code != 0 {
+		t.Fatalf("target list code=%d stderr=%s", code, stderr.String())
+	}
+	var listed struct {
+		Targets []struct {
+			Name string `json:"name"`
+			Path string `json:"path"`
+		} `json:"targets"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &listed); err != nil {
+		t.Fatalf("parse target list: %v\n%s", err, stdout.String())
+	}
+	if len(listed.Targets) != 1 || listed.Targets[0].Name != "desktop-ai" || listed.Targets[0].Path != targetDir {
+		t.Fatalf("unexpected target list: %+v", listed.Targets)
+	}
+	stdout.Reset()
+	stderr.Reset()
+	if code := runSkillsTarget([]string{"remove", "desktop-ai", "--json"}, &stdout, &stderr); code != 0 {
+		t.Fatalf("target remove code=%d stderr=%s", code, stderr.String())
+	}
+}
+
+// TestRunSkillsInstallStatusAndExport 校验任意目录安装、完整性诊断和 ZIP 导出命令闭环。
+func TestRunSkillsInstallStatusAndExport(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("UR_SKILL_TARGETS_FILE", filepath.Join(home, ".ur", "skill-targets.json"))
+	source := filepath.Join(home, ".ur", "skills")
+	writeSharedTestFile(t, filepath.Join(source, "SKILL.md"), "---\nname: ur-api\ndescription: test\n---\n")
+	writeSharedTestFile(t, filepath.Join(source, "_meta.json"), `{"version":"v9.9.9"}`)
+	writeSharedTestFile(t, filepath.Join(source, "ur-view", "SKILL.md"), "---\nname: ur-view\n---\n")
+	targetDir := filepath.Join(home, "client", "skills")
+
+	var stdout, stderr bytes.Buffer
+	if code := runSkillsTarget([]string{"add", "client", "--dir", targetDir}, &stdout, &stderr); code != 0 {
+		t.Fatalf("target add code=%d stderr=%s", code, stderr.String())
+	}
+	stdout.Reset()
+	stderr.Reset()
+	if code := runSkillsInstall([]string{"--all", "--json"}, &stdout, &stderr); code != 0 {
+		t.Fatalf("install code=%d stderr=%s stdout=%s", code, stderr.String(), stdout.String())
+	}
+	stdout.Reset()
+	stderr.Reset()
+	if code := runSkillsStatus([]string{"--json"}, &stdout, &stderr); code != 0 {
+		t.Fatalf("status code=%d stderr=%s stdout=%s", code, stderr.String(), stdout.String())
+	}
+	if !bytes.Contains(stdout.Bytes(), []byte(`"state": "current"`)) {
+		t.Fatalf("status should be current: %s", stdout.String())
+	}
+	output := filepath.Join(t.TempDir(), "skills.zip")
+	stdout.Reset()
+	stderr.Reset()
+	if code := runSkillsExport([]string{"--output", output, "--json"}, &stdout, &stderr); code != 0 {
+		t.Fatalf("export code=%d stderr=%s stdout=%s", code, stderr.String(), stdout.String())
+	}
+	if _, err := os.Stat(output); err != nil {
+		t.Fatalf("export output missing: %v", err)
+	}
+}

@@ -44,9 +44,9 @@ ur api /api/v1/things/device/interact/property-control-send \
 
 - 脚本每次只执行一次业务操作，频率/次数交给任务调度，不写无限循环或内部定时器。
 - 对于物模型允许的 20～30、步长 0.5，离散随机公式为 `20 + Math.floor(Math.random() * 21) * 0.5`；检查上下界，其他范围按真实物模型计算。
-- 用 `Bun.spawn` 的参数数组调用 ur，继承环境，不拼接 shell 命令。并行读取 stdout/stderr，并 `await proc.exited`；运行中的 `proc.exitCode` 不是等待结果。
+- 用 `Bun.spawn` 的参数数组调用 ur，继承环境，不拼接 shell 命令。并行读取 stdout/stderr，并以 `const exitCode = await proc.exited` 取得最终退出码；禁止读取可能仍为 `null` 的 `proc.exitCode`。
 - 项目输入若提供，必须是非空、无首尾空白且与执行上下文一致的字符串，禁止 Number/String 强转掩盖错误；创建者凭证缺失时明确失败。
-- 失败抛错或非零退出；成功才在 stdout 最后一行输出结果 JSON。生成并实际保存 executor.js、manifest.json、skill.md 后才告知完成，不把聊天中的代码块当作已保存产物。
+- 失败必须抛错或 `console.error(...)` 后 `process.exit(1)`；禁止 catch 后在 stdout 输出 `{code:500}` 再正常退出，因为进程 0 会造成假成功。成功才在 stdout 最后一行输出结果 JSON。生成并实际保存 executor.js、manifest.json、skill.md 后才告知完成，不把聊天中的代码块当作已保存产物。
 
 上面的规则适用于云端模拟与任务开发；以下 control/report 命令是其他交互用途，不能替代已经确认的业务路径。
 

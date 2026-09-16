@@ -303,9 +303,18 @@ ur api ... --summarize          # 摘要模式（列表只保留前 5 条）
 # 自定义请求头
 ur api ... -H "X-Custom-Header: value"
 
+# 项目上下文（标识始终作为字符串传输，不转换成数值）
+ur api ... --project-id "9007199254740993"
+UR_PROJECT_ID="9007199254740993" ur api ...
+
 # 从文件读取 body
 ur api ... --body-file /tmp/payload.json
 ```
+
+项目选择规则：`--project-id` 或显式 `--header project-id:...` 优先于
+`UR_PROJECT_ID`；同时提供参数和项目头时必须一致，否则发送前报错。
+未指定任何项目上下文时不注入项目头。显式空项目参数会报错，不回退到环境值。
+此上下文仅设置 HTTP `project-id` 请求头，不改写请求体，也不代替服务端项目权限校验。
 
 ### 物模型命令
 

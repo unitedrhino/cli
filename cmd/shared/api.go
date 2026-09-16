@@ -1,3 +1,4 @@
+// api.go 提供兼容入口的 API 参数解析，项目选择与主命令共用同一合同。
 package shared
 
 import (
@@ -23,12 +24,14 @@ func isValidFormat(f string) bool {
 
 func runAPI(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(stderr, "usage: ur api <path> [--body JSON] [--body-file FILE] [--header KEY:VALUE] [--fields SELECTORS] [--summarize] [--format FORMAT] [--transform PATH] [--output FILE] [--debug]")
+		fmt.Fprintln(stderr, "usage: ur api <path> [--project-id ID] [--body JSON] [--body-file FILE] [--header KEY:VALUE] [--fields SELECTORS] [--summarize] [--format FORMAT] [--transform PATH] [--output FILE] [--debug]")
 		return 2
 	}
 	path := args[0]
 	body := map[string]any{}
 	headers := map[string]string{}
+	// projectID/projectSet 区分未传参数与显式空值，不做数值转换。
+	projectID, projectSet := "", false
 	fields := ""
 	summarize := false
 	format := ""
@@ -38,6 +41,13 @@ func runAPI(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 
 	for i := 1; i < len(args); i++ {
 		switch args[i] {
+		case "--project-id":
+			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
+				fmt.Fprintln(stderr, "--project-id requires ID")
+				return 2
+			}
+			projectID, projectSet = args[i+1], true
+			i++
 		case "--body":
 			if i+1 >= len(args) {
 				fmt.Fprintln(stderr, "--body requires JSON")
@@ -77,7 +87,16 @@ func runAPI(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 				fmt.Fprintf(stderr, "invalid header %q\n", args[i+1])
 				return 2
 			}
-			headers[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+			// 项目头名称不区分大小写，重复且不同值时拒绝请求。
+			key, value := strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
+			if strings.EqualFold(key, "project-id") {
+				key = "project-id"
+				if previous, exists := headers[key]; exists && previous != value {
+					fmt.Fprintln(stderr, "项目上下文冲突：重复 project-id 请求头必须一致")
+					return 2
+				}
+			}
+			headers[key] = value
 			i++
 		case "--fields":
 			if i+1 >= len(args) {
@@ -116,6 +135,10 @@ func runAPI(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 		case "--debug":
 			debug = true
 		default:
+			if strings.HasPrefix(args[i], "--project-id=") {
+				projectID, projectSet = strings.TrimPrefix(args[i], "--project-id="), true
+				continue
+			}
 			fmt.Fprintf(stderr, "unknown api option: %s\n", args[i])
 			return 2
 		}
@@ -136,6 +159,10 @@ func runAPI(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 
+	if err := client.ApplyProjectID(headers, projectID, projectSet, os.Getenv("UR_PROJECT_ID")); err != nil {
+		fmt.Fprintln(stderr, err)
+		return 2
+	}
 	resp, err := client.DoAPI(ctx, client.APIRequest{Path: path, Body: body, Headers: headers, Debug: debug})
 	if err != nil {
 		fmt.Fprintln(stderr, err.Error())

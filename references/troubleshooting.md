@@ -26,7 +26,7 @@ metadata:
 |------|---------|
 | 用户属于多个企业 | 选择正确的 `tenant-code` 或不传 |
 | 用户不属于该企业 | 切换到用户所属的企业 |
-| 不确定用户属于哪些企业 | 先不带 `tenant-code` 登录，查看 `userInfo.tenants` |
+| 不确定用户属于哪些企业 | 先确认目标应用与正确的 `tenant-code`，不要从其他 profile 混合补值 |
 
 **登录企业校验规则**：
 
@@ -47,8 +47,9 @@ metadata:
 ```
 
 **排查步骤**：
-1. 确认账号密码正确（默认 `administrator` / `iThings666`）
-2. 检查 `pwdType` 参数：`1`=明文密码，`2`=MD5 加密后
+1. 确认账号及原始密码正确；不要在文档、日志或对话中记录真实密码
+2. CLI 登录必须输入原始密码，由 CLI 做一次 SHA-256；不要预先摘要
+3. 直调登录 HTTP 接口时发送 SHA-256 摘要并使用 `pwdType: 1`；`pwdType: 2` 的 MD5 仅为历史兼容
 
 ### 1.3 Token 过期
 
@@ -59,8 +60,11 @@ metadata:
 
 **解决方案**：
 ```bash
-# 重新登录
-ur login
+# 先检查历史 profile 是否能自动刷新
+ur check --json
+
+# 无可用凭据时再选择一种方式登录
+ur login --method device
 
 # 或使用 --profile 自动刷新
 ur api /api/v1/... --profile prod-admin
@@ -81,7 +85,7 @@ ur api /api/v1/... --profile prod-admin
 
 1. **确认当前角色**：
    ```bash
-   ur check
+   ur check --json
    ```
 
 2. **检查 API 权限要求**：
@@ -181,40 +185,18 @@ ur api /api/v1/things/device/info/get-list \
 
 ## 四、JWT 构造问题
 
-### 4.1 userID 格式错误
+### 4.1 userID 兼容字段
 
-**错误示例**：
-```json
-{"code":401,"msg":"认证失败"}
-```
-
-**原因**：JWT payload 中 `userID` 是数字而非字符串。
-
-**正确格式**：
-```json
-{
-  "userID": "12345",    // ✅ 字符串
-  "tenantCode": "platform",
-  "accessKey": "xxx",
-  "exp": 1712345678
-}
-```
-
-**错误格式**：
-```json
-{
-  "userID": 12345,      // ❌ 数字
-  ...
-}
-```
+AK/SK 登录不要求调用方提供 `userID`。CLI 缺失时使用字符串 `"0"` 构造兼容 JWT，服务端按 `accessKey` 关联真实用户；不要把 `userID` 当作认证失败时必须补齐的配置。
 
 ### 4.2 JWT 过期
 
 **解决方案**：重新生成 JWT，设置合理的 `exp`（建议 1-24 小时）。
 
 ```bash
-# 使用 ur-api 工具自动构造 JWT
-ur api /api/v1/... --access-key xxx --access-secret xxx --user-id 12345
+# 重新验证并保存 AK/SK；不需要 userID
+UR_ACCESS_SECRET='<AccessSecret>' ur login --method aksk \
+  --access-key '<AccessKey>' --tenant-code '<企业编码>' --json
 ```
 
 ---

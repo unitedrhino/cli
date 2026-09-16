@@ -201,18 +201,20 @@ func generateSkillMD(app config.CLIApp, endpoints []swagger.Endpoint, allEndpoin
 	var b strings.Builder
 
 	name := app.BinaryName()
+	commandName := fmt.Sprintf("ur --app %s", app)
 	display := app.DisplayName()
 	if allEndpoints {
 		name = "ur-api"
+		commandName = "ur"
 		display = "联犀 SaaS 平台"
 	}
 
 	b.WriteString(fmt.Sprintf("---\nname: %s\n", name))
 	if allEndpoints {
-		b.WriteString(fmt.Sprintf("description: \"%s — 联犀 SaaS 平台统一 API 工具（涵盖所有应用）\"\n", name))
+		b.WriteString("description: \"Use when calling 联犀 SaaS 平台跨应用 API with the ur CLI.\"\n")
 		b.WriteString("metadata:\n  hermes:\n    tags: [api, cli, saas, iot, platform, org, energy, console]\n")
 	} else {
-		b.WriteString(fmt.Sprintf("description: \"%s — 联犀 SaaS 平台 %s CLI 工具\"\n", name, display))
+		b.WriteString(fmt.Sprintf("description: \"Use when calling 联犀 SaaS 平台%s API with `ur --app %s`.\"\n", display, app))
 		if tags, ok := hermesTags[name]; ok {
 			b.WriteString("metadata:\n  hermes:\n    tags: " + tags + "\n")
 		}
@@ -220,9 +222,10 @@ func generateSkillMD(app config.CLIApp, endpoints []swagger.Endpoint, allEndpoin
 	b.WriteString("---\n\n")
 	b.WriteString(fmt.Sprintf("# %s — %s\n\n", name, display))
 
-	// 配置状态提示
-	b.WriteString("> **配置检查**：如果尚未配置联犀连接，请先运行 `" + name + " login --no-wait`，按指引在浏览器中完成授权。")
-	b.WriteString("`setup` 命令是终端交互式的，在 AI 聊天环境中无法使用。\n\n")
+	// 认证状态提示
+	b.WriteString("> **认证检查**：AI 必须先运行 `" + commandName + " check --json`。环境变量或历史 profile 可用时直接调用 API；")
+	b.WriteString("只有缺少认证时才运行 `login --method device|password|aksk`，未指定 method 时默认 device。")
+	b.WriteString("Sandbox 设置 `UR_BASE_URL` 后只使用完整环境凭据组，不读取磁盘 profile 补值。\n\n")
 
 	if allEndpoints {
 		// 统一 skill：列出所有应用
@@ -321,13 +324,13 @@ func generateSkillMD(app config.CLIApp, endpoints []swagger.Endpoint, allEndpoin
 	b.WriteString("## 使用示例\n\n")
 	b.WriteString("```bash\n")
 	if allEndpoints {
-		b.WriteString("# 配置（以 iot 为例，其他应用同理）\nur-iot setup\n\n")
-		b.WriteString("# 验证连通性\nur-iot check\n\n")
-		b.WriteString("# 调用 API\nur-iot api /api/v1/system/user/self/get-one\n")
+		b.WriteString("# 先检查现有环境或历史 profile\nur check --json\n\n")
+		b.WriteString("# 仅在缺少认证时启动默认 Device Flow\nur login --method device --no-wait --json\n\n")
+		b.WriteString("# 调用 API（以 iot 应用为例）\nur --app iot api /api/v1/system/user/self/get-one\n")
 	} else {
-		b.WriteString(fmt.Sprintf("# 配置\n%s setup\n\n", name))
-		b.WriteString(fmt.Sprintf("# 验证连通性\n%s check\n\n", name))
-		b.WriteString(fmt.Sprintf("# 调用 API\n%s api /api/v1/system/user/self/get-one\n", name))
+		b.WriteString(fmt.Sprintf("# 先检查现有环境或历史 profile\n%s check --json\n\n", commandName))
+		b.WriteString(fmt.Sprintf("# 仅在缺少认证时启动默认 Device Flow\n%s login --method device --no-wait --json\n\n", commandName))
+		b.WriteString(fmt.Sprintf("# 调用 API\n%s api /api/v1/system/user/self/get-one\n", commandName))
 	}
 	b.WriteString("```\n")
 

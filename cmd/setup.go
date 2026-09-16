@@ -6,8 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/cobra"
+	"gitee.com/unitedrhino/cli/internal/auth"
 	"gitee.com/unitedrhino/cli/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var setupCmd = &cobra.Command{
@@ -82,7 +83,12 @@ func runSetup(cmd *cobra.Command, args []string) error {
 		Password:   values["password"],
 		Role:       string(app),
 	}
-	if err := config.SaveProfile(profile); err != nil {
+	result, err := auth.DoPasswordLoginRaw(cmd.Context(), profile.BaseURL, profile.AppID, profile.TenantCode, profile.Account, profile.Password)
+	if err != nil {
+		return &CLIError{Message: err.Error(), ExitCode: 1}
+	}
+	profile.Token = result.Token
+	if err := config.ReplaceProfileAuth(profile, config.AuthMethodPassword); err != nil {
 		return &CLIError{Message: err.Error(), ExitCode: 1}
 	}
 	cmd.Printf("saved %s (app=%s)\n", config.ConfigPath(), app.DisplayName())

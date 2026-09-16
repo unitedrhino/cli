@@ -16,10 +16,10 @@
 
 - **为 Agent 原生设计** — `generate-skills` 一键生成结构化 Skill 文档，AI Agent 无需额外适配即可调用联犀 API
 - **统一入口** — 单个 `ur` 二进制，通过 `--app` 参数或 `UR_APP` 环境变量切换 5 大应用域
-- **AI 友好调优** — Device Flow 认证流专为 AI 环境优化，`--no-wait` + `--setup-code` 分步授权，Agent 全程无需输入密码
+- **AI 友好认证** — 先复用 Sandbox 环境或历史 profile，必要时再选择 Device Flow、账号密码或 AK/SK
 - **全覆盖** — 平台管理、物联网、组织管理、能源管理、控制台 5 大应用域，Swagger 全量 API 自动解析
 - **跨平台** — 支持 Linux/macOS/Windows 等主流平台（amd64 / arm64）
-- **安全可控** — AccessKey/AccessSecret 本地存储，JWT 签名调用，无密码明文传输
+- **安全可控** — Sandbox 凭据不落盘，敏感值支持环境变量或 stdin，输出默认脱敏
 
 ---
 
@@ -165,8 +165,13 @@ export UR_NO_UPDATE_CHECK=1
 #### 配置与使用
 
 ```bash
-# 1. 启动 Device Flow 认证（生成绑定码，在浏览器中完成授权）
-ur setup
+# 1. 先检查现有环境或历史 profile；成功时无需重新登录
+ur check --json
+
+# 仅在缺少认证时，选择一种登录方式（默认 device）
+ur login --method device
+# UR_PASSWORD='<原始密码>' ur login --method password --account '<账号>' --tenant-code '<企业编码>' --json
+# UR_ACCESS_SECRET='<AccessSecret>' ur login --method aksk --access-key '<AccessKey>' --tenant-code '<企业编码>' --json
 
 # 2. 验证认证状态
 ur check
@@ -186,7 +191,7 @@ ur generate-skills --output ./my-skills/
 
 ### 快速开始（AI Agent）
 
-> AI Agent 应自动完成安装和认证，全程无需向用户索取密码。
+> AI Agent 应先复用 Sandbox 环境或历史 profile；只有缺少认证时才启动新的登录流程。不要在对话中回显敏感值。
 
 **一键安装 + 认证（AI 自动执行）**
 
@@ -204,8 +209,11 @@ mkdir -p ~/.local/bin && ln -sf ~/.local/lib/ur/ur ~/.local/bin/ur
 # Windows (PowerShell)：完整解压 .zip 包，保持 ur.exe 与 skill/ 同级，再把所在目录加入 PATH
 # Invoke-WebRequest -Uri "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.zip" -OutFile "ur.zip"; Expand-Archive "ur.zip" -DestinationPath "$env:USERPROFILE\.local\lib\ur"
 
-# 2. 立即生成认证 URL（无需指定 --base-url，默认联犀 SaaS；私有化部署用 --base-url 或 UR_BASE_URL 覆盖）
-ur login --no-wait --json
+# 2. 先检查 Sandbox 环境或历史 profile
+ur check --json
+
+# 仅当 check 返回缺少认证时，才启动默认 Device Flow
+ur login --method device --no-wait --json
 ```
 
 输出示例：
@@ -214,8 +222,7 @@ ur login --no-wait --json
   "status": "authorization_required",
   "verification_url": "https://saas.unitedrhino.com/#/user/settings?tab=access-tokens&setup=ABC123&redirect=thirdparty",
   "setup_code": "ABC123",
-  "expires_in": 600,
-  "next_command": "ur login --setup-code ABC123"
+  "expires_in": 600
 }
 ```
 
@@ -225,24 +232,34 @@ AI 解析 JSON，向用户发送：
 用户确认在浏览器中点击「完成第三方客户端绑定」后，AI 自动执行：
 
 ```bash
-ur login --setup-code ABC123 --json
+ur login --method device --setup-code ABC123 --json
 ```
 
 输出示例：
 ```json
 {
   "event": "authorization_complete",
+  "status": "ok",
+  "method": "device",
   "tenant_code": "t1",
-  "access_key": "ak_xxxx",
-  "access_secret": "sk_xxxx",
-  "user_id": "123"
+  "access_key": "ak_xxxx"
 }
+```
+
+如果 Sandbox 已注入账号密码或 AK/SK，可直接使用非交互方式；密码必须是原始密码，AK/SK 不要求 `userID`：
+
+```bash
+UR_PASSWORD='<原始密码>' ur login --method password \
+  --account '<账号>' --tenant-code '<企业编码>' --json
+
+UR_ACCESS_SECRET='<AccessSecret>' ur login --method aksk \
+  --access-key '<AccessKey>' --tenant-code '<企业编码>' --json
 ```
 
 **验证并生成 Skills**
 
 ```bash
-ur check
+ur check --json
 ur generate-skills --output ./skills/
 ```
 
@@ -250,25 +267,35 @@ ur generate-skills --output ./skills/
 
 ## 认证
 
-ur CLI 使用 **Device Flow** 认证机制，支持两种模式：
+ur CLI 支持三种登录方式，并兼容 Sandbox 环境变量与旧 profile：
 
-| 命令 | 说明 |
-|------|------|
-| `setup` | 交互式认证（人类用户）— 阻塞等待浏览器授权完成 |
-| `login` | Device Flow 认证（支持 `--no-wait` 非阻塞模式，适合 AI Agent） |
-| `check` | 验证当前认证状态和 API 连通性 |
+| 命令/方式 | 说明 |
+|-----------|------|
+| `check --json` | 首先验证当前环境/profile，并输出脱敏的 `auth_source`、`auth_method` |
+| `login --method device` | Device Flow；未指定 `--method` 时的默认方式 |
+| `login --method password` | 原始账号密码立即换取 Session Token |
+| `login --method aksk` | AK/SK 立即验证并保存；不要求 `userID` |
+| `setup` | 人类终端的账号密码兼容向导 |
 | `token --decode` | 查看并解码当前存储的访问令牌 |
 
 ```bash
-# 人类模式：一键阻塞授权
-ur setup
+# 总是先复用现有认证
+ur check --json
 
 # Agent 模式：分步授权
-ur login --no-wait --json       # 第 1 步：获取 URL 和绑定码
-ur login --setup-code ABC123    # 第 2 步：用户确认后完成轮询
+ur login --method device --no-wait --json       # 第 1 步：获取 URL 和绑定码
+ur login --method device --setup-code ABC123    # 第 2 步：用户确认后完成轮询
+
+# 账号密码（推荐环境变量或 --password-stdin；不要预先 SHA-256）
+UR_PASSWORD='<原始密码>' ur login --method password \
+  --account '<账号>' --tenant-code '<企业编码>' --json
+
+# AK/SK（推荐环境变量或 --access-secret-stdin）
+UR_ACCESS_SECRET='<AccessSecret>' ur login --method aksk \
+  --access-key '<AccessKey>' --tenant-code '<企业编码>' --json
 
 # 验证
-ur check
+ur check --json
 
 # 查看当前 token
 ur token --decode
@@ -361,10 +388,10 @@ ur completion fish > ~/.config/fish/completions/ur.fish
 ### 配置管理
 
 ```bash
-ur setup                               # 交互式配置
+ur setup                               # 人类终端账号密码兼容向导
 ur config --list                       # 列出所有配置
 ur config --use prod                   # 切换配置
-ur check                               # 验证配置和连通性
+ur check --json                        # 验证配置、认证来源和连通性
 ```
 
 ---
@@ -381,8 +408,9 @@ ur --app platform-manage api /api/v1/system/tenant/info/get-list
 # 方式二：UR_APP 环境变量
 UR_APP=iot ur api /api/v1/things/device/info/get-list
 
-# 方式三：临时覆盖（通过环境变量）
-UR_BASE_URL=http://xxx UR_APP_ID=200 UR_TENANT_CODE=platform ur check
+# 方式三：Sandbox env-only（使用占位符，不读取磁盘 profile 补值）
+UR_BASE_URL='<平台地址>' UR_APP_ID='<应用ID>' \
+UR_TENANT_CODE='<企业编码>' UR_TOKEN='<Session Token>' ur check --json
 ```
 
 ### 生成 Skills
@@ -399,18 +427,23 @@ ur generate-skills --output ./my-skills/
 
 ### 运行时环境变量
 
-无需配置文件，直接通过环境变量认证：
+无需配置文件，直接通过环境变量认证。设置 `UR_BASE_URL` 后进入 env-only 模式，不读取或改写磁盘 profile；认证组必须完整：
 
 ```bash
-export UR_BASE_URL="https://saas.unitedrhino.com"
-export UR_APP_ID="200"
-export UR_TENANT_CODE="platform"
-export UR_ACCESS_KEY="ak_xxxx"
-export UR_ACCESS_SECRET="sk_xxxx"
+export UR_BASE_URL='<平台地址>'
+export UR_APP_ID='<应用ID>'
+export UR_TENANT_CODE='<企业编码>'
 
-ur check
+# 以下三组任选一组，优先级为 Token → AK/SK →账号密码
+export UR_TOKEN='<Session Token>'
+# export UR_ACCESS_KEY='<AccessKey>' UR_ACCESS_SECRET='<AccessSecret>'
+# export UR_ACCOUNT='<账号>' UR_PASSWORD='<原始密码>'
+
+ur check --json
 ur api /api/v1/things/device/info/get-list
 ```
+
+AK/SK 模式的 `UR_USER_ID` 可选。旧 `~/.ur/config.json` 中只有账号密码，或同时遗留 Token、AK/SK 的配置会自动兼容；升级时无需迁移、清空或重新执行 `setup`。
 
 ---
 
@@ -505,8 +538,11 @@ bash scripts/release.sh v0.3.7
 
 ## 常见问题
 
-### Q: `setup` 后提示「认证失败」？
-A: 检查浏览器是否已完成绑定流程，或尝试 `ur setup --force` 重新认证。
+### Q: 升级后原账号密码配置还能使用吗？
+A: 可以。先运行 `ur check --json`；CLI 会复用历史 profile，Token 过期时用保存的原始账号密码刷新，不要求重新执行 `setup`。
+
+### Q: Sandbox 设置了环境变量但认证不可用？
+A: 设置 `UR_BASE_URL` 后不会从 profile 补值。请同时注入 `UR_APP_ID`、`UR_TENANT_CODE`，以及 Token、完整 AK/SK、完整账号密码三组之一。
 
 ### Q: API 返回「权限不足」？
 A: 使用 `--auth-type` 参数切换权限类型，例如 `--auth-type admin`。
@@ -515,4 +551,4 @@ A: 使用 `--auth-type` 参数切换权限类型，例如 `--auth-type admin`。
 A: 使用 `--app` 参数：`ur --app iot api ...`，或通过 `UR_APP` 环境变量设置。
 
 ### Q: Token 过期了怎么办？
-A: CLI 会自动刷新 token（使用保存的账号密码重新登录）。如自动刷新失败，运行 `ur login` 重新授权。
+A: 历史 profile 有账号密码时 CLI 会自动刷新；否则按现有凭据选择 `ur login --method device|password|aksk`。

@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"gitee.com/unitedrhino/cli/internal/client"
 	"gitee.com/unitedrhino/cli/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var checkOpts struct {
@@ -48,6 +48,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	app := resolveAppFromContext()
 
 	if jsonMode {
+		authCtx, authErr := config.ResolveAuthContext()
 		status := map[string]any{
 			"app_name":        app.DisplayName(),
 			"binary_name":     app.BinaryName(),
@@ -58,6 +59,13 @@ func runCheck(cmd *cobra.Command, args []string) error {
 			"features":        app.Features(),
 			"auth_status":     "checking",
 			"auth_status_msg": "",
+		}
+		if authErr == nil {
+			status["auth_source"] = authCtx.Source
+			status["auth_method"] = authCtx.Method
+		} else {
+			status["auth_source"] = "unknown"
+			status["auth_method"] = "unknown"
 		}
 
 		resp, err := client.DoAPI(ctx, client.APIRequest{

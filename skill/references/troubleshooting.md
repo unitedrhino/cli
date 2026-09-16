@@ -12,18 +12,38 @@
 | 不带企业登录，用户有绑定该 App 的企业 | 登录成功 |
 | 不带企业登录，用户无绑定该 App 的企业 | ❌ "您没有权限访问该应用" |
 
-**解决**：先不带 `tenant-code` 登录，查看 `userInfo.tenants` 确认用户所属企业。
+**解决**：先确认目标应用与正确的 `tenant-code`，再执行登录；不要用其他 profile 的企业上下文补值。
+
+## Sandbox 认证不可用
+
+先运行 `ur check --json`，根据 `auth_source`、`auth_method` 与错误信息排查：
+
+| 错误 | 原因 | 解决方案 |
+|------|------|----------|
+| 缺少环境认证 | 设置了 `UR_BASE_URL`，但没有完整凭据组 | 注入 `UR_TOKEN`、完整 AK/SK 或完整账号密码之一 |
+| AK/SK 必须成对设置 | 只注入了 AK 或 SK | 同时设置 `UR_ACCESS_KEY` 和 `UR_ACCESS_SECRET` |
+| 账号密码必须成对设置 | 只注入了账号或密码 | 同时设置 `UR_ACCOUNT` 和原始 `UR_PASSWORD` |
+| 本地 profile 明明可用却未生效 | 设置 `UR_BASE_URL` 后进入 env-only 模式 | 修正 Sandbox 环境，不要依赖磁盘 profile 补值 |
+
+Sandbox 环境不会持久化凭据，`UR_USER_ID` 对 AK/SK 可选。不要把 AK/SK 自签 JWT 当作 `UR_TOKEN`。
 
 ## 401 认证失败
 
 | 原因 | 排查方法 | 解决方案 |
 |------|----------|----------|
-| `userID` 格式错误 | 检查是否为字符串格式 | 改为 `"userID": "12345"` |
 | `accessSecret` 填错 | 检查大小写和完整 32 位 | 复制创建令牌时返回的完整 secret |
 | JWT 已过期 | 检查 `exp` 字段 | 重新生成 JWT |
-| 访问令牌过期 | Device Auth / JWT 模式 | 重新运行 `ur login` 或重新生成 JWT |
+| Session Token 过期 | 历史 profile 有账号密码 | CLI 自动刷新并重试一次 |
+| 访问令牌过期 | Device Flow / AK/SK | 创建新访问令牌后重新登录 |
 
-**Token 自动刷新**：CLI 调用 `ur api` 时，若遇到 401，会**自动使用保存的账号密码重新登录获取新 token**，保存后**自动重试原请求一次**。
+**旧配置自动兼容**：历史 profile 只有账号密码时会自动换取并保存 Session Token；旧 Token 失效后会用保存的账号密码刷新并重试。只有后端明确拒绝账号密码时，才会尝试同一旧 profile 中完整的 AK/SK；网络或业务错误不会触发盲目回退。
+
+## 账号密码登录失败
+
+- `UR_PASSWORD`、`--password-stdin` 和 `--password` 都必须提供原始密码；CLI 会且只会做一次 SHA-256。
+- 不要把 SHA-256 十六进制摘要再次交给 CLI，否则会二次摘要并表现为账号或密码错误。
+- 直接调用登录 HTTP 接口时，才由调用方发送 SHA-256 摘要并使用 `pwdType: 1`；MD5/`pwdType: 2` 仅为旧版兼容。
+- 升级后不要删除旧 profile 或重新执行 `setup`；先用 `ur check --json` 验证自动兼容路径。
 
 ## 403 权限不足
 

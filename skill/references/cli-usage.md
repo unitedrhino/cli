@@ -14,16 +14,33 @@ UR_APP=iot ur api /api/v1/things/device/info/get-list
 ## 认证与配置
 
 ```bash
-ur login                          # Device Auth 授权
-ur login --no-wait --json         # AI 模式：获取 URL
-ur login --setup-code ABC --json  # 完成授权
-ur setup                          # 交互式配置
-ur check                          # 验证连通性
+# AI 固定先检查；成功时直接使用，不重新登录
+ur check --json
+
+# Device Flow（默认 method）
+ur login --method device --no-wait --json
+ur login --method device --setup-code ABC --json
+
+# 账号密码：秘密优先从环境变量或 stdin 读取
+UR_PASSWORD='<原始密码>' ur login --method password \
+  --account '<账号>' --tenant-code '<企业编码>' --json
+printf '%s' "$UR_PASSWORD" | ur login --method password \
+  --account '<账号>' --tenant-code '<企业编码>' --password-stdin --json
+
+# AK/SK：不要求 userID
+UR_ACCESS_SECRET='<AccessSecret>' ur login --method aksk \
+  --access-key '<AccessKey>' --tenant-code '<企业编码>' --json
+
+ur setup                          # 人类终端兼容向导，不是 AI 首选
 ur config --list                  # 管理多环境配置
 ur config --use prod
 ur token --decode                 # 查看当前 token
 ur token --raw
 ```
+
+`--password`、`--access-secret` 明文参数仅为兼容，可能暴露在 shell 历史或进程列表中。密码必须是原始密码，不要预先 SHA-256。
+
+Sandbox 只需设置 `UR_BASE_URL`、`UR_APP_ID`、`UR_TENANT_CODE` 及以下完整认证组之一：`UR_TOKEN`；`UR_ACCESS_KEY` + `UR_ACCESS_SECRET`；`UR_ACCOUNT` + `UR_PASSWORD`。该模式不读取或改写磁盘 profile。
 
 ## API 调用
 
@@ -56,8 +73,9 @@ ur api ... -H "X-Custom-Header: value"
 # 从文件读取 body
 ur api /api/v1/things/protocol/script/update --body-file /tmp/payload.json
 
-# 临时覆盖连接配置
-UR_BASE_URL=http://host:7777 UR_APP_ID=77 UR_TENANT_CODE=platform ur check
+# 临时 Sandbox 配置（示例使用 Session Token）
+UR_BASE_URL='<平台地址>' UR_APP_ID='<应用ID>' \
+UR_TENANT_CODE='<企业编码>' UR_TOKEN='<Session Token>' ur check --json
 ```
 
 ## 物模型命令

@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -18,6 +19,16 @@ import (
 type LoginResult struct {
 	Token     string
 	ExpireSec int64
+}
+
+// CredentialRejectedError 表示后端明确拒绝账号密码，可用于历史 profile 的兼容回退。
+type CredentialRejectedError struct {
+	Message string
+}
+
+// Error 返回后端认证失败信息。
+func (e *CredentialRejectedError) Error() string {
+	return "login failed: " + e.Message
 }
 
 func DoPasswordLoginRaw(ctx context.Context, baseURL, appID, tenantCode, account, password string) (LoginResult, error) {
@@ -60,6 +71,9 @@ func DoPasswordLoginRaw(ctx context.Context, baseURL, appID, tenantCode, account
 		return LoginResult{}, fmt.Errorf("decode login response: %w", err)
 	}
 	if data.Code != 200 {
+		if isPasswordCredentialRejected(data.Code, data.Msg) {
+			return LoginResult{}, &CredentialRejectedError{Message: data.Msg}
+		}
 		return LoginResult{}, fmt.Errorf("login failed: %s", data.Msg)
 	}
 	expireAt, _ := strconv.ParseInt(data.Data.Token.AccessExpire, 10, 64)
@@ -72,56 +86,150 @@ func DoPasswordLoginRaw(ctx context.Context, baseURL, appID, tenantCode, account
 
 func ResolveToken(ctx context.Context) (string, error) {
 	authCtx, err := config.ResolveAuthContext()
-	if err == nil && authCtx.Token != "" {
-		return authCtx.Token, nil
+	if err != nil {
+		return "", err
 	}
-	if err == nil && authCtx.AccessKey != "" && authCtx.AccessSecret != "" {
+	switch authCtx.Method {
+	case config.AuthMethodToken:
+		return authCtx.Token, nil
+	case config.AuthMethodPassword:
+		result, loginErr := passwordLoginFromContext(ctx, authCtx)
+		if loginErr == nil {
+			return result.Token, nil
+		}
+		if !isCredentialRejected(loginErr) || authCtx.Source != config.AuthSourceProfile || authCtx.AccessKey == "" || authCtx.AccessSecret == "" {
+			return "", loginErr
+		}
+		return generateAccessKeyJWT(authCtx)
+	case config.AuthMethodAccessKey:
+		return generateAccessKeyJWT(authCtx)
+	default:
+		return "", fmt.Errorf("unsupported auth method %q", authCtx.Method)
+	}
+}
+
+// generateAccessKeyJWT 使用 AK/SK 生成 Bearer JWT，userID 缺失时兼容填入 0。
+func generateAccessKeyJWT(authCtx config.AuthContext) (string, error) {
+	if authCtx.AccessKey != "" && authCtx.AccessSecret != "" {
 		userID := authCtx.UserID
 		if userID == "" {
 			userID = "0"
 		}
 		return GenerateJWT(userID, authCtx.AccessKey, authCtx.AccessSecret)
 	}
-	profile, err := config.CurrentProfile()
+	return "", fmt.Errorf("missing access key credentials")
+}
+
+// passwordLoginFromContext 使用解析后的账号密码登录，并仅为磁盘 profile 更新 Session Token。
+func passwordLoginFromContext(ctx context.Context, authCtx config.AuthContext) (LoginResult, error) {
+	if authCtx.Account == "" || authCtx.Password == "" {
+		return LoginResult{}, fmt.Errorf("missing account/password login config")
+	}
+	baseURL, err := config.GetBaseURL()
 	if err != nil {
-		return "", err
+		return LoginResult{}, err
 	}
-	if profile.Account == "" || profile.Password == "" {
-		return "", fmt.Errorf("missing session token and password login config")
-	}
-	baseURL, _ := config.GetBaseURL()
-	appID, _ := config.GetAppID()
-	tenantCode, _ := config.GetTenantCode()
-	result, err := DoPasswordLoginRaw(ctx, baseURL, appID, tenantCode, profile.Account, profile.Password)
+	appID, err := config.GetAppID()
 	if err != nil {
-		return "", err
+		return LoginResult{}, err
 	}
-	return result.Token, nil
+	tenantCode, err := config.GetTenantCode()
+	if err != nil {
+		return LoginResult{}, err
+	}
+	result, err := DoPasswordLoginRaw(ctx, baseURL, appID, tenantCode, authCtx.Account, authCtx.Password)
+	if err != nil {
+		return LoginResult{}, err
+	}
+	if authCtx.Source == config.AuthSourceProfile {
+		if err := config.UpdateSessionToken(result.Token); err != nil {
+			return LoginResult{}, fmt.Errorf("save session token: %w", err)
+		}
+	}
+	return result, nil
+}
+
+// isCredentialRejected 判断错误是否为后端明确的凭据拒绝，而非网络或解析错误。
+func isCredentialRejected(err error) bool {
+	var rejected *CredentialRejectedError
+	return errors.As(err, &rejected)
+}
+
+// isPasswordCredentialRejected 仅识别后端明确的账号密码拒绝，避免把企业校验等业务错误当成凭据失效。
+func isPasswordCredentialRejected(code int, message string) bool {
+	if code == http.StatusUnauthorized {
+		return true
+	}
+	msg := strings.ToLower(message)
+	for _, keyword := range []string{"账号或密码", "账户或密码", "密码错误", "invalid credential", "invalid password", "account or password"} {
+		if strings.Contains(msg, keyword) {
+			return true
+		}
+	}
+	return false
 }
 
 func ResolveAuthHeaders(ctx context.Context) (map[string]string, error) {
 	authCtx, err := config.ResolveAuthContext()
-	if err == nil {
-		if authCtx.Token != "" {
-			return map[string]string{"token": authCtx.Token}, nil
-		}
-		if authCtx.AccessKey != "" && authCtx.AccessSecret != "" {
-			userID := authCtx.UserID
-			if userID == "" {
-				userID = "0"
-			}
-			jwt, err := GenerateJWT(userID, authCtx.AccessKey, authCtx.AccessSecret)
-			if err != nil {
-				return nil, err
-			}
-			return map[string]string{"Authorization": "Bearer " + jwt}, nil
-		}
-	}
-	token, err := ResolveToken(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return map[string]string{"token": token}, nil
+	switch authCtx.Method {
+	case config.AuthMethodToken:
+		return map[string]string{"token": authCtx.Token}, nil
+	case config.AuthMethodPassword:
+		result, loginErr := passwordLoginFromContext(ctx, authCtx)
+		if loginErr == nil {
+			return map[string]string{"token": result.Token}, nil
+		}
+		if !isCredentialRejected(loginErr) || authCtx.Source != config.AuthSourceProfile || authCtx.AccessKey == "" || authCtx.AccessSecret == "" {
+			return nil, loginErr
+		}
+		jwt, jwtErr := generateAccessKeyJWT(authCtx)
+		if jwtErr != nil {
+			return nil, jwtErr
+		}
+		return map[string]string{"Authorization": "Bearer " + jwt}, nil
+	case config.AuthMethodAccessKey:
+		jwt, jwtErr := generateAccessKeyJWT(authCtx)
+		if jwtErr != nil {
+			return nil, jwtErr
+		}
+		return map[string]string{"Authorization": "Bearer " + jwt}, nil
+	default:
+		return nil, fmt.Errorf("unsupported auth method %q", authCtx.Method)
+	}
+}
+
+// ResolveFallbackAuthHeaders 在接口明确返回认证失败后，按历史 profile 的剩余候选凭据生成重试头。
+// 环境变量认证不会读取或回退到磁盘 profile，网络与响应解析错误也不会触发候选切换。
+func ResolveFallbackAuthHeaders(ctx context.Context) (map[string]string, error) {
+	authCtx, err := config.ResolveAuthContext()
+	if err != nil {
+		return nil, err
+	}
+	if authCtx.Source != config.AuthSourceProfile {
+		return nil, errors.New("environment authentication has no profile fallback")
+	}
+
+	if authCtx.Method == config.AuthMethodToken && authCtx.Account != "" && authCtx.Password != "" {
+		result, loginErr := passwordLoginFromContext(ctx, authCtx)
+		if loginErr == nil {
+			return map[string]string{"token": result.Token}, nil
+		}
+		if !isCredentialRejected(loginErr) {
+			return nil, loginErr
+		}
+	}
+
+	if authCtx.Method != config.AuthMethodAccessKey && authCtx.AccessKey != "" && authCtx.AccessSecret != "" {
+		jwt, jwtErr := generateAccessKeyJWT(authCtx)
+		if jwtErr != nil {
+			return nil, jwtErr
+		}
+		return map[string]string{"Authorization": "Bearer " + jwt}, nil
+	}
+	return nil, errors.New("no fallback authentication candidate in profile")
 }
 
 func GenerateJWT(userID, accessKey, accessSecret string) (string, error) {
@@ -129,6 +237,11 @@ func GenerateJWT(userID, accessKey, accessSecret string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	return GenerateJWTForTenant(userID, accessKey, accessSecret, tenantCode)
+}
+
+// GenerateJWTForTenant 使用明确的企业编码生成 AK/SK Bearer JWT，不依赖或修改进程环境变量。
+func GenerateJWTForTenant(userID, accessKey, accessSecret, tenantCode string) (string, error) {
 	now := time.Now().Unix()
 	header := map[string]any{"alg": "HS256", "typ": "JWT"}
 	payload := map[string]any{
@@ -169,26 +282,16 @@ func sha256Hex(value string) string {
 // RefreshToken 尝试用保存的账号密码重新登录获取新 token。
 // 成功后会将新 token 写回配置文件。
 func RefreshToken(ctx context.Context) (string, error) {
-	profile, err := config.CurrentProfile()
+	authCtx, err := config.ResolveAuthContext()
 	if err != nil {
-		return "", fmt.Errorf("no profile found: %w", err)
+		return "", fmt.Errorf("resolve auth context: %w", err)
 	}
-	if profile.Account == "" || profile.Password == "" {
+	if authCtx.Account == "" || authCtx.Password == "" {
 		return "", fmt.Errorf("no account/password in profile, cannot refresh token")
 	}
-	baseURL, _ := config.GetBaseURL()
-	appID, _ := config.GetAppID()
-	tenantCode, _ := config.GetTenantCode()
-
-	result, err := DoPasswordLoginRaw(ctx, baseURL, appID, tenantCode, profile.Account, profile.Password)
+	result, err := passwordLoginFromContext(ctx, authCtx)
 	if err != nil {
 		return "", fmt.Errorf("refresh login failed: %w", err)
-	}
-
-	// 保存新 token
-	profile.Token = result.Token
-	if err := config.SaveProfile(profile); err != nil {
-		return "", fmt.Errorf("save refreshed token failed: %w", err)
 	}
 	return result.Token, nil
 }

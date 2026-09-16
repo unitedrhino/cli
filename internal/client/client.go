@@ -38,17 +38,22 @@ func DoAPI(ctx context.Context, req APIRequest) (APIResponse, error) {
 		return APIResponse{}, err
 	}
 	if isAuthFailure(resp) {
-		if _, refreshErr := auth.RefreshToken(ctx); refreshErr == nil {
+		if authHeaders, fallbackErr := auth.ResolveFallbackAuthHeaders(ctx); fallbackErr == nil {
 			if req.Debug {
-				log.Println("[debug] token refreshed, retrying request...")
+				log.Println("[debug] authentication refreshed, retrying request...")
 			}
-			return doAPIOnce(ctx, req)
+			return doAPIOnceWithAuth(ctx, req, authHeaders)
 		}
 	}
 	return resp, nil
 }
 
 func doAPIOnce(ctx context.Context, req APIRequest) (APIResponse, error) {
+	return doAPIOnceWithAuth(ctx, req, nil)
+}
+
+// doAPIOnceWithAuth 执行一次 API 请求；authOverride 非空时使用指定候选凭据重试。
+func doAPIOnceWithAuth(ctx context.Context, req APIRequest, authOverride map[string]string) (APIResponse, error) {
 	baseURL, err := config.GetBaseURL()
 	if err != nil {
 		return APIResponse{}, err
@@ -90,9 +95,12 @@ func doAPIOnce(ctx context.Context, req APIRequest) (APIResponse, error) {
 	if tracestate := strings.TrimSpace(os.Getenv("UR_TRACESTATE")); tracestate != "" {
 		httpReq.Header.Set("tracestate", tracestate)
 	}
-	authHeaders, err := auth.ResolveAuthHeaders(ctx)
-	if err != nil {
-		return APIResponse{}, err
+	authHeaders := authOverride
+	if authHeaders == nil {
+		authHeaders, err = auth.ResolveAuthHeaders(ctx)
+		if err != nil {
+			return APIResponse{}, err
+		}
 	}
 	for key, value := range authHeaders {
 		httpReq.Header.Set(key, value)
@@ -133,8 +141,8 @@ func UploadFileMultipart(ctx context.Context, path, fieldName, fileName string, 
 		return APIResponse{}, err
 	}
 	if isAuthFailure(resp) {
-		if _, refreshErr := auth.RefreshToken(ctx); refreshErr == nil {
-			return uploadFileMultipartOnce(ctx, path, fieldName, fileName, fileData, form)
+		if authHeaders, fallbackErr := auth.ResolveFallbackAuthHeaders(ctx); fallbackErr == nil {
+			return uploadFileMultipartOnceWithAuth(ctx, path, fieldName, fileName, fileData, form, authHeaders)
 		}
 	}
 	return resp, nil
@@ -142,6 +150,11 @@ func UploadFileMultipart(ctx context.Context, path, fieldName, fileName string, 
 
 // uploadFileMultipartOnce 执行一次 multipart 上传（不含 401 重试）
 func uploadFileMultipartOnce(ctx context.Context, path, fieldName, fileName string, fileData []byte, form map[string]string) (APIResponse, error) {
+	return uploadFileMultipartOnceWithAuth(ctx, path, fieldName, fileName, fileData, form, nil)
+}
+
+// uploadFileMultipartOnceWithAuth 执行一次上传；authOverride 非空时使用指定候选凭据重试。
+func uploadFileMultipartOnceWithAuth(ctx context.Context, path, fieldName, fileName string, fileData []byte, form map[string]string, authOverride map[string]string) (APIResponse, error) {
 	baseURL, err := config.GetBaseURL()
 	if err != nil {
 		return APIResponse{}, err
@@ -186,9 +199,12 @@ func uploadFileMultipartOnce(ctx context.Context, path, fieldName, fileName stri
 	if tracestate := strings.TrimSpace(os.Getenv("UR_TRACESTATE")); tracestate != "" {
 		httpReq.Header.Set("tracestate", tracestate)
 	}
-	authHeaders, err := auth.ResolveAuthHeaders(ctx)
-	if err != nil {
-		return APIResponse{}, err
+	authHeaders := authOverride
+	if authHeaders == nil {
+		authHeaders, err = auth.ResolveAuthHeaders(ctx)
+		if err != nil {
+			return APIResponse{}, err
+		}
 	}
 	for key, value := range authHeaders {
 		httpReq.Header.Set(key, value)
@@ -216,7 +232,11 @@ func isAuthFailure(resp APIResponse) bool {
 		return true
 	}
 	msg := strings.ToLower(resp.Msg)
-	authKeywords := []string{"token", "认证", "登录", "unauthorized", "未授权", "权限", "expire", "过期", "invalid"}
+	authKeywords := []string{
+		"token expired", "token 已过期", "token过期", "expired token",
+		"invalid token", "token invalid", "token 无效", "token无效",
+		"登录状态过期", "登录已过期", "登录过期", "尚未登录", "unauthorized", "未认证", "认证失败", "认证错误",
+	}
 	for _, kw := range authKeywords {
 		if strings.Contains(msg, kw) {
 			return true

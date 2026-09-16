@@ -131,7 +131,7 @@ ur schema --json
 
 | 陷阱 | 正确做法 |
 |------|---------|
-| JWT 中 `userID` 类型 | 必须是**字符串**格式：`"userID": "12345"`，不是数字 |
+| JWT 中 `userID` | 兼容字段，AK/SK 登录不要求提供；CLI 缺失时使用字符串 `"0"` |
 | `deviceName` 误以为是名称 | `deviceName` 是设备唯一 ID，显示名称是 `deviceAlias` |
 | 属性标识符大小写 | 必须与物模型完全一致，通常是**大驼峰**（`CurrentTemperature`） |
 | 分页起始值 | `page.page=1`，不是 `0` |

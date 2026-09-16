@@ -39,7 +39,7 @@
 
  `productID` = 产品ID（不是产品名称)
  `protocolCode` = 协议代码（默认 `urMqtt`）
- `userID` 在 JWT 中必须为字符串格式 `"userID": "12345"` 而数字
+ `userID` 是 AK/SK JWT 的兼容字段，不是登录必填输入；缺失时 CLI 使用字符串 `"0"`
 ### 常见错误码
 
  | code | 含义 | 处理 |

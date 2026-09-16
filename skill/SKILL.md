@@ -1,21 +1,27 @@
 ---
 name: ur-api
-description: "Use when calling 联犀 SaaS 平台 API: device management, user management, product management, tenant management, AI management, project management, system management, bigscreen visualization, or IoT device operations. triggers: API调用, 设备列表, IoT设备控制, 设备注册, 访问令牌, 物模型管理, OTA升级, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 问题反馈, 提交反馈, 反馈类型, 使用问题, 业务受损, 业务不可用, 大屏, 数据可视化, GoView, 画布, 看板, 编辑大屏, 发布大屏"
+description: "Use when calling 联犀 SaaS 平台 API: device management, user management, product management, tenant management, AI management, project management, system management, bigscreen visualization, or IoT device operations. triggers: API调用, CLI登录, Sandbox认证, 账号密码登录, AKSK, 设备列表, IoT设备控制, 设备注册, 访问令牌, 物模型管理, OTA升级, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 问题反馈, 提交反馈, 反馈类型, 使用问题, 业务受损, 业务不可用, 大屏, 数据可视化, GoView, 画布, 看板, 编辑大屏, 发布大屏"
 ---
 
 # ur-api — 联犀 SaaS 平台 API 工具
 
-CLI实现位于本独立仓库（`unitedrhino/cli`），入口为根目录`main.go`，命令和认证分别在`cmd/`、`internal/auth/`；runtime / AI 调用只走 `UR_*` 环境变量，不再依赖 profile / `~/.ur/config.json`。
+CLI实现位于本独立仓库（`unitedrhino/cli`），入口为根目录`main.go`，命令和认证分别在`cmd/`、`internal/auth/`。Sandbox 可只用 `UR_*` 环境变量；本地已配置的旧 profile 继续自动兼容，无需迁移或重新登录。
 
 所有接口均为 POST 方法。统一响应格式为 `{code, msg, data}`。
 
 ---
 
-## 密码登录与直调接口
+## 认证前置流程（AI 必读）
 
-- `ur login`及CLI的账号密码认证入口接收原始密码，`internal/auth/auth.go`会做一次SHA-256十六进制摘要并发送`pwdType: 1`；不要先自行摘要再交给这些入口，以免二次摘要。
-- 直接调用`/api/v1/system/user/self/login`或使用透传请求体时，调用方负责按登录模式生成密码摘要。SHA-256对应`pwdType: 1`，MD5对应`pwdType: 2`。生成接口表中的“1，明文”是历史字段注释，不能据此发送原始密码。SaaS前端依据`apps/web/packages/saas/src/password-login/payload.ts`组装凭证。
-- 凭据取已核对环境的授权来源，不把密码或令牌写入skill、截图和版本库。此处仅解释现有登录口径，不修改账号密码或登录协议。
+1. 先运行 `ur check --json`。如果环境变量或历史 profile 已可用，直接调用 API；不要删除配置、重新执行 `setup` 或要求用户再次提供凭据。
+2. 只有在没有可用认证时，才运行 `ur login --method device|password|aksk`；未指定 `--method` 时默认 `device`。
+3. Sandbox 设置 `UR_BASE_URL` 后采用 env-only 模式：只使用同一环境中的完整凭据组，不读取磁盘 profile 补齐缺失值，也不把环境凭据写入磁盘。
+
+支持的运行时凭据组按 `UR_TOKEN` → `UR_ACCESS_KEY` + `UR_ACCESS_SECRET` → `UR_ACCOUNT` + `UR_PASSWORD` 的顺序选择。AK/SK 不要求 `UR_USER_ID`；成对变量缺一项时应修正 Sandbox 注入，不要从 profile 混合补值。
+
+账号密码入口接收**原始密码**，CLI 会做且只做一次 SHA-256；禁止先摘要再传入，否则会二次摘要。直接调用 `/api/v1/system/user/self/login` 时，调用方才需要发送 SHA-256 摘要并使用 `pwdType: 1`；MD5/`pwdType: 2` 仅为历史兼容。
+
+敏感值优先通过 Sandbox 环境变量或 stdin 注入。`--password`、`--access-secret` 明文参数仅用于兼容，可能进入 shell 历史或进程列表；不得把密码、AccessSecret 或完整 Token 写入 skill、日志、截图和版本库。
 
 ## 角色权限区分
 
@@ -44,7 +50,7 @@ CLI实现位于本独立仓库（`unitedrhino/cli`），入口为根目录`main.
 调用任何 API 前，**先运行 check 确认角色**，错误的角色会导致 403：
 
 ```bash
-ur check
+ur check --json
 ```
 
 前端或自动化工具需要区分角色时，应以 **HTTP 接口返回结构** 为准：
@@ -72,9 +78,9 @@ ur check
 
 | 角色 | 可操作范围 | 配置方式 |
 |------|----------|---------|
-| **平台管理员** | 所有域（platform/admin/all 接口） | `ur login` 用平台管理员账号授权 |
-| **企业管理员** | 本企业 CRUD（admin/all 接口） | `ur login` 用企业管理员账号授权 |
-| **普通用户** | 个人信息、设备分享（仅 all 接口） | `ur login` 用普通用户账号授权 |
+| **平台管理员** | 所有域（platform/admin/all 接口） | 先复用环境/profile；必要时用 `ur login` 切换认证 |
+| **企业管理员** | 本企业 CRUD（admin/all 接口） | 先复用环境/profile；必要时用 `ur login` 切换认证 |
+| **普通用户** | 个人信息、设备分享（仅 all 接口） | 先复用环境/profile；必要时用 `ur login` 切换认证 |
 
 > **切换角色**：重新运行 `ur login`（用不同账号授权），或用 `--app` 切换应用上下文：
 > ```bash
@@ -166,45 +172,65 @@ IoT AI 工具迁移相关子域：
 
 ## 快速开始
 
-### 方式 1：Device Auth（推荐，默认）
+```bash
+# 总是先检查现有 Sandbox 环境或历史 profile
+ur check --json
+```
+
+检查通过后直接调用 API。仅在返回缺少认证时选择以下一种登录方式。
+
+### 方式 1：Device Flow（默认）
 
 ```bash
 # 1. 运行 login，CLI 生成 setup code 并输出授权 URL
-ur login
+ur login --method device
 
 # 2. 在浏览器中打开 URL，登录控制台后创建/选择访问令牌
 # 3. 点击「完成第三方客户端绑定」
 # 4. CLI 自动轮询获取 AK/SK，保存到 ~/.ur/config.json
 
 # 验证连通性
-ur check
+ur check --json
 
 # 调用 API
 ur api /api/v1/system/user/self/get-one
 ```
 
-### 方式 2：AccessKey/JWT（程序化访问）
+### 方式 2：账号密码
 
 ```bash
-# 交互式配置
-ur setup
-
-# 或手动编辑 ~/.ur/config.json
+# 推荐由环境或 stdin 提供秘密；password 必须是原始密码
+UR_PASSWORD='<原始密码>' ur login --method password \
+  --account '<账号>' --tenant-code '<企业编码>' --json
+# 或：printf '%s' "$UR_PASSWORD" | ur login --method password \
+#       --account '<账号>' --tenant-code '<企业编码>' --password-stdin --json
 ```
 
-需要先在平台 UI 创建访问令牌：用户设置 → 访问令牌 → 创建。
-
-### 方式 3：环境变量
+### 方式 3：AccessKey/JWT
 
 ```bash
-export UR_BASE_URL=http://localhost:7777
-export UR_APP_ID=77
-export UR_ACCESS_KEY=xxx
-export UR_ACCESS_SECRET=xxx
-export UR_USER_ID=12345
-export UR_TOKEN=xxx
-export UR_APP=iot
+UR_ACCESS_SECRET='<AccessSecret>' ur login --method aksk \
+  --access-key '<AccessKey>' --tenant-code '<企业编码>' --json
 ```
+
+AK/SK 登录不要求 `userID`。需要先在平台 UI 创建访问令牌：用户设置 → 访问令牌 → 创建。
+
+### 方式 4：Sandbox 环境变量（无需 login）
+
+```bash
+export UR_BASE_URL='<平台地址>'
+export UR_APP_ID='<应用ID>'
+export UR_TENANT_CODE='<企业编码>'
+
+# 以下三组任选一组，不要混用半套凭据：
+export UR_TOKEN='<Session Token>'
+# export UR_ACCESS_KEY='<AccessKey>' UR_ACCESS_SECRET='<AccessSecret>'
+# export UR_ACCOUNT='<账号>' UR_PASSWORD='<原始密码>'
+
+ur check --json
+```
+
+旧 `~/.ur/config.json` 中仅有账号/密码，或同时遗留 Token、AK/SK 的 profile 仍会自动兼容；不要为了升级主动重写或删除它。`ur setup` 仅保留为人类终端的兼容向导，不是 AI 首选入口。
 
 ---
 

@@ -160,7 +160,7 @@ SCENES
   cat > "${skill_dir}/SKILL.md" <<'INDEX'
 ---
 name: ur-api
-description: "联犀 SaaS 平台 API 命令行工具 — 按前端应用拆分为 5 个独立 CLI，每个绑定固定的 app-id 和 tenant-code"
+description: "Use when calling 联犀 SaaS 平台 APIs with the ur CLI, including Sandbox, profile, Device Flow, password, or AK/SK authentication."
 metadata:
   hermes:
     tags: [api, cli, saas, iot]
@@ -168,63 +168,41 @@ metadata:
 
 # ur-api — 联犀 SaaS 平台 API 工具（应用导向）
 
-## ⚠️ 配置指引（首次使用必读）
+## 认证指引（AI 必读）
 
-**禁止在当前对话中向用户索取 AccessKey、AccessSecret、密码等敏感信息。**
+**先运行 `ur --app iot check --json`。** 如果 Sandbox 环境或历史 profile 已认证，直接调用 API；不要删除旧配置、重新执行 `setup` 或再次索取凭据。
 
-### AI 环境中唯一可用的配置方式
+只有缺少认证时才选择一种登录方式：
 
-`ur-xxx setup` 是终端交互式命令（需要逐行输入账号密码），**在当前对话环境中无法使用**。
-
-**唯一可行的配置方式**是设备授权流（Device Flow），AI 分两步完成：
-
-**第 1 步 — 获取授权 URL**：
 ```bash
-ur-iot login --no-wait --json
-```
-输出 JSON 示例：
-```json
-{
-  "verification_url": "https://console.unitedrhino.com/user/access-tokens?setup=ABC123",
-  "setup_code": "ABC123",
-  "expires_in": 600,
-  "hint": "在浏览器中打开 verification_url 完成授权，然后执行: login --setup-code ABC123"
-}
-```
-AI 解析 JSON，向用户展示 `verification_url` 和操作步骤。
+# Device Flow（默认 method，AI 使用分步模式）
+ur --app iot login --method device --no-wait --json
+ur --app iot login --method device --setup-code <CODE> --json
 
-**第 2 步 — 完成授权**（用户确认在浏览器中点击「完成第三方客户端绑定」后）：
-```bash
-ur-iot login --setup-code ABC123 --json
-```
-输出 JSON 示例：
-```json
-{
-  "event": "authorization_complete",
-  "tenant_code": "t1",
-  "access_key": "ak_xxxx",
-  "access_secret": "sk_xxxx"
-}
+# 账号密码：输入原始密码，优先从环境变量或 stdin 读取
+UR_PASSWORD='<原始密码>' ur --app iot login --method password \
+  --account '<账号>' --tenant-code '<企业编码>' --json
+
+# AK/SK：不要求 userID
+UR_ACCESS_SECRET='<AccessSecret>' ur --app iot login --method aksk \
+  --access-key '<AccessKey>' --tenant-code '<企业编码>' --json
 ```
 
-**全程无需在当前对话中输入任何密钥。**
+明文 `--password`、`--access-secret` 仅为兼容，可能进入 shell 历史或进程列表。不得把密码、AccessSecret、完整 Token 写入对话、日志或版本库；密码不得预先 SHA-256，CLI 会且只会摘要一次。
 
-### 人类终端模式（非 AI 环境）
+### Sandbox env-only
 
-如果用户在本地终端直接操作：
-```bash
-# 阻塞模式：生成 URL → 等待用户浏览器授权 → 自动保存配置
-ur-iot login
+设置 `UR_BASE_URL` 后，CLI 只使用环境变量，不读取磁盘 profile 补齐凭据，也不把 Sandbox 凭据持久化。需同时提供 `UR_APP_ID`、`UR_TENANT_CODE` 和以下完整认证组之一：
 
-# 或指定地址跳过交互选择
-ur login --base-url https://saas.unitedrhino.com
-```
+1. `UR_TOKEN`
+2. `UR_ACCESS_KEY` + `UR_ACCESS_SECRET`（`UR_USER_ID` 可选）
+3. `UR_ACCOUNT` + `UR_PASSWORD`（原始密码）
 
-### 认证方式说明
+环境认证优先级为 Token → AK/SK →账号密码。AK/SK 自签 JWT 不能当作 `UR_TOKEN`。
 
-CLI 支持两种认证机制：
-1. **Session Token**（`ur-iot login` 自动获取）：`token:` header
-2. **AccessKey/JWT**（login 完成后自动保存）：AccessKey + AccessSecret → HS256 JWT → `Authorization: Bearer` header
+### 历史 profile
+
+旧 profile 只有账号密码时，`check/api/token` 会自动登录并补充 Session Token；旧 Token 过期时会使用保存的账号密码刷新。升级不迁移、不清空旧 profile。`ur setup` 只保留为人类终端兼容向导。
 
 所有接口均为 POST 方法。请求格式 `{code, msg, data}`。
 

@@ -10,8 +10,9 @@ import (
 )
 
 // runScript 协议脚本相关命令
-//   script validate <file>                校验协议脚本
-//   script template [up-before|up-after|down-before|down-after]  生成脚本模板
+//
+//	script validate <file>                校验协议脚本
+//	script template [up-before|up-after|down-before|down-after]  生成脚本模板
 func runScript(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
 		fmt.Fprintln(stderr, "用法: script validate <file>                    # 校验协议脚本")
@@ -48,10 +49,10 @@ var allowedScriptImports = map[string]bool{
 
 // Handle 函数签名模板（用于校验提示）
 var handleSignatures = map[string]string{
-	"up-before":    "func Handle(ctx context.Context, req *deviceMsg.PublishMsg) *deviceMsg.PublishMsg",
-	"up-after":     "func Handle(ctx context.Context, req *deviceMsg.PublishMsg, resp *deviceMsg.PublishMsg)",
-	"down-before":  "func Handle(ctx context.Context, req *deviceMsg.PublishMsg) *deviceMsg.PublishMsg",
-	"down-after":   "func Handle(ctx context.Context, req *deviceMsg.PublishMsg)",
+	"up-before":   "func Handle(ctx context.Context, req *deviceMsg.PublishMsg) *deviceMsg.PublishMsg",
+	"up-after":    "func Handle(ctx context.Context, req *deviceMsg.PublishMsg, resp *deviceMsg.PublishMsg)",
+	"down-before": "func Handle(ctx context.Context, req *deviceMsg.PublishMsg) *deviceMsg.PublishMsg",
+	"down-after":  "func Handle(ctx context.Context, req *deviceMsg.PublishMsg)",
 }
 
 func runScriptValidate(args []string, stdout, stderr io.Writer) int {

@@ -11,16 +11,17 @@ import (
 )
 
 // runScene 场景联动相关命令
-//   scene validate <file>     校验场景联动 JSON
-//   scene template auto       生成自动触发模板
-//   scene template manual     生成手动触发模板
-//   scene info get-list       查询场景列表
-//   scene info get-one        查询场景详情
-//   scene info create         创建场景
-//   scene info update         更新场景
-//   scene info delete         删除场景
-//   scene info trigger        手动触发场景
-//   scene log get-list        查询场景日志
+//
+//	scene validate <file>     校验场景联动 JSON
+//	scene template auto       生成自动触发模板
+//	scene template manual     生成手动触发模板
+//	scene info get-list       查询场景列表
+//	scene info get-one        查询场景详情
+//	scene info create         创建场景
+//	scene info update         更新场景
+//	scene info delete         删除场景
+//	scene info trigger        手动触发场景
+//	scene log get-list        查询场景日志
 func runScene(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
 		printSceneHelp(stdout)
@@ -560,8 +561,7 @@ func runSceneLogGetList(ctx context.Context, args []string, stdout, stderr io.Wr
 // outputSceneResult 统一输出场景命令结果
 func outputSceneResult(resp client.APIResponse, jsonOutput bool, stdout, stderr io.Writer) int {
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(resp, "", "  ")
-		fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, resp)
 		return 0
 	}
 	if resp.Code != 200 {
@@ -598,29 +598,29 @@ func (v *sceneValidator) warn(path, msg string) {
 
 // 枚举集合
 var (
-	sceneTypes          = setOf("auto", "manual")
-	deviceModes         = setOf("single", "multi")
-	triggerTypes        = setOf("device", "timer", "weather")
-	selectTypes         = setOf("all", "fixed", "area", "areaWithChildren", "group")
-	triggerDeviceModes  = setOf("edge", "level")
-	triggerDeviceTypes  = setOf("connected", "disConnected", "propertyReport", "eventReport")
-	execTypes           = setOf("at", "sunRises", "sunSet", "loop")
-	repeatTypes         = setOf("once", "week", "mount", "allDay", "customRange")
-	weatherTypes        = setOf("temp", "humidity")
-	whenRangeTypes      = setOf("date", "time")
-	dateRangeTypes      = setOf("allDay", "workday", "weekend", "holiday", "customRange", "customWeek")
-	timeRangeTypes      = setOf("allDay", "light", "night", "customRange")
-	termCondTypes       = setOf("and", "or")
-	termColumnTypes     = setOf("property", "event", "time", "weather")
-	actionTypes         = setOf("device", "delay", "notify", "alarm", "scene")
-	actionDeviceTypes   = setOf("propertyControl", "action")
-	notifyTypes         = setOf("sms", "email", "dingTalk", "wxMini", "message", "phoneCall", "wxEWebhook")
-	notifyCodes         = setOf("ruleScene", "ruleDeviceAlarm")
-	notifyUserTypes     = setOf("account", "userID", "deviceOwner", "deviceProjectAdmin", "deviceAreaAdmin", "deviceProjectAll", "deviceAreaAll")
-	alarmModes          = setOf("trigger", "relieve")
-	cmpTypes            = setOf("eq", "not", "btw", "gt", "gte", "lt", "lte", "in", "all")
-	stateKeepTypes      = setOf("duration", "repeat")
-	cmpValuesCount      = map[string]int{"eq": 1, "not": 1, "btw": 2, "gt": 1, "gte": 1, "lt": 1, "lte": 1, "in": -1, "all": 0}
+	sceneTypes         = setOf("auto", "manual")
+	deviceModes        = setOf("single", "multi")
+	triggerTypes       = setOf("device", "timer", "weather")
+	selectTypes        = setOf("all", "fixed", "area", "areaWithChildren", "group")
+	triggerDeviceModes = setOf("edge", "level")
+	triggerDeviceTypes = setOf("connected", "disConnected", "propertyReport", "eventReport")
+	execTypes          = setOf("at", "sunRises", "sunSet", "loop")
+	repeatTypes        = setOf("once", "week", "mount", "allDay", "customRange")
+	weatherTypes       = setOf("temp", "humidity")
+	whenRangeTypes     = setOf("date", "time")
+	dateRangeTypes     = setOf("allDay", "workday", "weekend", "holiday", "customRange", "customWeek")
+	timeRangeTypes     = setOf("allDay", "light", "night", "customRange")
+	termCondTypes      = setOf("and", "or")
+	termColumnTypes    = setOf("property", "event", "time", "weather")
+	actionTypes        = setOf("device", "delay", "notify", "alarm", "scene")
+	actionDeviceTypes  = setOf("propertyControl", "action")
+	notifyTypes        = setOf("sms", "email", "dingTalk", "wxMini", "message", "phoneCall", "wxEWebhook")
+	notifyCodes        = setOf("ruleScene", "ruleDeviceAlarm")
+	notifyUserTypes    = setOf("account", "userID", "deviceOwner", "deviceProjectAdmin", "deviceAreaAdmin", "deviceProjectAll", "deviceAreaAll")
+	alarmModes         = setOf("trigger", "relieve")
+	cmpTypes           = setOf("eq", "not", "btw", "gt", "gte", "lt", "lte", "in", "all")
+	stateKeepTypes     = setOf("duration", "repeat")
+	cmpValuesCount     = map[string]int{"eq": 1, "not": 1, "btw": 2, "gt": 1, "gte": 1, "lt": 1, "lte": 1, "in": -1, "all": 0}
 )
 
 func setOf(vals ...string) map[string]struct{} {

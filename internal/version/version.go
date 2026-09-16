@@ -12,9 +12,11 @@ import (
 
 // Info 统一的版本信息结构
 type Info struct {
-	CLI      CLIVersion  `json:"cli"`
-	Skills   SkillsInfo  `json:"skills,omitempty"`
-	Latest   *LatestInfo `json:"latest,omitempty"`
+	CLI    CLIVersion  `json:"cli"`
+	Skills SkillsInfo  `json:"skills,omitempty"`
+	Latest *LatestInfo `json:"latest,omitempty"`
+	// LatestError 是显式查询远端最新版失败时的错误。
+	LatestError string `json:"latestError,omitempty"`
 }
 
 // CLIVersion CLI 自身的版本信息
@@ -37,6 +39,8 @@ type LatestInfo struct {
 	Version     string `json:"version"`
 	PublishedAt string `json:"publishedAt"`
 	URL         string `json:"url"`
+	// UpToDate 表示当前 CLI 不落后于远端最新版。
+	UpToDate bool `json:"upToDate"`
 }
 
 // 构建时通过 ldflags 注入
@@ -65,7 +69,7 @@ func GetSkillsInfo(binaryPath string) SkillsInfo {
 	}
 
 	count := 0
-	version := "unknown"
+	version := readSkillsVersion(filepath.Join(skillsDir, "_meta.json"))
 	var latestMod time.Time
 
 	for _, entry := range entries {
@@ -81,14 +85,8 @@ func GetSkillsInfo(binaryPath string) SkillsInfo {
 			}
 		}
 		// 读取 _meta.json 获取版本
-		metaFile := filepath.Join(skillsDir, entry.Name(), "_meta.json")
-		if data, err := os.ReadFile(metaFile); err == nil {
-			var meta struct {
-				Version string `json:"version"`
-			}
-			if json.Unmarshal(data, &meta) == nil && meta.Version != "" {
-				version = meta.Version
-			}
+		if version == "unknown" {
+			version = readSkillsVersion(filepath.Join(skillsDir, entry.Name(), "_meta.json"))
 		}
 	}
 
@@ -100,6 +98,21 @@ func GetSkillsInfo(binaryPath string) SkillsInfo {
 		info.UpdatedAt = latestMod.Format(time.RFC3339)
 	}
 	return info
+}
+
+// readSkillsVersion 从指定元数据文件读取 Skills 版本。
+func readSkillsVersion(path string) string {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "unknown"
+	}
+	var meta struct {
+		Version string `json:"version"`
+	}
+	if json.Unmarshal(data, &meta) != nil || meta.Version == "" {
+		return "unknown"
+	}
+	return meta.Version
 }
 
 // IsDev 判断是否为开发版本
@@ -154,9 +167,16 @@ func FormatVersionFull() string {
 
 // FormatVersionJSON 输出 JSON 格式的版本信息
 func FormatVersionJSON(binaryPath string) string {
+	return FormatVersionJSONWithLatest(binaryPath, nil, "")
+}
+
+// FormatVersionJSONWithLatest 输出可选的远端最新版本和查询错误。
+func FormatVersionJSONWithLatest(binaryPath string, latest *LatestInfo, latestError string) string {
 	info := Info{
-		CLI:    GetCLIVersion(),
-		Skills: GetSkillsInfo(binaryPath),
+		CLI:         GetCLIVersion(),
+		Skills:      GetSkillsInfo(binaryPath),
+		Latest:      latest,
+		LatestError: latestError,
 	}
 	data, err := json.MarshalIndent(info, "", "  ")
 	if err != nil {

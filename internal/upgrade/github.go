@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -188,9 +189,109 @@ func (r *Release) FindAsset() *Asset {
 	return nil
 }
 
-// IsNewer 判断 release 版本是否比当前版本新
+// IsNewer 按语义化版本判断 release 版本是否比当前版本新。
 func IsNewer(current, latest string) bool {
-	current = strings.TrimPrefix(current, "v")
-	latest = strings.TrimPrefix(latest, "v")
-	return current != latest && current != "dev"
+	currentVersion, currentOK := parseVersion(current)
+	latestVersion, latestOK := parseVersion(latest)
+	if !currentOK || !latestOK {
+		return false
+	}
+	return compareVersion(latestVersion, currentVersion) > 0
+}
+
+// semanticVersion 保存自动升级需要比较的语义化版本字段。
+type semanticVersion struct {
+	major      int
+	minor      int
+	patch      int
+	prerelease string
+}
+
+// parseVersion 解析 vMAJOR.MINOR.PATCH[-PRERELEASE]，构建元数据不参与比较。
+func parseVersion(value string) (semanticVersion, bool) {
+	value = strings.TrimPrefix(strings.TrimSpace(value), "v")
+	if value == "" || value == "dev" {
+		return semanticVersion{}, false
+	}
+	value = strings.SplitN(value, "+", 2)[0]
+	parts := strings.SplitN(value, "-", 2)
+	numbers := strings.Split(parts[0], ".")
+	if len(numbers) != 3 {
+		return semanticVersion{}, false
+	}
+	parsed := make([]int, 3)
+	for index, number := range numbers {
+		value, err := strconv.Atoi(number)
+		if err != nil || value < 0 {
+			return semanticVersion{}, false
+		}
+		parsed[index] = value
+	}
+	result := semanticVersion{major: parsed[0], minor: parsed[1], patch: parsed[2]}
+	if len(parts) == 2 {
+		result.prerelease = parts[1]
+	}
+	return result, true
+}
+
+// compareVersion 返回 left 相对 right 的顺序，正数表示 left 更新。
+func compareVersion(left, right semanticVersion) int {
+	leftNumbers := []int{left.major, left.minor, left.patch}
+	rightNumbers := []int{right.major, right.minor, right.patch}
+	for index := range leftNumbers {
+		if leftNumbers[index] > rightNumbers[index] {
+			return 1
+		}
+		if leftNumbers[index] < rightNumbers[index] {
+			return -1
+		}
+	}
+	if left.prerelease == right.prerelease {
+		return 0
+	}
+	if left.prerelease == "" {
+		return 1
+	}
+	if right.prerelease == "" {
+		return -1
+	}
+	return comparePrerelease(left.prerelease, right.prerelease)
+}
+
+// comparePrerelease 按 SemVer 规则比较点分隔的预发布标识。
+func comparePrerelease(left, right string) int {
+	leftParts := strings.Split(left, ".")
+	rightParts := strings.Split(right, ".")
+	limit := len(leftParts)
+	if len(rightParts) < limit {
+		limit = len(rightParts)
+	}
+	for index := 0; index < limit; index++ {
+		leftNumber, leftErr := strconv.Atoi(leftParts[index])
+		rightNumber, rightErr := strconv.Atoi(rightParts[index])
+		switch {
+		case leftErr == nil && rightErr == nil:
+			if leftNumber > rightNumber {
+				return 1
+			}
+			if leftNumber < rightNumber {
+				return -1
+			}
+		case leftErr == nil:
+			return -1
+		case rightErr == nil:
+			return 1
+		default:
+			if compared := strings.Compare(leftParts[index], rightParts[index]); compared != 0 {
+				return compared
+			}
+		}
+	}
+	if len(leftParts) > len(rightParts) {
+		return 1
+	}
+	if len(leftParts) < len(rightParts) {
+		return -1
+	}
+	return 0
 }

@@ -1,7 +1,6 @@
 package shared
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -127,8 +126,7 @@ func runSkillsInstall(args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	if jsonOutput {
-		output, _ := json.MarshalIndent(result, "", "  ")
-		fmt.Fprintln(stdout, string(output))
+		_ = writeJSON(stdout, result)
 		if skillinstall.HasErrors(result) {
 			return 1
 		}
@@ -236,8 +234,7 @@ func runSkillsTargetAdd(args []string, stdout, stderr io.Writer) int {
 	}
 	result := map[string]any{"name": name, "type": targetType, "path": directory, "updated": updated}
 	if jsonOutput {
-		output, _ := json.MarshalIndent(result, "", "  ")
-		fmt.Fprintln(stdout, string(output))
+		_ = writeJSON(stdout, result)
 	} else if updated {
 		fmt.Fprintf(stdout, "已更新 Skills 目标 %s → %s\n", name, directory)
 	} else {
@@ -263,8 +260,7 @@ func runSkillsTargetRemove(args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	if jsonOutput {
-		output, _ := json.MarshalIndent(map[string]any{"name": name, "removed": removed}, "", "  ")
-		fmt.Fprintln(stdout, string(output))
+		_ = writeJSON(stdout, map[string]any{"name": name, "removed": removed})
 	} else if removed {
 		fmt.Fprintf(stdout, "已删除 Skills 目标 %s\n", name)
 	} else {
@@ -290,8 +286,7 @@ func parseJSONOnlyArgs(args []string, stderr io.Writer) (bool, bool) {
 // printSkillsTargets 以 JSON 或表格文本输出目标列表。
 func printSkillsTargets(targets []skillinstall.Target, jsonOutput bool, stdout io.Writer) int {
 	if jsonOutput {
-		output, _ := json.MarshalIndent(map[string]any{"targets": targets}, "", "  ")
-		fmt.Fprintln(stdout, string(output))
+		_ = writeJSON(stdout, map[string]any{"targets": targets})
 		return 0
 	}
 	if len(targets) == 0 {
@@ -334,8 +329,7 @@ func runSkillsStatus(args []string, stdout, stderr io.Writer) int {
 	}
 	skillinstall.SortTargetStatuses(result.Targets)
 	if jsonOutput {
-		output, _ := json.MarshalIndent(result, "", "  ")
-		fmt.Fprintln(stdout, string(output))
+		_ = writeJSON(stdout, result)
 	} else {
 		fmt.Fprintf(stdout, "内置 Skills: %s (%s)\n", result.Version, result.Source)
 		if len(result.Targets) == 0 {
@@ -401,8 +395,7 @@ func runSkillsExport(args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	if jsonOutput {
-		encoded, _ := json.MarshalIndent(result, "", "  ")
-		fmt.Fprintln(stdout, string(encoded))
+		_ = writeJSON(stdout, result)
 	} else {
 		fmt.Fprintf(stdout, "Skills ZIP 已导出: %s\n版本: %s\n文件: %d\n大小: %d 字节\n", result.Path, result.Version, result.Files, result.Bytes)
 	}
@@ -507,8 +500,7 @@ func runSkillsList(args []string, stdout, stderr io.Writer) int {
 	}
 
 	if jsonOutput {
-		output, _ := json.MarshalIndent(result, "", "  ")
-		fmt.Fprintln(stdout, string(output))
+		_ = writeJSON(stdout, result)
 		return 0
 	}
 
@@ -555,8 +547,7 @@ func runSkillsUpdate(args []string, stdout, stderr io.Writer) int {
 	result, err := upgrade.UpdateSkills(skillsDir, dryRun)
 	if err != nil {
 		if jsonOutput {
-			output, _ := json.MarshalIndent(result, "", "  ")
-			fmt.Fprintln(stdout, string(output))
+			_ = writeJSON(stdout, result)
 		} else {
 			fmt.Fprintf(stderr, "升级 skills 失败: %v\n", err)
 		}
@@ -564,8 +555,7 @@ func runSkillsUpdate(args []string, stdout, stderr io.Writer) int {
 	}
 
 	if jsonOutput {
-		output, _ := json.MarshalIndent(result, "", "  ")
-		fmt.Fprintln(stdout, string(output))
+		_ = writeJSON(stdout, result)
 		return 0
 	}
 
@@ -598,8 +588,7 @@ func runSkillsVersion(args []string, stdout, stderr io.Writer) int {
 	lastUpdated := upgrade.SkillsLastUpdated(skillsDir)
 
 	if jsonOutput {
-		output := fmt.Sprintf(`{"version": %q, "updatedAt": %q}`, skillsVersion, lastUpdated)
-		fmt.Fprintln(stdout, output)
+		_ = writeJSON(stdout, map[string]any{"version": skillsVersion, "updatedAt": lastUpdated})
 		return 0
 	}
 

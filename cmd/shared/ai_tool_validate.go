@@ -14,14 +14,14 @@ import (
 
 // 组件白名单
 var allowedComponents = map[string]bool{
-	"chart":            true,
-	"metric":           true,
-	"table-cpt":        true,
-	"steps":            true,
-	"status":           true,
-	"alert":            true,
-	"mermaid-diagram":  true,
-	"json-view":        true,
+	"chart":           true,
+	"metric":          true,
+	"table-cpt":       true,
+	"steps":           true,
+	"status":          true,
+	"alert":           true,
+	"mermaid-diagram": true,
+	"json-view":       true,
 }
 
 // JS 禁止的表达式

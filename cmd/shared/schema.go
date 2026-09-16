@@ -103,8 +103,7 @@ func runSchemaBrowse(app config.CLIApp, args []string, stdout, stderr io.Writer)
 	}
 
 	if jsonOutput {
-		raw, _ := json.MarshalIndent(endpoints, "", "  ")
-		_, _ = fmt.Fprintln(stdout, string(raw))
+		_ = writeJSON(stdout, endpoints)
 		return 0
 	}
 	for _, item := range endpoints {

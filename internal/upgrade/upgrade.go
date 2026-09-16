@@ -20,7 +20,7 @@ import (
 type Options struct {
 	TargetVersion string // 指定升级到的版本（为空则升级到最新）
 	DryRun        bool   // 只检查不安装
-	InstallSkills bool   // 升级成功后自动部署 skills 到各 AI 工具（ur skills install）
+	Force         bool   // 已是目标版本时仍重新安装
 }
 
 // Result 升级结果
@@ -36,6 +36,12 @@ type Result struct {
 	SkillsUpdated int `json:"skillsUpdated,omitempty"`
 	// SkillsMessage skills 同步的提示或警告信息
 	SkillsMessage string `json:"skillsMessage,omitempty"`
+	// SkillsInstalled 表示内置 Skills 已部署到客户端目标。
+	SkillsInstalled bool `json:"skillsInstalled,omitempty"`
+	// SkillsInstallTargets 是成功部署的客户端目标数量。
+	SkillsInstallTargets int `json:"skillsInstallTargets,omitempty"`
+	// SkillsInstallError 是客户端 Skills 部署失败信息。
+	SkillsInstallError string `json:"skillsInstallError,omitempty"`
 }
 
 // Check 检查是否有新版本可用
@@ -76,7 +82,7 @@ func Perform(opts Options) (*Result, error) {
 	}
 
 	// 2. 检查是否需要升级
-	if opts.TargetVersion == "" && !IsNewer(version.BuildVersion, release.TagName) {
+	if opts.TargetVersion == "" && !opts.Force && !IsNewer(version.BuildVersion, release.TagName) {
 		return &Result{
 			CurrentVersion: version.BuildVersion,
 			LatestVersion:  release.TagName,

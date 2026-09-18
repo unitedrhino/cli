@@ -325,6 +325,21 @@ release_github() {
       echo "FAILED"
       upload_failed=1
     fi
+    # 主流平台额外上传版本无关别名包:releases/latest/download/<固定名>
+    # 永久直链指向最新版,AI/脚本下载免查版本号
+    case "$fname" in
+      ur-cli-${VERSION}-Linux-x86_64.tar.gz|ur-cli-${VERSION}-Linux-aarch64.tar.gz|\
+      ur-cli-${VERSION}-macOS-x86_64.tar.gz|ur-cli-${VERSION}-macOS-arm64.tar.gz|\
+      ur-cli-${VERSION}-Windows-x86_64.zip)
+        local alias_name="${fname/${VERSION}-/}"
+        if github_curl -X POST \
+          -H "Content-Type: application/octet-stream" \
+          "${upload_url}?name=${alias_name}" \
+          --data-binary "@$asset" >/dev/null; then
+          echo "[github] 别名包 ${alias_name} OK"
+        fi
+        ;;
+    esac
   done
 
   if [[ "${upload_failed}" -ne 0 ]]; then

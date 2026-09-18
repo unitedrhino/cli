@@ -118,17 +118,7 @@ ur skills download --json
 
 #### 安装 CLI
 
-**方式零 — 一键安装脚本（Linux / macOS 推荐）：**
-
-```bash
-# 自动选平台、自动查最新版、SHA256 校验;国内默认 Gitee 源(GitHub 可达时自动优选)
-curl -fsSL https://gitee.com/unitedrhino/cli/raw/main/scripts/install.sh | bash
-# 指定版本/来源: curl -fsSL ... | bash -s -- --version v0.7.0 --source github
-```
-
-Windows(PowerShell)一键安装:下载 `scripts/install.ps1` 后执行,或参考下方方式一。
-
-**方式一 — 下载预编译二进制：**
+**方式一 — 下载预编译二进制（推荐）：**
 
 ```bash
 # 1. 确定平台（注意使用 release 资产中的友好平台名）
@@ -249,13 +239,12 @@ ur generate-skills --output ./my-skills/
 **一键安装 + 认证（AI 自动执行）**
 
 ```bash
-# 1. 下载对应平台的 release（AI 根据用户系统自动选择 PLATFORM）
-VERSION="v0.4.1"
-PLATFORM="Linux-x86_64"   # Linux-x86_64 / Linux-aarch64 / macOS-x86_64 / macOS-arm64 / Windows-x86_64
-
-# Linux / macOS：解压完整发布包（包内为 <goos>-<goarch>/{ur, skill/}），
-# 保持 ur 二进制与 skill/ 目录同级，再把 ur 暴露到 PATH
-curl -L "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz" -o /tmp/ur-cli.tar.gz
+# 1. 下载（推荐:版本无关永久直链,总是最新版,免查版本号）
+#    平台名: Linux-x86_64 / Linux-aarch64 / macOS-x86_64 / macOS-arm64 / Windows-x86_64
+curl -L "https://github.com/unitedrhino/cli/releases/latest/download/ur-cli-Linux-x86_64.tar.gz" -o /tmp/ur-cli.tar.gz
+# 国内直连 GitHub 慢时,用 Gitee 指定版本(Gitee 无 latest 直链,版本号见 https://gitee.com/unitedrhino/cli/releases):
+# curl -L "https://gitee.com/unitedrhino/cli/releases/download/v0.7.0/ur-cli-v0.7.0-Linux-x86_64.tar.gz" -o /tmp/ur-cli.tar.gz
+# 需要钉住历史版本时: https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz
 mkdir -p ~/.local/lib/ur && tar -xzf /tmp/ur-cli.tar.gz -C ~/.local/lib/ur --strip-components=1
 mkdir -p ~/.local/bin && ln -sf ~/.local/lib/ur/ur ~/.local/bin/ur
 

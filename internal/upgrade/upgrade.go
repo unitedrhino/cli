@@ -92,6 +92,15 @@ func Perform(opts Options) (*Result, error) {
 
 	// 3. 查找匹配当前平台的资源
 	asset := release.FindAsset()
+	// Gitee 只承载主流平台资产(完整跨平台见 GitHub);主流源缺平台包时
+	// 回退 GitHub release,保证非主流平台旧版升级能力
+	if asset == nil && release.Source == "gitee" && opts.TargetVersion == "" {
+		if ghRelease, ghErr := fetchLatestReleaseFromGitHub(); ghErr == nil {
+			if ghAsset := ghRelease.FindAsset(); ghAsset != nil {
+				release, asset = ghRelease, ghAsset
+			}
+		}
+	}
 	if asset == nil {
 		err := fmt.Errorf("未找到适配当前平台 (%s) 的安装包", platformReleaseName())
 		return &Result{

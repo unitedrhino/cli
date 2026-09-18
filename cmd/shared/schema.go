@@ -35,7 +35,7 @@ func runSchema(app config.CLIApp, args []string, stdout, stderr io.Writer) int {
 
 // printSchemaHelp 打印物模型管理帮助信息
 func printSchemaHelp(w io.Writer) {
-	fmt.Fprintln(w, "Usage: ur schema <subcommand> [options]")
+	fmt.Fprintln(w, "Usage: ur things schema <subcommand> [options]")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "Thing model (schema) management and API browsing")
 	fmt.Fprintln(w, "")
@@ -51,13 +51,13 @@ func printSchemaHelp(w io.Writer) {
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "Examples:")
 	fmt.Fprintln(w, "  # Query product schema")
-	fmt.Fprintln(w, "  ur schema get-list -p p_smartswitch_001")
+	fmt.Fprintln(w, "  ur things schema get-list -p p_smartswitch_001 --json")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "  # Query device schema")
-	fmt.Fprintln(w, "  ur schema get-list -p p_smartswitch_001 -d switch-001")
+	fmt.Fprintln(w, "  ur things schema get-list -p p_smartswitch_001 -d switch-001 --json")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "  # Browse API endpoints")
-	fmt.Fprintln(w, "  ur schema browse /api/v1/things/device")
+	fmt.Fprintln(w, "  ur things schema browse /api/v1/things/device")
 }
 
 // runSchemaBrowse 执行 swagger 浏览命令
@@ -169,6 +169,10 @@ func runSchemaModel(subCmd string, args []string, stdout, stderr io.Writer) int 
 
 // runSchemaModelGetList 执行查询物模型列表命令
 func runSchemaModelGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if hasHelpArg(args) {
+		printSchemaModelGetListHelp(stdout)
+		return 0
+	}
 	productID, deviceName, jsonOutput, _, err := parseSchemaModelParams(args)
 	if err != nil {
 		fmt.Fprintf(stderr, "Error: %v\n", err)
@@ -198,6 +202,16 @@ func runSchemaModelGetList(ctx context.Context, args []string, stdout, stderr io
 	}
 
 	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// printSchemaModelGetListHelp 打印物模型查询命令的完整参数和嵌套命令路径。
+func printSchemaModelGetListHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur things schema get-list [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Options:")
+	fmt.Fprintln(w, "  -p, --product-id string    Product ID (required)")
+	fmt.Fprintln(w, "  -d, --device-name string   Device name (optional)")
+	fmt.Fprintln(w, "  -j, --json                 Output in JSON format")
 }
 
 // runSchemaModelCreate 执行创建物模型命令

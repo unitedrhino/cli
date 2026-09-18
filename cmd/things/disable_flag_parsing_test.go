@@ -1,6 +1,6 @@
 // disable_flag_parsing_test.go — things 组命令 DisableFlagParsing 防回归测试
 //
-// 背景：agg/area/device/model/ota/project/scene/script 八个命令走 cmd/shared
+// 背景：agg/area/device/model/ota/project/scene/schema/script 九个命令走 cmd/shared
 // 的手工参数解析（wrapOldCommand 桥接旧命令实现），自身不注册任何 cobra flag。
 // 若 cobra.Command 缺少 DisableFlagParsing: true，cobra 会把 -p/-d/--data-id 等
 // 参数当未注册 flag 拦截（unknown shorthand flag），导致这些命令完全不可用
@@ -14,10 +14,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// thingsManualParseCmds 依赖手工参数解析、必须设置 DisableFlagParsing 的八个命令名
-var thingsManualParseCmds = []string{"agg", "area", "device", "model", "ota", "project", "scene", "script"}
+// thingsManualParseCmds 依赖手工参数解析、必须设置 DisableFlagParsing 的九个命令名。
+var thingsManualParseCmds = []string{"agg", "area", "device", "model", "ota", "project", "scene", "schema", "script"}
 
-// TestThingsCmdsDisableFlagParsing 定义级断言：ThingsCmd 下八个命令均设置了
+// TestThingsCmdsDisableFlagParsing 定义级断言：ThingsCmd 下九个命令均设置了
 // DisableFlagParsing: true，防止后续新增/重构时遗漏导致命令被 cobra 拦截
 func TestThingsCmdsDisableFlagParsing(t *testing.T) {
 	byName := map[string]*cobra.Command{}

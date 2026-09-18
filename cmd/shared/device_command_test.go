@@ -2,13 +2,71 @@
 package shared
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+
+	"gitee.com/unitedrhino/cli/internal/config"
 )
+
+// TestDomainCommandHelpUsesNestedPaths 验证 AI 读取帮助时得到可直接执行的完整命令路径。
+func TestDomainCommandHelpUsesNestedPaths(t *testing.T) {
+	tests := []struct {
+		name string
+		run  func(io.Writer) int
+		want string
+	}{
+		{
+			name: "设备列表",
+			run: func(stdout io.Writer) int {
+				return runDevice(context.Background(), []string{"info", "get-list", "--help"}, stdout, io.Discard)
+			},
+			want: "Usage: ur things device info get-list",
+		},
+		{
+			name: "产品物模型",
+			run: func(stdout io.Writer) int {
+				return runSchema(config.AppIoT, []string{"get-list", "--help"}, stdout, io.Discard)
+			},
+			want: "Usage: ur things schema get-list",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var stdout bytes.Buffer
+			if exitCode := tc.run(&stdout); exitCode != 0 {
+				t.Fatalf("exit=%d", exitCode)
+			}
+			if !strings.Contains(stdout.String(), tc.want) {
+				t.Fatalf("help=%q, want %q", stdout.String(), tc.want)
+			}
+		})
+	}
+}
+
+// TestDeviceInfoGetListProjectHeader 验证设备列表命令将字符串项目 ID 放入请求头。
+func TestDeviceInfoGetListProjectHeader(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := r.Header.Get("project-id"); got != "9007199254740993" {
+			t.Fatalf("project-id=%q", got)
+		}
+		_, _ = io.WriteString(w, `{"code":200,"data":{"list":[],"total":0}}`)
+	}))
+	defer server.Close()
+	setDeviceCommandTestEnv(t, server.URL)
+
+	exitCode := runDevice(context.Background(), []string{
+		"info", "get-list", "--project-id", "9007199254740993", "--json",
+	}, io.Discard, io.Discard)
+	if exitCode != 0 {
+		t.Fatalf("exit=%d", exitCode)
+	}
+}
 
 // TestDeviceControlCloudOnly 验证云端属性修改使用字符串 data、模式 4 与字符串项目头。
 func TestDeviceControlCloudOnly(t *testing.T) {

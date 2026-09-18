@@ -2009,7 +2009,7 @@ func runDeviceInfo(ctx context.Context, args []string, stdout, stderr io.Writer)
 
 // printDeviceInfoHelp 打印设备信息管理帮助信息
 func printDeviceInfoHelp(w io.Writer) {
-	fmt.Fprintln(w, "Usage: ur device info <subcommand> [options]")
+	fmt.Fprintln(w, "Usage: ur things device info <subcommand> [options]")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "Device information management")
 	fmt.Fprintln(w, "")
@@ -2053,7 +2053,13 @@ func parseInfoListParams(args []string) (jsonOutput bool, page, size int, remain
 
 // runDeviceInfoGetList 执行查询设备列表命令
 func runDeviceInfoGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	if hasHelpArg(args) {
+		printDeviceInfoGetListHelp(stdout)
+		return 0
+	}
 	jsonOutput, page, size, remaining := parseInfoListParams(args)
+	projectID := ""
+	projectIDSet := false
 
 	reqBody := map[string]any{
 		"page": map[string]any{"page": page, "size": size},
@@ -2088,19 +2094,31 @@ func runDeviceInfoGetList(ctx context.Context, args []string, stdout, stderr io.
 				i++
 			}
 		case "--project-id":
-			if i+1 < len(remaining) {
-				reqBody["projectID"] = remaining[i+1]
-				i++
+			if i+1 >= len(remaining) {
+				fmt.Fprintln(stderr, "--project-id requires value")
+				return 2
 			}
+			projectID, projectIDSet = remaining[i+1], true
+			i++
 		default:
+			if strings.HasPrefix(remaining[i], "--project-id=") {
+				projectID, projectIDSet = strings.TrimPrefix(remaining[i], "--project-id="), true
+				continue
+			}
 			fmt.Fprintf(stderr, "unknown option: %s\n", remaining[i])
 			return 2
 		}
 	}
+	headers := map[string]string{}
+	if err := client.ApplyProjectID(headers, projectID, projectIDSet, os.Getenv("UR_PROJECT_ID")); err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
 
 	resp, err := client.DoAPI(ctx, client.APIRequest{
-		Path: "/api/v1/things/device/info/get-list",
-		Body: reqBody,
+		Path:    "/api/v1/things/device/info/get-list",
+		Body:    reqBody,
+		Headers: headers,
 	})
 	if err != nil {
 		fmt.Fprintf(stderr, "API error: %v\n", err)
@@ -2108,6 +2126,29 @@ func runDeviceInfoGetList(ctx context.Context, args []string, stdout, stderr io.
 	}
 
 	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// printDeviceInfoGetListHelp 打印项目内设备列表查询参数。
+func printDeviceInfoGetListHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur things device info get-list [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Options:")
+	fmt.Fprintln(w, "  -p, --product-id string    Product ID filter")
+	fmt.Fprintln(w, "  -d, --device-name string   Device name filter")
+	fmt.Fprintln(w, "  --project-id string        Project ID (default: UR_PROJECT_ID)")
+	fmt.Fprintln(w, "  --page int                 Page number (default: 1)")
+	fmt.Fprintln(w, "  --size int                 Page size (default: 20)")
+	fmt.Fprintln(w, "  -j, --json                 Output in JSON format")
+}
+
+// hasHelpArg 判断手工解析命令是否请求帮助。
+func hasHelpArg(args []string) bool {
+	for _, arg := range args {
+		if arg == "help" || arg == "--help" || arg == "-h" {
+			return true
+		}
+	}
+	return false
 }
 
 // runDeviceInfoGetOne 执行查询设备详情命令

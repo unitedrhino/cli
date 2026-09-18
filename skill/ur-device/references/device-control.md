@@ -6,8 +6,8 @@
 
 | 用户目的 | 写入方式 | 验证依据 |
 |---|---|---|
-| 云端模拟、演示值、只改平台属性且不下发 | `ur api /api/v1/things/device/interact/property-control-send`，显式 `shadowControl=4` | 最新属性 + `propertyControlSend` 操作日志；不承诺标准上报的历史/告警链路 |
-| 模拟设备上报，验证历史、规则、告警 | `ur api /api/v1/things/device/simulate/report`，走标准属性上报链路 | 最新属性 + 用户要求的历史/规则/告警结果；可能触发自动化，限已授权测试设备 |
+| 云端模拟、演示值、只改平台属性且不下发 | `ur things device control ... --shadow-control 4 --project-id <项目ID>` | 最新属性 + `propertyControlSend` 操作日志；不承诺标准上报的历史/告警链路 |
+| 模拟设备上报，验证历史、规则、告警 | `ur things device simulate-report ... --project-id <项目ID>`，走标准属性上报链路 | 最新属性 + 用户要求的历史/规则/告警结果；可能触发自动化，限已授权测试设备 |
 | 真正开灯、设置实体设备属性 | 属性控制接口，根据明确要求选择实时下发或设备影子模式 | 控制响应与设备回执/实际状态；不得用云端改值假装控制成功 |
 | 只生成样例、不写平台 | 生成本地值或使用 `mock`，不调用写入接口 | 展示生成结果，不宣称设备值已改变 |
 
@@ -15,9 +15,9 @@
 
 ### 目标、项目与物模型
 
-1. 从当前任务上下文取得项目 ID，始终保持字符串。项目接口使用 `ur api ... --project-id "$UR_PROJECT_ID"`；先核实 `ur api --help` 支持该参数。旧 CLI 不支持时提示升级，不静默省略项目上下文。
-2. 查询当前项目的设备，核对 `productID`、`deviceName`（唯一标识，不是显示别名）及项目归属；查不到或同名多个时询问，不选列表第一项或其他项目设备。未明确授权不得自动新建设备。
-3. 查询设备合并后的物模型，按返回的 identifier 原样使用，不能假设必须大驼峰；检查类型、范围、枚举、步长与当前用户权限。物模型 mode 与用户授权不是一回事：实体控制须确认设备支持写入；云端模拟不能仅因传感器属性 mode=r 就改走其他接口或擅自修改物模型，仍由云端接口校验权限与数据。用户范围超出物模型时提示冲突，不能私自扩大。
+1. 从当前任务上下文取得项目 ID，始终保持字符串。设备领域命令显式传 `--project-id "$UR_PROJECT_ID"`；先核实命令帮助支持该参数。旧 CLI 不支持时提示升级，不静默省略项目上下文，也不优先退回通用 `ur api`。
+2. 使用 `ur things device info get-list --project-id "$UR_PROJECT_ID" --json` 查询当前项目的设备，核对 `productID`、`deviceName`（唯一标识，不是显示别名）及项目归属；查不到或同名多个时询问，不选列表第一项或其他项目设备。未明确授权不得自动新建设备。
+3. 使用 `ur things schema get-list -p '<productID>' --json` 查询设备合并后的物模型，不要写成对应的 `ur api` 路径。按返回的 identifier 原样使用，不能假设必须大驼峰；检查类型、范围、枚举、步长与当前用户权限。物模型 mode 与用户授权不是一回事：实体控制须确认设备支持写入；云端模拟不能仅因传感器属性 mode=r 就改走其他接口或擅自修改物模型，仍由云端接口校验权限与数据。用户范围超出物模型时提示冲突，不能私自扩大。
 4. 平台注入任务创建者的 AK/SK、应用和项目环境；继承环境即可。不在代码/对话中写密钥，不构造 UR_TOKEN，不借用其他用户身份。
 
 ### 云端模拟的完整请求合同
@@ -25,12 +25,16 @@
 以下示例仅在查询确认目标设备、`temperature` 标识和数值合法后替换占位符执行：
 
 ```bash
-ur api /api/v1/things/device/interact/property-control-send \
+ur things device control \
+  --product-id '<productID>' \
+  --device-name '<deviceName>' \
+  --data '{"temperature":25.5}' \
+  --shadow-control 4 \
   --project-id "$UR_PROJECT_ID" \
-  --body '{"productID":"<productID>","deviceName":"<deviceName>","data":"{\"temperature\":25.5}","shadowControl":4}'
+  --json
 ```
 
-这里 HTTP 请求的 `data` 是 **JSON 字符串**，不是对象。在 JavaScript 中先 `JSON.stringify({ [identifier]: value })` 作为 body.data，再序列化整个 body 传给 `--body`。CLI 的 `--data` 参数是另一层包装，不能据此推断 HTTP data 类型。
+命令的 `--data` 接受 JSON 对象，并负责按后端合同编码成字符串字段；生成代码不要自行拼两层 JSON，也不要改用通用 API 绕过命令校验。
 
 控制成功必须同时满足：CLI 退出码 0、响应外层 `code===200`、存在内层 `data.code===200`；内层缺失或失败均报错。再查询最新属性和操作日志核对值与时间，不能只看外层 200。
 
@@ -38,13 +42,13 @@ ur api /api/v1/things/device/interact/property-control-send \
 
 ### 模拟上报的不同合同
 
-`/api/v1/things/device/simulate/report` 的 body.data 则是属性值为字符串的对象，例如 `{"projectID":"<projectID>","productID":"<productID>","deviceName":"<deviceName>","data":{"temperature":"25.5"}}`。它返回外层成功码，不能套用控制接口的内层 code 要求。先核实环境已提供该接口；不要为模拟测试索取设备密钥、改用需要设备认证的 edge 上报接口或混用两种 data 类型。用户要求不影响实体时，还必须检查相关规则/告警联动是否会间接下发；无法确认安全时先询问，不先上报再解释副作用。
+使用 `ur things device simulate-report --product-id '<productID>' --device-name '<deviceName>' --data '{"temperature":"25.5"}' --project-id "$UR_PROJECT_ID" --json`。这里 `--data` 的属性值必须是字符串，命令调用 `/api/v1/things/device/simulate/report` 并按外层成功码判断结果，不能套用控制接口的内层 code 要求。先核实 CLI 与环境已提供该命令；不要为模拟测试索取设备密钥、改用需要设备认证的传统 `report` 命令或混用两种 data 类型。用户要求不影响实体时，还必须检查相关规则/告警联动是否会间接下发；无法确认安全时先询问，不先上报再解释副作用。
 
 ### 生成 executor.js 时
 
 - 脚本每次只执行一次业务操作，频率/次数交给任务调度，不写无限循环或内部定时器。
 - 对于物模型允许的 20～30、步长 0.5，离散随机公式为 `20 + Math.floor(Math.random() * 21) * 0.5`；检查上下界，其他范围按真实物模型计算。
-- 用 `Bun.spawn` 的参数数组调用 ur，继承环境，不拼接 shell 命令。并行读取 stdout/stderr，并以 `const exitCode = await proc.exited` 取得最终退出码；禁止读取可能仍为 `null` 的 `proc.exitCode`。
+- 优先用上述 `ur things device` 领域命令；只有领域命令确实不覆盖需求时才使用 `ur api`。用 `Bun.spawn` 的参数数组调用 ur，继承环境，不拼接 shell 命令。并行读取 stdout/stderr，并以 `const exitCode = await proc.exited` 取得最终退出码；禁止读取可能仍为 `null` 的 `proc.exitCode`。
 - 项目输入若提供，必须是非空、无首尾空白且与执行上下文一致的字符串，禁止 Number/String 强转掩盖错误；创建者凭证缺失时明确失败。
 - 失败必须抛错或 `console.error(...)` 后 `process.exit(1)`；禁止 catch 后在 stdout 输出 `{code:500}` 再正常退出，因为进程 0 会造成假成功。成功才在 stdout 最后一行输出结果 JSON。生成并实际保存 executor.js、manifest.json、skill.md 后才告知完成，不把聊天中的代码块当作已保存产物。
 
@@ -56,13 +60,13 @@ ur api /api/v1/things/device/interact/property-control-send \
 ur things device <subcommand> [选项]
 ```
 
-子命令：`control`、`action`、`mock`、`report`、`upload`
+子命令：`control`、`action`、`mock`、`simulate-report`、`report`、`upload`
 
 ---
 
 ## control — 发送属性控制命令
 
-向设备发送属性控制指令；是否写影子由所选控制模式决定。云端模拟请使用上方明确设置模式 4 的通用接口调用。
+向设备发送属性控制指令；是否写影子由所选控制模式决定。云端模拟使用 `--shadow-control 4`。
 
 ### 参数说明
 
@@ -71,6 +75,8 @@ ur things device <subcommand> [选项]
 | --product-id | -p | 是 | string | 产品ID |
 | --device-name | -d | 是 | string | 设备名称 |
 | --data | | 是 | JSON | 属性键值对 JSON |
+| --shadow-control | | 否 | int | 控制模式；云端模拟固定使用 4 |
+| --project-id | | 否 | string | 项目 ID，默认读取 `UR_PROJECT_ID` |
 | --json | -j | 否 | bool | 输出JSON格式 |
 
 ### 使用示例

@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -35,6 +37,8 @@ func runDevice(ctx context.Context, args []string, stdout, stderr io.Writer) int
 		return runDeviceMock(ctx, args[1:], stdout, stderr)
 	case "report":
 		return runDeviceReport(ctx, args[1:], stdout, stderr)
+	case "simulate-report":
+		return runDeviceSimulateReport(ctx, args[1:], stdout, stderr)
 	case "info":
 		return runDeviceInfo(ctx, args[1:], stdout, stderr)
 	case "gateway":
@@ -792,6 +796,12 @@ func runDeviceLogSDK(ctx context.Context, args []string, stdout, stderr io.Write
 
 // runDeviceControl 执行设备属性控制命令
 func runDeviceControl(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	for _, arg := range args {
+		if arg == "help" || arg == "--help" || arg == "-h" {
+			printDeviceControlHelp(stdout)
+			return 0
+		}
+	}
 	productID, deviceName, jsonOutput, remaining, err := parseDeviceParams(args)
 	if err != nil {
 		fmt.Fprintf(stderr, "Error: %v\n", err)
@@ -801,6 +811,10 @@ func runDeviceControl(ctx context.Context, args []string, stdout, stderr io.Writ
 
 	// 解析属性控制特定参数
 	data := ""
+	projectID := ""
+	projectIDSet := false
+	shadowControl := int64(0)
+	shadowControlSet := false
 
 	for i := 0; i < len(remaining); i++ {
 		switch remaining[i] {
@@ -811,7 +825,30 @@ func runDeviceControl(ctx context.Context, args []string, stdout, stderr io.Writ
 			}
 			data = remaining[i+1]
 			i++
+		case "--shadow-control":
+			if i+1 >= len(remaining) {
+				fmt.Fprintln(stderr, "--shadow-control requires value")
+				return 2
+			}
+			shadowControl, err = strconv.ParseInt(remaining[i+1], 10, 64)
+			if err != nil || shadowControl < 0 || shadowControl > 4 {
+				fmt.Fprintln(stderr, "--shadow-control must be an integer between 0 and 4")
+				return 2
+			}
+			shadowControlSet = true
+			i++
+		case "--project-id":
+			if i+1 >= len(remaining) || strings.HasPrefix(remaining[i+1], "--") {
+				fmt.Fprintln(stderr, "--project-id requires value")
+				return 2
+			}
+			projectID, projectIDSet = remaining[i+1], true
+			i++
 		default:
+			if strings.HasPrefix(remaining[i], "--project-id=") {
+				projectID, projectIDSet = strings.TrimPrefix(remaining[i], "--project-id="), true
+				continue
+			}
 			fmt.Fprintf(stderr, "unknown control option: %s\n", remaining[i])
 			printDeviceControlHelp(stderr)
 			return 2
@@ -835,13 +872,22 @@ func runDeviceControl(ctx context.Context, args []string, stdout, stderr io.Writ
 	reqBody := map[string]any{
 		"productID":  productID,
 		"deviceName": deviceName,
-		"data":       dataMap,
+		"data":       data,
+	}
+	if shadowControlSet {
+		reqBody["shadowControl"] = shadowControl
+	}
+	headers := map[string]string{}
+	if err := client.ApplyProjectID(headers, projectID, projectIDSet, os.Getenv("UR_PROJECT_ID")); err != nil {
+		fmt.Fprintln(stderr, err)
+		return 2
 	}
 
 	// 调用 API
 	resp, err := client.DoAPI(ctx, client.APIRequest{
-		Path: "/api/v1/things/device/interact/property-control-send",
-		Body: reqBody,
+		Path:    "/api/v1/things/device/interact/property-control-send",
+		Body:    reqBody,
+		Headers: headers,
 	})
 	if err != nil {
 		fmt.Fprintf(stderr, "API error: %v\n", err)
@@ -850,9 +896,15 @@ func runDeviceControl(ctx context.Context, args []string, stdout, stderr io.Writ
 
 	// 输出结果
 	if jsonOutput {
-		_ = writeJSON(stdout, resp)
+		if err := writeJSON(stdout, resp); err != nil {
+			fmt.Fprintf(stderr, "Error: %v\n", err)
+			return 1
+		}
+		if !deviceControlResponseOK(resp) {
+			return 1
+		}
 	} else {
-		if resp.Code != 200 {
+		if !deviceControlResponseOK(resp) {
 			fmt.Fprintf(stderr, "Error: %s\n", resp.Msg)
 			return 1
 		}
@@ -860,6 +912,104 @@ func runDeviceControl(ctx context.Context, args []string, stdout, stderr io.Writ
 	}
 
 	return 0
+}
+
+// deviceControlResponseOK 同时校验属性控制接口的外层与内层业务码。
+func deviceControlResponseOK(resp client.APIResponse) bool {
+	if resp.Code != 200 {
+		return false
+	}
+	data, ok := resp.Data.(map[string]any)
+	if !ok {
+		return false
+	}
+	switch code := data["code"].(type) {
+	case float64:
+		return code == 200
+	case int:
+		return code == 200
+	case int64:
+		return code == 200
+	case json.Number:
+		return code.String() == "200"
+	default:
+		return false
+	}
+}
+
+// runDeviceSimulateReport 执行管理员模拟设备属性上报命令。
+// 该命令使用登录用户权限，不读取设备密钥，也不替代需要设备身份的 report 命令。
+func runDeviceSimulateReport(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	for _, arg := range args {
+		if arg == "help" || arg == "--help" || arg == "-h" {
+			printDeviceSimulateReportHelp(stdout)
+			return 0
+		}
+	}
+	productID, deviceName, jsonOutput, remaining, err := parseDeviceParams(args)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		printDeviceSimulateReportHelp(stderr)
+		return 2
+	}
+	data := ""
+	projectID := ""
+	projectIDSet := false
+	for i := 0; i < len(remaining); i++ {
+		switch remaining[i] {
+		case "--data":
+			if i+1 >= len(remaining) {
+				fmt.Fprintln(stderr, "--data requires value")
+				return 2
+			}
+			data = remaining[i+1]
+			i++
+		case "--project-id":
+			if i+1 >= len(remaining) || strings.HasPrefix(remaining[i+1], "--") {
+				fmt.Fprintln(stderr, "--project-id requires value")
+				return 2
+			}
+			projectID, projectIDSet = remaining[i+1], true
+			i++
+		default:
+			if strings.HasPrefix(remaining[i], "--project-id=") {
+				projectID, projectIDSet = strings.TrimPrefix(remaining[i], "--project-id="), true
+				continue
+			}
+			fmt.Fprintf(stderr, "unknown simulate-report option: %s\n", remaining[i])
+			printDeviceSimulateReportHelp(stderr)
+			return 2
+		}
+	}
+	if data == "" {
+		fmt.Fprintln(stderr, "--data is required")
+		printDeviceSimulateReportHelp(stderr)
+		return 2
+	}
+	dataMap := map[string]string{}
+	if err := json.Unmarshal([]byte(data), &dataMap); err != nil || len(dataMap) == 0 {
+		fmt.Fprintln(stderr, "Error: --data must be a non-empty JSON object with string values")
+		return 2
+	}
+	headers := map[string]string{}
+	if err := client.ApplyProjectID(headers, projectID, projectIDSet, os.Getenv("UR_PROJECT_ID")); err != nil {
+		fmt.Fprintln(stderr, err)
+		return 2
+	}
+	resp, err := client.DoAPI(ctx, client.APIRequest{
+		Path: "/api/v1/things/device/simulate/report",
+		Body: map[string]any{
+			"productID":  productID,
+			"deviceName": deviceName,
+			"data":       dataMap,
+		},
+		Headers: headers,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "API error: %v\n", err)
+		return 1
+	}
+	return outputResult(resp, jsonOutput, stdout, stderr)
 }
 
 // runDeviceAction 执行设备行为调用命令
@@ -1600,6 +1750,8 @@ func printDeviceControlHelp(w io.Writer) {
 	fmt.Fprintln(w, "  -p, --product-id string    Product ID (required)")
 	fmt.Fprintln(w, "  -d, --device-name string   Device name (required)")
 	fmt.Fprintln(w, "  --data string              Property key-value pairs JSON (required)")
+	fmt.Fprintln(w, "  --shadow-control int       Control mode: 0=auto, 1=realtime, 2=shadow only, 3=cloud only, 4=cloud only with log")
+	fmt.Fprintln(w, "  --project-id string        Project ID (default: UR_PROJECT_ID)")
 	fmt.Fprintln(w, "  -j, --json                 Output in JSON format")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "Examples:")
@@ -1611,6 +1763,26 @@ func printDeviceControlHelp(w io.Writer) {
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "  # Control multiple properties")
 	fmt.Fprintln(w, "  ur device control -p p_smartswitch_001 -d switch-001 --data '{\"PowerSwitch\": 1, \"Brightness\": 80}'")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "  # Update cloud value only and record an operation log")
+	fmt.Fprintln(w, "  ur device control -p p_sensor_001 -d sensor-001 --data '{\"Temperature\": 25.5}' --shadow-control 4 --project-id 123")
+}
+
+// printDeviceSimulateReportHelp 打印管理员模拟设备上报帮助信息。
+func printDeviceSimulateReportHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur device simulate-report [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Simulate a device property report through the platform ingestion pipeline")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Options:")
+	fmt.Fprintln(w, "  -p, --product-id string    Product ID (required)")
+	fmt.Fprintln(w, "  -d, --device-name string   Device name (required)")
+	fmt.Fprintln(w, "  --data string              Property values as a JSON object of strings (required)")
+	fmt.Fprintln(w, "  --project-id string        Project ID (default: UR_PROJECT_ID)")
+	fmt.Fprintln(w, "  -j, --json                 Output in JSON format")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Example:")
+	fmt.Fprintln(w, "  ur device simulate-report -p p_sensor_001 -d sensor-001 --data '{\"Temperature\":\"25.5\"}' --project-id 123")
 }
 
 // printDeviceLogSDKHelp 打印 SDK 日志查询帮助信息
@@ -2221,6 +2393,7 @@ func printDeviceHelp(w io.Writer) {
 	fmt.Fprintln(w, "  action     Call device action (send, get, resp)")
 	fmt.Fprintln(w, "  mock       Generate mock data based on thing model")
 	fmt.Fprintln(w, "  report     Simulate device report message via HTTP")
+	fmt.Fprintln(w, "  simulate-report  Simulate a platform-authorized property report")
 	fmt.Fprintln(w, "  upload     Upload file from device")
 	fmt.Fprintln(w, "  help       Show this help message")
 	fmt.Fprintln(w, "")

@@ -118,7 +118,17 @@ ur skills download --json
 
 #### 安装 CLI
 
-**方式一 — 下载预编译二进制（推荐）：**
+**方式零 — 一键安装脚本（Linux / macOS 推荐）：**
+
+```bash
+# 自动选平台、自动查最新版、SHA256 校验;国内默认 Gitee 源(GitHub 可达时自动优选)
+curl -fsSL https://gitee.com/unitedrhino/cli/raw/main/scripts/install.sh | bash
+# 指定版本/来源: curl -fsSL ... | bash -s -- --version v0.7.0 --source github
+```
+
+Windows(PowerShell)一键安装:下载 `scripts/install.ps1` 后执行,或参考下方方式一。
+
+**方式一 — 下载预编译二进制：**
 
 ```bash
 # 1. 确定平台（注意使用 release 资产中的友好平台名）

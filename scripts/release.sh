@@ -49,9 +49,14 @@ should_upload_gitee() {
   if [[ "${GITEE_RELEASE_ASSET_MODE}" == "all" ]]; then
     return 0
   fi
+  # 国内常用平台:Linux 双架构 + macOS 双架构 + Windows x86_64(完整资产见 GitHub)
   [[ "${filename}" == "sha256sums.txt" || \
      "${filename}" == "ur-api-skills-${VERSION}.zip" || \
-     "${filename}" == "ur-cli-${VERSION}-Linux-x86_64.tar.gz" ]]
+     "${filename}" == "ur-cli-${VERSION}-Linux-x86_64.tar.gz" || \
+     "${filename}" == "ur-cli-${VERSION}-Linux-aarch64.tar.gz" || \
+     "${filename}" == "ur-cli-${VERSION}-macOS-x86_64.tar.gz" || \
+     "${filename}" == "ur-cli-${VERSION}-macOS-arm64.tar.gz" || \
+     "${filename}" == "ur-cli-${VERSION}-Windows-x86_64.zip" ]]
 }
 
 # 排除的平台（非原生或不需要）

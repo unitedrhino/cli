@@ -76,14 +76,20 @@ func DownloadSkills(opts SkillsDownloadOptions) (*SkillsDownloadResult, error) {
 			return nil, fmt.Errorf("查询最新 release 失败: %w（可访问 %s 或 %s 手动下载 skills 包，或用 --url 指定 zip 地址）",
 				err, GitHubReleaseBaseURL, GiteeReleaseBaseURL)
 		}
-		asset := release.FindSkillsAsset()
-		if asset == nil {
-			return nil, fmt.Errorf("release %s 中未找到 skills 资产（%s），请访问 %s/tag/%s 或 %s/tag/%s 手动下载",
-				release.TagName, SkillsAssetName(release.TagName),
-				GitHubReleaseBaseURL, release.TagName, GiteeReleaseBaseURL, release.TagName)
+		if release.Source == "github" {
+			// GitHub 源优先走 skills 别名直链(ur-api-skills.zip,内容与版本化资产一致)
+			downloadURL = GitHubLatestDownloadURL + "/" + SkillsAliasName
+			version = release.TagName
+		} else {
+			asset := release.FindSkillsAsset()
+			if asset == nil {
+				return nil, fmt.Errorf("release %s 中未找到 skills 资产（%s），请访问 %s/tag/%s 或 %s/tag/%s 手动下载",
+					release.TagName, SkillsAssetName(release.TagName),
+					GitHubReleaseBaseURL, release.TagName, GiteeReleaseBaseURL, release.TagName)
+			}
+			downloadURL = asset.BrowserDownloadURL
+			version = release.TagName
 		}
-		downloadURL = asset.BrowserDownloadURL
-		version = release.TagName
 	}
 
 	// zip 落盘文件名取 URL 路径最后一段（去掉 query/fragment）

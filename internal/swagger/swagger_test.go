@@ -12,7 +12,8 @@ func TestResolveSwaggerFilesPrefersConfiguredRoot(t *testing.T) {
 	if err := os.MkdirAll(swaggerDir, 0o755); err != nil {
 		t.Fatalf("mkdir swagger: %v", err)
 	}
-	for _, name := range []string{"core-api.json", "things-api.json"} {
+	// 与 requiredFiles 保持一致:清单扩充后测试同步写入全部必需文件。
+	for _, name := range requiredFiles {
 		if err := os.WriteFile(filepath.Join(swaggerDir, name), []byte(`{"openapi":"3.0.0","paths":{}}`), 0o644); err != nil {
 			t.Fatalf("write swagger %s: %v", name, err)
 		}
@@ -23,7 +24,7 @@ func TestResolveSwaggerFilesPrefersConfiguredRoot(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ResolveFiles error: %v", err)
 	}
-	if len(files) != 2 {
-		t.Fatalf("file count = %d, want 2", len(files))
+	if len(files) != len(requiredFiles) {
+		t.Fatalf("file count = %d, want %d", len(files), len(requiredFiles))
 	}
 }

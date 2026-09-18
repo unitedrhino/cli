@@ -239,13 +239,12 @@ ur generate-skills --output ./my-skills/
 **一键安装 + 认证（AI 自动执行）**
 
 ```bash
-# 1. 下载对应平台的 release（AI 根据用户系统自动选择 PLATFORM）
-VERSION="v0.4.1"
-PLATFORM="Linux-x86_64"   # Linux-x86_64 / Linux-aarch64 / macOS-x86_64 / macOS-arm64 / Windows-x86_64
-
-# Linux / macOS：解压完整发布包（包内为 <goos>-<goarch>/{ur, skill/}），
-# 保持 ur 二进制与 skill/ 目录同级，再把 ur 暴露到 PATH
-curl -L "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz" -o /tmp/ur-cli.tar.gz
+# 1. 下载（推荐:版本无关永久直链,总是最新版,免查版本号）
+#    平台名: Linux-x86_64 / Linux-aarch64 / macOS-x86_64 / macOS-arm64 / Windows-x86_64
+curl -L "https://github.com/unitedrhino/cli/releases/latest/download/ur-cli-Linux-x86_64.tar.gz" -o /tmp/ur-cli.tar.gz
+# 国内直连 GitHub 慢时,用 Gitee 指定版本(Gitee 无 latest 直链,版本号见 https://gitee.com/unitedrhino/cli/releases):
+# curl -L "https://gitee.com/unitedrhino/cli/releases/download/v0.7.0/ur-cli-v0.7.0-Linux-x86_64.tar.gz" -o /tmp/ur-cli.tar.gz
+# 需要钉住历史版本时: https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz
 mkdir -p ~/.local/lib/ur && tar -xzf /tmp/ur-cli.tar.gz -C ~/.local/lib/ur --strip-components=1
 mkdir -p ~/.local/bin && ln -sf ~/.local/lib/ur/ur ~/.local/bin/ur
 
@@ -545,6 +544,8 @@ go test -cover ./...
 # .env 文件内容
 GITHUB_TOKEN="ghp_xxxxxxxx"    # GitHub Personal Access Token（需要 repo 权限）
 GITEE_TOKEN="xxxxxxxx"         # Gitee 私人令牌
+# 可选：设为 all 时尝试向 Gitee 上传全平台资产；默认 common
+GITEE_RELEASE_ASSET_MODE="common"
 ```
 
 `release.sh` 启动时会自动加载 `.env`，无需手动 export。
@@ -562,7 +563,9 @@ bash scripts/release.sh v0.3.7
 3. 打包 tar.gz（Unix）或 zip（Windows）
 4. 生成 SHA256 校验和文件 `sha256sums.txt`
 5. 创建 GitHub Release 并上传所有资产
-6. 创建 Gitee Release 并上传所有资产
+6. 创建 Gitee Release，默认上传校验文件、Skills 包和 Linux x86_64 常用包；完整跨平台资产由 GitHub Release 提供
+
+上传使用超时和 HTTP 状态检查，任一资产失败都会明确报错。认证信息通过文件描述符或标准输入传给 `curl`，不会出现在进程参数中。
 
 ### 手动发布（仅某个平台）
 

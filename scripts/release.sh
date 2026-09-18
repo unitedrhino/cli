@@ -11,6 +11,7 @@ set -euo pipefail
 #   PARALLEL      - 并发构建数（默认 8）
 #   KEEP_RELEASES - 发布成功后本地保留的历史 release 构建目录数（默认 0，
 #                   即清掉全部历史产物；资产已上传远端 Release，本地无保留价值）
+#   GITEE_RELEASE_ASSET_MODE - common（默认，仅常用包）或 all（全部平台包）
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
@@ -25,6 +26,38 @@ BUILD_DIR="${ROOT}/dist/release-${VERSION}"
 RELEASE_DIR="${BUILD_DIR}/packages"
 PARALLEL="${PARALLEL:-8}"
 KEEP_RELEASES="${KEEP_RELEASES:-0}"
+GITEE_RELEASE_ASSET_MODE="${GITEE_RELEASE_ASSET_MODE:-common}"
+
+# curl_common_args 统一网络失败、HTTP 错误与超时处理，避免上传接口返回 4xx 时仍显示成功。
+curl_common_args=(--fail --show-error --silent --connect-timeout 15 --max-time 300)
+
+# github_curl 通过临时文件描述符注入认证头，避免令牌出现在进程参数中。
+github_curl() {
+  curl "${curl_common_args[@]}" \
+    --config <(printf 'header = "Authorization: token %s"\n' "${GITHUB_TOKEN}") \
+    "$@"
+}
+
+# gitee_form_config 生成仅通过文件描述符传入的 Gitee 表单认证配置。
+gitee_form_config() {
+  printf 'form-string = "access_token=%s"\n' "${GITEE_TOKEN}"
+}
+
+# should_upload_gitee 判断资产是否进入 Gitee；默认只保留国内常用包，完整资产由 GitHub 承载。
+should_upload_gitee() {
+  local filename="$1"
+  if [[ "${GITEE_RELEASE_ASSET_MODE}" == "all" ]]; then
+    return 0
+  fi
+  # 国内常用平台:Linux 双架构 + macOS 双架构 + Windows x86_64(完整资产见 GitHub)
+  [[ "${filename}" == "sha256sums.txt" || \
+     "${filename}" == "ur-api-skills-${VERSION}.zip" || \
+     "${filename}" == "ur-cli-${VERSION}-Linux-x86_64.tar.gz" || \
+     "${filename}" == "ur-cli-${VERSION}-Linux-aarch64.tar.gz" || \
+     "${filename}" == "ur-cli-${VERSION}-macOS-x86_64.tar.gz" || \
+     "${filename}" == "ur-cli-${VERSION}-macOS-arm64.tar.gz" || \
+     "${filename}" == "ur-cli-${VERSION}-Windows-x86_64.zip" ]]
+}
 
 # 排除的平台（非原生或不需要）
 EXCLUDE_PLATFORMS="js/wasm wasip1/wasm android/386 android/amd64 android/arm android/arm64 ios/amd64 ios/arm64"
@@ -258,11 +291,13 @@ release_github() {
   echo "[github] 创建 Release: ${VERSION} ..."
 
   local release_resp
-  release_resp=$(curl -s -X POST \
-    -H "Authorization: token ${GITHUB_TOKEN}" \
+  if ! release_resp=$(github_curl -X POST \
     -H "Accept: application/vnd.github.v3+json" \
     "https://api.github.com/repos/${repo}/releases" \
-    -d "{\"tag_name\":\"${VERSION}\",\"name\":\"ur-cli ${VERSION}\",\"body\":\"ur CLI ${VERSION} 跨平台发布\"}" 2>/dev/null)
+    -d "{\"tag_name\":\"${VERSION}\",\"name\":\"ur-cli ${VERSION}\",\"body\":\"ur CLI ${VERSION} 跨平台发布\"}"); then
+    echo "[github] 创建 Release 请求失败"
+    return 1
+  fi
 
   local upload_url
   upload_url=$(echo "$release_resp" | grep -o '"upload_url": "[^"]*' | cut -d'"' -f4 | sed 's/{?name,label}//')
@@ -275,21 +310,43 @@ release_github() {
 
   echo "[github] Release 创建成功，开始上传资产..."
 
+  local upload_failed=0
   for asset in "${RELEASE_DIR}"/*; do
     local fname
     fname=$(basename "$asset")
     echo -n "[github] 上传 ${fname} ... "
-    if curl -s -X POST \
-      -H "Authorization: token ${GITHUB_TOKEN}" \
+    if github_curl -X POST \
       -H "Accept: application/vnd.github.v3+json" \
       -H "Content-Type: application/octet-stream" \
       "${upload_url}?name=${fname}" \
-      --data-binary "@$asset" >/dev/null 2>&1; then
+      --data-binary "@$asset" >/dev/null; then
       echo "OK"
     else
       echo "FAILED"
+      upload_failed=1
     fi
+    # 主流平台额外上传版本无关别名包:releases/latest/download/<固定名>
+    # 永久直链指向最新版,AI/脚本下载免查版本号
+    case "$fname" in
+      ur-cli-${VERSION}-Linux-x86_64.tar.gz|ur-cli-${VERSION}-Linux-aarch64.tar.gz|\
+      ur-cli-${VERSION}-macOS-x86_64.tar.gz|ur-cli-${VERSION}-macOS-arm64.tar.gz|\
+      ur-cli-${VERSION}-Windows-x86_64.zip|\
+      ur-api-skills-${VERSION}.zip)
+        local alias_name="${fname/${VERSION}-/}"
+        if github_curl -X POST \
+          -H "Content-Type: application/octet-stream" \
+          "${upload_url}?name=${alias_name}" \
+          --data-binary "@$asset" >/dev/null; then
+          echo "[github] 别名包 ${alias_name} OK"
+        fi
+        ;;
+    esac
   done
+
+  if [[ "${upload_failed}" -ne 0 ]]; then
+    echo "[github] 部分资产上传失败，请核对 Release 后重试"
+    return 1
+  fi
 
   echo "[github] 发布完成: https://github.com/${repo}/releases/tag/${VERSION}"
 }
@@ -310,10 +367,15 @@ release_gitee() {
   echo "[gitee] 创建 Release: ${VERSION} ..."
 
   local release_resp
-  release_resp=$(curl -s -X POST \
+  local release_payload
+  release_payload="{\"access_token\":\"${GITEE_TOKEN}\",\"tag_name\":\"${VERSION}\",\"target_commitish\":\"main\",\"name\":\"ur-cli ${VERSION}\",\"body\":\"ur CLI ${VERSION} 跨平台发布\"}"
+  if ! release_resp=$(printf '%s' "${release_payload}" | curl "${curl_common_args[@]}" -X POST \
     -H "Content-Type: application/json" \
     "https://gitee.com/api/v5/repos/${owner}/${repo}/releases" \
-    -d "{\"access_token\":\"${GITEE_TOKEN}\",\"tag_name\":\"${VERSION}\",\"target_commitish\":\"main\",\"name\":\"ur-cli ${VERSION}\",\"body\":\"ur CLI ${VERSION} 跨平台发布\"}" 2>/dev/null)
+    --data-binary @-); then
+    echo "[gitee] 创建 Release 请求失败"
+    return 1
+  fi
 
   local release_id
   release_id=$(echo "$release_resp" | grep -o '"id":[0-9]*' | head -1 | cut -d':' -f2)
@@ -326,42 +388,57 @@ release_gitee() {
 
   echo "[gitee] Release 创建成功 (id=${release_id})，开始上传资产..."
 
+  local upload_failed=0
   for asset in "${RELEASE_DIR}"/*; do
     local fname
     fname=$(basename "$asset")
+    if ! should_upload_gitee "${fname}"; then
+      echo "[gitee] 跳过 ${fname}（完整跨平台资产见 GitHub）"
+      continue
+    fi
     echo -n "[gitee] 上传 ${fname} ... "
-    if curl -s -X POST \
+    if curl "${curl_common_args[@]}" -X POST \
       "https://gitee.com/api/v5/repos/${owner}/${repo}/releases/${release_id}/attach_files" \
-      -H "Content-Type: multipart/form-data" \
-      -F "access_token=${GITEE_TOKEN}" \
-      -F "file=@${asset}" >/dev/null 2>&1; then
+      --config <(gitee_form_config) \
+      -F "file=@${asset}" >/dev/null; then
       echo "OK"
     else
       echo "FAILED"
+      upload_failed=1
     fi
   done
+
+  if [[ "${upload_failed}" -ne 0 ]]; then
+    echo "[gitee] 部分常用资产上传失败，请检查空间配额后重试"
+    return 1
+  fi
 
   echo "[gitee] 发布完成: https://gitee.com/${owner}/${repo}/releases/tag/${VERSION}"
 }
 
 # 尝试发布
-# 注：GitHub/Gitee 上传均遍历 ${RELEASE_DIR} 下全部文件，
-# 独立 skills 资产（ur-api-skills-<版本>.zip）会随平台包一并上传，无需单独处理
+# 注：GitHub 上传全部文件；Gitee 默认上传校验文件、Skills 和 Linux x86_64 常用包，
+# 可用 GITEE_RELEASE_ASSET_MODE=all 尝试上传完整资产。
 echo "========================================"
 echo "  发布阶段"
 echo "========================================"
 echo ""
 
-release_github || true
+PUBLISH_FAILED=0
+if ! release_github; then
+  PUBLISH_FAILED=1
+fi
 echo ""
-release_gitee || true
+if ! release_gitee; then
+  PUBLISH_FAILED=1
+fi
 
 # ─── 发布成功后清理本地构建产物 ──────────────────────────────────────────
 # 资产已上传远端 Release（GitHub/Gitee），本地 dist/release-* 无保留价值。
 # 全平台包体积约 700MB+/版本，历史上多次发布累计可占数 GB。
 # KEEP_RELEASES=N 可保留最近 N 个历史版本目录（默认 0=全部清理）。
-# 任一平台发布失败（目录缺 sha256sums.txt 视为未完成）时跳过清理，便于重传。
-if [[ -f "${RELEASE_DIR}/sha256sums.txt" ]]; then
+# 任一平台发布失败时跳过清理，便于重传。
+if [[ -f "${RELEASE_DIR}/sha256sums.txt" && "${PUBLISH_FAILED}" -eq 0 ]]; then
   echo ""
   echo "========================================"
   echo "  清理本地构建产物（KEEP_RELEASES=${KEEP_RELEASES}）"
@@ -383,7 +460,7 @@ if [[ -f "${RELEASE_DIR}/sha256sums.txt" ]]; then
   fi
 else
   echo ""
-  echo "[cleanup] 检测到发布可能未完成（缺 sha256sums.txt），保留 ${BUILD_DIR} 便于排查/重传"
+  echo "[cleanup] 检测到发布未完成，保留 ${BUILD_DIR} 便于排查/重传"
 fi
 
 echo ""
@@ -391,3 +468,7 @@ echo "========================================"
 echo "  Done"
 echo "========================================"
 echo "构建产物: ${RELEASE_DIR}"
+if [[ "${PUBLISH_FAILED}" -ne 0 ]]; then
+  echo "发布存在失败，请根据上方日志修复后重试"
+  exit 1
+fi

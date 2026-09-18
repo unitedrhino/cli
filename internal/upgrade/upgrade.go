@@ -92,6 +92,15 @@ func Perform(opts Options) (*Result, error) {
 
 	// 3. 查找匹配当前平台的资源
 	asset := release.FindAsset()
+	// Gitee 只承载主流平台资产(完整跨平台见 GitHub);主流源缺平台包时
+	// 回退 GitHub release,保证非主流平台旧版升级能力
+	if asset == nil && release.Source == "gitee" && opts.TargetVersion == "" {
+		if ghRelease, ghErr := fetchLatestReleaseFromGitHub(); ghErr == nil {
+			if ghAsset := ghRelease.FindAsset(); ghAsset != nil {
+				release, asset = ghRelease, ghAsset
+			}
+		}
+	}
 	if asset == nil {
 		err := fmt.Errorf("未找到适配当前平台 (%s) 的安装包", platformReleaseName())
 		return &Result{
@@ -105,6 +114,17 @@ func Perform(opts Options) (*Result, error) {
 		CurrentVersion: version.BuildVersion,
 		LatestVersion:  release.TagName,
 		DownloadURL:    asset.BrowserDownloadURL,
+	}
+
+	// 下载地址:GitHub 源时优先走 releases/latest/download/<固定名> 别名直链
+	//（内容与版本化资产一致,免去 API 资产列表依赖);Gitee 无 latest 直链保持原样
+	downloadURL := asset.BrowserDownloadURL
+	archiveName := asset.Name
+	if opts.TargetVersion == "" && release.Source == "github" {
+		if aliasURL, aliasName := latestAliasDownload(); aliasURL != "" {
+			downloadURL = aliasURL
+			archiveName = aliasName
+		}
 	}
 
 	if opts.DryRun {
@@ -137,8 +157,8 @@ func Perform(opts Options) (*Result, error) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	archivePath := filepath.Join(tmpDir, asset.Name)
-	if err := downloadFile(asset.BrowserDownloadURL, archivePath); err != nil {
+	archivePath := filepath.Join(tmpDir, archiveName)
+	if err := downloadFile(downloadURL, archivePath); err != nil {
 		result.ErrorMessage = fmt.Sprintf("下载失败: %v", err)
 		return result, err
 	}

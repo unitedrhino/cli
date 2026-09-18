@@ -16,7 +16,7 @@ metadata:
 
 ## 前置条件
 
-调试设备需要知道 `productID` 和 `deviceName`（设备唯一ID）。如不确定：
+设备写操作需要知道 `productID` 和 `deviceName`（设备唯一ID）；纯 Mock 只要求 `productID`，设备级 Mock 才要求 `deviceName`。如不确定：
 
 ```bash
 # 查询设备列表
@@ -47,9 +47,9 @@ ur things schema get-list -p xxx
 
 ## 设备实时调试
 
-### 查询设备物模型（调试前必备）
+### 查询设备物模型（写操作调试前必备）
 
-发送任何调试指令前，必须先查询设备物模型确认可用属性/行为/事件：
+发送写操作调试指令前，必须先查询设备物模型确认可用属性/行为/事件。纯 Mock 已知产品或设备后直接执行，接口会自行读取并校验物模型：
 
 ```bash
 # 设备级物模型
@@ -132,18 +132,21 @@ ur api /api/v1/things/device/interact/event-send \
 
 ### 5. 生成 Mock 数据
 
-根据设备物模型自动生成符合数据类型约束的 Mock 数据：
+根据产品物模型或设备合并物模型生成内容，不修改平台、不产生上报、不控制设备。默认生成全部属性、1 份 JSON；无需先查完整物模型：
 
 ```bash
-ur things device mock -p xxx -d yyy --data-id Temperature --num 5
+ur things device mock -p xxx -j
+ur things device mock -p xxx -d yyy --data-id Temperature --num 5 -j
 ```
 
 | 参数 | 说明 |
 |------|------|
-| `--data-id` | 目标属性/行为/事件标识符 |
-| `--num` | 生成数量 |
+| `-d, --device-name` | 可选；传入时使用设备合并物模型 |
+| `-t, --type` | `property/event/action` 或 `1/2/3`，默认属性 |
+| `--data-id` | 可重复；省略时生成全部相关内容 |
+| `-n, --num` | 生成数量，1～100 |
 
-用途：调试时快速生成合法测试数据，无需手动构造。
+用途：调试时快速生成合法测试数据，无需手动构造。纯生成意图直接执行；只有缺少产品 ID，或明确要求设备级却缺少设备名时才补问。优先使用此领域命令，CLI 不支持时提示升级，不退回 `ur api`。
 
 ---
 

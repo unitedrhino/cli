@@ -538,7 +538,7 @@ ur api /api/v1/things/device/interact/property-get-report-send \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `dataIDs` | array[string] | 否 | 属性不填为返回全部, 事件和行为必须填一个 |
+| `dataIDs` | array[string] | 否 | 属性不填生成全部属性，事件不填生成全部上行事件，行为不填生成全部下行行为 |
 | `deviceName` | string | 否 | 设备名 |
 | `productID` | string | 是 | 产品id |
 | `type` | integer | 是 | 物模型类型 1:property属性 2:event事件 3:action行为 (格式: int64) |

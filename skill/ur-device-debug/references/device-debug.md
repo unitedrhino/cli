@@ -132,29 +132,39 @@ ur things device action resp -p p_smartswitch_001 -d switch-001 \
 
 ## mock — 生成 Mock 数据
 
-根据设备物模型自动生成符合数据类型约束的 Mock 数据，用于调试时快速生成合法测试数据。
+根据产品物模型或设备合并物模型生成符合约束的内容。此命令无平台副作用；已知产品或设备时直接执行，不预查完整物模型。
 
 ### 参数说明
 
 | 参数 | 简写 | 必填 | 类型 | 说明 |
 |------|------|------|------|------|
 | --product-id | -p | 是 | string | 产品ID |
-| --device-name | -d | 是 | string | 设备名称 |
-| --data-id | | 是 | string | 属性/行为/事件标识符 |
-| --num | | 否 | int | 生成数量（默认1） |
+| --device-name | -d | 否 | string | 设备名称；省略为产品物模型，传入为设备合并物模型 |
+| --type | -t | 否 | string | `property/event/action` 或 `1/2/3`，默认属性 |
+| --data-id | | 否 | string | 可重复；省略表示全部相关内容 |
+| --num | -n | 否 | int | 生成数量，1～100（默认1） |
+| --project-id | | 否 | string | 项目 ID，默认读取 `UR_PROJECT_ID` |
 | --json | -j | 否 | bool | 输出JSON格式 |
 
 ### 使用示例
 
-#### 示例1：生成1条温度Mock数据
+#### 示例1：产品级全部属性
 ```bash
-ur things device mock -p p_smartswitch_001 -d switch-001 --data-id Temperature
+ur things device mock -p 2D -j
 ```
 
-#### 示例2：生成5条Mock数据
+#### 示例2：设备级多份指定属性
 ```bash
-ur things device mock -p p_smartswitch_001 -d switch-001 --data-id Temperature --num 5
+ur things device mock -p 2D -d yanshi-dev01 --data-id temperature --num 5 -j
 ```
+
+#### 示例3：全部事件或行为
+```bash
+ur things device mock -p 2D --type event -j
+ur things device mock -p 2D --type action -j
+```
+
+返回的 `data.items` 是可直接交给后续代码的样例数组；任一生成请求失败时不输出残缺数组。只有缺少产品 ID，或明确要求设备级却缺少设备名时才补问。CLI 不支持时提示升级，不退回 `ur api`。
 
 ### 对应API
 
@@ -281,7 +291,7 @@ ur things device action get -p xxx -d yyy --data-id OpenValve
 ur things schema get-list -p xxx -d yyy
 
 # 2. 生成Mock数据验证格式
-ur things device mock -p xxx -d yyy --data-id Temperature --num 1
+ur things device mock -p xxx -d yyy --data-id Temperature --num 1 -j
 
 # 3. 模拟设备上报
 ur things device report -p xxx -d yyy --params '{"Temperature":25.3}'

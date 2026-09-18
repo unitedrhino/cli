@@ -2,22 +2,22 @@
 
 ## 先按用户意图选路径（规则引擎 AI 任务必读）
 
-用户不需要提供接口名或参数。先区分“仅修改云端”“模拟设备上报”和“控制实体设备”，不能把三者当成同一操作：
+用户不需要提供接口名或参数。先按意图区分“纯生成”“仅修改云端”“模拟设备上报”和“控制实体设备”，不能把四者当成同一操作：
 
 | 用户目的 | 写入方式 | 验证依据 |
 |---|---|---|
+| 生成、Mock、给一份样例数据，不写平台 | 直接执行 `ur things device mock ... -j` | 只返回符合物模型的数据内容，不修改属性、不产生上报、不控制设备 |
 | 云端模拟、演示值、只改平台属性且不下发 | `ur things device control ... --shadow-control 4 --project-id <项目ID>` | 最新属性 + `propertyControlSend` 操作日志；不承诺标准上报的历史/告警链路 |
 | 模拟设备上报，验证历史、规则、告警 | `ur things device simulate-report ... --project-id <项目ID>`，走标准属性上报链路 | 最新属性 + 用户要求的历史/规则/告警结果；可能触发自动化，限已授权测试设备 |
 | 真正开灯、设置实体设备属性 | 属性控制接口，根据明确要求选择实时下发或设备影子模式 | 控制响应与设备回执/实际状态；不得用云端改值假装控制成功 |
-| 只生成样例、不写平台 | 生成本地值或使用 `mock`，不调用写入接口 | 展示生成结果，不宣称设备值已改变 |
 
-只说“模拟数据”时先询问要仅改云端还是测试上报链路；不能默认上报或向实体下发。安全闸门：需求只表达“模拟/生成数据”且没有明确上述目的时，唯一动作是回复“你要仅修改平台云端属性，还是模拟设备上报并验证历史/规则/告警？”，回答前不得调用工具、查询接口、编辑或保存文件；“赶时间”“别问直接做”不能跳过。用户只要方案/代码时，不得自动试运行。明确云端模拟不要求设备在线；`shadowControl=0/2` 可能在上线后下发，不能替代 4。
+“生成”“Mock”“样例数据”明确表示纯内容生成时没有平台副作用，直接使用 `mock`，不再询问“云端修改还是设备上报”。只有缺少 `productID`，或用户明确要求设备级合并物模型却缺少 `deviceName` 时才补问。用户明确说“修改云端属性”“模拟设备上报”或“控制设备”时，才进入对应写操作路径并执行其安全确认。用户只要方案/代码时，不得自动试运行。明确云端模拟不要求设备在线；`shadowControl=0/2` 可能在上线后下发，不能替代 4。
 
 ### 目标、项目与物模型
 
-1. 从当前任务上下文取得项目 ID，始终保持字符串。设备领域命令显式传 `--project-id "$UR_PROJECT_ID"`；先核实命令帮助支持该参数。旧 CLI 不支持时提示升级，不静默省略项目上下文，也不优先退回通用 `ur api`。
-2. 使用 `ur things device info get-list --project-id "$UR_PROJECT_ID" -j` 查询当前项目的设备，核对 `productID`、`deviceName`（唯一标识，不是显示别名）及项目归属；查不到或同名多个时询问，不选列表第一项或其他项目设备。未明确授权不得自动新建设备。
-3. 使用 `ur things schema get-list -p '<productID>' --project-id "$UR_PROJECT_ID" -j` 查询设备合并后的物模型，不要写成对应的 `ur api` 路径。产品物模型响应的属性项以数字 `type===1` 标识，类型、范围和步长位于 JSON 字符串 `affordance` 解析后的 `define.type/min/max/step`，不能误读为顶层 `dataType/specs`。按返回的 identifier 原样使用，不能假设必须大驼峰；检查类型、范围、枚举、步长与当前用户权限。物模型 mode 与用户授权不是一回事：实体控制须确认设备支持写入；云端模拟不能仅因传感器属性 mode=r 就改走其他接口或擅自修改物模型，仍由云端接口校验权限与数据。用户范围超出物模型时提示冲突，不能私自扩大。
+1. 从当前任务上下文取得项目 ID，始终保持字符串。`mock` 默认读取 `UR_PROJECT_ID`，环境没有时才显式传 `--project-id`；其他设备领域命令按帮助传入项目上下文。旧 CLI 不支持本文命令或参数时明确提示升级，禁止默认退回 `ur api`。
+2. 纯 Mock 已知产品或设备标识时直接执行，不预先查询设备列表或完整物模型；`schema-mock-gen` 自身会读取并校验产品物模型或设备合并物模型。只有用户要求解释字段、限定生成范围，或排查生成失败时才查询物模型。
+3. 写操作需要定位目标时，使用 `ur things device info get-list --project-id "$UR_PROJECT_ID" -j` 核对 `productID`、`deviceName`（唯一标识，不是显示别名）及项目归属；查不到或同名多个时询问，不选列表第一项或其他项目设备。查询物模型使用 `ur things schema get-list -p '<productID>' --project-id "$UR_PROJECT_ID" -j`，不要写成对应的 `ur api` 路径。按返回的 identifier 原样使用，不能假设大小写风格；检查类型、范围、枚举、步长与当前用户权限。
 4. 平台注入任务创建者的 AK/SK、应用和项目环境；继承环境即可。不在代码/对话中写密钥，不构造 UR_TOKEN，不借用其他用户身份。
 
 ### 云端模拟的完整请求合同
@@ -51,7 +51,7 @@ ur things device control \
 - 优先用上述 `ur things device` 领域命令；只有领域命令确实不覆盖需求时才使用 `ur api`。用 `Bun.spawn` 的参数数组调用 ur，继承环境，不拼接 shell 命令。并行读取 stdout/stderr，并以 `const exitCode = await proc.exited` 取得最终退出码；禁止读取可能仍为 `null` 的 `proc.exitCode`。
 - 需要解析完整 `{code,data,msg}` 响应时，每条领域命令必须且只能传一个 `-j`（等价于 `--json`）；未传时可能只返回精简后的 `data`，不能混用两种输出合同。
 - 项目输入若提供，必须是非空、无首尾空白且与执行上下文一致的字符串，禁止 Number/String 强转掩盖错误；创建者凭证缺失时明确失败。
-- 失败必须抛错或 `console.error(...)` 后 `process.exit(1)`；禁止 catch 后在 stdout 输出 `{code:500}` 再正常退出，因为进程 0 会造成假成功。成功才在 stdout 最后一行输出结果 JSON。生成并实际保存 executor.js、manifest.json、skill.md 后才告知完成，不把聊天中的代码块当作已保存产物。
+- 失败必须抛错或 `console.error(...)` 后 `process.exit(1)`；禁止 catch 后在 stdout 输出 `{code:500}` 再正常退出，因为进程 0 会造成假成功。成功才在 stdout 最后一行输出结果 JSON。生成并实际保存 executor.js、manifest.json、skill.md 后才告知完成，不把聊天中的代码块当作已保存产物。终端临时文件不会自动同步到平台工具工作区；保存后必须重新读取平台源文件并真实运行核对。
 
 上面的规则适用于云端模拟与任务开发；以下 control/report 命令是其他交互用途，不能替代已经确认的业务路径。
 
@@ -189,29 +189,53 @@ ur things device action resp -p p_smartswitch_001 -d switch-001 \
 
 ## mock — 生成 Mock 数据
 
-根据设备物模型自动生成符合数据类型约束的 Mock 数据。
+根据产品物模型或设备合并物模型生成符合数据类型约束的内容。此命令只生成数据，不写平台、不产生上报、不控制设备。默认生成全部属性、1 份并使用 JSON 输出；返回的 `data.items` 可直接传给后续代码。
 
 ### 参数说明
 
 | 参数 | 简写 | 必填 | 类型 | 说明 |
 |------|------|------|------|------|
 | --product-id | -p | 是 | string | 产品ID |
-| --device-name | -d | 是 | string | 设备名称 |
-| --data-id | | 是 | string | 属性/行为/事件标识符 |
-| --num | | 否 | int | 生成数量（默认1） |
+| --device-name | -d | 否 | string | 设备名称；省略时使用产品物模型，传入时使用设备合并物模型 |
+| --type | -t | 否 | string | `property/event/action` 或 `1/2/3`，默认 `property` |
+| --data-id | | 否 | string | 可重复；省略表示生成全部相关内容 |
+| --num | -n | 否 | int | 生成数量，1～100（默认1） |
+| --project-id | | 否 | string | 项目 ID，默认读取 `UR_PROJECT_ID` |
 | --json | -j | 否 | bool | 输出JSON格式 |
 
 ### 使用示例
 
-#### 示例1：生成1条温度Mock数据
+#### 示例1：产品级全部属性
 ```bash
-ur things device mock -p p_smartswitch_001 -d switch-001 --data-id Temperature
+ur things device mock -p 2D -j
 ```
 
-#### 示例2：生成5条Mock数据
+#### 示例2：设备级全部属性
 ```bash
-ur things device mock -p p_smartswitch_001 -d switch-001 --data-id Temperature --num 5
+ur things device mock -p 2D -d yanshi-dev01 -j
 ```
+
+#### 示例3：指定属性
+```bash
+ur things device mock -p 2D -d yanshi-dev01 --data-id temperature -j
+```
+
+#### 示例4：生成多份
+```bash
+ur things device mock -p 2D -d yanshi-dev01 --data-id temperature --num 5 -j
+```
+
+#### 示例5：全部上行事件
+```bash
+ur things device mock -p 2D --type event -j
+```
+
+#### 示例6：全部下行行为
+```bash
+ur things device mock -p 2D --type action -j
+```
+
+命令会把后端 `data.params` 解析为数组，例如 `data.items[0]` 是第一份完整样例；生成多份时任一请求失败则整体失败，不输出残缺结果。
 
 ### 对应API
 
@@ -289,7 +313,7 @@ ur things device upload -p p_smartswitch_001 -d switch-001 -f /path/to/file.txt
 
 ## 注意事项
 
-1. **物模型必须先查**：控制属性或调用行为前，务必确认 `data-id` 正确，大小写敏感
+1. **纯 Mock 无需先查物模型**：已知产品或设备后直接调用；解释字段、限定范围或排查失败时再查询
 2. **data 字段 key 必须与查询到的物模型 identifier 完全一致**，不可假设大小写风格
 3. **离线设备控制**：是否缓存影子取决于控制模式；仅云端改值的模式 4 不会在上线后补发实体控制
 4. **传统 report 命令自动认证**：会获取设备密钥生成 MQTT 凭据；此行为不适用于上方规则引擎任务的模拟上报路径

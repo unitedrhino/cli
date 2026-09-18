@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"gitee.com/unitedrhino/cli/internal/client"
@@ -173,9 +174,34 @@ func runSchemaModelGetList(ctx context.Context, args []string, stdout, stderr io
 		printSchemaModelGetListHelp(stdout)
 		return 0
 	}
-	productID, deviceName, jsonOutput, _, err := parseSchemaModelParams(args)
+	productID, deviceName, jsonOutput, remaining, err := parseSchemaModelParams(args)
 	if err != nil {
 		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+	projectID := ""
+	projectIDSet := false
+	for i := 0; i < len(remaining); i++ {
+		switch remaining[i] {
+		case "--project-id":
+			if i+1 >= len(remaining) || strings.HasPrefix(remaining[i+1], "--") {
+				fmt.Fprintln(stderr, "--project-id requires value")
+				return 2
+			}
+			projectID, projectIDSet = remaining[i+1], true
+			i++
+		default:
+			if strings.HasPrefix(remaining[i], "--project-id=") {
+				projectID, projectIDSet = strings.TrimPrefix(remaining[i], "--project-id="), true
+				continue
+			}
+			fmt.Fprintf(stderr, "unknown schema get-list option: %s\n", remaining[i])
+			return 2
+		}
+	}
+	headers := map[string]string{}
+	if err := client.ApplyProjectID(headers, projectID, projectIDSet, os.Getenv("UR_PROJECT_ID")); err != nil {
+		fmt.Fprintln(stderr, err)
 		return 2
 	}
 
@@ -193,8 +219,9 @@ func runSchemaModelGetList(ctx context.Context, args []string, stdout, stderr io
 	}
 
 	resp, err := client.DoAPI(ctx, client.APIRequest{
-		Path: apiPath,
-		Body: reqBody,
+		Path:    apiPath,
+		Body:    reqBody,
+		Headers: headers,
 	})
 	if err != nil {
 		fmt.Fprintf(stderr, "API error: %v\n", err)
@@ -211,6 +238,7 @@ func printSchemaModelGetListHelp(w io.Writer) {
 	fmt.Fprintln(w, "Options:")
 	fmt.Fprintln(w, "  -p, --product-id string    Product ID (required)")
 	fmt.Fprintln(w, "  -d, --device-name string   Device name (optional)")
+	fmt.Fprintln(w, "      --project-id string    Project ID (default: UR_PROJECT_ID)")
 	fmt.Fprintln(w, "  -j, --json                 Output in JSON format")
 }
 

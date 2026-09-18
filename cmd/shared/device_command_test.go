@@ -68,6 +68,48 @@ func TestDeviceInfoGetListProjectHeader(t *testing.T) {
 	}
 }
 
+// TestSchemaGetListProjectHeader 验证物模型列表命令将超大字符串项目 ID 放入请求头。
+func TestSchemaGetListProjectHeader(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/things/product/schema/get-list" {
+			t.Fatalf("path=%q", r.URL.Path)
+		}
+		if got := r.Header.Get("project-id"); got != "9223372036854775807" {
+			t.Fatalf("project-id=%q", got)
+		}
+		_, _ = io.WriteString(w, `{"code":200,"data":{"list":[]}}`)
+	}))
+	defer server.Close()
+	setDeviceCommandTestEnv(t, server.URL)
+
+	exitCode := runSchema(config.AppIoT, []string{
+		"get-list", "-p", "product-a",
+		"--project-id", "9223372036854775807", "--json",
+	}, io.Discard, io.Discard)
+	if exitCode != 0 {
+		t.Fatalf("exit=%d", exitCode)
+	}
+}
+
+// TestSchemaGetListRejectsEmptyProjectID 验证显式空项目 ID 不会回退环境并发出歧义请求。
+func TestSchemaGetListRejectsEmptyProjectID(t *testing.T) {
+	requestSeen := false
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		requestSeen = true
+		_, _ = io.WriteString(w, `{"code":200,"data":{"list":[]}}`)
+	}))
+	defer server.Close()
+	setDeviceCommandTestEnv(t, server.URL)
+	t.Setenv("UR_PROJECT_ID", "12")
+
+	exitCode := runSchema(config.AppIoT, []string{
+		"get-list", "-p", "product-a", "--project-id=", "--json",
+	}, io.Discard, io.Discard)
+	if exitCode == 0 || requestSeen {
+		t.Fatalf("exit=%d requestSeen=%v", exitCode, requestSeen)
+	}
+}
+
 // TestDeviceControlCloudOnly 验证云端属性修改使用字符串 data、模式 4 与字符串项目头。
 func TestDeviceControlCloudOnly(t *testing.T) {
 	requestSeen := false

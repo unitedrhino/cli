@@ -107,6 +107,17 @@ func Perform(opts Options) (*Result, error) {
 		DownloadURL:    asset.BrowserDownloadURL,
 	}
 
+	// 下载地址:GitHub 源时优先走 releases/latest/download/<固定名> 别名直链
+	//（内容与版本化资产一致,免去 API 资产列表依赖);Gitee 无 latest 直链保持原样
+	downloadURL := asset.BrowserDownloadURL
+	archiveName := asset.Name
+	if opts.TargetVersion == "" && release.Source == "github" {
+		if aliasURL, aliasName := latestAliasDownload(); aliasURL != "" {
+			downloadURL = aliasURL
+			archiveName = aliasName
+		}
+	}
+
 	if opts.DryRun {
 		return result, nil
 	}
@@ -137,8 +148,8 @@ func Perform(opts Options) (*Result, error) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	archivePath := filepath.Join(tmpDir, asset.Name)
-	if err := downloadFile(asset.BrowserDownloadURL, archivePath); err != nil {
+	archivePath := filepath.Join(tmpDir, archiveName)
+	if err := downloadFile(downloadURL, archivePath); err != nil {
 		result.ErrorMessage = fmt.Sprintf("下载失败: %v", err)
 		return result, err
 	}

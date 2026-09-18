@@ -27,6 +27,8 @@ type Release struct {
 	PublishedAt time.Time `json:"published_at"`
 	HTMLURL     string    `json:"html_url"`
 	Assets      []Asset   `json:"assets"`
+	// Source 是 Release 来源（gitee/github），json 不序列化；决定下载是否可走别名直链
+	Source string `json:"-"`
 }
 
 // Asset 表示 Release 中的资源文件
@@ -64,6 +66,38 @@ func platformReleaseName() string {
 
 // GiteeAPI Gitee 开放 API 地址（国内直连可达，作为默认源；GitHub 不可达时兜底）
 const GiteeAPI = "https://gitee.com/api/v5"
+
+// GitHubLatestDownloadURL 版本无关永久直链前缀：releases/latest/download/<固定名>
+// 永远指向最新 release 的同名资产（别名包由 scripts/release.sh 发布时上传）
+const GitHubLatestDownloadURL = "https://github.com/" + RepoOwner + "/" + RepoName + "/releases/latest/download"
+
+// SkillsAliasName 是 skills 独立包的版本无关别名资产名
+const SkillsAliasName = "ur-api-skills.zip"
+
+// aliasablePlatforms 是 release.sh 上传了版本无关别名包的平台集合；
+// 仅这些平台可安全使用 latest 直链下载
+var aliasablePlatforms = map[string]bool{
+	"Linux-x86_64":   true,
+	"Linux-aarch64":  true,
+	"macOS-x86_64":   true,
+	"macOS-arm64":    true,
+	"Windows-x86_64": true,
+}
+
+// latestAliasDownload 返回当前平台在 GitHub latest 直链上的别名下载地址；
+// 平台不在别名集合内时返回空串（调用方回退 API 资产地址）
+func latestAliasDownload() (url, name string) {
+	platform := platformReleaseName()
+	if !aliasablePlatforms[platform] {
+		return "", ""
+	}
+	suffix := ".tar.gz"
+	if runtime.GOOS == "windows" {
+		suffix = ".zip"
+	}
+	name = "ur-cli-" + platform + suffix
+	return GitHubLatestDownloadURL + "/" + name, name
+}
 
 // FetchLatestRelease 获取最新 Release：默认优先 Gitee（国内网络可达），
 // Gitee 失败时回退 GitHub。可用环境变量 UR_RELEASE_SOURCE=github 强制走 GitHub。
@@ -104,6 +138,7 @@ func fetchLatestReleaseFromGitee() (*Release, error) {
 	if release.TagName == "" {
 		return nil, fmt.Errorf("Gitee Release 信息为空")
 	}
+	release.Source = "gitee"
 
 	return &release, nil
 }
@@ -127,6 +162,7 @@ func fetchLatestReleaseFromGitHub() (*Release, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
 		return nil, fmt.Errorf("解析 Release 信息失败: %w", err)
 	}
+	release.Source = "github"
 
 	return &release, nil
 }
@@ -168,6 +204,17 @@ func (r *Release) FindAsset() *Asset {
 	suffix := ".tar.gz"
 	if runtime.GOOS == "windows" {
 		suffix = ".zip"
+	}
+
+	// 精确匹配优先：ur-cli-${TAG}-${PlatformName}${suffix}（release 若同时含
+	// 版本无关别名包，Contains 会误命中，别名仅作直链下载用途）
+	if r.TagName != "" {
+		exact := "ur-cli-" + r.TagName + "-" + platformName + suffix
+		for i := range r.Assets {
+			if r.Assets[i].Name == exact {
+				return &r.Assets[i]
+			}
+		}
 	}
 
 	// 匹配模式：ur-cli-${VERSION}-${PlatformName}.tar.gz

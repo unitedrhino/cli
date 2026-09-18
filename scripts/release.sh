@@ -330,7 +330,8 @@ release_github() {
     case "$fname" in
       ur-cli-${VERSION}-Linux-x86_64.tar.gz|ur-cli-${VERSION}-Linux-aarch64.tar.gz|\
       ur-cli-${VERSION}-macOS-x86_64.tar.gz|ur-cli-${VERSION}-macOS-arm64.tar.gz|\
-      ur-cli-${VERSION}-Windows-x86_64.zip)
+      ur-cli-${VERSION}-Windows-x86_64.zip|\
+      ur-api-skills-${VERSION}.zip)
         local alias_name="${fname/${VERSION}-/}"
         if github_curl -X POST \
           -H "Content-Type: application/octet-stream" \

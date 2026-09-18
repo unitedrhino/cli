@@ -16,8 +16,8 @@
 ### 目标、项目与物模型
 
 1. 从当前任务上下文取得项目 ID，始终保持字符串。设备领域命令显式传 `--project-id "$UR_PROJECT_ID"`；先核实命令帮助支持该参数。旧 CLI 不支持时提示升级，不静默省略项目上下文，也不优先退回通用 `ur api`。
-2. 使用 `ur things device info get-list --project-id "$UR_PROJECT_ID" --json` 查询当前项目的设备，核对 `productID`、`deviceName`（唯一标识，不是显示别名）及项目归属；查不到或同名多个时询问，不选列表第一项或其他项目设备。未明确授权不得自动新建设备。
-3. 使用 `ur things schema get-list -p '<productID>' --json` 查询设备合并后的物模型，不要写成对应的 `ur api` 路径。按返回的 identifier 原样使用，不能假设必须大驼峰；检查类型、范围、枚举、步长与当前用户权限。物模型 mode 与用户授权不是一回事：实体控制须确认设备支持写入；云端模拟不能仅因传感器属性 mode=r 就改走其他接口或擅自修改物模型，仍由云端接口校验权限与数据。用户范围超出物模型时提示冲突，不能私自扩大。
+2. 使用 `ur things device info get-list --project-id "$UR_PROJECT_ID" -j` 查询当前项目的设备，核对 `productID`、`deviceName`（唯一标识，不是显示别名）及项目归属；查不到或同名多个时询问，不选列表第一项或其他项目设备。未明确授权不得自动新建设备。
+3. 使用 `ur things schema get-list -p '<productID>' --project-id "$UR_PROJECT_ID" -j` 查询设备合并后的物模型，不要写成对应的 `ur api` 路径。产品物模型响应的属性项以数字 `type===1` 标识，类型、范围和步长位于 JSON 字符串 `affordance` 解析后的 `define.type/min/max/step`，不能误读为顶层 `dataType/specs`。按返回的 identifier 原样使用，不能假设必须大驼峰；检查类型、范围、枚举、步长与当前用户权限。物模型 mode 与用户授权不是一回事：实体控制须确认设备支持写入；云端模拟不能仅因传感器属性 mode=r 就改走其他接口或擅自修改物模型，仍由云端接口校验权限与数据。用户范围超出物模型时提示冲突，不能私自扩大。
 4. 平台注入任务创建者的 AK/SK、应用和项目环境；继承环境即可。不在代码/对话中写密钥，不构造 UR_TOKEN，不借用其他用户身份。
 
 ### 云端模拟的完整请求合同
@@ -49,6 +49,7 @@ ur things device control \
 - 脚本每次只执行一次业务操作，频率/次数交给任务调度，不写无限循环或内部定时器。
 - 对于物模型允许的 20～30、步长 0.5，离散随机公式为 `20 + Math.floor(Math.random() * 21) * 0.5`；检查上下界，其他范围按真实物模型计算。
 - 优先用上述 `ur things device` 领域命令；只有领域命令确实不覆盖需求时才使用 `ur api`。用 `Bun.spawn` 的参数数组调用 ur，继承环境，不拼接 shell 命令。并行读取 stdout/stderr，并以 `const exitCode = await proc.exited` 取得最终退出码；禁止读取可能仍为 `null` 的 `proc.exitCode`。
+- 需要解析完整 `{code,data,msg}` 响应时，每条领域命令必须且只能传一个 `-j`（等价于 `--json`）；未传时可能只返回精简后的 `data`，不能混用两种输出合同。
 - 项目输入若提供，必须是非空、无首尾空白且与执行上下文一致的字符串，禁止 Number/String 强转掩盖错误；创建者凭证缺失时明确失败。
 - 失败必须抛错或 `console.error(...)` 后 `process.exit(1)`；禁止 catch 后在 stdout 输出 `{code:500}` 再正常退出，因为进程 0 会造成假成功。成功才在 stdout 最后一行输出结果 JSON。生成并实际保存 executor.js、manifest.json、skill.md 后才告知完成，不把聊天中的代码块当作已保存产物。
 

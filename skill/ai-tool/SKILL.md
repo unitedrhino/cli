@@ -34,6 +34,8 @@ description: "Use when developing or validating AI Tool artifacts or rule-engine
 4. 外部 HTTP 的 URL、method、body 和所需业务认证不明确时先询问，不猜测目标。外部请求设置有界超时，不发送 `UR_ACCESS_KEY`、`UR_ACCESS_SECRET`、`UR_TOKEN` 或平台认证头。
 5. `Bun.spawn` 必须以 `const exitCode = await proc.exited` 获取最终退出码，不读运行中可能为 `null` 的 `proc.exitCode`。失败时抛错或 `process.exit(1)`，不在 stdout 打印 `code=500` 后正常退出。
 6. stdout 最后一行只输出成功 JSON，过程日志写 stderr。用户只要生成或保存代码时，不自动试运行。
+7. executor 解析完整 `{code,data,msg}` 时，每条 `ur` 领域命令必须且只能带一个 `-j`；所有项目接口都显式传字符串 `--project-id`，包括设备列表和物模型查询。
+8. 终端临时文件不会自动同步到平台工具工作区。三件套必须通过平台文件工具或 `ur ai-tool artifact save` 保存；保存后重新读取平台源文件并真实运行核对，不能只相信对话中的完成说明。
 
 设备模拟或控制是上述通用能力的一个分支。只有进入该分支时才读 `ur-device/references/device-control.md`，按用户目的区分云端改值、模拟设备上报、实体控制和只生成样例。不应把该分支的接口、参数或澄清问题套用到普通 HTTP、巡检或数据转发任务。
 

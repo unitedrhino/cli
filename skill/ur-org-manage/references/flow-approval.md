@@ -91,8 +91,41 @@ ur api /api/v1/system/flow/task/reclaim --body '{"taskId":"546"}'
   用通用 `api` 命令时必须自行序列化为字符串。
 - `taskId` / `instanceId` / `id` 等后端 `int64,string` 字段，请求体传字符串（如 `{"taskId":"546"}`）。
 - 发布强校验：未绑定业务表单的流程定义 `deploy` 会被拒绝，先 `form/create` 再 `def/create --form-id`。
-- 流程模型 JSON 规范（节点类型/枚举/结构规则）见主仓
-  `docs/中台/任务/进行中/中-26-9-3-TASK-114-流程审批中心/模型JSON规范.md`，AI 生成/修改模型 JSON 前先读该文档。
+- 流程模型 JSON 规范全文见主仓
+  `docs/中台/任务/进行中/中-26-9-3-TASK-114-流程审批中心/模型JSON规范.md`；sandbox 内无法读主仓时，以下契约要点为准。
+
+## 模型 JSON 契约要点（AI 生成/修改模型前必读）
+
+结构：`nodeConfig` 是**单链**，每个节点用 `childNode` 指向下一个节点（**不是 `childNodes`**，历史文档曾写错，踩过实例不流转的坑）。首节点固定 `{"type":"major"}` 发起人。
+
+节点类型与最小写法：
+
+```jsonc
+{
+  "nodeKey": "n02", "nodeName": "领导审批", "type": "approval",
+  "setType": "specifyMembers",            // 办理人来源
+  "performType": "sort",                  // sort依次/countersign会签/orSign或签/voteSign票签
+  "nodeAssigneeList": [{"id":"366810892901328","name":"管理员"}],  // 元素只有 id/name（weight 仅票签）；没有 type 字段
+  "childNode": { /* 下一个节点 */ }
+}
+```
+
+- 条件分支：`type:"conditionBranch"` 容器 + `conditionNodes[]` 分支项；分支项带 `priorityLevel`（升序首个命中执行）与 `conditionList`（组间或、组内且，operator 闭集 `> >= < <= == != between in include notinclude`）；**必须恰有一个 `conditionList:[]` 默认分支**，否则发布被拒；分支项自己的后续链也是 `childNode`。
+- 延时节点：`type:"delay"` + 结构化 `"delay":{"duration":1,"unit":"minute","action":"autoContinue"}`（unit 只有 minute/hour/day；不要用旧版 `"1:h"` 编码串）。
+- 枚举白名单（历史文档漂移重灾区，勿发明新值）：
+  - `approveSelf`: `initiatorThemselves / autoSkip / transferDirectSuperior / transferDepartmentHead`
+  - `rejectStrategy`: `toInitiator / toPreviousNode / toSpecifiedNode / terminateApproval / toParentNode`
+  - `selectMode`: `one / multi / role`（不是 multiple）
+  - `directorMode`: `toTop / custom`（不是 untilTop）
+  - `setType` 常用：`specifyMembers / supervisor / role / initiatorSelected / initiatorThemselves / multiLevelSupervisors / department`
+- AI 不确定办理人 id 时用 `"setType":"initiatorSelected"` 或留空并在节点名后加「（待补办理人）」，不要编造用户 ID。
+
+## 内核行为速查（理解流转/排障）
+
+- **接力模型**：发起后引擎自动推进到第一个审批节点建待办就停；每办理一票，引擎从该节点自动推进到下一停点。实例卡住不动的常见原因：模型 JSON 字段名错误（引擎忽略未知字段，分支后续链丢失）、条件分支无默认分支（发布期就应被拒）。
+- **会签/或签/票签**：办理一票判一次；orSign 一票通过其余自动归档；voteSign 按权重比 `passWeight`‰ 判定，全投完未达标整节点走驳回。
+- **延时节点**：等待任务由定时任务每分钟扫描恢复，到期时间粒度为分钟级；发起后"卡在延时"属预期，`flw_task` 中 `task_type='delay'` 行的 `expire_time` 应为 now+时长（若异常偏大是历史版本 bug，实例作废重发起）。
+- 驳回重提交后 `rejectStart` 默认 `forward`（通过后继续原链路）。
 
 ## 典型任务链路
 

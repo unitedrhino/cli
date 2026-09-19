@@ -87,6 +87,25 @@ func TestFilterFields(t *testing.T) {
 		}
 	})
 
+	t.Run("project fields inside array", func(t *testing.T) {
+		out, err := FilterFields(src, []string{"data.list.id", "data.list.name", "data.total"})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		want := map[string]any{
+			"data": map[string]any{
+				"list": []any{
+					map[string]any{"id": 1, "name": "a"},
+					map[string]any{"id": 2, "name": "b"},
+				},
+				"total": 100,
+			},
+		}
+		if !reflect.DeepEqual(out, want) {
+			t.Errorf("got %+v, want %+v", out, want)
+		}
+	})
+
 	t.Run("empty selectors", func(t *testing.T) {
 		out, err := FilterFields(src, []string{})
 		if err != nil {

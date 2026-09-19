@@ -112,7 +112,29 @@ func walkAndSet(dst, src map[string]any, parts []string, idx int, fields []strin
 
 	sub, isMap := v.(map[string]any)
 	if !isMap {
-		// 中间路径不是 map，无法继续深入，直接保留
+		if list, isList := v.([]any); isList {
+			// 列表接口的字段路径会穿过 data.list；按元素下标合并多个选择器，
+			// 避免选择 data.list.deviceName 时退化为保留整份设备档案。
+			target, _ := dst[key].([]any)
+			if len(target) != len(list) {
+				target = make([]any, len(list))
+			}
+			for i, item := range list {
+				itemMap, ok := item.(map[string]any)
+				if !ok {
+					continue
+				}
+				targetMap, _ := target[i].(map[string]any)
+				if targetMap == nil {
+					targetMap = make(map[string]any)
+				}
+				walkAndSet(targetMap, itemMap, parts, idx+1, fields)
+				target[i] = targetMap
+			}
+			dst[key] = target
+			return
+		}
+		// 非对象、非数组的中间路径无法继续深入，保持旧版兼容行为。
 		dst[key] = deepCopy(v)
 		return
 	}

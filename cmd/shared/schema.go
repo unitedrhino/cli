@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"gitee.com/unitedrhino/cli/internal/client"
@@ -35,7 +36,7 @@ func runSchema(app config.CLIApp, args []string, stdout, stderr io.Writer) int {
 
 // printSchemaHelp 打印物模型管理帮助信息
 func printSchemaHelp(w io.Writer) {
-	fmt.Fprintln(w, "Usage: ur schema <subcommand> [options]")
+	fmt.Fprintln(w, "Usage: ur things schema <subcommand> [options]")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "Thing model (schema) management and API browsing")
 	fmt.Fprintln(w, "")
@@ -51,13 +52,13 @@ func printSchemaHelp(w io.Writer) {
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "Examples:")
 	fmt.Fprintln(w, "  # Query product schema")
-	fmt.Fprintln(w, "  ur schema get-list -p p_smartswitch_001")
+	fmt.Fprintln(w, "  ur things schema get-list -p p_smartswitch_001 --json")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "  # Query device schema")
-	fmt.Fprintln(w, "  ur schema get-list -p p_smartswitch_001 -d switch-001")
+	fmt.Fprintln(w, "  ur things schema get-list -p p_smartswitch_001 -d switch-001 --json")
 	fmt.Fprintln(w, "")
 	fmt.Fprintln(w, "  # Browse API endpoints")
-	fmt.Fprintln(w, "  ur schema browse /api/v1/things/device")
+	fmt.Fprintln(w, "  ur things schema browse /api/v1/things/device")
 }
 
 // runSchemaBrowse 执行 swagger 浏览命令
@@ -169,9 +170,38 @@ func runSchemaModel(subCmd string, args []string, stdout, stderr io.Writer) int 
 
 // runSchemaModelGetList 执行查询物模型列表命令
 func runSchemaModelGetList(ctx context.Context, args []string, stdout, stderr io.Writer) int {
-	productID, deviceName, jsonOutput, _, err := parseSchemaModelParams(args)
+	if hasHelpArg(args) {
+		printSchemaModelGetListHelp(stdout)
+		return 0
+	}
+	productID, deviceName, jsonOutput, remaining, err := parseSchemaModelParams(args)
 	if err != nil {
 		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 2
+	}
+	projectID := ""
+	projectIDSet := false
+	for i := 0; i < len(remaining); i++ {
+		switch remaining[i] {
+		case "--project-id":
+			if i+1 >= len(remaining) || strings.HasPrefix(remaining[i+1], "--") {
+				fmt.Fprintln(stderr, "--project-id requires value")
+				return 2
+			}
+			projectID, projectIDSet = remaining[i+1], true
+			i++
+		default:
+			if strings.HasPrefix(remaining[i], "--project-id=") {
+				projectID, projectIDSet = strings.TrimPrefix(remaining[i], "--project-id="), true
+				continue
+			}
+			fmt.Fprintf(stderr, "unknown schema get-list option: %s\n", remaining[i])
+			return 2
+		}
+	}
+	headers := map[string]string{}
+	if err := client.ApplyProjectID(headers, projectID, projectIDSet, os.Getenv("UR_PROJECT_ID")); err != nil {
+		fmt.Fprintln(stderr, err)
 		return 2
 	}
 
@@ -189,8 +219,9 @@ func runSchemaModelGetList(ctx context.Context, args []string, stdout, stderr io
 	}
 
 	resp, err := client.DoAPI(ctx, client.APIRequest{
-		Path: apiPath,
-		Body: reqBody,
+		Path:    apiPath,
+		Body:    reqBody,
+		Headers: headers,
 	})
 	if err != nil {
 		fmt.Fprintf(stderr, "API error: %v\n", err)
@@ -198,6 +229,17 @@ func runSchemaModelGetList(ctx context.Context, args []string, stdout, stderr io
 	}
 
 	return outputResult(resp, jsonOutput, stdout, stderr)
+}
+
+// printSchemaModelGetListHelp 打印物模型查询命令的完整参数和嵌套命令路径。
+func printSchemaModelGetListHelp(w io.Writer) {
+	fmt.Fprintln(w, "Usage: ur things schema get-list [options]")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Options:")
+	fmt.Fprintln(w, "  -p, --product-id string    Product ID (required)")
+	fmt.Fprintln(w, "  -d, --device-name string   Device name (optional)")
+	fmt.Fprintln(w, "      --project-id string    Project ID (default: UR_PROJECT_ID)")
+	fmt.Fprintln(w, "  -j, --json                 Output in JSON format")
 }
 
 // runSchemaModelCreate 执行创建物模型命令

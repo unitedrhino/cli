@@ -1,3 +1,4 @@
+// api.go 实现通用 API 调用、项目上下文选择及响应输出。
 package cmd
 
 import (
@@ -6,21 +7,23 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"gitee.com/unitedrhino/cli/internal/client"
 	"gitee.com/unitedrhino/cli/internal/response"
+	"github.com/spf13/cobra"
 )
 
 var apiOpts struct {
-	body       string
-	bodyFile   string
-	headers    []string
-	fields     string
-	summarize  bool
-	format     string
-	transform  string
-	output     string
-	debug      bool
+	body     string
+	bodyFile string
+	headers  []string
+	// projectID 保持项目标识为字符串，避免大整数精度损失。
+	projectID string
+	fields    string
+	summarize bool
+	format    string
+	transform string
+	output    string
+	debug     bool
 }
 
 var apiCmd = &cobra.Command{
@@ -38,6 +41,7 @@ func init() {
 	apiCmd.Flags().StringVar(&apiOpts.body, "body", "", "JSON 请求体")
 	apiCmd.Flags().StringVar(&apiOpts.bodyFile, "body-file", "", "从文件读取请求体")
 	apiCmd.Flags().StringArrayVarP(&apiOpts.headers, "header", "H", nil, "自定义请求头 (KEY:VALUE)")
+	apiCmd.Flags().StringVar(&apiOpts.projectID, "project-id", "", "项目 ID 字符串（默认 UR_PROJECT_ID，与显式项目头冲突时报错）")
 	apiCmd.Flags().StringVar(&apiOpts.fields, "fields", "", "字段过滤（逗号分隔）")
 	apiCmd.Flags().BoolVar(&apiOpts.summarize, "summarize", false, "摘要模式输出")
 	apiCmd.Flags().StringVar(&apiOpts.format, "format", "", "输出格式 (json, table, csv)")
@@ -59,6 +63,10 @@ func runAPI(cmd *cobra.Command, args []string) error {
 
 	headers, err := parseHeaders(apiOpts.headers)
 	if err != nil {
+		return err
+	}
+
+	if err := client.ApplyProjectID(headers, apiOpts.projectID, cmd.Flags().Changed("project-id"), os.Getenv("UR_PROJECT_ID")); err != nil {
 		return err
 	}
 
@@ -105,7 +113,15 @@ func parseHeaders(headers []string) (map[string]string, error) {
 		if len(parts) != 2 {
 			return nil, fmt.Errorf("无效 header 格式: %q", h)
 		}
-		result[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+		// 项目头即使重复使用相同大小写，也不能静默覆盖不同项目。
+		key, value := strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
+		if strings.EqualFold(key, "project-id") {
+			key = "project-id"
+			if previous, exists := result[key]; exists && previous != value {
+				return nil, fmt.Errorf("项目上下文冲突：重复 project-id 请求头必须一致")
+			}
+		}
+		result[key] = value
 	}
 	return result, nil
 }

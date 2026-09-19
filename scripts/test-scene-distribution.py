@@ -42,6 +42,12 @@ class SceneDistributionTest(unittest.TestCase):
             self.write(self.root / 'skill/ur-view' / name, content)
         self.write(self.root / 'skill/SKILL.md', '# 统一技能\n')
         self.write(self.root / 'references/README.md', '# API 参考\n')
+        # 真实手写指南使用 persona 约定的域级路径，不能只依赖扁平兼容副本。
+        self.guide = (ROOT / 'skill/ur-device/references/device-control.md').read_bytes()
+        self.write(self.root / 'skill/ur-device/references/device-control.md', self.guide)
+        self.write(self.root / 'skill/ur-device/references/shared.md', '设备同名指南\n')
+        self.write(self.root / 'skill/ur-product/references/shared.md', '产品同名指南\n')
+        self.write(self.root / 'references/quick-reference.md', (ROOT / 'references/quick-reference.md').read_bytes())
         self.write(self.root / 'npm-package/package.json', (ROOT / 'npm-package/package.json').read_text())
         self.write(self.root / 'scripts/package-skill.sh', (ROOT / 'scripts/package-skill.sh').read_text())
 
@@ -71,6 +77,8 @@ if args[0] == 'build':
 elif args[0] == 'run':
     target = pathlib.Path(args[args.index('--output') + 1])
     target.mkdir(parents=True, exist_ok=True)
+    (target / 'references').mkdir(exist_ok=True)
+    (target / 'references/generated-index.md').write_text('generated')
     (target / 'SKILL.md').write_text('# API 索引\\n')
 else:
     raise SystemExit('unexpected go invocation')
@@ -83,6 +91,14 @@ else:
             subprocess.run(['bash', str(self.root / 'scripts/package-skill.sh'), str(output),
                             '--arch', 'linux-amd64'], env=environment, check=True, capture_output=True, text=True)
             self.assert_tree(output / 'x64-linux/skill/ur-api/ur-view')
+            api_root = output / 'x64-linux/skill/ur-api'
+            self.assertEqual((api_root / 'ur-device/references/device-control.md').read_bytes(), self.guide)
+            self.assertEqual((api_root / 'ur-device/references/shared.md').read_text(), '设备同名指南\n')
+            self.assertEqual((api_root / 'ur-product/references/shared.md').read_text(), '产品同名指南\n')
+            self.assertEqual((api_root / 'SKILL.md').read_text().count('(ur-device/references/device-control.md)'), 1)
+            self.assertFalse((api_root / 'references/references').exists())
+            self.assertEqual((api_root / 'references/quick-reference.md').read_bytes(),
+                             (ROOT / 'references/quick-reference.md').read_bytes())
             self.assertFalse((output / 'x64-linux/skill/ur-api/ur-view/ur-view').exists())
             self.assertEqual((output / 'x64-linux/skill/ur-api/SKILL.md').read_text()
                              .count('[大屏技能](ur-view/SKILL.md)'), 1)
@@ -90,6 +106,8 @@ else:
         result = subprocess.run(['npm', 'pack', '--dry-run', '--json', '--ignore-scripts'],
                                 cwd=self.root / 'npm-package', check=True, capture_output=True, text=True)
         files = {entry['path'] for entry in json.loads(result.stdout)[0]['files']}
+        self.assertIn('ur-api/ur-device/references/device-control.md', files)
+        self.assertIn('ur-api/ur-product/references/shared.md', files)
         for name in self.payloads:
             # npm 固定排除 Git 忽略规则；它不属于运行、复制或打包所需源码。
             if Path(name).name == '.gitignore':
@@ -113,6 +131,23 @@ else:
             self.assertEqual((destination / 'SKILL.md').read_text().count('[大屏技能](ur-view/SKILL.md)'), 1)
             self.assertEqual((destination / 'ur-view/preserved.txt').read_text(), '已有其它内容\n')
 
+    def test_existing_reference_directory(self):
+        """已有导出目录重复同步时保留生成索引，且路径不嵌套、导航不重复。"""
+        script = (ROOT / 'scripts/package-skill.sh').read_text()
+        begin = script.index('  mkdir -p "${api_skill_dir}/references"')
+        end = script.index('  # Swagger 导出不包含手写场景模板', begin)
+        destination = self.root / 'existing-references/ur-api'
+        self.write(destination / 'SKILL.md', '# API 索引\n')
+        self.write(destination / 'references/generated-index.md', '保留生成索引\n')
+        command = 'ROOT="$1"; api_skill_dir="$2"\ncopy_references() {\n' + script[begin:end] + '\n}\ncopy_references'
+        for _ in range(2):
+            subprocess.run(['bash', '-c', command, 'reference-distribution', str(self.root), str(destination)],
+                           check=True, capture_output=True, text=True)
+            self.assertEqual((destination / 'ur-device/references/device-control.md').read_bytes(), self.guide)
+            self.assertEqual((destination / 'references/generated-index.md').read_text(), '保留生成索引\n')
+            self.assertFalse((destination / 'references/references').exists())
+            self.assertEqual((destination / 'SKILL.md').read_text().count('(ur-device/references/device-control.md)'), 1)
+
     def test_release_copy(self):
         """执行 release.sh 的实际共享复制函数，覆盖平台包和独立 skills ZIP 的资源来源。"""
         script = (ROOT / 'scripts/release.sh').read_text()
@@ -123,6 +158,16 @@ else:
                         'scene-distribution', str(self.root), str(destination)],
                        check=True, capture_output=True, text=True)
         self.assert_tree(destination / 'ur-view')
+        self.assertEqual((destination / 'ur-device/references/device-control.md').read_bytes(), self.guide)
+
+    def test_device_intent_reference_contract(self):
+        """验证两种发行入口的导航和模拟控制合同没有回退到旧样例。"""
+        guide = (ROOT / 'skill/ur-device/references/device-control.md').read_text()
+        for expected in ('shadowControl=4', 'simulate/report', 'JSON 字符串', 'proc.exited', '--project-id', '只说“模拟数据”时先询问'):
+            self.assertIn(expected, guide)
+        for relative in ('references/quick-reference.md', 'skill/references/quick-reference.md'):
+            self.assertIn('../ur-device/references/device-control.md', (ROOT / relative).read_text())
+        self.assertIn('(ur-device/references/device-control.md)', (ROOT / 'skill/SKILL.md').read_text())
 
 
 if __name__ == '__main__':

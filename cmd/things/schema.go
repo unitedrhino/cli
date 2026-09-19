@@ -3,15 +3,16 @@ package things
 import (
 	"os"
 
-	"github.com/spf13/cobra"
 	"gitee.com/unitedrhino/cli/cmd/shared"
 	"gitee.com/unitedrhino/cli/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var schemaCmd = &cobra.Command{
-	Use:   "schema <subcommand>",
-	Short: "物模型管理",
-	Long:  `物模型相关操作：浏览、查询、创建、更新、删除、导入 TSL。`,
+	Use:                "schema <subcommand>",
+	Short:              "物模型管理",
+	Long:               `物模型相关操作：浏览、查询、创建、更新、删除、导入 TSL。`,
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		app := resolveAppFromContext()
 		code := shared.CobraBridge{}.RunSchema(app, args, cmd.OutOrStdout(), cmd.ErrOrStderr())
@@ -35,4 +36,3 @@ func resolveAppFromContext() config.CLIApp {
 	}
 	return config.AppOrgManage
 }
-

@@ -38,7 +38,7 @@ func bashCompletionScript() string {
     local model_cmds="template validate generate-script"
     local scene_cmds="validate template"
     local script_cmds="validate template"
-    local api_opts="--body --body-file --header -H --fields --summarize --format --transform --debug"
+    local api_opts="--project-id --body --body-file --header -H --fields --summarize --format --transform --debug"
     local config_opts="--list --use"
     local model_template_opts="--json --yaml --output"
     local model_script_opts="--mode --output"
@@ -154,6 +154,7 @@ _ur() {
                     _arguments \
                         '--body[JSON body]:json:' \
                         '--body-file[Body file]:file:_files' \
+                        '--project-id[项目 ID 字符串]:project-id:' \
                         '(-H --header)'{-H,--header}'[Custom header]:header:' \
                         '--fields[Field selectors]:selectors:' \
                         '--summarize[Summarize response]' \
@@ -217,6 +218,7 @@ complete -c ur -n "__fish_use_subcommand" -a "token" -d "Show/manage token"
 complete -c ur -n "__fish_seen_subcommand_from api" -l body -d "JSON body"
 complete -c ur -n "__fish_seen_subcommand_from api" -l body-file -d "Body file" -r
 complete -c ur -n "__fish_seen_subcommand_from api" -s H -l header -d "Custom header"
+complete -c ur -n "__fish_seen_subcommand_from api" -l project-id -d "项目 ID 字符串" -r
 complete -c ur -n "__fish_seen_subcommand_from api" -l fields -d "Field selectors"
 complete -c ur -n "__fish_seen_subcommand_from api" -l summarize -d "Summarize response"
 complete -c ur -n "__fish_seen_subcommand_from api" -l format -d "Output format" -a "json raw yaml"

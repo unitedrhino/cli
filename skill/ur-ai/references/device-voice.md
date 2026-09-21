@@ -72,6 +72,17 @@ bash shell/devicesim-oneclick-test.sh
 保存脱敏的方法序列与阶段耗时。延迟门限建议为 AudioStop 到首个音频帧小于 8 秒、
 STTDone 到 TextDone 小于 15 秒。
 
+平台基线通过后，还要在 `firmware/watcher` 运行固件生产协议核心的单元测试与时序回放：
+
+```bash
+python3 -m unittest scripts.tests.test_ur_ai_contract scripts.tests.test_ur_ai_runtime -v
+```
+
+其中静态合同检查只能发现源码合同漂移；`test_ur_ai_runtime` 才会编译运行固件共用的
+表情、session/respId、终态去重和 UDP 帧头代码，并回放多轮、乱序、重复、打断和断线
+旧消息。该协议 E2E 不连接云端，不能替代上面的 devicesim 真实 E2E 或最终真机测试；
+三层结果应分别记录。
+
 ## 分层排障
 
 | 层级 | 判定方法 | 处理方向 |

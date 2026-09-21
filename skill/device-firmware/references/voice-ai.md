@@ -63,7 +63,28 @@ bash shell/devicesim-oneclick-test.sh
 保留脱敏的方法序列、通过用例与阶段耗时。devicesim 不通过时不要刷真机；先修平台配置、
 ASR/LLM/TTS、MCP 或 UDP 服务端问题。
 
-## 3. MQTT 会话协议
+## 3. 固件单元测试与协议 E2E
+
+devicesim 通过只证明平台链路可用，不能替代固件测试。修改语音状态机、关联规则、UDP
+封包或表情映射后，在 `firmware/watcher` 执行：
+
+```bash
+python3 -m unittest scripts.tests.test_ur_ai_contract scripts.tests.test_ur_ai_runtime -v
+```
+
+两类测试必须同时通过：
+
+- `test_ur_ai_contract` 是静态合同检查，用于发现 Topic、方法名、队列和构建配置意外漂移；
+  不能把它单独称为固件单元测试。
+- `test_ur_ai_runtime` 会用主机 C++17 编译器直接编译固件共用的生产协议核心。`unit`
+  套件运行 21 类表情、session/respId 关联、终态去重和 UDP 头边界；`e2e` 套件按
+  devicesim 时序回放 UDP 预热、多轮、乱序、重复、打断尾帧和断线旧消息。
+
+完整固件回归仍使用 `python3 -m unittest discover -s scripts/tests -v`，随后以固定 IDF 6
+镜像构建目标板。主机协议 E2E 不包含真实 MQTT、云端模型、Opus 编解码或硬件；因此它必须
+与上一节的真实 devicesim E2E、最终真机验收组合，任何一层都不能代替另外两层。
+
+## 4. MQTT 会话协议
 
 设备复用物联网主 MQTT 客户端，不建立第二连接：
 
@@ -95,7 +116,7 @@ Watcher 的内部 RAM 同时承载音频任务栈和 MQTT SDK。跨任务 AI 上
 禁止用 `队列深度 × 最大报文长度` 的固定元素预占内部 RAM；这种实现可能通过编译和协议
 单测，却在真机音频初始化后令 MQTTClient 因连续内存不足而创建失败。
 
-## 4. UDP 与音频
+## 5. UDP 与音频
 
 UDP 数据报固定为 16 字节头加 AES-CTR 密文。帧头、nonce 字段覆盖、序号、大小端和
 AES 实现必须直接对照 `devicesim/udp.go`；公共小智协议与联犀协议复用同一封包实现，
@@ -114,14 +135,14 @@ AES 实现必须直接对照 `devicesim/udp.go`；公共小智协议与联犀协
   先恢复 AI/property/action/OTA 与解绑订阅，再向语音层宣布已连接，由下次唤醒创建新 session。
 - INFO 日志只记录方法、短 session/resp ID 与耗时，不记录密钥、nonce、音频或对话全文。
 
-## 5. 表情和界面
+## 6. 表情和界面
 
 `respEmotion` 必须与当前 `respId` 匹配。允许的 emoji/emotion 映射以
 `backend/things/tools/devicesim/emotion_test.go` 的 21 项白名单为准；未知、空值或过期
 消息统一回退 `neutral`。STT 显示用户字幕，文本 delta 增量累积助手字幕并对终态去重。
 tool 状态只能作界面提示，不能代替真实物模型控制。
 
-## 6. 当前设备控制验收
+## 7. 当前设备控制验收
 
 先查物模型确认标识符，再分别验证查询、属性和行为。示例命令仅用于人工对照：
 
@@ -141,7 +162,7 @@ ur things device action send -p <product-id> -d <device-name> --data-id SendMess
 
 模型口头说“已完成”不属于控制成功证据。
 
-## 7. 构建、OTA 与真机验收
+## 8. 构建、OTA 与真机验收
 
 构建前执行资源门禁，并校验 IDF 版本、板型、Flash、分区、rollback、BLE、联犀 MQTT/OTA、
 本地唤醒词和语音 AI 配置。固件不得包含平台凭据、WiFi 密码或公共小智服务 URL。
@@ -159,7 +180,7 @@ ur things device action send -p <product-id> -d <device-name> --data-id SendMess
 - AudioStop 到首个音频帧小于 8 秒，STTDone 到 TextDone 小于 15 秒。
 - 断网恢复、一次真实断电、15 分钟在线稳定观察。
 
-## 8. 分层诊断
+## 9. 分层诊断
 
 | 现象 | 先查 | 常见根因 |
 |---|---|---|

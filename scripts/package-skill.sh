@@ -140,7 +140,8 @@ build_for_arch() {
     [[ -d "${sub_skill_refs}" ]] || continue
     local sub_name
     sub_name=$(basename "$(dirname "${sub_skill_refs}")")
-    [[ "${sub_name}" == "ur-view" ]] && continue # ur-view 场景模板整目录分发，见下
+    # 两个纯手写技能需要连同入口和嵌套资源递归分发，见下方专用复制段。
+    [[ "${sub_name}" == "ur-view" || "${sub_name}" == "device-firmware" ]] && continue
     # 保留域级路径供 persona 和相对链接读取，同时保留旧扁平副本以兼容既有索引。
     mkdir -p "${api_skill_dir}/${sub_name}/references"
     find "${sub_skill_refs}" -maxdepth 1 -type f -name '*.md' \
@@ -158,6 +159,19 @@ build_for_arch() {
 云端演示、模拟设备上报、实体控制和只生成样例，先按用户意图区分。
 开发或运行前必读 [属性控制与模拟数据](ur-device/references/device-control.md)，不要默认向实体设备下发。
 DEVICE_CONTROL
+  fi
+
+  # Swagger 导出不包含设备端固件知识，必须连同入口和参考资料递归分发。
+  mkdir -p "${api_skill_dir}/device-firmware"
+  cp -R "${ROOT}/skill/device-firmware/." "${api_skill_dir}/device-firmware/"
+  if ! grep -Fq '[设备固件技能](device-firmware/SKILL.md)' "${api_skill_dir}/SKILL.md"; then
+    cat >> "${api_skill_dir}/SKILL.md" <<'DEVICE_FIRMWARE'
+
+## 设备端固件
+
+Watcher/ESP32 的构建烧录、BLE 配网、MQTT 契约、全量 OTA、鉴权恢复和实机验收见
+[设备固件技能](device-firmware/SKILL.md)。
+DEVICE_FIRMWARE
   fi
 
   # Swagger 导出不包含手写场景模板，必须随统一技能递归分发源码和本地资源。

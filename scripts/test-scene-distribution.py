@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""验证场景源码经平台打包、独立技能发布和 npm 白名单后保持完整；不编译或发布。
+"""验证手写技能经平台打包、独立发布和 npm 白名单后保持完整；不编译或发布。
 
 默认使用小型夹具；设置 SCENE_DISTRIBUTION_SOURCE 为 ur-view 目录可逐字节验证完整真实模板。
 """
@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SceneDistributionTest(unittest.TestCase):
-    """以嵌套资源夹具检查真实分发脚本，避免只检查扩展名字符串。"""
+    """以固件和嵌套场景夹具检查真实分发脚本，避免只检查扩展名字符串。"""
 
     def setUp(self):
         """创建含脚本、纹理、许可证和两套场景的最小技能仓库。"""
@@ -40,6 +40,14 @@ class SceneDistributionTest(unittest.TestCase):
                              for path in source_path.rglob('*') if path.is_file()}
         for name, content in self.payloads.items():
             self.write(self.root / 'skill/ur-view' / name, content)
+        # 设备固件是非 Swagger 手写技能，入口与三份参考资料都必须逐字节分发。
+        firmware_root = ROOT / 'skill/device-firmware'
+        self.firmware_payloads = {
+            str(path.relative_to(firmware_root)): path.read_bytes()
+            for path in firmware_root.rglob('*') if path.is_file()
+        }
+        for name, content in self.firmware_payloads.items():
+            self.write(self.root / 'skill/device-firmware' / name, content)
         self.write(self.root / 'skill/SKILL.md', '# 统一技能\n')
         self.write(self.root / 'references/README.md', '# API 参考\n')
         # 真实手写指南使用 persona 约定的域级路径，不能只依赖扁平兼容副本。
@@ -62,6 +70,13 @@ class SceneDistributionTest(unittest.TestCase):
             actual = destination / name
             self.assertTrue(actual.is_file(), f'分发缺少 {actual}')
             self.assertEqual(actual.read_bytes(), expected if isinstance(expected, bytes) else expected.encode())
+
+    def assert_firmware_tree(self, destination):
+        """逐字节核对设备固件技能入口和参考资料。"""
+        for name, expected in self.firmware_payloads.items():
+            actual = destination / name
+            self.assertTrue(actual.is_file(), f'分发缺少 {actual}')
+            self.assertEqual(actual.read_bytes(), expected)
 
     def test_platform_package_and_npm(self):
         """替代耗时的 Go 编译与 Swagger 导出，仅执行正式打包和 npm 文件选择。"""
@@ -92,6 +107,7 @@ else:
                             '--arch', 'linux-amd64'], env=environment, check=True, capture_output=True, text=True)
             self.assert_tree(output / 'x64-linux/skill/ur-api/ur-view')
             api_root = output / 'x64-linux/skill/ur-api'
+            self.assert_firmware_tree(api_root / 'device-firmware')
             self.assertEqual((api_root / 'ur-device/references/device-control.md').read_bytes(), self.guide)
             self.assertEqual((api_root / 'ur-device/references/shared.md').read_text(), '设备同名指南\n')
             self.assertEqual((api_root / 'ur-product/references/shared.md').read_text(), '产品同名指南\n')
@@ -102,12 +118,16 @@ else:
             self.assertFalse((output / 'x64-linux/skill/ur-api/ur-view/ur-view').exists())
             self.assertEqual((output / 'x64-linux/skill/ur-api/SKILL.md').read_text()
                              .count('[大屏技能](ur-view/SKILL.md)'), 1)
+            self.assertEqual((api_root / 'SKILL.md').read_text()
+                             .count('[设备固件技能](device-firmware/SKILL.md)'), 1)
         # --dry-run 不生成归档或上传；--ignore-scripts 避免运行 npm 发布构建。
         result = subprocess.run(['npm', 'pack', '--dry-run', '--json', '--ignore-scripts'],
                                 cwd=self.root / 'npm-package', check=True, capture_output=True, text=True)
         files = {entry['path'] for entry in json.loads(result.stdout)[0]['files']}
         self.assertIn('ur-api/ur-device/references/device-control.md', files)
         self.assertIn('ur-api/ur-product/references/shared.md', files)
+        for name in self.firmware_payloads:
+            self.assertIn('ur-api/device-firmware/' + name, files, f'npm 包漏掉 {name}')
         for name in self.payloads:
             # npm 固定排除 Git 忽略规则；它不属于运行、复制或打包所需源码。
             if Path(name).name == '.gitignore':
@@ -147,6 +167,9 @@ else:
             self.assertEqual((destination / 'references/generated-index.md').read_text(), '保留生成索引\n')
             self.assertFalse((destination / 'references/references').exists())
             self.assertEqual((destination / 'SKILL.md').read_text().count('(ur-device/references/device-control.md)'), 1)
+            self.assert_firmware_tree(destination / 'device-firmware')
+            self.assertEqual((destination / 'SKILL.md').read_text()
+                             .count('[设备固件技能](device-firmware/SKILL.md)'), 1)
 
     def test_release_copy(self):
         """执行 release.sh 的实际共享复制函数，覆盖平台包和独立 skills ZIP 的资源来源。"""
@@ -158,12 +181,15 @@ else:
                         'scene-distribution', str(self.root), str(destination)],
                        check=True, capture_output=True, text=True)
         self.assert_tree(destination / 'ur-view')
+        self.assert_firmware_tree(destination / 'device-firmware')
         self.assertEqual((destination / 'ur-device/references/device-control.md').read_bytes(), self.guide)
 
     def test_device_intent_reference_contract(self):
         """验证两种发行入口的导航和模拟控制合同没有回退到旧样例。"""
         guide = (ROOT / 'skill/ur-device/references/device-control.md').read_text()
-        for expected in ('shadowControl=4', 'simulate/report', 'JSON 字符串', 'proc.exited', '--project-id', '只说“模拟数据”时先询问'):
+        for expected in ('--shadow-control 4', '/api/v1/things/device/simulate/report',
+                         '`--data` 的属性值必须是字符串', 'proc.exited', '--project-id',
+                         '先按意图区分'):
             self.assertIn(expected, guide)
         for relative in ('references/quick-reference.md', 'skill/references/quick-reference.md'):
             self.assertIn('../ur-device/references/device-control.md', (ROOT / relative).read_text())

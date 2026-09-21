@@ -52,6 +52,7 @@ ur --app iot generate-skills --output ./skills/ur-iot
 | `ur-device` | 设备管理 — 设备 CRUD、属性控制、设备分享、物模型 |
 | `ur-device-analytics` | 设备数据分析 — 属性历史查询、趋势分析、聚合统计、报表生成（物模型驱动） |
 | `ur-device-debug` | 设备调试 — 日志查询（属性/事件/命令/上下线/异常/诊断/SDK）、实时调试（属性控制/行为调用/事件发送） |
+| `device-firmware` | 设备固件 — Watcher/ESP32 构建烧录、BLE 配网、MQTT、全量 OTA、鉴权恢复与实机验收 |
 | `ur-product` | 产品管理 — 产品定义、物模型、品类管理 |
 | `ur-project` | 项目管理 — 项目 CRUD、区域管理、场景编辑 |
 | `ur-system` | 系统管理 — 用户管理、角色权限、菜单资源、字典配置 |

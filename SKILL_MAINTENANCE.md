@@ -24,6 +24,9 @@ cli/
 │   │   └── SKILL.md            # 子 skill（手写骨架 + 自动生成端点列表）
 │   ├── ur-product/
 │   │   └── SKILL.md
+│   ├── device-firmware/       # 纯手写设备端技能，不由 Swagger 生成
+│   │   ├── SKILL.md
+│   │   └── references/
 │   └── ...
 └── SKILL_MAINTENANCE.md        # 本文档
 ```
@@ -72,8 +75,11 @@ cp -r skill/* /path/to/skills/
 | ur-system | `/api/v1/system/`（排除 user/tenant/ 等） | `skill/ur-system/` |
 | ur-ai | `/api/v1/ai/`、`/api/v1/things/alarm/`、`/api/v1/things/scene/` | `skill/ur-ai/` |
 | scene-linkage | `/api/v1/things/scene/` | `skill/scene-linkage/` |
+| device-firmware | 无 API 前缀，纯手写设备端构建与接入知识 | `skill/device-firmware/` |
 
 如需调整分组规则，修改 `scripts/generate-api-lists.py` 中的 `DOMAIN_PREFIXES`。
+`device-firmware` 不参与 Swagger 端点生成；修改后需同时验证
+`scripts/package-skill.sh` 的统一技能包、npm 包和独立发布包分发结果。
 
 ## Skill 文件标记
 

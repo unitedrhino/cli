@@ -1,6 +1,6 @@
 ---
 name: ur-api
-description: "Use when calling 联犀 SaaS 平台 API: device management, user management, product management, tenant management, AI management, project management, system management, bigscreen visualization, or IoT device operations. triggers: API调用, CLI登录, CLI升级, _notice, Sandbox认证, 账号密码登录, AKSK, 设备列表, IoT设备控制, 设备注册, 访问令牌, 物模型管理, OTA升级, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 问题反馈, 提交反馈, 反馈类型, 使用问题, 业务受损, 业务不可用, 大屏, 数据可视化, GoView, 画布, 看板, 编辑大屏, 发布大屏, 文档解析, 解析PDF, 解析Excel, 读附件, ur doc"
+description: "Use when calling 联犀 SaaS 平台 API or developing IoT device firmware: device management, product management, Watcher/ESP32 build and flash, BLE provisioning, MQTT, OTA, authentication recovery, project management, system management, bigscreen visualization, or document parsing. triggers: API调用, CLI登录, CLI升级, _notice, Sandbox认证, 账号密码登录, AKSK, 设备列表, IoT设备控制, 设备固件, Watcher, ESP32, BLE配网, MQTT, OTA升级, 鉴权恢复, 设备注册, 访问令牌, 物模型管理, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 大屏, 数据可视化, GoView, 文档解析, 解析PDF, 解析Excel, 读附件, ur doc"
 ---
 
 # ur-api — 联犀 SaaS 平台 API 工具
@@ -100,6 +100,7 @@ ur check
 | 用户意图 / 关键词 | 加载子域 | 最低所需角色 |
 |----------------|---------|------------|
 | 设备列表、设备控制、属性上报、MQTT、三元组、网关、OTA升级设备 | `ur-device` | admin（控制/CRUD），user（分享/收藏） |
+| Watcher/ESP32 固件、编译烧录、BLE 配网、MQTT 契约、OTA 回滚、鉴权自愈 | `device-firmware` | 固件操作无平台角色；联调 API 通常需 admin |
 | 产品定义、物模型、协议脚本、OTA固件包、品类 | `ur-product` | admin |
 | 项目、区域、分组、数据权限申请 | `ur-project` | admin（管理），user（申请权限） |
 | 登录、用户信息、角色、部门、字典、通知、访问令牌、修改密码 | `ur-user` | admin（CRUD），user（自身信息） |
@@ -177,6 +178,9 @@ IoT AI 工具迁移相关子域：
 
 大屏可视化子域：
 - `ur-view/SKILL.md` — 大屏（GoView）项目 CRUD、画布 JSON 本地编辑闭环（pull/validate/push/publish/screenshot）、素材库管理、IoT 数据绑定配方
+
+设备端固件子域：
+- `device-firmware/SKILL.md` — Watcher/ESP32 的 IDF 6 构建、分区保护、LLSync BLE、联犀 MQTT、全量 OTA、鉴权自愈和实机验收
 
 ---
 

@@ -11,7 +11,8 @@ description: "Use when 用户上传或引用文档需要读取内容: 解析 PDF
 
 ```bash
 ur doc parse <file|URL|-> [--format outline|md|content-list|json] \
-    [--section 前缀] [--sheet 名] [--out 文件] [--ocr] [--ocr-model large]
+    [--section 前缀] [--sheet 名] [--out 文件] [--ocr] [--ocr-model large] \
+    [--pdf-max-file-size-mb 50] [--pdf-max-pages 2000]
 ur doc formats
 ```
 
@@ -47,7 +48,8 @@ jq '.tables[].data.table_cells[] | select(.ref."$ref" == "#/texts/3") | {text, r
 
 - md/json 先 `--out` 落盘,再用 `head`/`sed`/`jq` 局部读,不要整份打进上下文
 - `--sheet 名` 过滤工作表;`--section 前缀` 过滤章节(json 格式不受过滤影响,用 jq)
-- URL 输入直接下载(≤200MB);对话中用户文件的 URL(type=file 消息里的 fileUrl)可直接传入
+- URL 输入直接下载;PDF 默认限制为 50 MiB/2000 页,可用 `--pdf-max-file-size-mb`、`--pdf-max-pages` 调高;对话中用户文件的 URL(type=file 消息里的 fileUrl)可直接传入
+- 两个 PDF 限制参数必须大于 0,不能用 0 关闭保护;结构超限直接报错,单张损坏图片不影响正文
 
 ## OCR(扫描件/图片/乱码页)
 

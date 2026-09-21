@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SceneDistributionTest(unittest.TestCase):
-    """以固件和嵌套场景夹具检查真实分发脚本，避免只检查扩展名字符串。"""
+    """以固件、OTA 和嵌套场景夹具检查真实分发脚本。"""
 
     def setUp(self):
         """创建含脚本、纹理、许可证和两套场景的最小技能仓库。"""
@@ -40,7 +40,7 @@ class SceneDistributionTest(unittest.TestCase):
                              for path in source_path.rglob('*') if path.is_file()}
         for name, content in self.payloads.items():
             self.write(self.root / 'skill/ur-view' / name, content)
-        # 设备固件是非 Swagger 手写技能，入口与三份参考资料都必须逐字节分发。
+        # 设备固件是非 Swagger 手写技能，入口与全部参考资料都必须逐字节分发。
         firmware_root = ROOT / 'skill/device-firmware'
         self.firmware_payloads = {
             str(path.relative_to(firmware_root)): path.read_bytes()
@@ -48,6 +48,14 @@ class SceneDistributionTest(unittest.TestCase):
         }
         for name, content in self.firmware_payloads.items():
             self.write(self.root / 'skill/device-firmware' / name, content)
+        # OTA 的 API 参考可生成，但平台工作流入口是手写内容，整个目录必须完整分发。
+        ota_root = ROOT / 'skill/ur-ota'
+        self.ota_payloads = {
+            str(path.relative_to(ota_root)): path.read_bytes()
+            for path in ota_root.rglob('*') if path.is_file()
+        }
+        for name, content in self.ota_payloads.items():
+            self.write(self.root / 'skill/ur-ota' / name, content)
         self.write(self.root / 'skill/SKILL.md', '# 统一技能\n')
         self.write(self.root / 'references/README.md', '# API 参考\n')
         # 真实手写指南使用 persona 约定的域级路径，不能只依赖扁平兼容副本。
@@ -74,6 +82,13 @@ class SceneDistributionTest(unittest.TestCase):
     def assert_firmware_tree(self, destination):
         """逐字节核对设备固件技能入口和参考资料。"""
         for name, expected in self.firmware_payloads.items():
+            actual = destination / name
+            self.assertTrue(actual.is_file(), f'分发缺少 {actual}')
+            self.assertEqual(actual.read_bytes(), expected)
+
+    def assert_ota_tree(self, destination):
+        """逐字节核对 OTA 手写入口和 API 参考。"""
+        for name, expected in self.ota_payloads.items():
             actual = destination / name
             self.assertTrue(actual.is_file(), f'分发缺少 {actual}')
             self.assertEqual(actual.read_bytes(), expected)
@@ -108,6 +123,7 @@ else:
             self.assert_tree(output / 'x64-linux/skill/ur-api/ur-view')
             api_root = output / 'x64-linux/skill/ur-api'
             self.assert_firmware_tree(api_root / 'device-firmware')
+            self.assert_ota_tree(api_root / 'ur-ota')
             self.assertEqual((api_root / 'ur-device/references/device-control.md').read_bytes(), self.guide)
             self.assertEqual((api_root / 'ur-device/references/shared.md').read_text(), '设备同名指南\n')
             self.assertEqual((api_root / 'ur-product/references/shared.md').read_text(), '产品同名指南\n')
@@ -120,6 +136,8 @@ else:
                              .count('[大屏技能](ur-view/SKILL.md)'), 1)
             self.assertEqual((api_root / 'SKILL.md').read_text()
                              .count('[设备固件技能](device-firmware/SKILL.md)'), 1)
+            self.assertEqual((api_root / 'SKILL.md').read_text()
+                             .count('[OTA 管理技能](ur-ota/SKILL.md)'), 1)
         # --dry-run 不生成归档或上传；--ignore-scripts 避免运行 npm 发布构建。
         result = subprocess.run(['npm', 'pack', '--dry-run', '--json', '--ignore-scripts'],
                                 cwd=self.root / 'npm-package', check=True, capture_output=True, text=True)
@@ -128,6 +146,8 @@ else:
         self.assertIn('ur-api/ur-product/references/shared.md', files)
         for name in self.firmware_payloads:
             self.assertIn('ur-api/device-firmware/' + name, files, f'npm 包漏掉 {name}')
+        for name in self.ota_payloads:
+            self.assertIn('ur-api/ur-ota/' + name, files, f'npm 包漏掉 OTA 文件 {name}')
         for name in self.payloads:
             # npm 固定排除 Git 忽略规则；它不属于运行、复制或打包所需源码。
             if Path(name).name == '.gitignore':
@@ -168,8 +188,11 @@ else:
             self.assertFalse((destination / 'references/references').exists())
             self.assertEqual((destination / 'SKILL.md').read_text().count('(ur-device/references/device-control.md)'), 1)
             self.assert_firmware_tree(destination / 'device-firmware')
+            self.assert_ota_tree(destination / 'ur-ota')
             self.assertEqual((destination / 'SKILL.md').read_text()
                              .count('[设备固件技能](device-firmware/SKILL.md)'), 1)
+            self.assertEqual((destination / 'SKILL.md').read_text()
+                             .count('[OTA 管理技能](ur-ota/SKILL.md)'), 1)
 
     def test_release_copy(self):
         """执行 release.sh 的实际共享复制函数，覆盖平台包和独立 skills ZIP 的资源来源。"""
@@ -182,6 +205,7 @@ else:
                        check=True, capture_output=True, text=True)
         self.assert_tree(destination / 'ur-view')
         self.assert_firmware_tree(destination / 'device-firmware')
+        self.assert_ota_tree(destination / 'ur-ota')
         self.assertEqual((destination / 'ur-device/references/device-control.md').read_bytes(), self.guide)
 
     def test_device_intent_reference_contract(self):

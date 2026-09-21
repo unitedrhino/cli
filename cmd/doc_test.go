@@ -64,6 +64,32 @@ func TestReadDocInputLimited(t *testing.T) {
 	}
 }
 
+// TestReadDocSourceRejectsOversizedStdinPDF 验证 stdin 的完整命令读取路径
+// 使用同一 limit+1 边界，不会只在辅助函数层获得覆盖。
+func TestReadDocSourceRejectsOversizedStdinPDF(t *testing.T) {
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	originalStdin := os.Stdin
+	os.Stdin = reader
+	t.Cleanup(func() {
+		os.Stdin = originalStdin
+		_ = reader.Close()
+		_ = writer.Close()
+	})
+	if _, err := writer.Write([]byte("12345")); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, _, err := readDocSource("-", "stdin.pdf", 4); err == nil || !strings.Contains(err.Error(), "超过") {
+		t.Fatalf("oversized stdin PDF err=%v", err)
+	}
+}
+
 // TestDownloadDocFileRejectsOversizedStream 验证无 Content-Length 的分块响应
 // 仍由 LimitReader 在内存缓冲超过边界前终止。
 func TestDownloadDocFileRejectsOversizedStream(t *testing.T) {

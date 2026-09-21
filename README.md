@@ -357,6 +357,19 @@ ur --app iot <command>          # 切换应用上下文（iot / platform-manage 
 UR_APP=iot ur <command>         # 通过环境变量切换
 ```
 
+### 文档解析
+
+```bash
+ur doc parse report.pdf --format outline
+ur doc parse report.pdf --format md --section 第四章
+ur doc parse scan.pdf --format md --ocr --ocr-max-pages 20
+
+# PDF 默认限制为 50 MiB、2000 页；确有大文档时显式调高
+ur doc parse report.pdf --pdf-max-file-size-mb 100 --pdf-max-pages 5000
+```
+
+本地文件会在读取前检查大小，URL 与 stdin 使用有界读取；限制参数必须大于 0。PDF 结构资源超限直接失败，单张损坏或超限图片只被跳过，不影响可安全提取的正文。
+
 ### API 调用
 
 ```bash

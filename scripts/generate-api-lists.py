@@ -9,6 +9,7 @@
 用法:
     cd /path/to/cli
     python3 scripts/generate-api-lists.py
+    python3 scripts/generate-api-lists.py --manual-guides-only [--skill-dir <path>]
 
 需要环境变量或相对路径找到 backend/.swagger/:
     - $UR_SWAGGER_DIR
@@ -60,6 +61,23 @@ MAX_EXAMPLE_DEPTH = 4
 # 参与生成的 swagger 文件列表（backend/.swagger/ 下）；
 # 新增域时需把对应 swagger 文件加进来，例如大屏域的 view-view.json
 SWAGGER_FILES = ["core-api.json", "things-api.json", "core-ai.json", "things-ai.json", "view-view.json"]
+
+# 生成型 SKILL.md 的手写专项导航。正文保存在 references/，这里仅维护生成器可重入的入口，
+# 避免直接编辑带“自动生成”声明的文件后在下次生成时丢失。
+MANUAL_GUIDES = {
+    "ur-ai": [
+        ("设备语音会话", "Agent/模型/MCP、MQTT 会话、表情、多轮与打断",
+         "references/device-voice.md"),
+    ],
+    "ur-device-debug": [
+        ("设备语音排障", "先用 devicesim 分离平台、协议和真机硬件问题",
+         "../ur-ai/references/device-voice.md"),
+    ],
+    "ur-product": [
+        ("语音设备接入", "产品、Agent、物模型、固件、OTA 与真机闭环",
+         "../device-firmware/references/voice-ai.md"),
+    ],
+}
 
 
 def find_swagger_dir():
@@ -340,7 +358,7 @@ def generate_response_example(responses, schemas):
 
 
 def sanitize_filename(name):
-    """将 group 名转换为合法的文件名；\w 在 Python3 下含中日韩字符，
+    """将 group 名转换为合法的文件名；\\w 在 Python3 下含中日韩字符，
     中文分组名（如 view 域的「可视化管理」）可原样保留，纯符号名兜底为 index"""
     result = re.sub(r'[^\w-]', '-', name).strip('-').lower()
     return result or "index"
@@ -591,16 +609,78 @@ def update_skill_file(skill_dir, domain, new_content):
     return True
 
 
+def update_manual_guides(skill_dir, domain, guides):
+    """以生成标记写入专项指南导航，重复运行不产生重复段落。"""
+    skill_path = Path(skill_dir) / domain / "SKILL.md"
+    if not skill_path.exists():
+        print(f"警告: 找不到 {skill_path}", file=sys.stderr)
+        return False
+
+    content = skill_path.read_text(encoding="utf-8")
+    marker_start = f"<!-- MANUAL_GUIDES:{domain} -->"
+    marker_end = "<!-- END_MANUAL_GUIDES -->"
+    lines = ["## 专项指南", "", "| 场景 | 说明 | 参考文档 |", "|------|------|---------|"]
+    for title, description, reference in guides:
+        lines.append(f"| {title} | {description} | [{Path(reference).name}]({reference}) |")
+    block = f"{marker_start}\n\n" + "\n".join(lines) + f"\n\n{marker_end}"
+
+    if marker_start in content:
+        pattern = re.compile(
+            re.escape(marker_start) + ".*?" + re.escape(marker_end),
+            re.DOTALL,
+        )
+        updated = pattern.sub(block, content)
+    else:
+        anchors = ("## 典型业务场景", "## 设备实时调试", "## 常用工作流", "## 注意事项")
+        position = next((content.find(anchor) for anchor in anchors if anchor in content), -1)
+        if position >= 0:
+            updated = content[:position].rstrip() + "\n\n" + block + "\n\n" + content[position:]
+        else:
+            updated = content.rstrip() + "\n\n" + block + "\n"
+
+    skill_path.write_text(updated, encoding="utf-8")
+    print(f"已更新专项导航 {skill_path}")
+    return True
+
+
+def update_all_manual_guides(skill_dir):
+    """更新全部生成型技能的手写指南导航并返回成功数量。"""
+    return sum(
+        update_manual_guides(skill_dir, domain, guides)
+        for domain, guides in MANUAL_GUIDES.items()
+    )
+
+
 def main():
+    cli_dir = Path(__file__).parent.parent
+    skill_dir = cli_dir / "skill"
+    arguments = list(sys.argv[1:])
+    manual_only = False
+    if "--manual-guides-only" in arguments:
+        manual_only = True
+        arguments.remove("--manual-guides-only")
+    if "--skill-dir" in arguments:
+        index = arguments.index("--skill-dir")
+        if index + 1 >= len(arguments):
+            print("错误: --skill-dir 缺少路径", file=sys.stderr)
+            sys.exit(2)
+        skill_dir = Path(arguments[index + 1]).resolve()
+        del arguments[index:index + 2]
+    if arguments:
+        print("用法: generate-api-lists.py [--manual-guides-only] [--skill-dir <path>]",
+              file=sys.stderr)
+        sys.exit(2)
+    if manual_only:
+        updated = update_all_manual_guides(skill_dir)
+        print(f"共更新 {updated} 个专项指南入口")
+        return
+
     swagger_dir = find_swagger_dir()
     if not swagger_dir:
         print("错误: 找不到 swagger 文件目录。请设置 UR_SWAGGER_DIR 或在 backend/.swagger 附近运行。", file=sys.stderr)
         sys.exit(1)
 
     print(f"使用 swagger 目录: {swagger_dir}")
-
-    cli_dir = Path(__file__).parent.parent
-    skill_dir = cli_dir / "skill"
 
     # 加载 swagger 数据和 schemas
     swagger_data = load_swagger(swagger_dir)
@@ -636,7 +716,9 @@ def main():
         if update_skill_file(skill_dir, domain, index_table):
             updated += 1
 
-    print(f"\n共更新 {updated} 个 skill 文件，生成了 references/api/ 目录")
+    manual_updated = update_all_manual_guides(skill_dir)
+    print(f"\n共更新 {updated} 个 skill 文件，生成了 references/api/ 目录；"
+          f"更新 {manual_updated} 个专项指南入口")
 
 
 if __name__ == "__main__":

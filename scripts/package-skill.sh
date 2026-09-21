@@ -174,6 +174,19 @@ DEVICE_CONTROL
 DEVICE_FIRMWARE
   fi
 
+  # 设备语音指南跨平台配置与固件实现，统一入口必须显式导航到两侧正文。
+  if [[ -f "${api_skill_dir}/ur-ai/references/device-voice.md" ]] && \
+    ! grep -Fq '(ur-ai/references/device-voice.md)' "${api_skill_dir}/SKILL.md"; then
+    cat >> "${api_skill_dir}/SKILL.md" <<'DEVICE_VOICE_AI'
+
+## 设备语音 AI
+
+Agent、模型、MCP 与会话合同见
+[设备语音会话指南](ur-ai/references/device-voice.md)；固件、UDP、表情、OTA 与真机验收见
+[设备固件语音指南](device-firmware/references/voice-ai.md)。先运行 devicesim，再刷写真机。
+DEVICE_VOICE_AI
+  fi
+
   # Swagger 导出只有 OTA 端点参考，不会生成手写平台工作流入口。
   mkdir -p "${api_skill_dir}/ur-ota"
   cp -R "${ROOT}/skill/ur-ota/." "${api_skill_dir}/ur-ota/"

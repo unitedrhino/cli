@@ -61,6 +61,8 @@ class SceneDistributionTest(unittest.TestCase):
         # 真实手写指南使用 persona 约定的域级路径，不能只依赖扁平兼容副本。
         self.guide = (ROOT / 'skill/ur-device/references/device-control.md').read_bytes()
         self.write(self.root / 'skill/ur-device/references/device-control.md', self.guide)
+        self.ai_voice_guide = (ROOT / 'skill/ur-ai/references/device-voice.md').read_bytes()
+        self.write(self.root / 'skill/ur-ai/references/device-voice.md', self.ai_voice_guide)
         self.write(self.root / 'skill/ur-device/references/shared.md', '设备同名指南\n')
         self.write(self.root / 'skill/ur-product/references/shared.md', '产品同名指南\n')
         self.write(self.root / 'references/quick-reference.md', (ROOT / 'references/quick-reference.md').read_bytes())
@@ -125,6 +127,8 @@ else:
             self.assert_firmware_tree(api_root / 'device-firmware')
             self.assert_ota_tree(api_root / 'ur-ota')
             self.assertEqual((api_root / 'ur-device/references/device-control.md').read_bytes(), self.guide)
+            self.assertEqual((api_root / 'ur-ai/references/device-voice.md').read_bytes(),
+                             self.ai_voice_guide)
             self.assertEqual((api_root / 'ur-device/references/shared.md').read_text(), '设备同名指南\n')
             self.assertEqual((api_root / 'ur-product/references/shared.md').read_text(), '产品同名指南\n')
             self.assertEqual((api_root / 'SKILL.md').read_text().count('(ur-device/references/device-control.md)'), 1)
@@ -137,12 +141,15 @@ else:
             self.assertEqual((api_root / 'SKILL.md').read_text()
                              .count('[设备固件技能](device-firmware/SKILL.md)'), 1)
             self.assertEqual((api_root / 'SKILL.md').read_text()
+                             .count('(ur-ai/references/device-voice.md)'), 1)
+            self.assertEqual((api_root / 'SKILL.md').read_text()
                              .count('[OTA 管理技能](ur-ota/SKILL.md)'), 1)
         # --dry-run 不生成归档或上传；--ignore-scripts 避免运行 npm 发布构建。
         result = subprocess.run(['npm', 'pack', '--dry-run', '--json', '--ignore-scripts'],
                                 cwd=self.root / 'npm-package', check=True, capture_output=True, text=True)
         files = {entry['path'] for entry in json.loads(result.stdout)[0]['files']}
         self.assertIn('ur-api/ur-device/references/device-control.md', files)
+        self.assertIn('ur-api/ur-ai/references/device-voice.md', files)
         self.assertIn('ur-api/ur-product/references/shared.md', files)
         for name in self.firmware_payloads:
             self.assertIn('ur-api/device-firmware/' + name, files, f'npm 包漏掉 {name}')
@@ -184,6 +191,8 @@ else:
             subprocess.run(['bash', '-c', command, 'reference-distribution', str(self.root), str(destination)],
                            check=True, capture_output=True, text=True)
             self.assertEqual((destination / 'ur-device/references/device-control.md').read_bytes(), self.guide)
+            self.assertEqual((destination / 'ur-ai/references/device-voice.md').read_bytes(),
+                             self.ai_voice_guide)
             self.assertEqual((destination / 'references/generated-index.md').read_text(), '保留生成索引\n')
             self.assertFalse((destination / 'references/references').exists())
             self.assertEqual((destination / 'SKILL.md').read_text().count('(ur-device/references/device-control.md)'), 1)
@@ -191,6 +200,8 @@ else:
             self.assert_ota_tree(destination / 'ur-ota')
             self.assertEqual((destination / 'SKILL.md').read_text()
                              .count('[设备固件技能](device-firmware/SKILL.md)'), 1)
+            self.assertEqual((destination / 'SKILL.md').read_text()
+                             .count('(ur-ai/references/device-voice.md)'), 1)
             self.assertEqual((destination / 'SKILL.md').read_text()
                              .count('[OTA 管理技能](ur-ota/SKILL.md)'), 1)
 
@@ -207,6 +218,8 @@ else:
         self.assert_firmware_tree(destination / 'device-firmware')
         self.assert_ota_tree(destination / 'ur-ota')
         self.assertEqual((destination / 'ur-device/references/device-control.md').read_bytes(), self.guide)
+        self.assertEqual((destination / 'ur-ai/references/device-voice.md').read_bytes(),
+                         self.ai_voice_guide)
 
     def test_device_intent_reference_contract(self):
         """验证两种发行入口的导航和模拟控制合同没有回退到旧样例。"""
@@ -218,6 +231,29 @@ else:
         for relative in ('references/quick-reference.md', 'skill/references/quick-reference.md'):
             self.assertIn('../ur-device/references/device-control.md', (ROOT / relative).read_text())
         self.assertIn('(ur-device/references/device-control.md)', (ROOT / 'skill/SKILL.md').read_text())
+
+    def test_manual_voice_navigation_generator(self):
+        """生成型技能的语音指南入口必须可重入，且 source skill 链接指向真实文件。"""
+        skill_root = self.root / 'generated-navigation'
+        for domain in ('ur-ai', 'ur-device-debug', 'ur-product'):
+            self.write(skill_root / domain / 'SKILL.md', '# 测试技能\n\n## 典型业务场景\n')
+        generator = ROOT / 'scripts/generate-api-lists.py'
+        command = ['python3', str(generator), '--manual-guides-only', '--skill-dir', str(skill_root)]
+        subprocess.run(command, check=True, capture_output=True, text=True)
+        subprocess.run(command, check=True, capture_output=True, text=True)
+
+        expected_links = {
+            'ur-ai': '(references/device-voice.md)',
+            'ur-device-debug': '(../ur-ai/references/device-voice.md)',
+            'ur-product': '(../device-firmware/references/voice-ai.md)',
+        }
+        for domain, expected_link in expected_links.items():
+            content = (skill_root / domain / 'SKILL.md').read_text()
+            self.assertEqual(content.count(f'<!-- MANUAL_GUIDES:{domain} -->'), 1)
+            self.assertEqual(content.count(expected_link), 1)
+
+        self.assertTrue((ROOT / 'skill/ur-ai/references/device-voice.md').is_file())
+        self.assertTrue((ROOT / 'skill/device-firmware/references/voice-ai.md').is_file())
 
 
 if __name__ == '__main__':

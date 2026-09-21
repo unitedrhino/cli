@@ -48,6 +48,8 @@ description: "Use when bringing a physical device onto 联犀 IoT from zero or m
   [构建与烧录](references/build-flash.md)。
 - 固件上传、平台任务、设备 worker、确认与回滚：读
   [全量 OTA](references/ota.md)，平台命令同时加载 `ur-ota`。
+- 联犀语音对话、表情、多轮、打断和当前设备控制：读
+  [设备语音 AI](references/voice-ai.md)，平台配置同时加载 `ur-ai`。
 - 故障定位：读 [分层排障](references/troubleshooting.md)。
 - 换芯片、RTOS 或板型：读 [移植清单](references/porting-checklist.md)。
 - 完整硬件验收与收尾：读 [实机验收](references/acceptance.md)。

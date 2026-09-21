@@ -90,6 +90,11 @@ MQTT 回调只复制 payload 并入队。`respTextDelta` 在拥塞时允许丢�
 `respAudioDone` 必须进入无损队列或溢出队列。重复终态、旧 token、旧 session 和错误
 `respId` 必须安全忽略；不得因为 STT 没有 `respId` 而丢弃识别结果。
 
+Watcher 的内部 RAM 同时承载音频任务栈和 MQTT SDK。跨任务 AI 上行队列只保存小型描述符，
+完整 JSON payload 应按需分配到 PSRAM，并在发布成功、入队失败和断线清队列时逐项释放。
+禁止用 `队列深度 × 最大报文长度` 的固定元素预占内部 RAM；这种实现可能通过编译和协议
+单测，却在真机音频初始化后令 MQTTClient 因连续内存不足而创建失败。
+
 ## 4. UDP 与音频
 
 UDP 数据报固定为 16 字节头加 AES-CTR 密文。帧头、nonce 字段覆盖、序号、大小端和
@@ -166,6 +171,7 @@ ur things device action send -p <product-id> -d <device-name> --data-id SendMess
 | 多轮串话 | session/resp 短 ID | 旧 session 未清理、未校验 respId、重复终态未去重 |
 | 打断无效 | VAD 与方法序列 | 未发 `respCancel`，或未重新等待 `audioStarted` |
 | 断网后异常 | MQTT/UDP 生命周期 | 继续使用旧 UDP/session、clean session 重连后漏订阅，或普通断网误清 DeviceSecret |
+| OTA 后无 MQTT | 启动串口的空闲/最小内部 RAM 与 SDK 返回码 | AI 大报文队列预占内部 RAM；队列改存指针、payload 放 PSRAM，并验证所有释放路径 |
 
 排障顺序不可颠倒：devicesim 平台基线 → 报文/加密向量 → Watcher 固件 → 麦克风、
 扬声器和显示硬件。

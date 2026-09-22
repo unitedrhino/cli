@@ -5,7 +5,7 @@ go 1.25.6
 require (
 	github.com/spf13/cobra v1.10.2
 	github.com/tidwall/gjson v1.19.0
-	github.com/unitedrhino/docling v1.1.1
+	github.com/unitedrhino/docling v1.2.0
 )
 
 require (

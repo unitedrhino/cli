@@ -221,6 +221,20 @@ else:
         self.assertEqual((destination / 'ur-ai/references/device-voice.md').read_bytes(),
                          self.ai_voice_guide)
 
+    def test_release_alias_names(self):
+        """验证 CLI 与 Skills 的 latest 别名均移除版本号且不会覆盖版本资产。"""
+        script = (ROOT / 'scripts/release.sh').read_text()
+        begin = script.index('release_alias_name() {')
+        end = script.index('\n}\n', begin) + 3
+        command = ('VERSION=v0.8.0\n' + script[begin:end] +
+                   '\nrelease_alias_name ur-cli-v0.8.0-Linux-x86_64.tar.gz\n' +
+                   'release_alias_name ur-api-skills-v0.8.0.zip')
+        result = subprocess.run(['bash', '-c', command], check=True, capture_output=True, text=True)
+        self.assertEqual(result.stdout.splitlines(), [
+            'ur-cli-Linux-x86_64.tar.gz',
+            'ur-api-skills.zip',
+        ])
+
     def test_device_intent_reference_contract(self):
         """验证两种发行入口的导航和模拟控制合同没有回退到旧样例。"""
         guide = (ROOT / 'skill/ur-device/references/device-control.md').read_text()

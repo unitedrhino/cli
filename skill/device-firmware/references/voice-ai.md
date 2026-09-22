@@ -38,7 +38,7 @@
 
 ```bash
 DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|DeviceControlSuccess)$' \
-DEVICESIM_AUDIO_SAMPLE_RATE=16000 \
+DEVICESIM_AUDIO_SAMPLE_RATE=24000 \
 bash shell/devicesim-oneclick-test.sh
 ```
 
@@ -69,7 +69,10 @@ devicesim 通过只证明平台链路可用，不能替代固件测试。修改�
 封包或表情映射后，在 `firmware/watcher` 执行：
 
 ```bash
-python3 -m unittest scripts.tests.test_ur_ai_contract scripts.tests.test_ur_ai_runtime -v
+python3 -m unittest \
+  scripts.tests.test_ur_ai_contract \
+  scripts.tests.test_ur_ai_runtime \
+  scripts.tests.test_run_ur_ai_e2e -v
 ```
 
 两类测试必须同时通过：
@@ -122,9 +125,10 @@ UDP 数据报固定为 16 字节头加 AES-CTR 密文。帧头、nonce 字段覆
 AES 实现必须直接对照 `devicesim/udp.go`；公共小智协议与联犀协议复用同一封包实现，
 避免两份算法漂移。
 
-音频参数以设备编码器的真实输出和 `sessionCreate.audioParams` 一致为准。Watcher 的 codec
-以 24 kHz 采集，但现有 AFE/Opus 上行链路会重采样并编码为 16 kHz、单声道、60 ms，
-因此联犀会话声明 16 kHz。不能只按 codec 采样率误报 24 kHz。
+联犀语音会话和 devicesim 统一声明 24 kHz、单声道、60 ms，UDP 下行也按
+24 kHz 解码，避免 Watcher 在低内存时额外走 16→24 kHz 下行重采样路径。Watcher 的
+AFE 仍以 16 kHz 产生语音并使用 Opus 编码；Opus 帧可由对端以 24 kHz 输出且保持原帧时长。
+`sessionCreate.audioParams`、UDP channel 和测试样本必须同时保持 24 kHz，不能只修改一处。
 
 下行处理要求：
 
@@ -135,14 +139,68 @@ AES 实现必须直接对照 `devicesim/udp.go`；公共小智协议与联犀协
   先恢复 AI/property/action/OTA 与解绑订阅，再向语音层宣布已连接，由下次唤醒创建新 session。
 - INFO 日志只记录方法、短 session/resp ID 与耗时，不记录密钥、nonce、音频或对话全文。
 
-## 6. 表情和界面
+## 6. 可重复的真机音频 E2E
+
+该用例只用内置音频替代麦克风输入，其余全部走真实链路：主 MQTT、
+`sessionCreate/audioStart/audioStop`、UDP AES-CTR、平台 ASR/LLM/TTS、真实 UDP 下行、
+Opus 解码、播放队列和界面状态。不能用直接注入 STT 文字或伪造回复代替。
+
+按以下固定用例分层执行和留证，不把任一层通过替代为全链路通过：
+
+| 用例 | 输入与执行 | 必须断言 | 建议频率 |
+|---|---|---|---|
+| `VOICE-UNIT-001` 资源格式 | 运行 `go test ./tools/devicesim/cmd/opusfixture` | URAF 头、24 kHz/60 ms、帧边界和非法帧拒绝 | 每次修改生成器 |
+| `VOICE-UNIT-002` 固件协议 | 运行 `test_ur_ai_contract`、`test_ur_ai_runtime` | token/respId、乱序、重复、过期、断线、UDP 和 21 类表情 | 每次修改语音固件 |
+| `VOICE-RUNNER-001` 判定器 | 运行 `test_run_ur_ai_e2e` | 成功、乱序、缺阶段、崩溃标记和严格延迟门槛 | 每次修改 runner |
+| `VOICE-SIM-001` 平台基线 | 运行 devicesim 六项 workflow | ASR、LLM、TTS、UDP、MCP、多轮和打断 | 平台配置或服务变更后 |
+| `VOICE-HW-001` 单轮闭环 | runner `--repeat 1`，固定语料“当前音量多少” | 全部阶段、STT 命中“音量”、七个 RESULT 标志、两项延迟和无致命标记 | 每次测试固件刷写后 |
+| `VOICE-HW-002` 重复稳定性 | runner `--repeat 3` 或更高 | 每轮独立 session、全部通过、各轮原始日志和 JSON | MR 前至少三轮 |
+| `VOICE-MANUAL-001` 硬件验收 | 真人唤醒、说话并观察/听取设备 | 麦克风、唤醒词、扬声器、字幕和表情实物效果 | 发版与现场验收 |
+
+音频资源必须由 devicesim 的同一 MP3→Opus 编码器生成，不手工组帧：
+
+```bash
+cd backend/things
+go run ./tools/devicesim/cmd/opusfixture \
+  -input test/testdata/turn4_query_volume_howmuch.mp3 \
+  -output ../../firmware/watcher/main/testdata/ur_ai_query_volume.opuspack \
+  -sample-rate 24000 -frame-duration-ms 60 -tail-silence-frames 5
+```
+
+测试音频固件必须显式以 `ENABLE_UR_AI_E2E_TEST=1` 构建；生产固件默认为 `0`，
+不带样本和串口测试命令。仅写当前应用分区，不覆盖 NVS、`nvsfactory` 或分区表。
+
+固件上线并处于 idle 后，在串口直连主机上执行：
+
+```bash
+python3 firmware/watcher/scripts/run_ur_ai_e2e.py \
+  --port <serial-port> --repeat 3 --timeout 75 \
+  --log-dir <repo>/.temp/device-firmware/ur-ai-e2e
+```
+
+runner 每轮创建和关闭独立 session，并断言：
+
+1. `sessionCreated → audioStarted → INPUT_DONE` 全部到达。
+2. `respSttDone`、`respTextDone`、首个真实音频帧和 `respAudioDone` 全部到达；
+   响应阶段可交错，不强制错误的固定顺序。
+3. RESULT 中 STT/文本/音频七个标志均为 `1`，其中 STT 必须命中固定语料关键词
+   “音量”，最终打印 `PASS`；日志不输出完整对话。
+4. 日志不含 `assert failed`、`Guru Meditation`、`Backtrace`、复位或命令错误。
+5. 以 ESP 日志的统一 uptime 计算门禁：AudioStop→首帧小于 8 秒，
+   STTDone→TextDone 小于 15 秒。不能相减计时原点不同的 `elapsed`。
+
+每轮输出 JSON 摘要和单独原始日志；任一轮缺阶段、超时、崩溃或复位即非零退出。
+循环 E2E 只证明云端到扬声器队列的可重复闭环；麦克风、唤醒词和实际扬声器响度
+仍需最终人工真机验收。
+
+## 7. 表情和界面
 
 `respEmotion` 必须与当前 `respId` 匹配。允许的 emoji/emotion 映射以
 `backend/things/tools/devicesim/emotion_test.go` 的 21 项白名单为准；未知、空值或过期
 消息统一回退 `neutral`。STT 显示用户字幕，文本 delta 增量累积助手字幕并对终态去重。
 tool 状态只能作界面提示，不能代替真实物模型控制。
 
-## 7. 当前设备控制验收
+## 8. 当前设备控制验收
 
 先查物模型确认标识符，再分别验证查询、属性和行为。示例命令仅用于人工对照：
 
@@ -162,7 +220,7 @@ ur things device action send -p <product-id> -d <device-name> --data-id SendMess
 
 模型口头说“已完成”不属于控制成功证据。
 
-## 8. 构建、OTA 与真机验收
+## 9. 构建、OTA 与真机验收
 
 构建前执行资源门禁，并校验 IDF 版本、板型、Flash、分区、rollback、BLE、联犀 MQTT/OTA、
 本地唤醒词和语音 AI 配置。固件不得包含平台凭据、WiFi 密码或公共小智服务 URL。
@@ -180,13 +238,14 @@ ur things device action send -p <product-id> -d <device-name> --data-id SendMess
 - AudioStop 到首个音频帧小于 8 秒，STTDone 到 TextDone 小于 15 秒。
 - 断网恢复、一次真实断电、15 分钟在线稳定观察。
 
-## 9. 分层诊断
+## 10. 分层诊断
 
 | 现象 | 先查 | 常见根因 |
 |---|---|---|
 | devicesim 失败 | 平台配置与服务日志 | Agent/模型/MCP 绑定错误，ASR/LLM/TTS 或 UDP 服务故障 |
 | devicesim 通过、真机无 STT | MQTT 方法序列和 UDP 向量 | 未等 `audioStarted`、预热失败、nonce/序号错误、Opus 参数不一致 |
 | 有文本无声音 | TTS 事件与 UDP 收包 | TTS 无帧、UDP 下行、Opus 解码或扬声器故障 |
+| 一轮 PASS 后崩溃 | runner 原始日志与 ELF 回溯 | 下行采样率与 session 声明不一致、重采样越界或音频队列所有权错误 |
 | 有声音但尾音被截 | 播放队列 | 收到 `respAudioDone` 后过早切换状态 |
 | 有回复无控制 | MCP 与物模型日志 | AgentGroup/MCP 绑定、identifier、reply token 或目标上下文错误 |
 | 多轮串话 | session/resp 短 ID | 旧 session 未清理、未校验 respId、重复终态未去重 |

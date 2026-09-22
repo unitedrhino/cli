@@ -55,6 +55,7 @@
 
 ```bash
 DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|DeviceControlSuccess)$' \
+DEVICESIM_AUDIO_SAMPLE_RATE=24000 \
 bash shell/devicesim-oneclick-test.sh
 ```
 
@@ -75,13 +76,24 @@ STTDone 到 TextDone 小于 15 秒。
 平台基线通过后，还要在 `firmware/watcher` 运行固件生产协议核心的单元测试与时序回放：
 
 ```bash
-python3 -m unittest scripts.tests.test_ur_ai_contract scripts.tests.test_ur_ai_runtime -v
+python3 -m unittest \
+  scripts.tests.test_ur_ai_contract \
+  scripts.tests.test_ur_ai_runtime \
+  scripts.tests.test_run_ur_ai_e2e -v
 ```
 
 其中静态合同检查只能发现源码合同漂移；`test_ur_ai_runtime` 才会编译运行固件共用的
 表情、session/respId、终态去重和 UDP 帧头代码，并回放多轮、乱序、重复、打断和断线
 旧消息。该协议 E2E 不连接云端，不能替代上面的 devicesim 真实 E2E 或最终真机测试；
 三层结果应分别记录。
+
+真机云端音频闭环应使用
+`firmware/watcher/scripts/run_ur_ai_e2e.py --port <serial-port> --repeat 3`。它使用由
+devicesim 编码器生成的 24 kHz/60 ms Opus 样本，只替换麦克风输入，仍连接真实
+MQTT、UDP、ASR、LLM 和 TTS。每轮必须看到完整方法序列、播放队列排空与 PASS，
+并使用 ESP 日志 uptime 验证 8 秒/15 秒门禁。生产固件不得启用该内置样本。
+音频生成、测试构建和失败分层的完整步骤见
+`device-firmware/references/voice-ai.md`。
 
 ## 分层排障
 

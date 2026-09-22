@@ -270,26 +270,30 @@ else:
         self.assertTrue((ROOT / 'skill/device-firmware/references/voice-ai.md').is_file())
 
     def test_repeatable_voice_e2e_reference_contract(self):
-        """语音技能必须保留 24kHz devicesim 基准和可循环的真机 runner。"""
+        """语音技能必须保留 16kHz 协议基准、分层解码和可循环的真机 runner。"""
         firmware_guide = (
             ROOT / 'skill/device-firmware/references/voice-ai.md'
         ).read_text()
         platform_guide = (ROOT / 'skill/ur-ai/references/device-voice.md').read_text()
         for expected in (
-            'DEVICESIM_AUDIO_SAMPLE_RATE=24000',
+            'DEVICESIM_AUDIO_SAMPLE_RATE=16000',
             'tools/devicesim/cmd/opusfixture',
             'ENABLE_UR_AI_E2E_TEST=1',
             '`VOICE-HW-002` 重复稳定性',
             'STT 必须命中固定语料关键词',
             'run_ur_ai_e2e.py',
-            '--repeat 3',
+            '--repeat 5',
+            'Opus 解码器可从同一 16 kHz 码流原生输出',
+            '不能靠事后检查或把协议改成 24 kHz 掩盖',
+            'Failed to resample output audio',
             'AudioStop→首帧小于 8 秒',
             '不能相减计时原点不同的 `elapsed`',
         ):
             self.assertIn(expected, firmware_guide)
         for expected in (
-            'DEVICESIM_AUDIO_SAMPLE_RATE=24000',
-            'run_ur_ai_e2e.py --port <serial-port> --repeat 3',
+            'DEVICESIM_AUDIO_SAMPLE_RATE=16000',
+            'run_ur_ai_e2e.py --port <serial-port> --repeat 5',
+            'Watcher 保持 16 kHz 会话并由 Opus 解码器直接输出 24 kHz PCM',
             'device-firmware/references/voice-ai.md',
         ):
             self.assertIn(expected, platform_guide)

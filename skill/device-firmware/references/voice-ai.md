@@ -38,7 +38,7 @@
 
 ```bash
 DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|DeviceControlSuccess)$' \
-DEVICESIM_AUDIO_SAMPLE_RATE=24000 \
+DEVICESIM_AUDIO_SAMPLE_RATE=16000 \
 bash shell/devicesim-oneclick-test.sh
 ```
 
@@ -125,10 +125,14 @@ UDP 数据报固定为 16 字节头加 AES-CTR 密文。帧头、nonce 字段覆
 AES 实现必须直接对照 `devicesim/udp.go`；公共小智协议与联犀协议复用同一封包实现，
 避免两份算法漂移。
 
-联犀语音会话和 devicesim 统一声明 24 kHz、单声道、60 ms，UDP 下行也按
-24 kHz 解码，避免 Watcher 在低内存时额外走 16→24 kHz 下行重采样路径。Watcher 的
-AFE 仍以 16 kHz 产生语音并使用 Opus 编码；Opus 帧可由对端以 24 kHz 输出且保持原帧时长。
-`sessionCreate.audioParams`、UDP channel 和测试样本必须同时保持 24 kHz，不能只修改一处。
+联犀语音会话、devicesim、UDP channel 和固定测试样本统一声明 16 kHz、单声道、
+60 ms，不能只修改其中一处。Watcher 音频硬件以 24 kHz 采集，AFE 转为 16 kHz 后编码
+Opus 上行；这两个采样率属于不同层，不能因为硬件是 24 kHz 就把会话伪装为 24 kHz。
+
+Opus 解码器可从同一 16 kHz 码流原生输出 8/12/16/24/48 kHz PCM。Watcher 收到下行
+16 kHz Opus 时应直接让解码器输出扬声器所需的 24 kHz PCM，不再串联外部 16→24 kHz
+重采样器。曾验证 ESP 音效库重采样器对一帧返回的容量小于实际写入量，并在返回调用方
+前越界破坏堆；只在调用后比较 `actual_output` 与容量无法阻止该类越界。
 
 下行处理要求：
 
@@ -149,12 +153,12 @@ Opus 解码、播放队列和界面状态。不能用直接注入 STT 文字或�
 
 | 用例 | 输入与执行 | 必须断言 | 建议频率 |
 |---|---|---|---|
-| `VOICE-UNIT-001` 资源格式 | 运行 `go test ./tools/devicesim/cmd/opusfixture` | URAF 头、24 kHz/60 ms、帧边界和非法帧拒绝 | 每次修改生成器 |
+| `VOICE-UNIT-001` 资源格式 | 运行 `go test ./tools/devicesim/cmd/opusfixture` | URAF 头、16 kHz/60 ms、帧边界和非法帧拒绝 | 每次修改生成器 |
 | `VOICE-UNIT-002` 固件协议 | 运行 `test_ur_ai_contract`、`test_ur_ai_runtime` | token/respId、乱序、重复、过期、断线、UDP 和 21 类表情 | 每次修改语音固件 |
 | `VOICE-RUNNER-001` 判定器 | 运行 `test_run_ur_ai_e2e` | 成功、乱序、缺阶段、崩溃标记和严格延迟门槛 | 每次修改 runner |
 | `VOICE-SIM-001` 平台基线 | 运行 devicesim 六项 workflow | ASR、LLM、TTS、UDP、MCP、多轮和打断 | 平台配置或服务变更后 |
 | `VOICE-HW-001` 单轮闭环 | runner `--repeat 1`，固定语料“当前音量多少” | 全部阶段、STT 命中“音量”、七个 RESULT 标志、两项延迟和无致命标记 | 每次测试固件刷写后 |
-| `VOICE-HW-002` 重复稳定性 | runner `--repeat 3` 或更高 | 每轮独立 session、全部通过、各轮原始日志和 JSON | MR 前至少三轮 |
+| `VOICE-HW-002` 重复稳定性 | runner `--repeat 5` 或更高 | 每轮独立 session、全部通过、各轮原始日志和 JSON | MR 前至少五轮 |
 | `VOICE-MANUAL-001` 硬件验收 | 真人唤醒、说话并观察/听取设备 | 麦克风、唤醒词、扬声器、字幕和表情实物效果 | 发版与现场验收 |
 
 音频资源必须由 devicesim 的同一 MP3→Opus 编码器生成，不手工组帧：
@@ -164,7 +168,7 @@ cd backend/things
 go run ./tools/devicesim/cmd/opusfixture \
   -input test/testdata/turn4_query_volume_howmuch.mp3 \
   -output ../../firmware/watcher/main/testdata/ur_ai_query_volume.opuspack \
-  -sample-rate 24000 -frame-duration-ms 60 -tail-silence-frames 5
+  -sample-rate 16000 -frame-duration-ms 60 -tail-silence-frames 5
 ```
 
 测试音频固件必须显式以 `ENABLE_UR_AI_E2E_TEST=1` 构建；生产固件默认为 `0`，
@@ -174,7 +178,7 @@ go run ./tools/devicesim/cmd/opusfixture \
 
 ```bash
 python3 firmware/watcher/scripts/run_ur_ai_e2e.py \
-  --port <serial-port> --repeat 3 --timeout 75 \
+  --port <serial-port> --repeat 5 --timeout 75 \
   --log-dir <repo>/.temp/device-firmware/ur-ai-e2e
 ```
 
@@ -185,7 +189,8 @@ runner 每轮创建和关闭独立 session，并断言：
    响应阶段可交错，不强制错误的固定顺序。
 3. RESULT 中 STT/文本/音频七个标志均为 `1`，其中 STT 必须命中固定语料关键词
    “音量”，最终打印 `PASS`；日志不输出完整对话。
-4. 日志不含 `assert failed`、`Guru Meditation`、`Backtrace`、复位或命令错误。
+4. 日志不含 `Failed to resample output audio`、`assert failed`、`Guru Meditation`、
+   `Backtrace`、复位或命令错误；重采样容量异常即失败，不能等堆断言。
 5. 以 ESP 日志的统一 uptime 计算门禁：AudioStop→首帧小于 8 秒，
    STTDone→TextDone 小于 15 秒。不能相减计时原点不同的 `elapsed`。
 
@@ -245,7 +250,7 @@ ur things device action send -p <product-id> -d <device-name> --data-id SendMess
 | devicesim 失败 | 平台配置与服务日志 | Agent/模型/MCP 绑定错误，ASR/LLM/TTS 或 UDP 服务故障 |
 | devicesim 通过、真机无 STT | MQTT 方法序列和 UDP 向量 | 未等 `audioStarted`、预热失败、nonce/序号错误、Opus 参数不一致 |
 | 有文本无声音 | TTS 事件与 UDP 收包 | TTS 无帧、UDP 下行、Opus 解码或扬声器故障 |
-| 一轮 PASS 后崩溃 | runner 原始日志与 ELF 回溯 | 下行采样率与 session 声明不一致、重采样越界或音频队列所有权错误 |
+| 一轮 PASS 后崩溃 | runner 原始日志、`assert failed` 前最后一条音频日志与 ELF 回溯 | 若看到重采样实际输出大于容量，属于返回前已发生的越界；保持 16 kHz 协议并改为 Opus 原生 24 kHz 解码，不能靠事后检查或把协议改成 24 kHz 掩盖 |
 | 有声音但尾音被截 | 播放队列 | 收到 `respAudioDone` 后过早切换状态 |
 | 有回复无控制 | MCP 与物模型日志 | AgentGroup/MCP 绑定、identifier、reply token 或目标上下文错误 |
 | 多轮串话 | session/resp 短 ID | 旧 session 未清理、未校验 respId、重复终态未去重 |

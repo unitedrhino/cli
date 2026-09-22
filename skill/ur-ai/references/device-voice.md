@@ -55,7 +55,7 @@
 
 ```bash
 DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|DeviceControlSuccess)$' \
-DEVICESIM_AUDIO_SAMPLE_RATE=24000 \
+DEVICESIM_AUDIO_SAMPLE_RATE=16000 \
 bash shell/devicesim-oneclick-test.sh
 ```
 
@@ -88,8 +88,8 @@ python3 -m unittest \
 三层结果应分别记录。
 
 真机云端音频闭环应使用
-`firmware/watcher/scripts/run_ur_ai_e2e.py --port <serial-port> --repeat 3`。它使用由
-devicesim 编码器生成的 24 kHz/60 ms Opus 样本，只替换麦克风输入，仍连接真实
+`firmware/watcher/scripts/run_ur_ai_e2e.py --port <serial-port> --repeat 5 --timeout 75`。
+它使用由 devicesim 编码器生成的 16 kHz/60 ms Opus 样本，只替换麦克风输入，仍连接真实
 MQTT、UDP、ASR、LLM 和 TTS。每轮必须看到完整方法序列、播放队列排空与 PASS，
 并使用 ESP 日志 uptime 验证 8 秒/15 秒门禁。生产固件不得启用该内置样本。
 音频生成、测试构建和失败分层的完整步骤见
@@ -102,6 +102,7 @@ MQTT、UDP、ASR、LLM 和 TTS。每轮必须看到完整方法序列、播放�
 | 平台 | devicesim 也失败 | Agent/模型/MCP 配置、ASR/LLM/TTS、UDP 服务 |
 | 协议 | devicesim 通过，真机无 STT | MQTT token、UDP 预热、AES nonce、序号与 Opus 参数 |
 | 播放 | 有文本无声音 | TTS 是否真实产帧、UDP 下行、Opus 解码、扬声器 |
+| 堆损坏 | 完整回复后 assert、随后表现为黑屏或网络错误 | 核对是否错误使用 16→24 kHz 外部重采样；Watcher 保持 16 kHz 会话并由 Opus 解码器直接输出 24 kHz PCM |
 | 控制 | 有回复无设备变化 | AgentGroup、MCP 绑定、物模型 identifier、reply 合同 |
 | 生命周期 | 多轮或重连串话 | session/respId 关联、旧消息、断线后旧 UDP 未关闭 |
 | 资源 | OTA 后平台离线且 MQTT 分配失败 | 检查音频初始化后的内部 RAM；大报文队列只存指针，payload 放 PSRAM并完整释放 |

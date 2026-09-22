@@ -44,6 +44,16 @@ metadata:
 
 > 完整命令帮助：`ur alarm help`、`ur scene help`
 
+<!-- MANUAL_GUIDES:ur-ai -->
+
+## 专项指南
+
+| 场景 | 说明 | 参考文档 |
+|------|------|---------|
+| 设备语音会话 | Agent/模型/MCP、MQTT 会话、表情、多轮与打断 | [device-voice.md](references/device-voice.md) |
+
+<!-- END_MANUAL_GUIDES -->
+
 ## 典型业务场景
 
 ### AI Agent 与设备绑定

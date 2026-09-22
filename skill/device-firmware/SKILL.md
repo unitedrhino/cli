@@ -27,9 +27,11 @@ description: "Use when bringing a physical device onto 联犀 IoT from zero or m
 2. 创建或核对产品、物模型、设备身份与绑定策略。
 3. 实现安全存储、配网、校时、动态注册和 MQTT 连接。
 4. 实现属性、事件、行为、基础信息以及请求/回复关联。
-5. 首刷并用串口、网络和平台日志逐层验收。
-6. 实现并验证全量 OTA、重启确认和 rollback。
-7. 验证鉴权恢复、解绑重配、真实断电和稳定运行。
+5. 需要语音时，依次通过平台 devicesim、固件生产核心单元测试、
+   协议回放 E2E 和内置真实 Opus 样本的串口循环 E2E。
+6. 首刷并用串口、网络和平台日志逐层验收，语音设备再验收音频与表情硬件。
+7. 实现并验证全量 OTA、重启确认和 rollback。
+8. 验证鉴权恢复、解绑重配、真实断电和稳定运行。
 
 完整执行顺序、输入和完成判据见
 [零到一工作流](references/from-zero-workflow.md)。
@@ -48,6 +50,8 @@ description: "Use when bringing a physical device onto 联犀 IoT from zero or m
   [构建与烧录](references/build-flash.md)。
 - 固件上传、平台任务、设备 worker、确认与回滚：读
   [全量 OTA](references/ota.md)，平台命令同时加载 `ur-ota`。
+- 联犀语音对话、表情、多轮、打断和当前设备控制：读
+  [设备语音 AI](references/voice-ai.md)，平台配置同时加载 `ur-ai`。
 - 故障定位：读 [分层排障](references/troubleshooting.md)。
 - 换芯片、RTOS 或板型：读 [移植清单](references/porting-checklist.md)。
 - 完整硬件验收与收尾：读 [实机验收](references/acceptance.md)。

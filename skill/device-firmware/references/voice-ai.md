@@ -122,6 +122,18 @@ Watcher 的内部 RAM 同时承载音频任务栈和 MQTT SDK。跨任务 AI 上
 禁止用 `队列深度 × 最大报文长度` 的固定元素预占内部 RAM；这种实现可能通过编译和协议
 单测，却在真机音频初始化后令 MQTTClient 因连续内存不足而创建失败。
 
+新增相机等功能后，还必须在真机创建 UDP 通道后检查内部 DMA 总余量和最大连续块，
+不能只检查启动时总空闲堆。若 sessionCreated 已成功，随后出现
+`insufficient internal DMA memory for voice session`，应排查任务栈和新增长驻队列；
+网络错误文案不能作为断网证据。只在任务上下文使用的行为/回执队列可通过
+`xQueueCreateWithCaps` 放入 PSRAM；不写 Flash 的相机 worker 栈可使用
+`xTaskCreateWithCaps`，销毁必须配对 `vTaskDeleteWithCaps`。保留 SPI DMA 保护阈值，
+修复后重复真机按键启动、语音回复和拍照；主机测试无法证明实际堆布局满足要求。
+还需检查实际播报期间的余量：若出现 `esp-aes: Failed to allocate memory` 与
+`AES-CTR operation failed: -132`，即使 MQTT/STT/文本成功也可能因加解密丢帧而断音。
+纯 Opus 编解码任务的较大栈可迁入 PSRAM，须保留任务退出的配对释放与 OTA 停止流程；
+不要降低内存门禁或把这类丢帧当成网络抖动。
+
 ## 5. UDP 与音频
 
 UDP 数据报固定为 16 字节头加 AES-CTR 密文。帧头、nonce 字段覆盖、序号、大小端和

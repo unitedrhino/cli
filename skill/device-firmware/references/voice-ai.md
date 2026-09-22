@@ -120,6 +120,14 @@ python3 -m unittest \
 验证播报中打断、监听中再次按键结束以及空闲按键启动；真机再核对取消后的新一轮
 audioStarted、STT 和可听见的回复。
 
+`audioStarted` 成功不代表收音正常。若随后数百毫秒内就出现 `audioStop`、没有 STT，
+先核对 VAD 边沿与本轮起始时间，不要直接归因于网络。AFE 的短静音事件不是完整句尾：
+Watcher 使用 300ms 启动保护窗、至少 180ms 有效语音和连续 700ms 静音判定，
+在协议 worker 中检查句尾；VAD 回调和 audioStarted 回执都不能立即结束收音。
+从唤醒检测或播报切入新轮时，清理 AFE 残留须由 fetch 任务按代际执行，不能跨任务
+直接 reset。可移植 `UrAiVadEndpoint` 测试应覆盖启动短尾音、句中 100ms 停顿、
+恢复说话取消结束判定、新轮清零及短按键噪声；这些模拟不替代实际麦克风验收。
+
 MQTT 回调只复制 payload 并入队。`respTextDelta` 在拥塞时允许丢弃；
 `respSttDone`、`respCreated`、`respEmotion`、`respTextDone`、`respAudioStart`、
 `respAudioDone` 必须进入无损队列或溢出队列。重复终态、旧 token、旧 session 和错误

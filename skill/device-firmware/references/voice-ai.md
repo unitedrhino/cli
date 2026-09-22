@@ -112,6 +112,14 @@ python3 -m unittest \
 8. `respAudioDone` 后等本地解码播放缓冲清空，再进入下一轮；不重建 session。
 9. 退出时发送 `sessionClose`，正常路径等待 `sessionClosed`。
 
+播报中单击打断时，`respCancel` 后服务端不保证继续发送旧轮 `respAudioDone`。
+设备必须主动清除本地解码尾音、旧轮超时及表情保持状态，并切回监听，发送新一轮
+`audioStart` 后等待匹配的 `audioStarted`。回归需要覆盖“取消后没有终态”，
+不能只在测试里补发 audioDone 让流程通过。Watcher 的
+`scripts.tests.test_ur_button_interrupt` 直接编译实际按键处理函数并替换硬件边界，
+验证播报中打断、监听中再次按键结束以及空闲按键启动；真机再核对取消后的新一轮
+audioStarted、STT 和可听见的回复。
+
 MQTT 回调只复制 payload 并入队。`respTextDelta` 在拥塞时允许丢弃；
 `respSttDone`、`respCreated`、`respEmotion`、`respTextDone`、`respAudioStart`、
 `respAudioDone` 必须进入无损队列或溢出队列。重复终态、旧 token、旧 session 和错误

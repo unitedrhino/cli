@@ -40,7 +40,7 @@
 在仓库根目录执行完整回归。凭据通过已有 profile 或环境变量注入，不写入命令、文档或日志：
 
 ```bash
-DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|DeviceControlSuccess)$' \
+DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceCancelDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|DeviceControlSuccess)$' \
 DEVICESIM_AUDIO_SAMPLE_RATE=16000 \
 bash shell/devicesim-oneclick-test.sh
 ```
@@ -120,6 +120,16 @@ python3 -m unittest \
 验证播报中打断、监听中再次按键结束以及空闲按键启动；真机再核对取消后的新一轮
 audioStarted、STT 和可听见的回复。
 
+平台模拟必须分别覆盖直接 audioStart 打断和先 respCancel 再 audioStart：
+`TestVoiceInterruptDuringTTSThenContinue` 与 `TestVoiceCancelDuringTTSThenContinue`。
+后者才覆盖实体按键取消路径；两者都要求新轮 STT、文本和实际语音，不能仅检查停止播报。
+如果服务端已识别但设备无 STT，核对是否在新回复准备期间退出 voice loop：
+audioStop 不能只用“LLM/TTS 是否运行”判断结束，还需保护 hold、排队及准备中的回复。
+后台回归使用 `TestAudioStopPreservesPendingRecognition`、
+`TestAudioStopPreservesDequeuedReply`、`TestEmptyASRDoesNotCancelPendingReply`。
+取消旧轮出现 context canceled 属正常现象；只有关联新轮方法序列与上下文生命周期后，
+才能判定是否误取消。排查前 fetch 最新主线并核验实际部署二进制，不能用本地 HEAD 代替。
+
 `audioStarted` 成功不代表收音正常。若随后数百毫秒内就出现 `audioStop`、没有 STT，
 先核对 VAD 边沿与本轮起始时间，不要直接归因于网络。AFE 的短静音事件不是完整句尾：
 Watcher 使用 300ms 启动保护窗、至少 180ms 有效语音和连续 700ms 静音判定，
@@ -187,7 +197,7 @@ Opus 解码、播放队列和界面状态。不能用直接注入 STT 文字或�
 | `VOICE-UNIT-001` 资源格式 | 运行 `go test ./tools/devicesim/cmd/opusfixture` | URAF 头、16 kHz/60 ms、帧边界和非法帧拒绝 | 每次修改生成器 |
 | `VOICE-UNIT-002` 固件协议 | 运行 `test_ur_ai_contract`、`test_ur_ai_runtime` | token/respId、乱序、重复、过期、断线、UDP 和 21 类表情 | 每次修改语音固件 |
 | `VOICE-RUNNER-001` 判定器 | 运行 `test_run_ur_ai_e2e` | 成功、乱序、缺阶段、崩溃标记和严格延迟门槛 | 每次修改 runner |
-| `VOICE-SIM-001` 平台基线 | 运行 devicesim 六项 workflow | ASR、LLM、TTS、UDP、MCP、多轮和打断 | 平台配置或服务变更后 |
+| `VOICE-SIM-001` 平台基线 | 运行 devicesim workflow（含两种打断路径） | ASR、LLM、TTS、UDP、MCP、多轮和打断 | 平台配置或服务变更后 |
 | `VOICE-HW-001` 单轮闭环 | runner `--repeat 1`，固定语料“当前音量多少” | 全部阶段、STT 命中“音量”、七个 RESULT 标志、两项延迟和无致命标记 | 每次测试固件刷写后 |
 | `VOICE-HW-002` 重复稳定性 | runner `--repeat 5` 或更高 | 每轮独立 session、全部通过、各轮原始日志和 JSON | MR 前至少五轮 |
 | `VOICE-MANUAL-001` 硬件验收 | 真人唤醒、说话并观察/听取设备 | 麦克风、唤醒词、扬声器、字幕和表情实物效果 | 发版与现场验收 |

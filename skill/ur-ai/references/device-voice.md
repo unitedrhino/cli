@@ -78,7 +78,7 @@
 先运行 devicesim，不通过时禁止用刷固件来试错：
 
 ```bash
-DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|EmojiNotSentForPlainQuestion|DeviceControlSuccess|TakePhotoEndToEnd|ImageInputEndToEnd)$' \
+DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceCancelDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|EmojiNotSentForPlainQuestion|DeviceControlSuccess|TakePhotoEndToEnd|ImageInputEndToEnd)$' \
 DEVICESIM_AUDIO_SAMPLE_RATE=16000 \
 bash shell/devicesim-oneclick-test.sh
 ```
@@ -88,7 +88,8 @@ bash shell/devicesim-oneclick-test.sh
 | 用例 | 验证目标 |
 |---|---|
 | `TestMultiTurnVoiceChat` | 同 session 多轮与上下文 |
-| `TestVoiceInterruptDuringTTSThenContinue` | 播报中打断并继续 |
+| `TestVoiceInterruptDuringTTSThenContinue` | 直接 audioStart 打断播报并继续 |
+| `TestVoiceCancelDuringTTSThenContinue` | 实体按键等价的 respCancel → audioStart，并继续多轮 |
 | `TestVoiceTurnWithoutAudioStopStillGetsSTT` | 服务端异常恢复能力 |
 | `TestTextToTTSAudioEvents` | TTS 真实音频事件 |
 | `TestEmojiEmotionText` | 表情白名单和 respId |
@@ -138,3 +139,11 @@ MQTT、UDP、ASR、LLM 和 TTS。每轮必须看到完整方法序列、播放�
 | 表情显示 | 表情一闪即逝 | UI 状态提前恢复 neutral，未等待真实播放队列排空或晚到事件无最短可见期 |
 
 平台排障以 devicesim 为第一层 oracle；真机只负责验证固件时序和硬件链路。
+
+### 取消后新轮无回复
+
+先核对最新远端主线与部署二进制，再用上述两种打断测试分别复现。旧轮取消错误不等于
+服务器 Bug；需要确认新轮的 UDP、ASR、MQTT 下行以及 loop 退出时间。
+audioStop 后若识别结果仍在 hold、队列或记忆准备阶段，不能因为 LLM/TTS 尚未启动
+就关闭父 context。回复工作从入队前计数，到消费结束释放；计数按 loop 隔离，
+空 Final/关闭通道不得越过待处理回复直接退出，超时与用户关闭仍须能够释放资源。

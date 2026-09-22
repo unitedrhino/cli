@@ -63,6 +63,7 @@ class SceneDistributionTest(unittest.TestCase):
         self.write(self.root / 'skill/ur-device/references/device-control.md', self.guide)
         self.ai_voice_guide = (ROOT / 'skill/ur-ai/references/device-voice.md').read_bytes()
         self.write(self.root / 'skill/ur-ai/references/device-voice.md', self.ai_voice_guide)
+        self.photo_guide = (ROOT / 'skill/device-firmware/references/photo-vision.md').read_bytes()
         self.write(self.root / 'skill/ur-device/references/shared.md', '设备同名指南\n')
         self.write(self.root / 'skill/ur-product/references/shared.md', '产品同名指南\n')
         self.write(self.root / 'references/quick-reference.md', (ROOT / 'references/quick-reference.md').read_bytes())
@@ -129,6 +130,8 @@ else:
             self.assertEqual((api_root / 'ur-device/references/device-control.md').read_bytes(), self.guide)
             self.assertEqual((api_root / 'ur-ai/references/device-voice.md').read_bytes(),
                              self.ai_voice_guide)
+            self.assertEqual((api_root / 'device-firmware/references/photo-vision.md').read_bytes(),
+                             self.photo_guide)
             self.assertEqual((api_root / 'ur-device/references/shared.md').read_text(), '设备同名指南\n')
             self.assertEqual((api_root / 'ur-product/references/shared.md').read_text(), '产品同名指南\n')
             self.assertEqual((api_root / 'SKILL.md').read_text().count('(ur-device/references/device-control.md)'), 1)
@@ -150,6 +153,7 @@ else:
         files = {entry['path'] for entry in json.loads(result.stdout)[0]['files']}
         self.assertIn('ur-api/ur-device/references/device-control.md', files)
         self.assertIn('ur-api/ur-ai/references/device-voice.md', files)
+        self.assertIn('ur-api/device-firmware/references/photo-vision.md', files)
         self.assertIn('ur-api/ur-product/references/shared.md', files)
         for name in self.firmware_payloads:
             self.assertIn('ur-api/device-firmware/' + name, files, f'npm 包漏掉 {name}')
@@ -246,8 +250,8 @@ else:
             self.assertIn('../ur-device/references/device-control.md', (ROOT / relative).read_text())
         self.assertIn('(ur-device/references/device-control.md)', (ROOT / 'skill/SKILL.md').read_text())
 
-    def test_manual_voice_navigation_generator(self):
-        """生成型技能的语音指南入口必须可重入，且 source skill 链接指向真实文件。"""
+    def test_manual_device_ai_navigation_generator(self):
+        """生成型技能的语音和视觉指南入口必须可重入，且链接指向真实文件。"""
         skill_root = self.root / 'generated-navigation'
         for domain in ('ur-ai', 'ur-device-debug', 'ur-product'):
             self.write(skill_root / domain / 'SKILL.md', '# 测试技能\n\n## 典型业务场景\n')
@@ -257,17 +261,46 @@ else:
         subprocess.run(command, check=True, capture_output=True, text=True)
 
         expected_links = {
-            'ur-ai': '(references/device-voice.md)',
-            'ur-device-debug': '(../ur-ai/references/device-voice.md)',
-            'ur-product': '(../device-firmware/references/voice-ai.md)',
+            'ur-ai': ('(references/device-voice.md)',
+                      '(references/device-voice.md#拍照识图与图片输入)'),
+            'ur-device-debug': ('(../ur-ai/references/device-voice.md)',
+                                '(../device-firmware/references/photo-vision.md)'),
+            'ur-product': ('(../device-firmware/references/voice-ai.md)',
+                           '(../device-firmware/references/photo-vision.md)'),
         }
-        for domain, expected_link in expected_links.items():
+        for domain, links in expected_links.items():
             content = (skill_root / domain / 'SKILL.md').read_text()
             self.assertEqual(content.count(f'<!-- MANUAL_GUIDES:{domain} -->'), 1)
-            self.assertEqual(content.count(expected_link), 1)
+            for expected_link in links:
+                self.assertEqual(content.count(expected_link), 1)
 
         self.assertTrue((ROOT / 'skill/ur-ai/references/device-voice.md').is_file())
         self.assertTrue((ROOT / 'skill/device-firmware/references/voice-ai.md').is_file())
+        self.assertTrue((ROOT / 'skill/device-firmware/references/photo-vision.md').is_file())
+
+    def test_repeatable_photo_vision_reference_contract(self):
+        """视觉技能必须保留两条图片入口、凭据边界和三层可复测门禁。"""
+        firmware_guide = (
+            ROOT / 'skill/device-firmware/references/photo-vision.md'
+        ).read_text()
+        platform_guide = (ROOT / 'skill/ur-ai/references/device-voice.md').read_text()
+        for expected in (
+            'Test(TakePhotoEndToEnd|ImageInputEndToEnd|EmojiEmotionText|EmojiNotSentForPlainQuestion)',
+            '"actionID": "takePhoto"',
+            '"type": "image_url"',
+            '上传成功、失败或 MQTT 断线后都立即清零副本',
+            '关键纯逻辑用例至少连续 10 次',
+            '真实按键、镜头画面、屏幕表情、扬声器和断电必须由现场观察',
+        ):
+            self.assertIn(expected, firmware_guide)
+        for expected in (
+            '`text`、`voice`、`image_input`',
+            '同步生成',
+            '硬编码历史 ID',
+            '`deviceTakePhoto`',
+            '`inputSend`',
+        ):
+            self.assertIn(expected, platform_guide)
 
     def test_repeatable_voice_e2e_reference_contract(self):
         """语音技能必须保留 16kHz 协议基准、分层解码和可循环的真机 runner。"""

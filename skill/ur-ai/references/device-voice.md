@@ -37,6 +37,30 @@
 `backend/things/tools/devicesim/emotion_test.go` 的 21 项白名单为准。未知值由设备回退
 `neutral`，不能让任意模型文本直接选择设备资源名。
 
+表情到达时设备应清除相机预览并唤醒屏幕，保持至本轮真实音频播放队列排空；恢复监听后
+再回到 `neutral`。晚到表情需要最短可见期，不能被 listening/speaking 状态切换立即覆盖。
+
+## 拍照识图与图片输入
+
+视觉设备的 Agent capabilities 包含 `text`、`voice`、`image_input`。LLM 与 vision 配置
+都指向真实支持 `text`、`image` 输入的模型；若图片流式生成存在已知编码问题，图片路由
+使用同步生成，普通文字和语音保持流式。先通过模型配置测试接口用确定性图片证明真实
+识图，再修改 Agent，不能回退纯文本模型冒充成功。
+
+平台内置拍照工具由 fuzai MCP 提供。按环境 API 幂等查询或注册服务并回读真实 ID，不在
+脚本或技能中硬编码历史 ID。fuzai 运行环境必须启用内置 MCP、Redis 和 DmRpc；Agent 在
+保留已审核 IoT MCP 的同时显式绑定 fuzai。所有变更走现有 API，不直接写数据库。
+
+`sessionCreated.supportedModalities` 包含 `image`，并返回当前 session 的短期 `uploadUrl`。
+图片上传成功后有两条等价入口：
+
+- 语音意图：`deviceTakePhoto` → 设备 `takePhoto` → `actionReply.data.fileUri` → 模型识图。
+- 本地双击：设备上传后发送含 text 与 `image_url.imageUrl` 的 `inputSend`，并把
+  `modalities` 设为 `text`、`audio`。
+
+完整固件回执、上传安全、按键和真机步骤见
+`device-firmware/references/photo-vision.md`。
+
 ## MCP 最小授权
 
 面向当前设备的语音助手只开放：
@@ -54,7 +78,7 @@
 先运行 devicesim，不通过时禁止用刷固件来试错：
 
 ```bash
-DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|DeviceControlSuccess)$' \
+DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|EmojiNotSentForPlainQuestion|DeviceControlSuccess|TakePhotoEndToEnd|ImageInputEndToEnd)$' \
 DEVICESIM_AUDIO_SAMPLE_RATE=16000 \
 bash shell/devicesim-oneclick-test.sh
 ```
@@ -68,7 +92,10 @@ bash shell/devicesim-oneclick-test.sh
 | `TestVoiceTurnWithoutAudioStopStillGetsSTT` | 服务端异常恢复能力 |
 | `TestTextToTTSAudioEvents` | TTS 真实音频事件 |
 | `TestEmojiEmotionText` | 表情白名单和 respId |
+| `TestEmojiNotSentForPlainQuestion` | 普通问题不误发情绪事件 |
 | `TestDeviceControlSuccess` | MCP 到物模型回复闭环 |
+| `TestTakePhotoEndToEnd` | MCP 拍照行为、可下载 fileUri 与真实识图 |
+| `TestImageInputEndToEnd` | 双击等价的 image_url 多模态输入 |
 
 保存脱敏的方法序列与阶段耗时。延迟门限建议为 AudioStop 到首个音频帧小于 8 秒、
 STTDone 到 TextDone 小于 15 秒。
@@ -106,5 +133,8 @@ MQTT、UDP、ASR、LLM 和 TTS。每轮必须看到完整方法序列、播放�
 | 控制 | 有回复无设备变化 | AgentGroup、MCP 绑定、物模型 identifier、reply 合同 |
 | 生命周期 | 多轮或重连串话 | session/respId 关联、旧消息、断线后旧 UDP 未关闭 |
 | 资源 | OTA 后平台离线且 MQTT 分配失败 | 检查音频初始化后的内部 RAM；大报文队列只存指针，payload 放 PSRAM并完整释放 |
+| 视觉 | devicesim 识图失败 | 视觉模型输入模态、同步图片路由、fuzai/Redis/DmRpc 与 MCP 绑定 |
+| 拍照 | 收到工具调用但无结果 | takePhoto 物模型、上传会话、actionReply fileUri 与服务端等待窗口 |
+| 表情显示 | 表情一闪即逝 | UI 状态提前恢复 neutral，未等待真实播放队列排空或晚到事件无最短可见期 |
 
 平台排障以 devicesim 为第一层 oracle；真机只负责验证固件时序和硬件链路。

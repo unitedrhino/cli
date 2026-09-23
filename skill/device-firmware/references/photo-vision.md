@@ -49,6 +49,13 @@
 
 ### 语音工具入口
 
+职责边界：fuzai 调用设备行为、等待上传结果并校验下载文件，返回标准 MCP
+`image` 块（`data`、`mimeType`），`fileUri` 作为独立文本块的结果元数据。
+禁止在文本 JSON 中夹带内联图片。core 不识别拍照工具名、私有字段或拍照提示词，
+只传递通用图文内容，复用现有多模态转换、模型能力校验与视觉路由；
+图片只用于当前请求，不写入历史或工具事件，也不另起对话轮次。
+core 与 fuzai 配套升级/回滚，设备行为回执和本地 `inputSend(image_url)` 不变。
+
 固定闭环为：
 
 ```text
@@ -117,6 +124,20 @@ session、预览并上传，然后发送：
 `thinking`、`neutral` 五类可见。
 
 ## 5. 可重复自动测试
+
+先验证通用适配边界：从仓库 `backend` 目录执行以下定向测试。
+图表工具用例与拍照无关，覆盖纯文本兼容、图文、多图片、非法/超限图片、
+工具错误、并发 toolCallID 关联和跨轮媒体隔离；不得改成识别特定工具名才能通过。
+
+```bash
+go test -race ./core/service/aisvr/internal/domain/chat \
+  ./core/service/aisvr/internal/domain/agentruntime \
+  ./apps/fuzai/internal/domain/mcp \
+  -run 'TestMCP|TestPhotoStandardMCPResult' -count=10
+```
+
+该测试不访问模型，不能冒充真实识图。后续必须运行下列平台 E2E，
+并回归两种语音打断（见 [语音 AI](voice-ai.md)）。
 
 先运行平台基线。测试凭据使用已有 profile、环境变量或权限不宽于 `0600` 的受限文件：
 

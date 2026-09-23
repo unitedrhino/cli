@@ -68,14 +68,20 @@ MANUAL_GUIDES = {
     "ur-ai": [
         ("设备语音会话", "Agent/模型/MCP、MQTT 会话、表情、多轮与打断",
          "references/device-voice.md"),
+        ("设备拍照识图", "视觉模型、fuzai MCP、图片输入、表情与真机闭环",
+         "references/device-voice.md#拍照识图与图片输入"),
     ],
     "ur-device-debug": [
         ("设备语音排障", "先用 devicesim 分离平台、协议和真机硬件问题",
          "../ur-ai/references/device-voice.md"),
+        ("拍照识图排障", "分离模型/MCP、上传/行为、相机/按键和表情显示问题",
+         "../device-firmware/references/photo-vision.md"),
     ],
     "ur-product": [
         ("语音设备接入", "产品、Agent、物模型、固件、OTA 与真机闭环",
          "../device-firmware/references/voice-ai.md"),
+        ("拍照识图行为", "takePhoto 物模型、异步回执、图片输入与验收",
+         "../device-firmware/references/photo-vision.md"),
     ],
 }
 
@@ -621,7 +627,9 @@ def update_manual_guides(skill_dir, domain, guides):
     marker_end = "<!-- END_MANUAL_GUIDES -->"
     lines = ["## 专项指南", "", "| 场景 | 说明 | 参考文档 |", "|------|------|---------|"]
     for title, description, reference in guides:
-        lines.append(f"| {title} | {description} | [{Path(reference).name}]({reference}) |")
+        # 锚点只属于链接目标，展示名保持为实际 Markdown 文件名。
+        reference_name = Path(reference.split("#", 1)[0]).name
+        lines.append(f"| {title} | {description} | [{reference_name}]({reference}) |")
     block = f"{marker_start}\n\n" + "\n".join(lines) + f"\n\n{marker_end}"
 
     if marker_start in content:

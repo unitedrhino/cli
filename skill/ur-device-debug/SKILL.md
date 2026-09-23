@@ -52,6 +52,7 @@ ur things schema get-list -p xxx
 | 场景 | 说明 | 参考文档 |
 |------|------|---------|
 | 设备语音排障 | 先用 devicesim 分离平台、协议和真机硬件问题 | [device-voice.md](../ur-ai/references/device-voice.md) |
+| 拍照识图排障 | 分离模型/MCP、上传/行为、相机/按键和表情显示问题 | [photo-vision.md](../device-firmware/references/photo-vision.md) |
 
 <!-- END_MANUAL_GUIDES -->
 

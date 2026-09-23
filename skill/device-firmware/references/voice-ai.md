@@ -4,6 +4,9 @@
 当前设备控制。协议行为以 `backend/things/tools/devicesim` 为唯一基准：先证明平台
 可用，再验证固件协议，最后验证麦克风、扬声器和显示硬件。
 
+设备还需要拍照识图、图片输入或表情可见期时，同时读取
+[设备拍照识图](photo-vision.md)。
+
 ## 完成标准
 
 只有同时满足以下条件才算完成：
@@ -37,7 +40,7 @@
 在仓库根目录执行完整回归。凭据通过已有 profile 或环境变量注入，不写入命令、文档或日志：
 
 ```bash
-DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|DeviceControlSuccess)$' \
+DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceCancelDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|DeviceControlSuccess)$' \
 DEVICESIM_AUDIO_SAMPLE_RATE=16000 \
 bash shell/devicesim-oneclick-test.sh
 ```
@@ -109,6 +112,32 @@ python3 -m unittest \
 8. `respAudioDone` 后等本地解码播放缓冲清空，再进入下一轮；不重建 session。
 9. 退出时发送 `sessionClose`，正常路径等待 `sessionClosed`。
 
+播报中单击打断时，`respCancel` 后服务端不保证继续发送旧轮 `respAudioDone`。
+设备必须主动清除本地解码尾音、旧轮超时及表情保持状态，并切回监听，发送新一轮
+`audioStart` 后等待匹配的 `audioStarted`。回归需要覆盖“取消后没有终态”，
+不能只在测试里补发 audioDone 让流程通过。Watcher 的
+`scripts.tests.test_ur_button_interrupt` 直接编译实际按键处理函数并替换硬件边界，
+验证播报中打断、监听中再次按键结束以及空闲按键启动；真机再核对取消后的新一轮
+audioStarted、STT 和可听见的回复。
+
+平台模拟必须分别覆盖直接 audioStart 打断和先 respCancel 再 audioStart：
+`TestVoiceInterruptDuringTTSThenContinue` 与 `TestVoiceCancelDuringTTSThenContinue`。
+后者才覆盖实体按键取消路径；两者都要求新轮 STT、文本和实际语音，不能仅检查停止播报。
+如果服务端已识别但设备无 STT，核对是否在新回复准备期间退出 voice loop：
+audioStop 不能只用“LLM/TTS 是否运行”判断结束，还需保护 hold、排队及准备中的回复。
+后台回归使用 `TestAudioStopPreservesPendingRecognition`、
+`TestAudioStopPreservesDequeuedReply`、`TestEmptyASRDoesNotCancelPendingReply`。
+取消旧轮出现 context canceled 属正常现象；只有关联新轮方法序列与上下文生命周期后，
+才能判定是否误取消。排查前 fetch 最新主线并核验实际部署二进制，不能用本地 HEAD 代替。
+
+`audioStarted` 成功不代表收音正常。若随后数百毫秒内就出现 `audioStop`、没有 STT，
+先核对 VAD 边沿与本轮起始时间，不要直接归因于网络。AFE 的短静音事件不是完整句尾：
+Watcher 使用 300ms 启动保护窗、至少 180ms 有效语音和连续 700ms 静音判定，
+在协议 worker 中检查句尾；VAD 回调和 audioStarted 回执都不能立即结束收音。
+从唤醒检测或播报切入新轮时，清理 AFE 残留须由 fetch 任务按代际执行，不能跨任务
+直接 reset。可移植 `UrAiVadEndpoint` 测试应覆盖启动短尾音、句中 100ms 停顿、
+恢复说话取消结束判定、新轮清零及短按键噪声；这些模拟不替代实际麦克风验收。
+
 MQTT 回调只复制 payload 并入队。`respTextDelta` 在拥塞时允许丢弃；
 `respSttDone`、`respCreated`、`respEmotion`、`respTextDone`、`respAudioStart`、
 `respAudioDone` 必须进入无损队列或溢出队列。重复终态、旧 token、旧 session 和错误
@@ -118,6 +147,18 @@ Watcher 的内部 RAM 同时承载音频任务栈和 MQTT SDK。跨任务 AI 上
 完整 JSON payload 应按需分配到 PSRAM，并在发布成功、入队失败和断线清队列时逐项释放。
 禁止用 `队列深度 × 最大报文长度` 的固定元素预占内部 RAM；这种实现可能通过编译和协议
 单测，却在真机音频初始化后令 MQTTClient 因连续内存不足而创建失败。
+
+新增相机等功能后，还必须在真机创建 UDP 通道后检查内部 DMA 总余量和最大连续块，
+不能只检查启动时总空闲堆。若 sessionCreated 已成功，随后出现
+`insufficient internal DMA memory for voice session`，应排查任务栈和新增长驻队列；
+网络错误文案不能作为断网证据。只在任务上下文使用的行为/回执队列可通过
+`xQueueCreateWithCaps` 放入 PSRAM；不写 Flash 的相机 worker 栈可使用
+`xTaskCreateWithCaps`，销毁必须配对 `vTaskDeleteWithCaps`。保留 SPI DMA 保护阈值，
+修复后重复真机按键启动、语音回复和拍照；主机测试无法证明实际堆布局满足要求。
+还需检查实际播报期间的余量：若出现 `esp-aes: Failed to allocate memory` 与
+`AES-CTR operation failed: -132`，即使 MQTT/STT/文本成功也可能因加解密丢帧而断音。
+纯 Opus 编解码任务的较大栈可迁入 PSRAM，须保留任务退出的配对释放与 OTA 停止流程；
+不要降低内存门禁或把这类丢帧当成网络抖动。
 
 ## 5. UDP 与音频
 
@@ -156,7 +197,7 @@ Opus 解码、播放队列和界面状态。不能用直接注入 STT 文字或�
 | `VOICE-UNIT-001` 资源格式 | 运行 `go test ./tools/devicesim/cmd/opusfixture` | URAF 头、16 kHz/60 ms、帧边界和非法帧拒绝 | 每次修改生成器 |
 | `VOICE-UNIT-002` 固件协议 | 运行 `test_ur_ai_contract`、`test_ur_ai_runtime` | token/respId、乱序、重复、过期、断线、UDP 和 21 类表情 | 每次修改语音固件 |
 | `VOICE-RUNNER-001` 判定器 | 运行 `test_run_ur_ai_e2e` | 成功、乱序、缺阶段、崩溃标记和严格延迟门槛 | 每次修改 runner |
-| `VOICE-SIM-001` 平台基线 | 运行 devicesim 六项 workflow | ASR、LLM、TTS、UDP、MCP、多轮和打断 | 平台配置或服务变更后 |
+| `VOICE-SIM-001` 平台基线 | 运行 devicesim workflow（含两种打断路径） | ASR、LLM、TTS、UDP、MCP、多轮和打断 | 平台配置或服务变更后 |
 | `VOICE-HW-001` 单轮闭环 | runner `--repeat 1`，固定语料“当前音量多少” | 全部阶段、STT 命中“音量”、七个 RESULT 标志、两项延迟和无致命标记 | 每次测试固件刷写后 |
 | `VOICE-HW-002` 重复稳定性 | runner `--repeat 5` 或更高 | 每轮独立 session、全部通过、各轮原始日志和 JSON | MR 前至少五轮 |
 | `VOICE-MANUAL-001` 硬件验收 | 真人唤醒、说话并观察/听取设备 | 麦克风、唤醒词、扬声器、字幕和表情实物效果 | 发版与现场验收 |

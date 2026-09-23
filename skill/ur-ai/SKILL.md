@@ -51,6 +51,7 @@ metadata:
 | 场景 | 说明 | 参考文档 |
 |------|------|---------|
 | 设备语音会话 | Agent/模型/MCP、MQTT 会话、表情、多轮与打断 | [device-voice.md](references/device-voice.md) |
+| 设备拍照识图 | 视觉模型、fuzai MCP、图片输入、表情与真机闭环 | [device-voice.md](references/device-voice.md#拍照识图与图片输入) |
 
 <!-- END_MANUAL_GUIDES -->
 

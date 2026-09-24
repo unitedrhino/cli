@@ -127,6 +127,8 @@ audioStarted、STT 和可听见的回复。
 记忆验收区分同 session 历史、刚重建 session 的短时衔接和异步长期画像。
 前置必须回读设备 `cloneID > 0`，匿名 `cloneID=0` 不具备跨会话记忆归属；历史模拟设备
 需经现有绑定与 `device/info/clone-create` API 幂等补齐，创建失败立即报错，不放宽身份隔离。
+还需核对 MQTT 新会话的分身一致：API 已绑定但会话仍为零时，检查创建及幂等分支是否
+同步失效设备内存/Redis 缓存，不能以数据库回读代替会话侧验证。
 PostgreSQL 报 `third_id` 文本参数编码失败时核对项目 ID 是否以十进制字符串绑定；
 SQLite 的隐式类型转换不能证明 PostgreSQL 参数合同正确。
 `TestVoicePreferenceRecall` 必须复述实际 STT 中的偏好；“没告诉我，比如……”即使含

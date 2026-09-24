@@ -158,7 +158,7 @@ go test -race ./core/service/aisvr/internal/domain/chat \
 先运行平台基线。测试凭据使用已有 profile、环境变量或权限不宽于 `0600` 的受限文件：
 
 ```bash
-DEVICESIM_TEST_PATTERN='Test(TakePhotoEndToEnd|ImageInputEndToEnd|EmojiEmotionText|EmojiNotSentForPlainQuestion)$' \
+DEVICESIM_TEST_PATTERN='Test(TakePhotoEndToEnd|ImageInputEndToEnd|ImageInputDuringVoiceAudioStop|EmojiEmotionText|EmojiNotSentForPlainQuestion)$' \
 DEVICESIM_AUDIO_SAMPLE_RATE=16000 \
 bash shell/devicesim-oneclick-test.sh
 ```
@@ -166,6 +166,11 @@ bash shell/devicesim-oneclick-test.sh
 测试图片必须是仓库自有、内容固定的 JPEG，并断言模型实际识别其文字、颜色和形状；仅断言
 “收到一段回复”不够。`TestTakePhotoEndToEnd` 验证工具调用、action、可下载 `fileUri` 和
 识图回复，`TestImageInputEndToEnd` 验证双击等价的 `inputSend(image_url)` 路径。
+
+`TestImageInputDuringVoiceAudioStop` 另行覆盖 audioStart→图片输入→audioStop 交错：
+必须识别图片内容、收到真实连续有声帧，并等待同 respId 的 respAudioDone。文本和
+音频开始都成功但缺终态仍是失败。若后端 ASR 收尾定时器取消了活跃模型/TTS，
+修复通用回复生命周期与 inputSend 工作计数，不延长测试超时或添加拍照特例。
 
 固件侧运行完整测试发现入口；关键纯逻辑用例至少连续 10 次：
 

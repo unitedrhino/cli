@@ -123,6 +123,13 @@ audioStarted、STT 和可听见的回复。
 平台模拟必须分别覆盖直接 audioStart 打断和先 respCancel 再 audioStart：
 `TestVoiceInterruptDuringTTSThenContinue` 与 `TestVoiceCancelDuringTTSThenContinue`。
 后者才覆盖实体按键取消路径；两者都要求新轮 STT、文本和实际语音，不能仅检查停止播报。
+
+记忆验收区分同 session 历史、刚重建 session 的短时衔接和异步长期画像。
+`TestVoicePreferenceRecall` 必须复述实际 STT 中的偏好；“没告诉我，比如……”即使含
+关键词也必须失败，提示词不能预先泄露预期食材。长期整理保持后台执行；短时衔接仅查询
+同企业/分身/Agent/归属用户最近两分钟的三条用户原文（合计 600 字符、150ms 查询预算），
+排除当前、网页、归档、删除会话，不把原文写回画像。不承诺数据库落库前或超出短时窗口
+的立即召回。用隔离与过期测试、后台阻塞测试和真实重连 E2E 分别证明。
 如果服务端已识别但设备无 STT，核对是否在新回复准备期间退出 voice loop：
 audioStop 不能只用“LLM/TTS 是否运行”判断结束，还需保护 hold、排队及准备中的回复。
 后台回归使用 `TestAudioStopPreservesPendingRecognition`、

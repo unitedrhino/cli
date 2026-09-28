@@ -23,6 +23,11 @@ type Options struct {
 	Force         bool   // 已是目标版本时仍重新安装
 }
 
+// networkFailureHint 是升级网络失败时附带给 AI/用户的安全回退指引。
+// 核心目的：阻止 AI 在升级失败后手工替换二进制或 skills 目录——历史上曾因此
+// 把旧版备份留在客户端 skills 扫描目录内，被识别成重复 ur-api 技能。
+const networkFailureHint = "；网络失败时请依次尝试：UR_RELEASE_SOURCE=github ur upgrade 切换下载源、配置代理后重试、稍后 ur upgrade --force；请勿手工替换 CLI 二进制或 skills 目录，备份不要放入 AI 客户端的 skills 目录（会被识别成重复技能），应放到 ~/.ur/backup/"
+
 // Result 升级结果
 type Result struct {
 	CurrentVersion string `json:"currentVersion"`
@@ -78,7 +83,7 @@ func Perform(opts Options) (*Result, error) {
 		release, err = FetchLatestRelease()
 	}
 	if err != nil {
-		return &Result{CurrentVersion: version.BuildVersion, ErrorMessage: err.Error()}, err
+		return &Result{CurrentVersion: version.BuildVersion, ErrorMessage: err.Error() + networkFailureHint}, err
 	}
 
 	// 2. 检查是否需要升级
@@ -159,7 +164,7 @@ func Perform(opts Options) (*Result, error) {
 
 	archivePath := filepath.Join(tmpDir, archiveName)
 	if err := downloadFile(downloadURL, archivePath); err != nil {
-		result.ErrorMessage = fmt.Sprintf("下载失败: %v", err)
+		result.ErrorMessage = fmt.Sprintf("下载失败: %v%s", err, networkFailureHint)
 		return result, err
 	}
 

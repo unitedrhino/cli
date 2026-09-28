@@ -84,7 +84,7 @@ MANUAL_GUIDES = {
          "../device-firmware/references/voice-ai.md"),
         ("拍照识图行为", "takePhoto 物模型、异步回执、图片输入与验收",
          "../device-firmware/references/photo-vision.md"),
-        ("保留绑定换网", "configureNetwork 行为、networkConfigStatus 合同与安全收敛",
+        ("保留绑定换网", "本地 BLE 闭环、可选 configureNetwork 行为与最近网络",
          "../device-firmware/references/watcher-ui-network.md"),
     ],
 }

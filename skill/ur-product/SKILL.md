@@ -47,7 +47,7 @@ metadata:
 |------|------|---------|
 | 语音设备接入 | 产品、Agent、物模型、固件、OTA 与真机闭环 | [voice-ai.md](../device-firmware/references/voice-ai.md) |
 | 拍照识图行为 | takePhoto 物模型、异步回执、图片输入与验收 | [photo-vision.md](../device-firmware/references/photo-vision.md) |
-| 保留绑定换网 | configureNetwork 行为、networkConfigStatus 合同与安全收敛 | [watcher-ui-network.md](../device-firmware/references/watcher-ui-network.md) |
+| 保留绑定换网 | 本地 BLE 闭环、可选 configureNetwork 行为与最近网络 | [watcher-ui-network.md](../device-firmware/references/watcher-ui-network.md) |
 
 <!-- END_MANUAL_GUIDES -->
 

@@ -100,7 +100,7 @@ GATT 回调栈可能只有数 KB；候选事务及 NVS 校验会叠加多个网�
 在直连 Linux 上使用仓库 `firmware/watcher/scripts/run_ur_network_e2e.py`：
 
 ```bash
-python3 firmware/watcher/scripts/run_ur_network_e2e.py \\
+python3 firmware/watcher/scripts/run_ur_network_e2e.py \
   --product-id '<产品ID>' --device-name '<设备名>' --mac '<广播MAC>'
 ```
 
@@ -108,6 +108,13 @@ python3 firmware/watcher/scripts/run_ur_network_e2e.py \\
 `--provision-stdin`，通过受控 stdin 输入 `ssid/password` JSON，不把密码写入参数。
 需要 Linux 系统 dbus/gi 和 BlueZ；失败不自动重发凭据，断开或脚本观察超时不是成功。
 脚本回放单测为 `test_network_e2e_runner.py`，不替代真实 GATT 与手机验收。
+
+写入前检查热点实际广播频段，不只看设置页的“任何可用频率”；Linux 可用
+`nmcli -f SSID,FREQ device wifi list --rescan yes` 查看。Watcher 需要 2.4GHz，
+同名热点仅出现在 5GHz 时先调整热点，不能据连接超时推断密码错误。
+错误密码用例可对已有 SSID 写入明确错误的候选密码，再等待设备完整超时窗口；
+必须同时核验重启后原网络恢复、MQTT 在线和身份/绑定未变。脚本返回断开只表示
+未取得成功确认，不能单独证明恢复成功。
 
 先记录固件 SHA/版本、手机系统、小程序构建配置、物模型合同及现有绑定；密钥比较仅在
 受控工具内执行，不把明文或完整认证响应写日志。默认配置或占位密钥构建禁止刷写/上传。

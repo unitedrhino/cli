@@ -97,6 +97,18 @@ GATT 回调栈可能只有数 KB；候选事务及 NVS 校验会叠加多个网�
 
 ## 可复测验收
 
+在直连 Linux 上使用仓库 `firmware/watcher/scripts/run_ur_network_e2e.py`：
+
+```bash
+python3 firmware/watcher/scripts/run_ur_network_e2e.py \\
+  --product-id '<产品ID>' --device-name '<设备名>' --mac '<广播MAC>'
+```
+
+先从设备菜单开启换网窗口。默认只读身份和能力；只有明确授权写候选时加
+`--provision-stdin`，通过受控 stdin 输入 `ssid/password` JSON，不把密码写入参数。
+需要 Linux 系统 dbus/gi 和 BlueZ；失败不自动重发凭据，断开或脚本观察超时不是成功。
+脚本回放单测为 `test_network_e2e_runner.py`，不替代真实 GATT 与手机验收。
+
 先记录固件 SHA/版本、手机系统、小程序构建配置、物模型合同及现有绑定；密钥比较仅在
 受控工具内执行，不把明文或完整认证响应写日志。默认配置或占位密钥构建禁止刷写/上传。
 

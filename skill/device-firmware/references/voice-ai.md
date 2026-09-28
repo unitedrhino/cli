@@ -232,6 +232,9 @@ runner 每轮创建和关闭独立 session，并断言：
    “音量”，最终打印 `PASS`；日志不输出完整对话。
 4. 日志不含 `Failed to resample output audio`、`assert failed`、`Guru Meditation`、
    `Backtrace`、复位或命令错误；重采样容量异常即失败，不能等堆断言。
+   `AES-CTR operation failed` 或 `esp-aes: Failed to allocate memory` 同样必须失败：
+   丢帧后仍可能收到完整终态与 PASS，不能据此证明播放流畅。该门禁由单轮、多轮、
+   拍照与按键 runner 共用，新增失败用例需验证“阶段齐全＋AES 错误”不会假通过。
 5. 以 ESP 日志的统一 uptime 计算门禁：AudioStop→首帧小于 8 秒，
    STTDone→TextDone 小于 15 秒。不能相减计时原点不同的 `elapsed`。
 

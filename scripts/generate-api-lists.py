@@ -76,12 +76,16 @@ MANUAL_GUIDES = {
          "../ur-ai/references/device-voice.md"),
         ("拍照识图排障", "分离模型/MCP、上传/行为、相机/按键和表情显示问题",
          "../device-firmware/references/photo-vision.md"),
+        ("圆屏与换网排障", "候选事务、GATT 身份、请求关联与手机/真机分层验收",
+         "../device-firmware/references/watcher-ui-network.md"),
     ],
     "ur-product": [
         ("语音设备接入", "产品、Agent、物模型、固件、OTA 与真机闭环",
          "../device-firmware/references/voice-ai.md"),
         ("拍照识图行为", "takePhoto 物模型、异步回执、图片输入与验收",
          "../device-firmware/references/photo-vision.md"),
+        ("保留绑定换网", "configureNetwork 行为、networkConfigStatus 合同与安全收敛",
+         "../device-firmware/references/watcher-ui-network.md"),
     ],
 }
 

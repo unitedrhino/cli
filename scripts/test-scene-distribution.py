@@ -264,9 +264,11 @@ else:
             'ur-ai': ('(references/device-voice.md)',
                       '(references/device-voice.md#拍照识图与图片输入)'),
             'ur-device-debug': ('(../ur-ai/references/device-voice.md)',
-                                '(../device-firmware/references/photo-vision.md)'),
+                                '(../device-firmware/references/photo-vision.md)',
+                                '(../device-firmware/references/watcher-ui-network.md)'),
             'ur-product': ('(../device-firmware/references/voice-ai.md)',
-                           '(../device-firmware/references/photo-vision.md)'),
+                           '(../device-firmware/references/photo-vision.md)',
+                           '(../device-firmware/references/watcher-ui-network.md)'),
         }
         for domain, links in expected_links.items():
             content = (skill_root / domain / 'SKILL.md').read_text()
@@ -277,6 +279,7 @@ else:
         self.assertTrue((ROOT / 'skill/ur-ai/references/device-voice.md').is_file())
         self.assertTrue((ROOT / 'skill/device-firmware/references/voice-ai.md').is_file())
         self.assertTrue((ROOT / 'skill/device-firmware/references/photo-vision.md').is_file())
+        self.assertTrue((ROOT / 'skill/device-firmware/references/watcher-ui-network.md').is_file())
 
     def test_repeatable_photo_vision_reference_contract(self):
         """视觉技能必须保留两条图片入口、凭据边界和三层可复测门禁。"""

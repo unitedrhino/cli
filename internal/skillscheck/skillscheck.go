@@ -30,7 +30,13 @@ func LoadNotice(cwd string) {
 	}
 	staleNames := make([]string, 0)
 	currentVersions := make(map[string]struct{})
+	duplicateNames := make([]string, 0)
 	for _, target := range targets {
+		// 残留 ur-api 目录（手工升级备份遗留）会被客户端注册成重复技能；
+		// ur skills install 会自动将其移出到 ~/.ur/backup/skills/
+		if len(skillinstall.FindDuplicateDirs(target.Path)) > 0 {
+			duplicateNames = append(duplicateNames, target.Name)
+		}
 		destination := filepath.Join(target.Path, "ur-api")
 		current := skillinstall.ReadVersion(destination)
 		if current == targetVersion {
@@ -47,6 +53,18 @@ func LoadNotice(cwd string) {
 		}
 		staleNames = append(staleNames, target.Name)
 		currentVersions[current] = struct{}{}
+	}
+	if len(staleNames) == 0 && len(duplicateNames) > 0 {
+		// 版本一致但存在残留目录：单独提示清理，避免重复技能
+		sort.Strings(duplicateNames)
+		notice.SetSkills(notice.Skills{
+			Current: targetVersion,
+			Target:  targetVersion,
+			Targets: duplicateNames,
+			Message: fmt.Sprintf("%d 个 AI Skills 目标目录内存在残留 ur-api 目录，可能被客户端注册成重复技能", len(duplicateNames)),
+			Command: "ur skills install --all",
+		})
+		return
 	}
 	if len(staleNames) == 0 {
 		return

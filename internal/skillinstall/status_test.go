@@ -45,3 +45,51 @@ func TestInspectTargets(t *testing.T) {
 		}
 	}
 }
+
+// TestFindDuplicateDirs 校验仅识别 ur-api 前缀且非 ur-api 本身的目录为残留。
+func TestFindDuplicateDirs(t *testing.T) {
+	root := t.TempDir()
+	mustWrite(t, filepath.Join(root, "ur-api", "SKILL.md"), "# cur\n")
+	mustWrite(t, filepath.Join(root, "ur-api.v0.4.1.bak", "SKILL.md"), "# bak\n")
+	mustWrite(t, filepath.Join(root, "ur-api.ur-bak", "SKILL.md"), "# tmp\n")
+	mustWrite(t, filepath.Join(root, "other-skill", "SKILL.md"), "# other\n")
+	mustWrite(t, filepath.Join(root, "ur-api-note.md"), "# 非目录\n")
+
+	got := FindDuplicateDirs(root)
+	want := []string{
+		filepath.Join(root, "ur-api.ur-bak"),
+		filepath.Join(root, "ur-api.v0.4.1.bak"),
+	}
+	if len(got) != len(want) {
+		t.Fatalf("FindDuplicateDirs = %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("FindDuplicateDirs[%d] = %s, want %s", i, got[i], want[i])
+		}
+	}
+}
+
+// TestInspectTargets_Duplicate 校验 ur-api 本身正常但存在残留备份目录时报告 duplicate。
+func TestInspectTargets_Duplicate(t *testing.T) {
+	source := makeFakeSource(t)
+	root := t.TempDir()
+	target := Target{Name: "dup", Path: filepath.Join(root, "dup")}
+	if _, err := Install(source, []Target{target}, false); err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+	// 模拟手工升级遗留的备份目录：留在 skills 扫描范围内
+	mustWrite(t, filepath.Join(target.Path, "ur-api.v0.4.1.bak", "SKILL.md"), "---\nname: ur-api\n---\n")
+
+	result, err := InspectTargets(source, []Target{target})
+	if err != nil {
+		t.Fatalf("InspectTargets: %v", err)
+	}
+	status := result.Targets[0]
+	if status.State != StatusDuplicate {
+		t.Errorf("state = %s, want %s", status.State, StatusDuplicate)
+	}
+	if len(status.DuplicateDirs) != 1 || status.DuplicateDirs[0] != filepath.Join(target.Path, "ur-api.v0.4.1.bak") {
+		t.Errorf("duplicateDirs = %v", status.DuplicateDirs)
+	}
+}

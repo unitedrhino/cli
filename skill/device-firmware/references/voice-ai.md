@@ -230,6 +230,11 @@ runner 每轮创建和关闭独立 session，并断言：
    响应阶段可交错，不强制错误的固定顺序。
 3. RESULT 中 STT/文本/音频七个标志均为 `1`，其中 STT 必须命中固定语料关键词
    “音量”，最终打印 `PASS`；日志不输出完整对话。
+   非空文本与音频不能证明模型成功：平台可能将模型服务错误作为普通文本播报。
+   测试专用固件须拒绝平台固定“AI 服务本次调用失败（”提示并输出
+   `model_service_error`；拍照即使命中目标物品词也不能放行。
+   覆盖“完整阶段＋错误提示”的失败用例及正常回复、普通错误码讨论、跨轮隔离。
+   此判据仅识别已知平台错误，不替代语义正确性与现场物品识别验收。
 4. 日志不含 `Failed to resample output audio`、`assert failed`、`Guru Meditation`、
    `Backtrace`、复位或命令错误；重采样容量异常即失败，不能等堆断言。
    `AES-CTR operation failed` 或 `esp-aes: Failed to allocate memory` 同样必须失败：

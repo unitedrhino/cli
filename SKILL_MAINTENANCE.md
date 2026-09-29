@@ -2,28 +2,24 @@
 
 本文档说明如何保持 CLI skill 与后端 API 同步。
 
-## 技能流向与编辑约定
+## 技能流向与上游镜像（可选）
 
-约定 **saas 主仓 `.agents/skills/ur-api/` 是唯一编辑源**，本仓 `skill/` 只消费不手改：
+本仓 `skill/` 是 skills 的发布源：`scripts/release.sh` 发版时自动生成 `skill/_meta.json` 版本号并打出
+`ur-api-skills-<版本>.zip` 资产；客户端 AI 工具通过 `ur upgrade` / `ur skills install` 拿到发布版本，
+不直接感知任何源仓库。`--source` / `UR_SKILLS_SOURCE` 未配置或探测不到时，镜像步骤自动跳过，
+swagger 生成与 skills 仓库同步不受影响。
 
-```
-saas 主仓 .agents/skills/ur-api/ --镜像--> cli skill/ --release 发版--> ur-api-skills-<版本>.zip
-                                               └--本脚本同步--> unitedrhino/skills 仓库
-```
-
-客户端 AI 工具通过 `ur upgrade` / `ur skills install` 拿到发布版本（`skill/_meta.json` 版本号由
-`scripts/release.sh` 打包时自动生成，不手工维护），不直接感知任何源仓库。
-
-改完主仓 skills 后，在本仓跑一条命令完成同步（默认 dry-run 仅列差异，`--apply` 执行镜像）：
+维护方若在内部仓库维护 skills 的编辑副本，可让脚本在更新前先从上游镜像（默认 dry-run 仅列差异，
+`--apply` 执行）：
 
 ```bash
-bash scripts/update-skills.sh            # 镜像预览 + swagger 生成 + 同步 skills 仓库
-bash scripts/update-skills.sh --apply    # 确认预览无误后执行镜像
-bash scripts/update-skills.sh --mirror-only [--apply]   # 只跑镜像步骤
+UR_SKILLS_SOURCE=/path/to/upstream/skills bash scripts/update-skills.sh             # 镜像预览 + 生成 + 同步
+UR_SKILLS_SOURCE=/path/to/upstream/skills bash scripts/update-skills.sh --apply    # 确认预览后执行
+bash scripts/update-skills.sh --mirror-only [--apply]                              # 只跑镜像步骤
 ```
 
-注意：镜像以主仓为准（`rsync --delete`），CLI 侧多出的文件会被删除；若 `skill/` 有尚未合入主仓
-的内容（如未合并 MR 的技能），先合并主仓再 `--apply`。
+注意：镜像以源为准（`rsync --delete`），本仓 `skill/` 多出的文件会被删除；若 `skill/` 有尚未合入
+上游的内容（如未合并 PR 的技能），先更新上游再 `--apply`。
 
 ## 核心问题
 

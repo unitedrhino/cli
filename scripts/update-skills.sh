@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# update-skills.sh — 镜像主仓 skills 到 CLI,并一键更新 + 同步到 skills 仓库
+# update-skills.sh — 可选镜像上游 skills,并一键更新 + 同步到 skills 仓库
 # 用法: bash scripts/update-skills.sh [--apply] [--mirror-only] [--skip-mirror] [--source <dir>]
 #
-# skills 流向(约定:saas 主仓 .agents/skills/ur-api/ 是唯一编辑源,本仓 skill/ 只消费):
-#   saas 主仓 .agents/skills/ur-api/ --镜像--> cli skill/ --release 发版--> ur-api-skills-<版本>.zip
-#                                                └--本脚本同步--> unitedrhino/skills 仓库
+# skills 流向(本仓 skill/ 为发布源;上游编辑仓为可选镜像源,不配置则跳过镜像):
+#   上游 skills 源(可选) --镜像--> cli skill/ --release 发版--> ur-api-skills-<版本>.zip
+#                                    └--本脚本同步--> unitedrhino/skills 仓库
 # 客户端(AI 工具)通过 ur upgrade / ur skills install 拿到发布版本,不直接感知任何源仓库。
 #
 # 流程:
@@ -56,7 +56,7 @@ echo ""
 if [ "$SKIP_MIRROR" -eq 1 ]; then
   echo "[1/5] 跳过镜像(--skip-mirror)"
 else
-  echo "[1/5] 从 saas 主仓镜像 skills..."
+  echo "[1/5] 镜像上游 skills(如已配置)..."
   SOURCE_DIR=""
   for candidate in "${SOURCE_OVERRIDE}" "${CLI_DIR}/../../.agents/skills/ur-api"; do
     # 默认候选必须位于 git 工作树内，避免把 ~/.ur 或用户级的安装产物误当编辑源
@@ -68,15 +68,14 @@ else
   done
 
   if [ -z "$SOURCE_DIR" ]; then
-    echo "  警告: 找不到主仓 skills 源(.agents/skills/ur-api),跳过镜像"
-    echo "  可用 --source <dir> 或环境变量 UR_SKILLS_SOURCE 指定"
+    echo "  未检测到上游 skills 源,跳过镜像(--source <dir> 或环境变量 UR_SKILLS_SOURCE 可指定)"
   elif ! command -v rsync >/dev/null 2>&1; then
     echo "  警告: 未安装 rsync,跳过镜像;请手工把主仓改动拷入 skill/"
   else
     echo "  镜像源: $SOURCE_DIR"
-    repo_root="$(cd "${SOURCE_DIR}/../../.." && pwd)"
-    if [ -n "$(git -C "$repo_root" status --porcelain -- .agents/skills/ur-api 2>/dev/null)" ]; then
-      echo "  注意: 主仓 .agents/skills/ur-api 存在未提交改动,镜像的是工作区当前状态"
+    repo_root="$(git -C "$SOURCE_DIR" rev-parse --show-toplevel 2>/dev/null || true)"
+    if [ -n "$repo_root" ] && [ -n "$(git -C "$repo_root" status --porcelain -- "${SOURCE_DIR#"$repo_root"/}" 2>/dev/null)" ]; then
+      echo "  注意: 上游源存在未提交改动,镜像的是工作区当前状态"
     fi
     # -c 按内容校验和比较,避免仅 mtime 不同造成假差异
     RSYNC_ARGS=(-a -c --delete --exclude=_meta.json --itemize-changes)
@@ -88,8 +87,8 @@ else
     else
       echo "  预览(dry-run,加 --apply 执行):"
       rsync "${RSYNC_ARGS[@]}" -n "${SOURCE_DIR}/" "${SKILL_DIR}/" | grep -v '^\.' | sed 's/^/    /' || true
-      echo "  注意: 镜像以主仓为准,CLI 侧多出的文件会被删除;"
-      echo "  若 skill/ 有尚未合入主仓的内容(如未合并 MR 的技能),先合并主仓再 --apply"
+      echo "  注意: 镜像以源为准,skill/ 多出的文件会被删除;"
+      echo "  若 skill/ 有尚未合入上游源的内容(如未合并 PR 的技能),先更新上游再 --apply"
     fi
   fi
 fi
@@ -181,7 +180,7 @@ echo "========================================"
 echo ""
 echo "下一步:"
 echo "  cd ${CLI_DIR}"
-echo "  git add skill/ && git commit -m 'chore(skill): 同主仓 skills 及 API 端点列表'"
+echo "  git add skill/ && git commit -m 'chore(skill): 同步 skills 及 API 端点列表'"
 echo "  git push"
 if [ -n "$SKILLS_REPO" ]; then
   echo ""

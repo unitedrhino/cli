@@ -2,6 +2,29 @@
 
 本文档说明如何保持 CLI skill 与后端 API 同步。
 
+## 技能流向与编辑约定
+
+约定 **saas 主仓 `.agents/skills/ur-api/` 是唯一编辑源**，本仓 `skill/` 只消费不手改：
+
+```
+saas 主仓 .agents/skills/ur-api/ --镜像--> cli skill/ --release 发版--> ur-api-skills-<版本>.zip
+                                               └--本脚本同步--> unitedrhino/skills 仓库
+```
+
+客户端 AI 工具通过 `ur upgrade` / `ur skills install` 拿到发布版本（`skill/_meta.json` 版本号由
+`scripts/release.sh` 打包时自动生成，不手工维护），不直接感知任何源仓库。
+
+改完主仓 skills 后，在本仓跑一条命令完成同步（默认 dry-run 仅列差异，`--apply` 执行镜像）：
+
+```bash
+bash scripts/update-skills.sh            # 镜像预览 + swagger 生成 + 同步 skills 仓库
+bash scripts/update-skills.sh --apply    # 确认预览无误后执行镜像
+bash scripts/update-skills.sh --mirror-only [--apply]   # 只跑镜像步骤
+```
+
+注意：镜像以主仓为准（`rsync --delete`），CLI 侧多出的文件会被删除；若 `skill/` 有尚未合入主仓
+的内容（如未合并 MR 的技能），先合并主仓再 `--apply`。
+
 ## 核心问题
 
 后端 `.api` 文件更新后，skill 中的 API 端点列表不会自动同步。手动维护 500+ 个端点不可持续。

@@ -257,3 +257,47 @@ func TestInstall_NestedSceneAssets(t *testing.T) {
 		}
 	}
 }
+
+// TestInstall_RelocateDuplicates 校验安装时自动把残留 ur-api 目录移出到 ~/.ur/backup/skills/，
+// dry-run 时仅检测不移动。
+func TestInstall_RelocateDuplicates(t *testing.T) {
+	home := makeFakeHome(t)
+	t.Setenv("HOME", home)
+	src := makeFakeSource(t)
+	skillsDir := filepath.Join(home, ".claude", "skills")
+	// 模拟手工升级遗留的备份目录：留在 skills 扫描范围内
+	residual := filepath.Join(skillsDir, "ur-api.v0.4.1.bak")
+	mustWrite(t, filepath.Join(residual, "SKILL.md"), "---\nname: ur-api\n---\n")
+	targets := []Target{{Path: skillsDir, Scope: "user", Kind: "claude"}}
+
+	// dry-run：只报告残留，不移动
+	dryResult, err := Install(src, targets, true)
+	if err != nil {
+		t.Fatalf("Install dry-run: %v", err)
+	}
+	if len(dryResult.Targets[0].CleanedDirs) != 1 || dryResult.Targets[0].CleanedDirs[0].Name != "ur-api.v0.4.1.bak" || dryResult.Targets[0].CleanedDirs[0].BackupPath != "" {
+		t.Fatalf("dry-run cleanedDirs = %+v", dryResult.Targets[0].CleanedDirs)
+	}
+	if _, err := os.Stat(residual); err != nil {
+		t.Fatalf("dry-run 不应移动残留目录: %v", err)
+	}
+
+	// 正式安装：残留被移出到备份目录，ur-api 正常安装
+	result, err := Install(src, targets, false)
+	if err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+	cleaned := result.Targets[0].CleanedDirs
+	if len(cleaned) != 1 || cleaned[0].Name != "ur-api.v0.4.1.bak" || cleaned[0].BackupPath == "" {
+		t.Fatalf("cleanedDirs = %+v", cleaned)
+	}
+	if _, err := os.Stat(residual); !os.IsNotExist(err) {
+		t.Errorf("残留目录应已移出 skills 目录: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(cleaned[0].BackupPath, "SKILL.md")); err != nil {
+		t.Errorf("备份内容应保留在 ~/.ur/backup/skills/: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(skillsDir, "ur-api", "SKILL.md")); err != nil {
+		t.Errorf("ur-api 应正常安装: %v", err)
+	}
+}

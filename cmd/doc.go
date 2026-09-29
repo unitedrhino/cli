@@ -8,12 +8,14 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -26,16 +28,18 @@ import (
 
 // docParseFlags 收集 parse 子命令参数。
 type docParseFlags struct {
-	format      string
-	section     string
-	sheet       string
-	layers      string
-	out         string
-	name        string
-	ocr         bool
-	ocrProvider string
-	ocrModel    string
-	maxPages    int
+	format           string
+	section          string
+	sheet            string
+	layers           string
+	out              string
+	name             string
+	ocr              bool
+	ocrProvider      string
+	ocrModel         string
+	maxPages         int
+	pdfMaxFileSizeMB int
+	pdfMaxPages      int
 }
 
 // docParseOpts 是 parse 参数实例(flag 绑定目标)。
@@ -91,6 +95,8 @@ func init() {
 	docParseCmd.Flags().StringVar(&docParseOpts.ocrProvider, "ocr-provider", "platform", "OCR 通路: platform(平台模型池)|openai(OPENAI_BASE_URL/OPENAI_API_KEY)")
 	docParseCmd.Flags().StringVar(&docParseOpts.ocrModel, "ocr-model", "", "OCR 模型名(platform: modelType 默认 large;openai: 默认 gpt-4o)")
 	docParseCmd.Flags().IntVar(&docParseOpts.maxPages, "ocr-max-pages", 0, "OCR/视觉最大页数预算(0=不限)")
+	docParseCmd.Flags().IntVar(&docParseOpts.pdfMaxFileSizeMB, "pdf-max-file-size-mb", 50, "PDF 最大文件大小(MiB，必须大于 0)")
+	docParseCmd.Flags().IntVar(&docParseOpts.pdfMaxPages, "pdf-max-pages", 2000, "PDF 最大页数(必须大于 0)")
 	docCmd.AddCommand(docParseCmd)
 	docCmd.AddCommand(docFormatsCmd)
 	RootCmd.AddCommand(docCmd)
@@ -98,11 +104,22 @@ func init() {
 
 // runDocParse 执行读取→解析→格式化→输出。
 func runDocParse(cmd *cobra.Command, source string) error {
-	name, data, err := readDocSource(source, docParseOpts.name)
+	if docParseOpts.pdfMaxFileSizeMB <= 0 || docParseOpts.pdfMaxPages <= 0 {
+		return &CLIError{Message: "--pdf-max-file-size-mb 和 --pdf-max-pages 必须大于 0", ExitCode: 2}
+	}
+	pdfMaxBytes := int64(docParseOpts.pdfMaxFileSizeMB) << 20
+	maxReadBytes := int64(0)
+	if strings.EqualFold(filepath.Ext(docInputName(source, docParseOpts.name)), ".pdf") {
+		maxReadBytes = pdfMaxBytes
+	}
+	name, data, err := readDocSource(source, docParseOpts.name, maxReadBytes)
 	if err != nil {
 		return &CLIError{Message: err.Error(), ExitCode: 1}
 	}
-	parseOpts := docling.ParseOptions{}
+	parseOpts := docling.ParseOptions{PDFLimits: docling.PDFLimits{
+		MaxFileBytes: pdfMaxBytes,
+		MaxPages:     docParseOpts.pdfMaxPages,
+	}}
 	if docParseOpts.ocr {
 		budget := llmocr.Options{MaxPages: docParseOpts.maxPages}
 		switch strings.ToLower(docParseOpts.ocrProvider) {
@@ -128,6 +145,9 @@ func runDocParse(cmd *cobra.Command, source string) error {
 	}
 	doc, err := docling.ParseByExtWithOptions(name, data, parseOpts)
 	if err != nil {
+		if errors.Is(err, docling.ErrPDFResourceLimit) {
+			return &CLIError{Message: "PDF 超出安全限制: " + err.Error(), ExitCode: 1}
+		}
 		return &CLIError{Message: err.Error(), ExitCode: 1}
 	}
 
@@ -172,20 +192,39 @@ func runDocParse(cmd *cobra.Command, source string) error {
 	return os.WriteFile(docParseOpts.out, output, 0o644)
 }
 
-// readDocSource 读取本地文件、http(s) URL 或 stdin。
-func readDocSource(source, name string) (string, []byte, error) {
+// docInputName 返回读取前可确定的文件名，用于决定是否启用 PDF 输入限流。
+func docInputName(source, name string) string {
+	if source == "-" {
+		return name
+	}
+	if strings.HasPrefix(source, "http://") || strings.HasPrefix(source, "https://") {
+		parsed, err := url.Parse(source)
+		if err == nil {
+			return path.Base(parsed.Path)
+		}
+	}
+	return source
+}
+
+// readDocSource 读取本地文件、http(s) URL 或 stdin。maxBytes 为正时在
+// 分配完整缓冲前拒绝超限输入；0 表示沿用非 PDF 的历史限制。
+func readDocSource(source, name string, maxBytes int64) (string, []byte, error) {
 	if source == "-" {
 		if name == "" {
 			return "", nil, fmt.Errorf("stdin 模式需要 --name 提供文件名(如 report.xlsx)")
 		}
-		data, err := io.ReadAll(os.Stdin)
+		data, err := readDocInputLimited(os.Stdin, maxBytes)
 		return name, data, err
 	}
 	if strings.HasPrefix(source, "http://") || strings.HasPrefix(source, "https://") {
-		return downloadDocFile(source)
+		return downloadDocFile(source, maxBytes)
 	}
-	if _, err := os.Stat(source); err != nil {
+	info, err := os.Stat(source)
+	if err != nil {
 		return "", nil, fmt.Errorf("输入不存在且不是 URL: %s", source)
+	}
+	if maxBytes > 0 && info.Size() > maxBytes {
+		return "", nil, fmt.Errorf("PDF 文件超过 %d MiB 上限", maxBytes>>20)
 	}
 	data, err := os.ReadFile(source)
 	return source, data, err
@@ -193,12 +232,12 @@ func readDocSource(source, name string) (string, []byte, error) {
 
 // docDownloadTimeout / docDownloadMaxBytes 控制 URL 下载。
 const (
-	docDownloadTimeout  = 120 * time.Second
-	docDownloadMaxBytes = 200 << 20
+	docDownloadTimeout        = 120 * time.Second
+	docDownloadMaxBytes int64 = 200 << 20
 )
 
 // downloadDocFile 下载 URL 文件(120s 超时、200MB 上限),文件名取路径末段。
-func downloadDocFile(source string) (string, []byte, error) {
+func downloadDocFile(source string, maxBytes int64) (string, []byte, error) {
 	parsed, err := url.Parse(source)
 	if err != nil || parsed.Host == "" {
 		return "", nil, fmt.Errorf("非法 URL: %s", source)
@@ -212,26 +251,37 @@ func downloadDocFile(source string) (string, []byte, error) {
 	if httpResp.StatusCode != http.StatusOK {
 		return "", nil, fmt.Errorf("下载失败: http %d", httpResp.StatusCode)
 	}
-	data := make([]byte, 0, 1<<20)
-	buf := make([]byte, 1<<20)
-	for {
-		n, readErr := httpResp.Body.Read(buf)
-		data = append(data, buf[:n]...)
-		if len(data) > docDownloadMaxBytes {
-			return "", nil, fmt.Errorf("文件超过 200MB 上限")
-		}
-		if readErr != nil {
-			if readErr.Error() == "EOF" || strings.Contains(readErr.Error(), "EOF") {
-				break
-			}
-			return "", nil, fmt.Errorf("下载中断: %w", readErr)
-		}
+	readLimit := docDownloadMaxBytes
+	if maxBytes > 0 && maxBytes < readLimit {
+		readLimit = maxBytes
+	}
+	if httpResp.ContentLength > readLimit {
+		return "", nil, fmt.Errorf("文件超过 %d MiB 上限", readLimit>>20)
+	}
+	data, err := readDocInputLimited(httpResp.Body, readLimit)
+	if err != nil {
+		return "", nil, err
 	}
 	name := path.Base(parsed.Path)
 	if name == "" || name == "/" || name == "." {
 		name = "download"
 	}
 	return name, data, nil
+}
+
+// readDocInputLimited 使用 limit+1 探测超限，避免 URL 或 stdin 无界读入内存。
+func readDocInputLimited(reader io.Reader, limit int64) ([]byte, error) {
+	if limit <= 0 {
+		return io.ReadAll(reader)
+	}
+	data, err := io.ReadAll(io.LimitReader(reader, limit+1))
+	if err != nil {
+		return nil, fmt.Errorf("读取文档失败: %w", err)
+	}
+	if int64(len(data)) > limit {
+		return nil, fmt.Errorf("文件超过 %d MiB 上限", limit>>20)
+	}
+	return data, nil
 }
 
 // platformLLMClient 通过平台 /api/v1/ai/chat/completions(agentID=0 裸模型

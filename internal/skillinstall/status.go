@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 )
 
 const (
@@ -21,7 +22,14 @@ const (
 	StatusOutdated = "outdated"
 	// StatusIncomplete 表示目标版本相同但文件缺失、变化或存在残留。
 	StatusIncomplete = "incomplete"
+	// StatusDuplicate 表示 ur-api 本身正常，但目标 skills 目录内存在
+	// ur-api 备份/旧版等同名前缀残留目录，会被 AI 客户端重复注册为技能。
+	StatusDuplicate = "duplicate"
 )
+
+// duplicatePrefix 是残留目录识别前缀：目录名以 ur-api 开头但不是 ur-api
+// 本身（如 ur-api.v0.4.1.bak、ur-api.ur-bak、ur-api-old）即视为残留。
+const duplicatePrefix = "ur-api"
 
 // TargetStatus 描述一个 Skills 目标的版本和完整性状态。
 type TargetStatus struct {
@@ -53,6 +61,9 @@ type TargetStatus struct {
 	ChangedFiles int `json:"changedFiles,omitempty"`
 	// ExtraFiles 是目标中多出的残留文件数量。
 	ExtraFiles int `json:"extraFiles,omitempty"`
+	// DuplicateDirs 是目标 skills 目录内检测到的 ur-api 残留目录完整路径，
+	// 来源多为手工升级时的备份残留，会被 AI 客户端重复注册为技能。
+	DuplicateDirs []string `json:"duplicateDirs,omitempty"`
 	// Error 是检查目标时遇到的错误。
 	Error string `json:"error,omitempty"`
 }
@@ -87,6 +98,9 @@ func InspectTargets(src string, targets []Target) (*StatusResult, error) {
 			ExpectedVersion:   result.Version,
 			ExpectedFileCount: len(sourceFiles),
 		}
+		// 残留检测对所有状态生效：即使 ur-api 本身正常（甚至缺失），
+		// 同级的备份目录也会被 AI 客户端注册成重复技能。
+		status.DuplicateDirs = FindDuplicateDirs(target.Path)
 		targetFiles, targetErr := treeSignatures(destination)
 		if os.IsNotExist(targetErr) {
 			result.Targets = append(result.Targets, status)
@@ -122,9 +136,31 @@ func InspectTargets(src string, targets []Target) (*StatusResult, error) {
 		default:
 			status.State = StatusCurrent
 		}
+		if status.State == StatusCurrent && len(status.DuplicateDirs) > 0 {
+			status.State = StatusDuplicate
+		}
 		result.Targets = append(result.Targets, status)
 	}
 	return result, nil
+}
+
+// FindDuplicateDirs 返回 targetPath 下所有 ur-api 前缀的残留目录完整路径。
+// AI 客户端会注册 skills 目录下所有含 SKILL.md 的子目录（不识别 .bak 等后缀），
+// 因此手工升级留下的 ur-api.v0.4.1.bak 之类备份会被识别为第二个 ur-api 技能。
+func FindDuplicateDirs(targetPath string) []string {
+	entries, err := os.ReadDir(targetPath)
+	if err != nil {
+		return nil
+	}
+	var duplicates []string
+	for _, entry := range entries {
+		name := entry.Name()
+		if !entry.IsDir() || name == duplicatePrefix || !strings.HasPrefix(name, duplicatePrefix) {
+			continue
+		}
+		duplicates = append(duplicates, filepath.Join(targetPath, name))
+	}
+	return duplicates
 }
 
 // ReadVersion 读取 ur-api 根目录中的版本元数据。

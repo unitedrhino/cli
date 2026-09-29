@@ -344,6 +344,9 @@ func runSkillsStatus(args []string, stdout, stderr io.Writer) int {
 				fmt.Fprintf(stdout, "  缺失=%d 变化=%d 多余=%d", target.MissingFiles, target.ChangedFiles, target.ExtraFiles)
 			}
 			fmt.Fprintln(stdout)
+			for _, dir := range target.DuplicateDirs {
+				fmt.Fprintf(stdout, "  残留目录: %s（运行 ur skills install --all 可自动移出到 ~/.ur/backup/skills/）\n", dir)
+			}
 		}
 	}
 	for _, target := range result.Targets {

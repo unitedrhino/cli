@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // Target AI 工具的 skills 目标目录
@@ -49,8 +50,19 @@ type TargetResult struct {
 	Installed bool `json:"installed"`
 	// Updated 表示目标原先已有 ur-api 并被覆盖更新。
 	Updated bool `json:"updated,omitempty"`
+	// CleanedDirs 是本次安装移出目标 skills 目录的 ur-api 残留目录；
+	// dry-run 时仅列出检测到的残留，BackupPath 为空表示未实际移动。
+	CleanedDirs []RelocatedDir `json:"cleanedDirs,omitempty"`
 	// Error 是单个目标的安装错误。
 	Error string `json:"error,omitempty"`
+}
+
+// RelocatedDir 描述一个被移出客户端 skills 目录的 ur-api 残留目录。
+type RelocatedDir struct {
+	// Name 是残留目录的原目录名（如 ur-api.v0.4.1.bak）。
+	Name string `json:"name"`
+	// BackupPath 是移动后的备份位置；dry-run 预览时为空。
+	BackupPath string `json:"backupPath,omitempty"`
 }
 
 // Result 整体安装结果
@@ -245,6 +257,22 @@ func Install(src string, targets []Target, dryRun bool) (*Result, error) {
 		dest := filepath.Join(target.Path, "ur-api")
 		exists := dirExists(dest)
 		tr.Updated = exists
+		// 安装前先移出 ur-api 前缀的残留目录（手工升级遗留的备份等），
+		// 避免 AI 客户端把备份注册成重复技能；移出而非删除，内容保留在 ~/.ur/backup/skills/。
+		duplicates := FindDuplicateDirs(target.Path)
+		if len(duplicates) > 0 {
+			if dryRun {
+				for _, dir := range duplicates {
+					tr.CleanedDirs = append(tr.CleanedDirs, RelocatedDir{Name: filepath.Base(dir)})
+				}
+			} else if relocated, cleanErr := relocateDuplicates(duplicates); cleanErr != nil {
+				tr.Error = fmt.Sprintf("清理残留 ur-api 目录失败: %v", cleanErr)
+				result.Targets = append(result.Targets, tr)
+				continue
+			} else {
+				tr.CleanedDirs = relocated
+			}
+		}
 		if dryRun {
 			tr.Installed = true
 			result.Targets = append(result.Targets, tr)
@@ -294,6 +322,48 @@ func HasErrors(result *Result) bool {
 	return false
 }
 
+// SkillsBackupDir 返回 ur-api 残留目录的统一备份位置（~/.ur/backup/skills）。
+// 手工升级遗留的备份目录必须移出客户端 skills 扫描目录，统一收纳在此处。
+func SkillsBackupDir() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return filepath.Join(os.TempDir(), ".ur", "backup", "skills")
+	}
+	return filepath.Join(home, ".ur", "backup", "skills")
+}
+
+// relocateDuplicates 把检测到的 ur-api 残留目录逐个移到 SkillsBackupDir。
+// 优先 rename；跨设备 rename 失败时回退为复制后删除。目标位置已存在同名
+// 目录时追加时间戳后缀，避免覆盖历史备份。
+func relocateDuplicates(duplicates []string) ([]RelocatedDir, error) {
+	if len(duplicates) == 0 {
+		return nil, nil
+	}
+	backupRoot := SkillsBackupDir()
+	if err := os.MkdirAll(backupRoot, 0o755); err != nil {
+		return nil, fmt.Errorf("创建备份目录失败: %w", err)
+	}
+	relocated := make([]RelocatedDir, 0, len(duplicates))
+	for _, dir := range duplicates {
+		name := filepath.Base(dir)
+		backupPath := filepath.Join(backupRoot, name)
+		if dirExists(backupPath) {
+			backupPath = filepath.Join(backupRoot, fmt.Sprintf("%s-%d", name, time.Now().Unix()))
+		}
+		if err := os.Rename(dir, backupPath); err != nil {
+			// 跨设备 rename 失败时回退为复制后删除，保证残留一定离开 skills 目录
+			if copyErr := copyDir(dir, backupPath); copyErr != nil {
+				return relocated, fmt.Errorf("移动 %s 失败: rename: %v; copy: %w", name, err, copyErr)
+			}
+			if removeErr := os.RemoveAll(dir); removeErr != nil {
+				return relocated, fmt.Errorf("删除原残留目录 %s 失败: %w", name, removeErr)
+			}
+		}
+		relocated = append(relocated, RelocatedDir{Name: name, BackupPath: backupPath})
+	}
+	return relocated, nil
+}
+
 // Summary 生成人类可读的安装结果摘要
 func Summary(r *Result) string {
 	if r == nil || len(r.Targets) == 0 {
@@ -308,6 +378,13 @@ func Summary(r *Result) string {
 			status = "已覆盖更新"
 		}
 		lines = append(lines, fmt.Sprintf("  %s %s [%s/%s] %s → %s", status, t.Name, t.Scope, t.Kind, t.Path, filepath.Join(t.Path, "ur-api")))
+		for _, cleaned := range t.CleanedDirs {
+			if cleaned.BackupPath == "" {
+				lines = append(lines, fmt.Sprintf("  检测到残留目录: %s（dry-run 未移动，正式安装时会移到 %s）", cleaned.Name, SkillsBackupDir()))
+			} else {
+				lines = append(lines, fmt.Sprintf("  已移出残留目录: %s → %s", cleaned.Name, cleaned.BackupPath))
+			}
+		}
 	}
 	return "ur-api 部署结果:\n" + strings.Join(lines, "\n")
 }

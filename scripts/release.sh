@@ -59,6 +59,17 @@ should_upload_gitee() {
      "${filename}" == "ur-cli-${VERSION}-Windows-x86_64.zip" ]]
 }
 
+# release_alias_name 返回 GitHub latest 直链使用的版本无关资产名。
+# Skills 包的版本位于扩展名前，不能沿用 CLI 平台包的“版本后接连字符”替换规则。
+release_alias_name() {
+  local filename="$1"
+  if [[ "${filename}" == "ur-api-skills-${VERSION}.zip" ]]; then
+    echo "ur-api-skills.zip"
+    return
+  fi
+  echo "${filename/${VERSION}-/}"
+}
+
 # 排除的平台（非原生或不需要）
 EXCLUDE_PLATFORMS="js/wasm wasip1/wasm android/386 android/amd64 android/arm android/arm64 ios/amd64 ios/arm64"
 
@@ -332,7 +343,8 @@ release_github() {
       ur-cli-${VERSION}-macOS-x86_64.tar.gz|ur-cli-${VERSION}-macOS-arm64.tar.gz|\
       ur-cli-${VERSION}-Windows-x86_64.zip|\
       ur-api-skills-${VERSION}.zip)
-        local alias_name="${fname/${VERSION}-/}"
+        local alias_name
+        alias_name="$(release_alias_name "${fname}")"
         if github_curl -X POST \
           -H "Content-Type: application/octet-stream" \
           "${upload_url}?name=${alias_name}" \

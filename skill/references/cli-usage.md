@@ -66,6 +66,20 @@ UR_NO_UPDATE_NOTIFIER=1 UR_NO_SKILLS_NOTIFIER=1 ur check --json
 
 `UR_NO_UPDATE_CHECK=1` 会同时停止远端检查和 CLI 更新提示。
 
+### 升级失败处理规范（强制）
+
+`ur upgrade` 网络失败时**禁止手工替换 CLI 二进制或 skills 目录**，按顺序尝试：
+
+1. `UR_RELEASE_SOURCE=github ur upgrade`（Gitee 源失败时切换 GitHub 源）
+2. 配置代理后重试 `ur upgrade`
+3. 稍后重试 `ur upgrade --force`
+
+全部失败时保持现状并告知用户，不要自行下载散包替换。
+
+**备份位置红线**：AI 客户端会注册 skills 目录下所有含 `SKILL.md` 的子目录（不识别 `.bak` 等后缀、不去重）。因此任何 ur-api 备份或旧版目录都**不得留在客户端 skills 扫描目录内**（如 `~/.claude/skills/`、`~/.agents/skills/`、`~/.codebuddy/skills/`），否则会被识别成重复 ur-api 技能。备份统一放到 `~/.ur/backup/`（`ur skills install` 自动移出的残留也收纳在 `~/.ur/backup/skills/`）。
+
+手工处理过 skills 目录后必须运行 `ur skills status` 验证；发现 `duplicate` 状态或残留 ur-api 目录时，运行 `ur skills install --all` 自动移出到备份位置（内容保留，不会删除），不要原地删除。
+
 ## Skills 多客户端安装与校验（v0.6.1+）
 
 同一份 `ur-api` 可以部署到多个本地 AI 客户端，也可以导出为标准 ZIP，供没有固定本机目录的平台导入。
@@ -84,6 +98,8 @@ ur skills install --all
 ur skills status
 ```
 
+安装时会自动把目标 skills 目录内 ur-api 前缀的残留目录（手工升级遗留的备份等）移出到 `~/.ur/backup/skills/`，内容保留不删除。
+
 CLI 自动识别 Claude Code、Codex 与 WorkBuddy / CodeBuddy 的用户级目录；在 Git 仓库内执行时，还会从**当前工作目录向上**查找仓库根，并识别该项目现有的 `.claude/skills`、`.agents/skills`、`.codebuddy/skills`。执行批量安装前应先运行 `ur skills target detect`，确认没有选中不希望覆盖的项目级 `ur-api`。
 
 `status` 的状态含义：
@@ -94,6 +110,7 @@ CLI 自动识别 Claude Code、Codex 与 WorkBuddy / CodeBuddy 的用户级目�
 | `missing` | 目标中没有 `ur-api` | 重新安装 |
 | `outdated` | 目标版本落后 | 重新安装或运行 `ur upgrade` |
 | `incomplete` | 文件缺失、变化或存在多余文件 | 重新安装恢复完整副本 |
+| `duplicate` | ur-api 本身正常，但目录内有 ur-api 备份/旧版残留目录 | 运行 `ur skills install --all` 自动移出到 `~/.ur/backup/skills/` |
 
 ### 登记其他客户端
 

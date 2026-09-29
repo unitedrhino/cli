@@ -52,6 +52,8 @@ ur --app iot generate-skills --output ./skills/ur-iot
 | `ur-device` | 设备管理 — 设备 CRUD、属性控制、设备分享、物模型 |
 | `ur-device-analytics` | 设备数据分析 — 属性历史查询、趋势分析、聚合统计、报表生成（物模型驱动） |
 | `ur-device-debug` | 设备调试 — 日志查询（属性/事件/命令/上下线/异常/诊断/SDK）、实时调试（属性控制/行为调用/事件发送） |
+| `device-firmware` | 设备固件 — 从产品/物模型初始化到配网、MQTT 双向通信、首刷、排障、OTA 与实机验收 |
+| `ur-ota` | OTA 平台管理 — 固件上传登记、模块、定向/批量任务和升级结果核验 |
 | `ur-product` | 产品管理 — 产品定义、物模型、品类管理 |
 | `ur-project` | 项目管理 — 项目 CRUD、区域管理、场景编辑 |
 | `ur-system` | 系统管理 — 用户管理、角色权限、菜单资源、字典配置 |
@@ -354,6 +356,19 @@ ur --version                    # 查看 CLI 版本
 ur --app iot <command>          # 切换应用上下文（iot / platform-manage / org-manage / org-energy / console）
 UR_APP=iot ur <command>         # 通过环境变量切换
 ```
+
+### 文档解析
+
+```bash
+ur doc parse report.pdf --format outline
+ur doc parse report.pdf --format md --section 第四章
+ur doc parse scan.pdf --format md --ocr --ocr-max-pages 20
+
+# PDF 默认限制为 50 MiB、2000 页；确有大文档时显式调高
+ur doc parse report.pdf --pdf-max-file-size-mb 100 --pdf-max-pages 5000
+```
+
+本地文件会在读取前检查大小，URL 与 stdin 使用有界读取；限制参数必须大于 0。PDF 结构资源超限直接失败，单张损坏或超限图片只被跳过，不影响可安全提取的正文。
 
 ### API 调用
 

@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -23,7 +24,125 @@ import (
 func resetDocParseOpts(t *testing.T) {
 	saved := *docParseOpts
 	t.Cleanup(func() { *docParseOpts = saved })
-	*docParseOpts = docParseFlags{format: "outline", layers: "body", ocrProvider: "platform"}
+	*docParseOpts = docParseFlags{
+		format: "outline", layers: "body", ocrProvider: "platform",
+		pdfMaxFileSizeMB: 50, pdfMaxPages: 2000,
+	}
+}
+
+// TestDocParseRejectsInvalidPDFLimits 验证安全限制不能通过非正参数关闭。
+func TestDocParseRejectsInvalidPDFLimits(t *testing.T) {
+	resetDocParseOpts(t)
+	docParseOpts.pdfMaxPages = 0
+	err := runDocParse(&cobra.Command{}, filepath.Join(t.TempDir(), "missing.pdf"))
+	if err == nil || !strings.Contains(err.Error(), "必须大于 0") {
+		t.Fatalf("invalid PDF limit err=%v", err)
+	}
+}
+
+// TestReadDocSourceRejectsOversizedLocalPDF 验证本地 PDF 在 os.ReadFile 前
+// 通过文件元数据拒绝超限输入。
+func TestReadDocSourceRejectsOversizedLocalPDF(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "oversized.pdf")
+	if err := os.WriteFile(file, []byte("12345"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := readDocSource(file, "", 4); err == nil || !strings.Contains(err.Error(), "超过") {
+		t.Fatalf("oversized local PDF err=%v", err)
+	}
+}
+
+// TestReadDocInputLimited 验证 URL 与 stdin 共用的 limit+1 读取器不会返回
+// 部分文档或在超限后继续增长缓冲。
+func TestReadDocInputLimited(t *testing.T) {
+	if _, err := readDocInputLimited(strings.NewReader("12345"), 4); err == nil || !strings.Contains(err.Error(), "超过") {
+		t.Fatalf("limited reader err=%v", err)
+	}
+	data, err := readDocInputLimited(strings.NewReader("1234"), 4)
+	if err != nil || string(data) != "1234" {
+		t.Fatalf("boundary read data=%q err=%v", data, err)
+	}
+}
+
+// TestReadDocSourceRejectsOversizedStdinPDF 验证 stdin 的完整命令读取路径
+// 使用同一 limit+1 边界，不会只在辅助函数层获得覆盖。
+func TestReadDocSourceRejectsOversizedStdinPDF(t *testing.T) {
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	originalStdin := os.Stdin
+	os.Stdin = reader
+	t.Cleanup(func() {
+		os.Stdin = originalStdin
+		_ = reader.Close()
+		_ = writer.Close()
+	})
+	if _, err := writer.Write([]byte("12345")); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, _, err := readDocSource("-", "stdin.pdf", 4); err == nil || !strings.Contains(err.Error(), "超过") {
+		t.Fatalf("oversized stdin PDF err=%v", err)
+	}
+}
+
+// TestDownloadDocFileRejectsOversizedStream 验证无 Content-Length 的分块响应
+// 仍由 LimitReader 在内存缓冲超过边界前终止。
+func TestDownloadDocFileRejectsOversizedStream(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.(http.Flusher).Flush()
+		_, _ = io.WriteString(w, "12345")
+	}))
+	defer server.Close()
+	if _, _, err := downloadDocFile(server.URL+"/report.pdf", 4); err == nil || !strings.Contains(err.Error(), "超过") {
+		t.Fatalf("oversized URL PDF err=%v", err)
+	}
+}
+
+// TestDocParseRejectsPDFPageLimit 验证页数参数会透传到 Go Docling，并以
+// 可操作的 CLI 资源超限错误退出。
+func TestDocParseRejectsPDFPageLimit(t *testing.T) {
+	resetDocParseOpts(t)
+	docParseOpts.pdfMaxPages = 1
+	file := filepath.Join(t.TempDir(), "two-pages.pdf")
+	if err := os.WriteFile(file, buildCLITestPDF(2), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	err := runDocParse(&cobra.Command{}, file)
+	if err == nil || !strings.Contains(err.Error(), "PDF 超出安全限制") || !strings.Contains(err.Error(), "pages 2") {
+		t.Fatalf("page limit err=%v", err)
+	}
+}
+
+// buildCLITestPDF 构造指定页数的最小 PDF，供 CLI 页数限制测试使用。
+func buildCLITestPDF(pageCount int) []byte {
+	objects := []string{"<< /Type /Catalog /Pages 2 0 R >>"}
+	kids := make([]string, 0, pageCount)
+	for page := 0; page < pageCount; page++ {
+		kids = append(kids, fmt.Sprintf("%d 0 R", page+3))
+	}
+	objects = append(objects, fmt.Sprintf("<< /Type /Pages /Kids [%s] /Count %d >>", strings.Join(kids, " "), pageCount))
+	for range pageCount {
+		objects = append(objects, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] >>")
+	}
+	var output bytes.Buffer
+	output.WriteString("%PDF-1.4\n")
+	offsets := make([]int, len(objects))
+	for index, object := range objects {
+		offsets[index] = output.Len()
+		fmt.Fprintf(&output, "%d 0 obj\n%s\nendobj\n", index+1, object)
+	}
+	xref := output.Len()
+	fmt.Fprintf(&output, "xref\n0 %d\n0000000000 65535 f \n", len(objects)+1)
+	for _, offset := range offsets {
+		fmt.Fprintf(&output, "%010d 00000 n \n", offset)
+	}
+	fmt.Fprintf(&output, "trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n", len(objects)+1, xref)
+	return output.Bytes()
 }
 
 // mustTestFormulaXLSX 构造含公式的 xlsx：A1=合计 B1=SUM(A2:A3) A2=1 A3=2。

@@ -157,6 +157,17 @@ go test -race ./core/service/aisvr/internal/domain/chat \
 
 先运行平台基线。测试凭据使用已有 profile、环境变量或权限不宽于 `0600` 的受限文件：
 
+启动前以 `ur --app <应用> check --json` 核验实际环境、应用、组织与认证；需交给 Go 测试时，
+通过同一应用的 `ur token --raw` 在内存取得 Token，再以环境变量传入，不打印 Token。
+不要直接读取旧 `~/.ur/config.json` 推测当前 CLI 上下文：多应用配置可能已不同。
+找不到 fuzai 或更新测试产品返回权限不足时，先核对上述上下文与资源归属，不能直接断言
+后端缺功能、重新注册 MCP 或扩大权限。
+
+视觉三项用例使用每次独立的随机前缀，并断言 `CleanupAll` 成功；已有 `CleanupDevice`
+为固定前缀复用场景保留部分资源，不适用于一次性隔离资源。清理仅针对本次新建对象，
+不得按 sim 前缀批量删除历史资源。还应运行 `TestImageInputDuringVoiceAudioStop`，
+验证图片输入与停止收音交错时仍有完整语音，而不只是文本通过。
+
 ```bash
 DEVICESIM_TEST_PATTERN='Test(TakePhotoEndToEnd|ImageInputEndToEnd|EmojiEmotionText|EmojiNotSentForPlainQuestion)$' \
 DEVICESIM_AUDIO_SAMPLE_RATE=16000 \

@@ -22,16 +22,18 @@
 - 动态字体替换必须覆盖未激活页面和 top layer；LVGL 样式只保存字体裸指针，旧字体
   所有者释放前同步更新全部页面。只更新当前屏会在稍后打开菜单时触发悬空指针崩溃。
 
-## 本地换网事务与可选在线入口
+## 本地换网事务与项目管理员授权
 
 换网保留正式 Wi-Fi 列表、DeviceSecret、所属项目和绑定；候选配置独立持久化。
 BLE 配网独立启动，不与正常 WifiManager 并行初始化。OTA/相机忙时拒绝入口，
-进入换网先关闭语音。在线行为先回执受理，再显示默认取消的物理确认页；离线可以本地进入。
+进入换网先关闭语音，设备在线和离线都可从本地菜单开启。新版小程序不依赖物模型行为。
+管理员按真实项目拥有者或项目级 AuthAdmin 判断，不是扫码操作者、普通控制权或全局管理员标志。
+设备可以离线，手机必须联网取得当次许可；手机也离线时拒绝，不提供未鉴权降级。
 
 | 合同 | 内容 |
 |---|---|
 | `configureNetwork` | 可选在线唤起行为，输入 `requestId` 为 16 位十六进制字符串，输出布尔 `Result`；本地菜单不依赖该行为 |
-| 本地闭环 | 不新增状态属性、不等 MQTT 回执、不修改后端；已有 `networkConfigStatus` 不再作为前提，也不自动删除 |
+| 本地闭环 | 不新增状态属性、不等 MQTT 回执；设备域授权接口只负责权限和许可，已有 `networkConfigStatus` 不作为前提，也不自动删除 |
 | 阶段 | 0 空闲、1 已准备、2 BLE 等待、3 候选连接、6 提交、7 已保存、8 失败、9 待物理确认；4/5 为旧流程保留值 |
 | 错误 | 0 无、1 重启中断、2 超时、3 取消、4 鉴权（旧流程保留）、5 网络、6 存储 |
 
@@ -56,11 +58,21 @@ python3 shell/test-converge-watcher-network.py
 
 ## BLE 与小程序边界
 
-沿用 FFF0/FFE1/FFE3。换网能力通知 E5 为 15 字节：`e5 00 0c 02 01 stage error`
-后接 8 字节请求 ID。具体编码以固件及双端解析器为准；旧固件无能力时提示升级，
-不能回退到首次绑定。这里扩展版本 2 是本地保存语义，不能将旧版本 1 的云端确认当作同一合同。
+沿用 FFF0/FFE1/FFE3。当前开发 E5 v3 重组后为 31 字节：`e5 00 1c 03 01 stage error`
+后接 8 字节请求 ID、16 字节窗口随机挑战。仍按原通知协议分片；旧 v1/v2 换网必须升级，
+不能回退到首次绑定。v3 尚需配套发布和真实验收，不把此前 v2 真机结果当作 v3 验收。
 `changeNetwork` 必须在申请绑定 Token 之前分流。手机写入 E5 是读取日志、设备以 E4 回复；
 设备通知 E5 才是换网能力，不能混淆方向。
+
+写凭据前调用设备域 `POST /api/v1/things/device/network/grant`，以 ProductID/DeviceName 查询
+真实项目权限。`checkOnly=true` 只预检查；正式签发传 `nonce`、`credentialDigest`，不传密码。
+摘要是 `SHA256("ur-wifi-v1\n" + hex(UTF8(ssid)) + "\n" + hex(UTF8(password)))` 的小写 hex。
+签名原文是 `"ur-network-v1\n" + productID + "\n" + deviceName + "\n" + nonce + "\n" + digest`，
+使用 DeviceSecret 原始 UTF-8 文本作 HMAC-SHA256 key；手机只能得到签名，不能得到密钥。
+签名解码为 32 字节，经两包 `E6 00 11 part[0/1] signature[16]` 发送；等待各自
+`E6 00 02 part result`、result=0 后才下发候选。回执只代表分片受理；实际验签在 worker，
+拒绝时不写候选 NVS，且消费许可。挑战仅本次最长 180 秒窗口有效，重启、取消或退出后无效。
+保留普通绑定协议；E2 密码、E4 Token、E6 许可（包括分片）不能记录到日志或 Sentry。
 
 WiFi 配网广播的版本是完整字节 `02`，不能套用标准蓝牙模式的高四位版本编码。
 微信厂商数据包含两字节 Company ID；BlueZ 的 ManufacturerData 已以 Company ID 为键，
@@ -111,7 +123,9 @@ python3 firmware/watcher/scripts/run_ur_network_e2e.py \
 ```
 
 先从设备菜单开启换网窗口。默认只读身份和能力；只有明确授权写候选时加
-`--provision-stdin`，通过受控 stdin 输入 `ssid/password` JSON，不把密码写入参数。
+`--provision-stdin`，通过受控 stdin 输入 `ssid/password/nonce/signature` JSON，不把密码写入参数。
+先只读取得本次 nonce，再以管理员登录身份调用授权 API，随后在同一窗口写入；
+脚本不读取设备密钥，许可缺失或窗口变化即停止。不能复用旧脚本绕过权限验收。
 需要 Linux 系统 dbus/gi 和 BlueZ；失败不自动重发凭据，断开或脚本观察超时不是成功。
 脚本回放单测为 `test_network_e2e_runner.py`，不替代真实 GATT 与手机验收。
 
@@ -140,9 +154,13 @@ Watcher 需要 2.4GHz；只有新扫描证实同名热点仅在 5GHz 时才据�
 | 整机 | 多轮语音/两种打断、完整字幕、真相机预览识图、五类代表情绪、USB/电池电源菜单、OTA、15 分钟稳定性；音频无卡顿、无持续堆下降 |
 
 主机用例入口位于 `firmware/watcher/scripts/tests/`，重点 `test_ur_network_*`、
+`test_network_grant.py`（实际固件验签与 Go/TS 固定向量、许可单次消费）、
 `test_watcher_wifi_retry.py`、`test_wifi_scan_generation.py`、`test_watcher_ui_runtime.py`、
 `test_watcher_display_mailbox.py` 和 `test_watcher_page_manager.py`；
 双端测试位于各应用 `scripts/*.test.cjs`，通过各应用 `test:contract` 入口运行。
+网络授权服务用 `networkgrant` 域测试及 `things/device/network` logic RPC mock 测试；
+覆盖项目拥有者/管理员允许，普通读写/区域管理员/跨组织/同名其他产品拒绝。小程序补充
+授权缺失、失败、迟到和错误签名零凭据写入；`network-grant-runtime.test.cjs` 验证 UTF-8 摘要。
 编译/全量测试遵循开发机资源门禁；不能用只检查源码字符串的断言替代运行生产状态机。
 
 失败证据按层归属：无 E5 查固件能力/BLE窗口；E5 正常但身份拒绝查目标与连接代次；

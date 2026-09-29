@@ -28,6 +28,29 @@
 - 动态字体替换必须覆盖未激活页面和 top layer；LVGL 样式只保存字体裸指针，旧字体
   所有者释放前同步更新全部页面。只更新当前屏会在稍后打开菜单时触发悬空指针崩溃。
 
+### 串口截图与滚轮回归
+
+包含新调试入口的测试固件可用 `ur_hw_test snapshot` 取得真实 LVGL 合成 JPEG，
+不能用相机照片或重绘示意图代替截图。active screen 不含独立 top/system layer，
+必须一起捕获并核验层大小、像素格式/alpha 和行步长；任意层失败不能返回残缺图冒充成功。
+截图包含字幕或预览时属于私有验收数据，不入库，不经公共图片服务上传。
+
+在直连开发机独占串口，运行：
+
+```bash
+python3 firmware/watcher/scripts/run_watcher_ui_probe.py \
+  --port '<当前设备串口>' --output '<受限目录>/screen.jpg' --verify-knob
+```
+
+不加 `--verify-knob` 只截图；增加该选项会结束语音并验证菜单焦点与主页音量，
+要求初始主页，不自动退出配网或危险确认页。状态回读须看到输入队列清空及实际音量变化，
+不能以 ACK 代替操作生效；结束恢复原音量。主页/对话旋钮调音量，菜单旋钮移动焦点，
+音量子页调整音量；长字幕用触屏滚动，不能再次截走主页旋钮。
+串口截图校验传输 ID、连续偏移、大小、CRC 和 JPEG；拒绝缺片、重复、混帧，
+只保存完整图片。截图证明软件合成，不证明 LCD 实际显示、触摸校准或扬声器声音。
+回归入口为 `test_display_snapshot.py`、`test_watcher_ui_runtime.py` 和菜单状态机测试；
+还须在真机核验截图包含状态栏、状态与菜单不重叠、快速旋转以及对话播放期间不卡顿。
+
 ### SPD2010 在 IDF 6 下的纯读兼容
 
 若启动日志出现 `i2c transmit buffer or size invalid`、SPD2010 `Read version failed`，

@@ -39,17 +39,6 @@ metadata:
 
 > 完整命令帮助：`ur things help`
 
-<!-- MANUAL_GUIDES:ur-product -->
-
-## 专项指南
-
-| 场景 | 说明 | 参考文档 |
-|------|------|---------|
-| 语音设备接入 | 产品、Agent、物模型、固件、OTA 与真机闭环 | [voice-ai.md](../device-firmware/references/voice-ai.md) |
-| 拍照识图行为 | takePhoto 物模型、异步回执、图片输入与验收 | [photo-vision.md](../device-firmware/references/photo-vision.md) |
-
-<!-- END_MANUAL_GUIDES -->
-
 ## 典型业务场景
 
 ### 创建产品并定义物模型

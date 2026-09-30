@@ -380,6 +380,15 @@ GoView 共 **77 个静态注册组件**，分 8 类：Charts 图表（23）、In
 封面补录（goView/projectIndexImage）、agent-browser 验证与缓存/代理排障。
 完整方法论与可复用案例包在 saas 主仓 `docs/大屏/功能说明/内嵌页面组件/`。
 
+## DWG 一次图 → 3D 组态图案例（离线复原）
+
+用户要求"把这张 DWG 画成 3D 电力组态图/三维组态"时走本路线：
+见 [references/dwg-to-3d-case.md](references/dwg-to-3d-case.md) ——
+三条组态路线选择地图（2D 一次图叠加 / 3D 数字孪生 / DWG 图纸复原）、LibreDWG→DXF→
+柜列/回路解析规则、模板数据区改法与 headless 截图验证、诚实标注原则、联犀 IoT 对接钩子；
+模板与解析器随技能附带（[assets/dwg-primary-3d/](assets/dwg-primary-3d/README.md)）。
+正式监控/数字孪生不得用本路线交付（数据为图纸还原+模拟）。
+
 ## API 端点索引
 
 <!-- API_LIST:ur-view -->

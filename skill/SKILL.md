@@ -1,6 +1,6 @@
 ---
 name: ur-api
-description: "Use when calling 联犀 SaaS 平台 API, bringing physical IoT firmware onto the platform, or parsing documents: product and device management, provisioning, MQTT, uplink/downlink, debugging, OTA, authentication recovery, project management, system management, bigscreen visualization, and document parsing. triggers: API调用, CLI登录, CLI升级, _notice, Sandbox认证, 账号密码登录, AKSK, 设备列表, IoT设备控制, 设备固件, 固件接入, BLE配网, MQTT, OTA升级, 鉴权恢复, 设备注册, 访问令牌, 物模型管理, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 大屏, 数据可视化, GoView, 文档解析, 解析PDF, 解析Excel, 读附件, ur doc"
+description: "Use when calling 联犀 SaaS 平台 API: device management, user management, product management, tenant management, AI management, project management, system management, bigscreen visualization, client debugging, or IoT device operations. triggers: API调用, CLI登录, CLI升级, _notice, Sandbox认证, 账号密码登录, AKSK, 设备列表, IoT设备控制, 设备注册, 访问令牌, 物模型管理, OTA升级, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 客户端调试, 控制台报错, 远程诊断, 问题反馈, 提交反馈, 反馈类型, 使用问题, 业务受损, 业务不可用, 大屏, 数据可视化, GoView, 画布, 看板, 编辑大屏, 发布大屏, 文档解析, 解析PDF, 解析Excel, 读附件, ur doc"
 ---
 
 # ur-api — 联犀 SaaS 平台 API 工具
@@ -29,6 +29,10 @@ CLI 主实现位于独立仓库 `unitedrhino/cli`，通过 Go CLI `ur` 提供能
 
 用户上传或引用文档(PDF/Word/PPT/Excel/图片/邮件等)需要读取内容时,使用 `ur doc parse`:先 `--format outline` 看结构地图,再按需 `--format md` 通读/`--section` 取章节,或 `--format json` 落盘后用 jq 精查(excel 公式溯源、单元格坐标)。扫描件/图片加 `--ocr`(默认平台模型池计费)。完整用法见 `ur-doc/SKILL.md`。
 
+## 客户端实时调试
+
+排查已接入调试桥的客户端控制台报错、白屏或状态异常时，先读 [客户端调试 AI 流程](references/client-debug.md)。使用通用 `ur api --stream` 保持 SSE 会话，用普通 `ur api` 请求操控和诊断动作；每条动作必须等待客户端用户确认，结束时关闭流。
+
 ## 角色权限区分
 
 **全栈权限总索引**（契约 / 运行时 / 前端 / 消歧）：仓库根目录 `docs/中台/功能说明/权限体系总览.md`。
@@ -47,14 +51,13 @@ CLI 主实现位于独立仓库 `unitedrhino/cli`，通过 Go CLI `ur` 提供能
 | ur-device | 无权限 | 设备 CRUD、属性控制 | 设备分享、收藏 |
 | ur-user | 无权限 | 用户 CRUD、角色管理 | 个人信息、修改密码 |
 | ur-product | 无权限 | 产品 CRUD、物模型管理 | 无权限 |
-| ur-ota | 无权限 | 固件包、模块与升级任务管理 | 无权限 |
 | ur-project | 无权限 | 项目 CRUD、区域管理 | 查看权限内项目 |
 | ur-ai | 无权限 | Agent 配置、告警管理 | 无权限 |
 | ur-view | 无权限 | 大屏 CRUD、画布编辑、发布管理、素材管理 | 无权限 |
 
 ### 当前用户身份
 
-调用任何联犀平台 API 前，**先运行 check 确认角色**，错误的角色会导致 403。纯外部 HTTP 任务不依赖平台角色，不为此运行 `ur check`：
+调用任何 API 前，**先运行 check 确认角色**，错误的角色会导致 403：
 
 ```bash
 ur check --json
@@ -76,8 +79,6 @@ ur check --json
 ---
 
 ## AI 快速决策
-
-规则引擎 AI 任务、定时 HTTP、设备状态查询后转发或跨设备控制，先读 [AI 工具开发](ai-tool/SKILL.md)，再按其中的具体平台操作加载对应子域。设备数据模拟只是通用任务的一个可选分支，不要把模拟澄清问题或接口合同套用到普通 HTTP、巡检和转发任务。
 
 ### 第一步：确认当前用户角色
 
@@ -101,19 +102,16 @@ ur check
 | 用户意图 / 关键词 | 加载子域 | 最低所需角色 |
 |----------------|---------|------------|
 | 设备列表、设备控制、属性上报、MQTT、三元组、网关、OTA升级设备 | `ur-device` | admin（控制/CRUD），user（分享/收藏） |
-| 设备固件从零接入、编译烧录、配网、MQTT 契约、OTA 回滚、鉴权自愈 | `device-firmware` | 固件操作无平台角色；平台初始化通常需 admin |
-| OTA 升级包、模块、任务创建和进度核验 | `ur-ota` | admin |
 | 产品定义、物模型、协议脚本、OTA固件包、品类 | `ur-product` | admin |
 | 项目、区域、分组、数据权限申请 | `ur-project` | admin（管理），user（申请权限） |
 | 登录、用户信息、角色、部门、字典、通知、访问令牌、修改密码 | `ur-user` | admin（CRUD），user（自身信息） |
 | 文件上传、WebSocket、批量接口、应用管理、Hook | `ur-system` | user（上传/WS），admin（应用），platform（全局应用） |
+| 客户端控制台报错、实时日志、AI 远程诊断 | [客户端调试 AI 流程](references/client-debug.md) | 目标用户本人或平台管理员 |
 | 创建企业、企业列表、企业配置、邀请用户加入企业 | `ur-tenant` | **platform**（创建/查看全部），admin（管理本企业） |
 | AI Agent、场景联动、告警规则、数字分身、AI会话 | `ur-ai` | admin |
 | 大屏、数据可视化、GoView、画布编辑、发布大屏、看板、素材库 | `ur-view` | admin |
 
 ### 第三步：IoT AI 工具调用设计
-
-设备模拟或控制先读 [属性控制与模拟数据](ur-device/references/device-control.md)：区分云端改值、模拟上报、实体控制与只生成样例；泛称“模拟数据”时先澄清目的，不默认下发。
 
 | 用户意图 / 关键词 | 加载子域 | 说明 |
 |----------------|---------|------|
@@ -180,12 +178,6 @@ IoT AI 工具迁移相关子域：
 
 大屏可视化子域：
 - `ur-view/SKILL.md` — 大屏（GoView）项目 CRUD、画布 JSON 本地编辑闭环（pull/validate/push/publish/screenshot）、素材库管理、IoT 数据绑定配方
-
-设备端固件子域：
-- `device-firmware/SKILL.md` — 设备从产品/物模型初始化到固件接入、首刷、调试、全量 OTA、鉴权恢复和实机验收
-
-OTA 管理子域：
-- `ur-ota/SKILL.md` — 升级包上传登记、模块和升级任务管理；设备端协议与回滚由 `device-firmware` 负责
 
 ---
 
@@ -259,6 +251,7 @@ ur check --json
 |------|------|
 | `references/auth.md` | 认证方式详解（Device Auth / JWT / 环境变量） |
 | `references/cli-usage.md` | CLI 命令用法（更新通知、多客户端 Skills 分发、API 调用、物模型、场景联动、协议脚本、schema） |
+| `references/client-debug.md` | 客户端实时调试的 SSE、日志过滤、操控确认与排障流程 |
 | `references/api-conventions.md` | API 通用约定（请求格式、响应格式、分页、权限标注） |
 | `references/troubleshooting.md` | 常见问题排查（登录失败、401/403、连接问题、问题反馈） |
 | `references/quick-reference.md` | 高频端点速查（Top 15 最常用端点） |

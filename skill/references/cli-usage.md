@@ -157,10 +157,15 @@ ur api ... -H "X-Custom-Header: value"
 # 从文件读取 body
 ur api /api/v1/things/protocol/script/update --body-file /tmp/payload.json
 
+# 持续读取 SSE，逐行输出 event/data JSON；用 Ctrl+C 结束会话
+ur api /api/v1/system/client-debug/stream --stream --body '{"userID":"42","clientInstanceID":"uni-..."}'
+
 # 临时 Sandbox 配置（示例使用 Session Token）
 UR_BASE_URL='<平台地址>' UR_APP_ID='<应用ID>' \
 UR_TENANT_CODE='<企业编码>' UR_TOKEN='<Session Token>' ur check --json
 ```
+
+`--stream` 复用普通 API 的请求体、认证和自定义请求头；不与 `--fields`、`--summarize`、`--format`、`--transform` 或 `--output` 同用。客户端调试的完整操作顺序见 [客户端调试 AI 流程](client-debug.md)。
 
 ## 物模型命令
 

@@ -54,56 +54,9 @@ func doAPIOnce(ctx context.Context, req APIRequest) (APIResponse, error) {
 
 // doAPIOnceWithAuth 执行一次 API 请求；authOverride 非空时使用指定候选凭据重试。
 func doAPIOnceWithAuth(ctx context.Context, req APIRequest, authOverride map[string]string) (APIResponse, error) {
-	baseURL, err := config.GetBaseURL()
+	httpReq, rawBody, err := buildAPIRequest(ctx, req, authOverride)
 	if err != nil {
 		return APIResponse{}, err
-	}
-	appID, err := config.GetAppID()
-	if err != nil {
-		return APIResponse{}, err
-	}
-	tenantCode, err := config.GetTenantCode()
-	if err != nil {
-		return APIResponse{}, err
-	}
-	if req.Body == nil {
-		req.Body = map[string]any{}
-	}
-	path, body, err := normalizeRequestPathAndBody(req.Path, req.Body)
-	if err != nil {
-		return APIResponse{}, err
-	}
-	req.Path = path
-	req.Body = body
-	rawBody, err := json.Marshal(req.Body)
-	if err != nil {
-		return APIResponse{}, fmt.Errorf("marshal body: %w", err)
-	}
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimRight(baseURL, "/")+req.Path, bytes.NewReader(rawBody))
-	if err != nil {
-		return APIResponse{}, fmt.Errorf("build request: %w", err)
-	}
-	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("app-id", appID)
-	httpReq.Header.Set("tenant-code", tenantCode)
-	for key, value := range req.Headers {
-		httpReq.Header.Set(key, value)
-	}
-	if traceparent := strings.TrimSpace(os.Getenv("UR_TRACEPARENT")); traceparent != "" {
-		httpReq.Header.Set("traceparent", traceparent)
-	}
-	if tracestate := strings.TrimSpace(os.Getenv("UR_TRACESTATE")); tracestate != "" {
-		httpReq.Header.Set("tracestate", tracestate)
-	}
-	authHeaders := authOverride
-	if authHeaders == nil {
-		authHeaders, err = auth.ResolveAuthHeaders(ctx)
-		if err != nil {
-			return APIResponse{}, err
-		}
-	}
-	for key, value := range authHeaders {
-		httpReq.Header.Set(key, value)
 	}
 	if req.Debug {
 		logDebugRequest(httpReq, rawBody)
@@ -123,7 +76,7 @@ func doAPIOnceWithAuth(ctx context.Context, req APIRequest, authOverride map[str
 	// traceparent 日志仅在 debug 模式下输出，避免泄露到 stderr 被 sandbox runtime 捕获后暴露给 LLM
 	if req.Debug {
 		if reqTraceparent := httpReq.Header.Get("traceparent"); reqTraceparent != "" || resp.Header.Get("traceparent") != "" {
-			log.Printf("ur-api trace path=%s reqTraceparent=%s respTraceparent=%s status=%d", req.Path, reqTraceparent, resp.Header.Get("traceparent"), resp.StatusCode)
+			log.Printf("ur-api trace path=%s reqTraceparent=%s respTraceparent=%s status=%d", httpReq.URL.Path, reqTraceparent, resp.Header.Get("traceparent"), resp.StatusCode)
 		}
 	}
 	var out APIResponse
@@ -131,6 +84,62 @@ func doAPIOnceWithAuth(ctx context.Context, req APIRequest, authOverride map[str
 		return APIResponse{}, fmt.Errorf("decode response status=%d body=%s: %w", resp.StatusCode, strings.TrimSpace(string(rawResp)), err)
 	}
 	return out, nil
+}
+
+// buildAPIRequest 统一构造普通 API 与 SSE API 的鉴权、上下文及 JSON 请求。
+func buildAPIRequest(ctx context.Context, req APIRequest, authOverride map[string]string) (*http.Request, []byte, error) {
+	baseURL, err := config.GetBaseURL()
+	if err != nil {
+		return nil, nil, err
+	}
+	appID, err := config.GetAppID()
+	if err != nil {
+		return nil, nil, err
+	}
+	tenantCode, err := config.GetTenantCode()
+	if err != nil {
+		return nil, nil, err
+	}
+	if req.Body == nil {
+		req.Body = map[string]any{}
+	}
+	path, body, err := normalizeRequestPathAndBody(req.Path, req.Body)
+	if err != nil {
+		return nil, nil, err
+	}
+	req.Path = path
+	req.Body = body
+	rawBody, err := json.Marshal(req.Body)
+	if err != nil {
+		return nil, nil, fmt.Errorf("marshal body: %w", err)
+	}
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimRight(baseURL, "/")+req.Path, bytes.NewReader(rawBody))
+	if err != nil {
+		return nil, nil, fmt.Errorf("build request: %w", err)
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("app-id", appID)
+	httpReq.Header.Set("tenant-code", tenantCode)
+	for key, value := range req.Headers {
+		httpReq.Header.Set(key, value)
+	}
+	if traceparent := strings.TrimSpace(os.Getenv("UR_TRACEPARENT")); traceparent != "" {
+		httpReq.Header.Set("traceparent", traceparent)
+	}
+	if tracestate := strings.TrimSpace(os.Getenv("UR_TRACESTATE")); tracestate != "" {
+		httpReq.Header.Set("tracestate", tracestate)
+	}
+	authHeaders := authOverride
+	if authHeaders == nil {
+		authHeaders, err = auth.ResolveAuthHeaders(ctx)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+	for key, value := range authHeaders {
+		httpReq.Header.Set(key, value)
+	}
+	return httpReq, rawBody, nil
 }
 
 // UploadFileMultipart 以 multipart/form-data 上传文件，适配 /api/v1/system/common/upload-file 等接口。

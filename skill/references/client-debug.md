@@ -38,9 +38,28 @@ ur api /api/v1/system/client-debug/message --body '{"sessionID":"<sessionID>","k
 ur api /api/v1/system/client-debug/message --body '{"sessionID":"<sessionID>","kind":"command","commandID":"diag-003","action":"app.navigate","args":{"path":"/packageUser/pages/settings/index"}}'
 ```
 
-客户端用户**本次会话只授权一次**；后续白名单动作不再弹窗，页面持续展示控制标识并可立即取消。停止、断线、退出登录或过期后授权失效，新会话重新授权。每次提交均要核对 `/message` 响应的 `code=200` 和 `data.accepted=true`；这只表示平台接受请求。必须从 `event=result` 行的 `data.commandID`、`data.status` 和 `data.data` 判断执行结果，再决定下一条动作。允许动作只有 `app.snapshot`、`device-list.refresh`、`app.navigate`，导航页面白名单仅 `/pages/home/index` 和 `/packageUser/pages/settings/index`。
+客户端用户**本次会话只授权一次**；后续白名单动作不再弹窗，页面持续展示控制标识并可立即取消。停止、断线、退出登录或过期后授权失效，新会话重新授权。每次提交均要核对 `/message` 响应的 `code=200` 和 `data.accepted=true`；这只表示平台接受请求。必须从 `event=result` 行的 `data.commandID`、`data.status` 和 `data.data` 判断执行结果，再决定下一条动作。基础诊断动作包括 `app.snapshot`、`device-list.refresh`、`app.navigate`，导航页面白名单仅 `/pages/home/index` 和 `/packageUser/pages/settings/index`。
 
-## 4. 结束与异常
+## 4. 读取控件并自行点击
+
+新版客户端和后端配套增加 `ui.inspect`、`ui.tap`、`ui.input`，仍走上述两个接口，不执行脚本或任意坐标点击。旧客户端不支持时须升级，不用直接业务 API 冒充点击。
+
+授权后发送 `ui.inspect`，实际成功结果包含 `page/ticket/controls/state`。每个控件仅有 `id/label/role/enabled`，不包含输入框值。当前开放主页设备卡片、设备详情的设置入口、设置内 Wi-Fi 管理、准备页、Wi-Fi 表单以及进度/结果页；未开放的页面会明确拒绝，不凭空猜控件。
+
+```bash
+ur api /api/v1/system/client-debug/message --body '{"sessionID":"<sessionID>","kind":"command","commandID":"ui-001","action":"ui.inspect"}'
+ur api /api/v1/system/client-debug/message --body '{"sessionID":"<sessionID>","kind":"command","commandID":"ui-002","action":"ui.tap","args":{"ticket":"<本次快照ticket>","targetID":"<快照控件id>"}}'
+```
+
+输入使用 `ui.input`，参数为 `ticket/targetID/value`；密码通过受限 stdin 请求体发送，不放命令参数、shell 历史、任务日志或截图。成功结果只表示处理函数执行；之后再次读取控件和非敏感页面状态，核验实际跳转、阶段及成功结果。
+
+每次点击或输入后重新 inspect，票据单次使用；页面隐藏、切换、控件重排、禁用、停止或撤权后旧票据无效。在途操作拒绝并发；撤销不会撤回已发出的业务请求。系统蓝牙/Wi-Fi/定位权限弹窗不能由此自动允许，恢复出厂、删除、解绑不开放。远程点击调用与手动点击相同的页面处理函数，业务权限和配网状态机保持不变。
+
+若 ui.inspect 失败，用 app.snapshot 中 controls.registered/routeMatches 区分页面未注册与路由不匹配；这两个布尔值不读取表单或控件工厂。原生导航无回调时五秒返回失败，超时不是导航成功，也不能据此断言蓝牙失败；回读当前页面再定位。
+
+最小复测：执行两端真实注册器和调试桥单测，验证隐藏/跳页/列表重排、票据重放、禁用控件、撤权、超长输入及密码不回读；配套后端验证会话鉴权、参数边界、转发/回执关联和 HTTP/操作日志正文屏蔽。最后在实际手机客户端自行走设备卡片→设备设置→Wi-Fi 管理→准备→填表→结果，记录真实 `result`，不能把模拟测试或 accepted 当作手机 E2E 通过。
+
+## 5. 结束与异常
 
 停止运行 `--stream` 的命令，或让客户端用户在设置页点“停止调试”。确认后续 `/message` 请求被拒收；不保留长期日志会话。若出现鉴权或会话过期错误，重新检查登录态、目标实例和当前会话 ID，不要复用旧 ID。截图和任意坐标点击尚未接入。
 

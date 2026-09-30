@@ -58,6 +58,9 @@ class SceneDistributionTest(unittest.TestCase):
             self.write(self.root / 'skill/ur-ota' / name, content)
         self.write(self.root / 'skill/SKILL.md', '# 统一技能\n')
         self.write(self.root / 'references/README.md', '# API 参考\n')
+        # 客户端调试指南是手写根引用，Swagger 生成不会自动补齐。
+        self.debug_guide = (ROOT / 'skill/references/client-debug.md').read_bytes()
+        self.write(self.root / 'skill/references/client-debug.md', self.debug_guide)
         # 真实手写指南使用 persona 约定的域级路径，不能只依赖扁平兼容副本。
         self.guide = (ROOT / 'skill/ur-device/references/device-control.md').read_bytes()
         self.write(self.root / 'skill/ur-device/references/device-control.md', self.guide)
@@ -125,6 +128,9 @@ else:
                             '--arch', 'linux-amd64'], env=environment, check=True, capture_output=True, text=True)
             self.assert_tree(output / 'x64-linux/skill/ur-api/ur-view')
             api_root = output / 'x64-linux/skill/ur-api'
+            self.assertEqual((api_root / 'references/client-debug.md').read_bytes(), self.debug_guide)
+            self.assertEqual((api_root / 'SKILL.md').read_text()
+                             .count('(references/client-debug.md)'), 1)
             self.assert_firmware_tree(api_root / 'device-firmware')
             self.assert_ota_tree(api_root / 'ur-ota')
             self.assertEqual((api_root / 'ur-device/references/device-control.md').read_bytes(), self.guide)
@@ -151,6 +157,7 @@ else:
         result = subprocess.run(['npm', 'pack', '--dry-run', '--json', '--ignore-scripts'],
                                 cwd=self.root / 'npm-package', check=True, capture_output=True, text=True)
         files = {entry['path'] for entry in json.loads(result.stdout)[0]['files']}
+        self.assertIn('ur-api/references/client-debug.md', files)
         self.assertIn('ur-api/ur-device/references/device-control.md', files)
         self.assertIn('ur-api/ur-ai/references/device-voice.md', files)
         self.assertIn('ur-api/device-firmware/references/photo-vision.md', files)
@@ -219,6 +226,7 @@ else:
                         'scene-distribution', str(self.root), str(destination)],
                        check=True, capture_output=True, text=True)
         self.assert_tree(destination / 'ur-view')
+        self.assertEqual((destination / 'references/client-debug.md').read_bytes(), self.debug_guide)
         self.assert_firmware_tree(destination / 'device-firmware')
         self.assert_ota_tree(destination / 'ur-ota')
         self.assertEqual((destination / 'ur-device/references/device-control.md').read_bytes(), self.guide)

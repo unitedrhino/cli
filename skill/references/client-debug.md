@@ -4,6 +4,10 @@
 
 ## 1. 确认目标并建立实时流
 
+若目标环境已包含实例连接日志，可先按时间窗口、目标账号及应用过滤 `client-debug.instance.connected`，读取 `userID/clientInstanceID/appCode/connID`。新版客户端通过 WebSocket 的 `device-id` 传递安装实例；旧端或未重连可能没有日志。多个候选时核实身份，不能直接选择最后一条；历史连接记录不等于当前在线，仍须等待 SSE 的 `ready`。没有日志再使用设置页 ID，不额外新增实例查询 API。
+
+先检查 `ur api --help` 是否实际支持 `--stream`；版本号或升级成功提示不代表未发布主线功能已可用。授权与动作确认均绑定原会话对象；停止、替换、过期、撤销后的迟到确认不得执行动作。
+
 先运行 `ur check --json`，复用已有认证。请客户端用户从设置页复制**调试实例 ID**，并确认其 `userID`；不要把 IoT 设备 ID 当实例 ID。用通用 API 命令持续读取 SSE：
 
 ```bash

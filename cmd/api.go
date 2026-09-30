@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -24,15 +25,17 @@ var apiOpts struct {
 	transform string
 	output    string
 	debug     bool
+	stream    bool
 }
 
 var apiCmd = &cobra.Command{
 	Use:   "api <path>",
 	Short: "调用平台 API",
-	Long:  `通过 CLI 调用联犀平台任意 API 端点，支持自定义 body、header、输出格式。`,
+	Long:  `通过 CLI 调用联犀平台任意 API 端点，支持自定义 body、header、输出格式与 SSE 实时流。`,
 	Example: `  ur api /api/v1/system/user/self/get-one
   ur api /api/v1/things/device/info/get-list --body '{"page":{"page":1,"size":10}}'
-  ur api /api/v1/things/device/info/get-one --fields data.userID,data.userName`,
+  ur api /api/v1/things/device/info/get-one --fields data.userID,data.userName
+  ur api /api/v1/system/client-debug/stream --stream --body '{"userID":"42","clientInstanceID":"uni-..."}'`,
 	Args: cobra.ExactArgs(1),
 	RunE: runAPI,
 }
@@ -48,6 +51,7 @@ func init() {
 	apiCmd.Flags().StringVar(&apiOpts.transform, "transform", "", "JSON 路径转换")
 	apiCmd.Flags().StringVarP(&apiOpts.output, "output", "o", "", "输出到文件")
 	apiCmd.Flags().BoolVar(&apiOpts.debug, "debug", false, "调试模式（显示请求详情）")
+	apiCmd.Flags().BoolVar(&apiOpts.stream, "stream", false, "持续读取 SSE，逐行输出 event/data JSON")
 
 	RootCmd.AddCommand(apiCmd)
 }
@@ -70,17 +74,67 @@ func runAPI(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	resp, err := client.DoAPI(ctx, client.APIRequest{
+	req := client.APIRequest{
 		Path:    path,
 		Body:    body,
 		Headers: headers,
 		Debug:   apiOpts.debug,
-	})
+	}
+	if apiOpts.stream {
+		if apiOpts.fields != "" || apiOpts.summarize || apiOpts.format != "" || apiOpts.transform != "" || apiOpts.output != "" {
+			return fmt.Errorf("--stream 不支持字段筛选、摘要、格式转换或输出文件")
+		}
+		return streamAPI(cmd, req)
+	}
+	resp, err := client.DoAPI(ctx, req)
 	if err != nil {
 		return err
 	}
 
 	return outputResponse(cmd, resp)
+}
+
+// streamAPI 持续输出通用 SSE 事件，每行是可由 AI 解析的 JSON 对象。
+func streamAPI(cmd *cobra.Command, req client.APIRequest) error {
+	resp, err := client.OpenAPIStream(cmd.Context(), req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	scanner := bufio.NewScanner(resp.Body)
+	scanner.Buffer(make([]byte, 4096), 1024*1024)
+	eventName := "message"
+	var dataLines []string
+	emit := func() {
+		if len(dataLines) == 0 {
+			return
+		}
+		data := json.RawMessage(strings.Join(dataLines, "\n"))
+		if !json.Valid(data) {
+			encoded, _ := json.Marshal(string(data))
+			data = encoded
+		}
+		encoded, _ := json.Marshal(map[string]any{"event": eventName, "data": data})
+		cmd.Println(string(encoded))
+		eventName = "message"
+		dataLines = nil
+	}
+	for scanner.Scan() {
+		line := strings.TrimSuffix(scanner.Text(), "\r")
+		switch {
+		case line == "":
+			emit()
+		case strings.HasPrefix(line, "event:"):
+			eventName = strings.TrimSpace(strings.TrimPrefix(line, "event:"))
+		case strings.HasPrefix(line, "data:"):
+			dataLines = append(dataLines, strings.TrimPrefix(strings.TrimPrefix(line, "data:"), " "))
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+	emit()
+	return nil
 }
 
 func resolveBody(body, bodyFile string) (map[string]any, error) {

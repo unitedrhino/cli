@@ -188,6 +188,18 @@ func dirExists(path string) bool {
 
 // copyDir 递归复制目录（含空目录与文件权限）
 func copyDir(src, dst string) error {
+	return copyDirOpts(src, dst, false)
+}
+
+// copyDirTransformed 递归复制目录并应用聚合形态转换：子域 SKILL.md
+// 降级为 GUIDE.md（剥离 frontmatter），使目标目录只含顶层一个技能入口。
+func copyDirTransformed(src, dst string) error {
+	return copyDirOpts(src, dst, true)
+}
+
+// copyDirOpts 是目录复制的统一实现；aggregate 为 true 时对每个普通文件
+// 应用 transformAggregate（路径改名 + 内容转换）后再写入目标。
+func copyDirOpts(src, dst string, aggregate bool) error {
 	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -198,6 +210,15 @@ func copyDir(src, dst string) error {
 		}
 		if rel == "." {
 			return os.MkdirAll(dst, 0o755)
+		}
+		// aggregate 模式：子域 SKILL.md 转换为 GUIDE.md（剥离 frontmatter）后写入
+		if aggregate && isAggregatable(filepath.ToSlash(rel)) {
+			data, readErr := os.ReadFile(path)
+			if readErr != nil {
+				return readErr
+			}
+			installedRel, content := transformAggregate(filepath.ToSlash(rel), data)
+			return writeInstalledFile(dst, installedRel, content, info.Mode())
 		}
 		target := filepath.Join(dst, rel)
 		if info.IsDir() {
@@ -239,9 +260,19 @@ func copyDir(src, dst string) error {
 	})
 }
 
+// writeInstalledFile 把转换后的内容写入安装目录中的指定相对路径。
+func writeInstalledFile(dst, installedRel string, content []byte, mode os.FileMode) error {
+	target := filepath.Join(dst, filepath.FromSlash(installedRel))
+	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+		return err
+	}
+	return os.WriteFile(target, content, mode)
+}
+
 // Install 将内置 skills 源（整个 ur-api：SKILL.md + 子域 + _meta.json）整体拷贝覆盖
-// 到各目标的 ur-api/ 目录。只覆盖 ur-api，保留目标内其他 AI 自有 skill；幂等。
-// dryRun 为 true 时只模拟，不写盘。
+// 到各目标的 ur-api/ 目录。安装产物应用聚合形态：子域 SKILL.md 降级为 GUIDE.md
+//（剥离 frontmatter），AI 工具只发现顶层 ur-api 一个技能入口。只覆盖 ur-api，
+// 保留目标内其他 AI 自有 skill；幂等。dryRun 为 true 时只模拟，不写盘。
 func Install(src string, targets []Target, dryRun bool) (*Result, error) {
 	if src == "" {
 		return nil, fmt.Errorf("内置 skills 源目录为空：发布包需完整解压（应包含 skill/ 目录与 ur 二进制同级）；若只有二进制，请重新下载完整安装包，或运行 ur skills download 获取 skills 后自行拷贝到目标 AI 工具的 skills 目录")
@@ -293,7 +324,7 @@ func Install(src string, targets []Target, dryRun bool) (*Result, error) {
 				continue
 			}
 		}
-		if err := copyDir(src, dest); err != nil {
+		if err := copyDirTransformed(src, dest); err != nil {
 			os.RemoveAll(dest)
 			if exists {
 				os.Rename(backup, dest)

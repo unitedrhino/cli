@@ -35,7 +35,7 @@ func TestExportZIP(t *testing.T) {
 	for _, want := range []string{
 		"ur-api/SKILL.md",
 		"ur-api/_meta.json",
-		"ur-api/ur-view/SKILL.md",
+		"ur-api/ur-view/GUIDE.md",
 		"ur-api/ur-view/assets/scene-templates/building/index.html",
 	} {
 		if !names[want] {

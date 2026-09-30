@@ -22,7 +22,7 @@ ur api /api/v1/system/client-debug/stream --stream --body '{"userID":"<userID>",
 
 收到 `dropped`，或相邻日志 `seq` 有 `gap`，表示流不完整；缩小名称/级别并重建会话复测，不能据此断言“没有报错”。如果现有日志不足以定位，在统一 logger 增加有稳定名称且脱敏的日志，重新构建客户端后复测。
 
-## 3. 请求操控，逐条确认动作
+## 3. 会话一次授权，逐条核对结果
 
 在另一个终端使用同一个 `sessionID`，先请求操控授权：
 
@@ -38,7 +38,7 @@ ur api /api/v1/system/client-debug/message --body '{"sessionID":"<sessionID>","k
 ur api /api/v1/system/client-debug/message --body '{"sessionID":"<sessionID>","kind":"command","commandID":"diag-003","action":"app.navigate","args":{"path":"/packageUser/pages/settings/index"}}'
 ```
 
-客户端用户**每条动作再次确认**。每次提交均要核对 `/message` 响应的 `code=200` 和 `data.accepted=true`；这只表示平台接受请求。必须从 `event=result` 行的 `data.commandID`、`data.status` 和 `data.data` 判断执行结果，再决定下一条动作。允许动作只有 `app.snapshot`、`device-list.refresh`、`app.navigate`，导航页面白名单仅 `/pages/home/index` 和 `/packageUser/pages/settings/index`。
+客户端用户**本次会话只授权一次**；后续白名单动作不再弹窗，页面持续展示控制标识并可立即取消。停止、断线、退出登录或过期后授权失效，新会话重新授权。每次提交均要核对 `/message` 响应的 `code=200` 和 `data.accepted=true`；这只表示平台接受请求。必须从 `event=result` 行的 `data.commandID`、`data.status` 和 `data.data` 判断执行结果，再决定下一条动作。允许动作只有 `app.snapshot`、`device-list.refresh`、`app.navigate`，导航页面白名单仅 `/pages/home/index` 和 `/packageUser/pages/settings/index`。
 
 ## 4. 结束与异常
 

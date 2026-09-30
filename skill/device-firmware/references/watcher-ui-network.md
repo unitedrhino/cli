@@ -186,6 +186,13 @@ GATT 回调栈可能只有数 KB；候选事务及 NVS 校验会叠加多个网�
 
 ## 最近网络与构建适配
 
+MQTT 重连验收必须等待本次订阅的 SUBACK，而不是只查询 topic 是否存在于 SDK 缓存。
+Watcher SDK 的 IsSubReady 在重连后仍可能命中旧 topic；使用 Subscribe 返回的 packet ID
+匹配全局订阅确认事件。NACK/超时锁存失败，迟到的其他 ID 和重复成功不能将失败改为成功。
+验证入口 `test_ur_subscription_ack.py` 回放生产等待器与回调；真机分别验证冷启动与断连
+恢复后的会话，不能仅凭“subscriptions restored”日志宣称下行可用，也不将订阅修正视为
+所有 sessionCreated 超时的既定根因。
+
 - 保留最近成功使用的 10 个 SSID；同名更新，不保留同名不同密码的多条记录。
 - 正常取得 IP 才更新独立排序 blob，只存 SSID；重复连接首项不写 Flash。
   候选提交按最近顺序保留旧网络，第十一项淘汰最久未成功使用项；失败不淘汰旧网。

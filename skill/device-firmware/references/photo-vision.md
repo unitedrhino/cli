@@ -42,6 +42,14 @@
 注册内置 fuzai MCP。不要硬编码环境中的历史 MCP ID。Agent 只绑定明确需要的服务，变更后
 回读 Agent、模型、capabilities 和 MCP ID；不直接写数据库。
 
+MCP查询、创建、更新和刷新工具须使用Agent所属企业的应用身份，不复用模型管理的
+平台身份。按ID能看到平台私有服务，不代表企业会话按名称能加载它；遇到
+`mcp service not found`先检查范围，再在授权企业幂等注册，不把旧私有服务改为公共。
+列表为空可能是`data.list=null`，按空数组处理；注册/绑定后必须核验已发现
+`deviceTakePhoto`并在新会话观察实际tool→action链路。对应维护脚本
+`shell/converge-watcher-vision.sh`及其测试覆盖身份、空列表、工具缺失和重复创建边界。
+本地双击的上传→inputSend通过不能证明语音MCP入口也通过。
+
 `sessionCreated.supportedModalities` 必须包含 `image`，并提供当前 session 的短期
 `uploadUrl`。上传地址和认证信息属于会话凭据，不写入日志或持久化。
 

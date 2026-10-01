@@ -51,6 +51,11 @@
 脚本或技能中硬编码历史 ID。fuzai 运行环境必须启用内置 MCP、Redis 和 DmRpc；Agent 在
 保留已审核 IoT MCP 的同时显式绑定 fuzai。所有变更走现有 API，不直接写数据库。
 
+服务范围、企业身份、空列表与工具发现的检查见
+`device-firmware/references/photo-vision.md`的“平台与物模型”；平台私有ID可见不等于
+设备企业运行时可加载。模拟模型优先级、无结果轮次及控制工具分层检查见
+`device-firmware/references/voice-ai.md`，不要用默认模型对照未核验的真机配置。
+
 `sessionCreated.supportedModalities` 包含 `image`，并返回当前 session 的短期 `uploadUrl`。
 图片上传成功后有两条等价入口：
 

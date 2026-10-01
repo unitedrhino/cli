@@ -37,6 +37,13 @@
 
 ## 2. 先运行 devicesim 平台基线
 
+对照真实设备前，显式设置`DEVICESIM_LLM_CONFIG_ID=<模型配置ID>`，并回读模拟Agent。
+`BootstrapRequest.LlmConfigID`优先，环境变量只补缺；两者为空才沿用平台默认，
+指定已有AgentID不会改写它。默认提供方额度失败不能推导真机同配置失败；切换后
+仍须原样复跑失败音频，不用更简单的输入替代。模型选择可用
+`go test ./things/tools/devicesim -run '^TestBootstrapLLMConfigEnvironment$' -count=10`
+验证HTTP请求边界（在backend目录运行，不连接真实平台）。
+
 在仓库根目录执行完整回归。凭据通过已有 profile 或环境变量注入，不写入命令、文档或日志：
 
 ```bash
@@ -142,6 +149,18 @@ MQTT 回调只复制 payload 并入队。`respTextDelta` 在拥塞时允许丢�
 `respSttDone`、`respCreated`、`respEmotion`、`respTextDone`、`respAudioStart`、
 `respAudioDone` 必须进入无损队列或溢出队列。重复终态、旧 token、旧 session 和错误
 `respId` 必须安全忽略；不得因为 STT 没有 `respId` 而丢弃识别结果。
+
+### 停顿后无结果与等待态
+
+`audioStop`后上行可能已经关闭，即使应用仍为listening也不能据此判断正在收音。
+先关联本轮token，确认有无STT、respCreated和新audioStarted，区分等待回复与监听。
+Watcher当前无结果恢复保留60秒预算：仅无STT、无响应创建的已停止音频轮次，
+主任务再次核对连接、session、token、页面互斥及晚到结果后，发出respCancel→audioStart；
+新audioStarted确认前不得上传。正常模型/图片等待、audioStart超时不走此恢复。
+这不是即时免唤醒；待回复期间说话仍需独立验收，不宣称该路径已支持说话即触发。
+`scripts.tests.test_ur_no_result_recovery`直接编译实际超时函数、恢复函数和应用事件消费，
+覆盖60秒边界、重复、旧token、晚到STT/respId、断网和菜单互斥；连续十次通过后，
+仍需真机复现空识别轮次并验证恢复后的实际麦克风STT与完整回复。
 
 Watcher 的内部 RAM 同时承载音频任务栈和 MQTT SDK。跨任务 AI 上行队列只保存小型描述符，
 完整 JSON payload 应按需分配到 PSRAM，并在发布成功、入队失败和断线清队列时逐项释放。
@@ -283,6 +302,13 @@ ur things device action send -p <product-id> -d <device-name> --data-id SendMess
 5. 后续属性上报与设备状态一致；Reboot 必须先回复，再只重启一次。
 
 模型口头说“已完成”不属于控制成功证据。
+
+失败时按本轮session/resp关联实际工具：ASR已有设置意图却只调用
+`get_device_properties`、随后文字和音频完成，属于未选择控制工具，不能误判为设备
+下发超时。只有观察到`device_property_control`后，才继续定位平台下发、设备回复及上报。
+保留原样本与失败断言，核对模型收到的当前输入、工具定义和有效配置；不要直接加固定
+控制提示词、延长等待或以口头成功放行。`RunVoiceTurnSTTOnly`的FinalText为空是接口
+行为，不证明服务器未回复；需另外核对同轮respTextDone/respAudioDone。
 
 ## 9. 构建、OTA 与真机验收
 

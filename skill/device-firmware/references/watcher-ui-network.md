@@ -47,6 +47,19 @@
 `test_watcher_touch_diagnostics.py` 回放生产采样回调及消费片段，正式/测试开关分别编译，
 覆盖仅唤醒、通信故障后完整抬手、占用和旧页面；这些用例不代替真实触屏坐标、滚动和显示验收。
 
+`test_watcher_menu_layout.py` 进一步链接实际LVGL、内置字体和生产页面管理器，
+从按下/抬手采样经真实命中、手势、回调和菜单消费执行十轮，不直接发送点击事件。
+覆盖主页入口、网络/音量/电源子页及返回、跨页状态层、仅唤醒、忙状态与通信故障。
+用“回调后丢弃入队”负例确认菜单不动会被检出；该注入不是现场缺陷已复现。
+硬件读数、应用队列和基类对象创建仍是边界替身，不证明任务并发、物理坐标或LCD可读。
+在依赖已准备的SaaS任务仓库运行：
+
+```bash
+bash shell/resource-guard.sh run --profile heavy -- \
+  python3 -m unittest discover -s firmware/watcher/scripts/tests \
+  -p test_watcher_menu_layout.py -v
+```
+
 包含新调试入口的测试固件可用 `ur_hw_test snapshot` 取得真实 LVGL 合成 JPEG，
 不能用相机照片或重绘示意图代替截图。active screen 不含独立 top/system layer，
 必须一起捕获并核验层大小、像素格式/alpha 和行步长；任意层失败不能返回残缺图冒充成功。

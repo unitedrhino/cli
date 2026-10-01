@@ -143,6 +143,14 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
 正文可能含对话、工具参数及内联图片。旧诊断文件需另行核实留存和删除授权，不清空共享目录。
 旧provider测试若依赖硬编码外部凭据，不借其发起真实调用，也不把所选离线集合称为整包全绿。
 
+进一步区分ASR措辞和输入通道时，可运行`TestVoiceVolumeRecognizedTextReplay`：
+沿用共享模拟设备、原音频和提示词，取得真实STT后逐字经文字入口发送，并核验控制下行
+和后续属性查询。使用上面的资源入口，把`-run`改为`^TestVoiceVolumeRecognizedTextReplay$`、
+`-count=1`，包路径改为`./things/tools/devicesim`，测试预算改为240秒。
+语音轮已经控制成功时该诊断明确跳过，跳过不计通过。测试会正常追加会话历史和模拟属性，
+不清理共享历史；文字重放通过后仍须原样复测`TestVoiceVolumeWorkflow`，不能据此关闭
+语音缺陷或认定某条历史记忆是根因。结果分开记录，未经关联的迟到控制不能算重放成功。
+
 真机云端音频闭环应使用
 `firmware/watcher/scripts/run_ur_ai_e2e.py --port <serial-port> --repeat 5 --timeout 75`。
 它使用由 devicesim 编码器生成的 16 kHz/60 ms Opus 样本，只替换麦克风输入，仍连接真实

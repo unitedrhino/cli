@@ -170,6 +170,10 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
 核对工具时注意：当前`/api/v1/ai/mcp/tools/get-tools`读取企业启用服务的缓存工具清单，
 实现未按`sessionID`筛选，也不返回Runtime实际绑定的完整参数Schema。两会话该响应
 相同不能证明装配相同；应结合Runtime的服务绑定、实时`tools/list`与实际工具调用取证。
+启用无正文Runtime诊断时，用会话哈希关联`agentruntime.input/tools`：仅在
+`fingerprint_valid=true`时比较数量及`set_hash`；集合摘要相同、有序摘要不同只说明
+工具数组次序不同。指纹覆盖实际`WithTools`的名称、描述与参数定义（含前端工具），
+不输出原文，但它仍不是供应商实际HTTP请求证明；诊断未部署时不能拿本地单测替代运行取证。
 音频相同也不保证STT相同；跨场景对照先在内存比较真实STT并仅记录长度/哈希/相等性。
 
 真机云端音频闭环应使用

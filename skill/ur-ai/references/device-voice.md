@@ -179,6 +179,13 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
 并保留冷启动矩阵回归。共享用例重复通过而暖缓存组合仍失败时，只能记局部改善；
 进程重启可能改变工具数组次序，须同时核验集合与有序指纹，不能据一次通过确认根因。
 
+画像已成功写入但设备仍读旧值时，检查写入路径是否调用已有设备快照失效通知。
+`TestMemoryCreateRefreshesDeviceSnapshot`经真实记忆创建logic及数据库覆盖预热→写入→
+voice/MQTT回读，并保留HTTP同会话冻结及其他分身隔离断言（包为
+`./core/service/aisvr/internal/logic/ai/clone/memory`）。只在成功写入后定向失效是缓存一致性
+修复，不等于为通过测试手工清缓存；不得移除历史或放宽原控制断言，也不能以该单测
+证明暖缓存组合的真实模型工具选择已恢复。
+
 核对工具时注意：当前`/api/v1/ai/mcp/tools/get-tools`读取企业启用服务的缓存工具清单，
 实现未按`sessionID`筛选，也不返回Runtime实际绑定的完整参数Schema。两会话该响应
 相同不能证明装配相同；应结合Runtime的服务绑定、实时`tools/list`与实际工具调用取证。

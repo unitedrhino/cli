@@ -303,7 +303,7 @@ TASK-143 新测试固件支持 `ur_ai_e2e 3`；对应 runner 增加 `--turns 3 -
 
 ```bash
 python3 firmware/watcher/scripts/run_ur_ai_e2e.py \\
-  --port <serial-port> --fixture take_photo --repeat 5 --timeout 75 \\
+  --port <serial-port> --fixture take_photo --repeat 5 --timeout 150 \\
   --log-dir <repo>/.temp/device-firmware/voice-photo-e2e
 ```
 
@@ -319,6 +319,12 @@ devicesim 的 `turn16_take_photo.mp3` 经同一 opusfixture 编码器生成，�
 这些失败，串口参数与STT门禁测试编译实际生产函数。MQTT发布成功仅证明发送路径接受，
 不是平台处理确认；完整模型回复仍须采集，严格语义另用确定性图片平台E2E核对。
 该测试替代麦克风输入但使用真实摄像头；仍需现场验收麦克风、画面实物、物理显示和听感。
+
+总回复预算不能等同于首帧延迟：拍照测试等待完整回复120秒，runner缺省150秒，
+音量缺省75秒；显式 `--timeout` 可覆盖。长回复可能合成为一分钟音频，按60ms帧
+实时下行时，固定60秒总等待会把生成耗时也算进去并提前关闭会话。先对齐TTS实际
+音频时长、下行时序及设备关闭时间再归因；8秒首帧/15秒文字门禁仍严格保留。
+这些预算仅影响测试入口，不改变生产活动超时；任何缺音频终态依然判失败。
 
 ## 7. 表情和界面
 

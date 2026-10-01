@@ -167,6 +167,10 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
 核对后台实际召回及控制下行。它不复制来源ID、历史时间、权重或访问计数，标准API也会
 合并目标画像，所以只是组合对照，不是等价生产快照。记忆轨迹ID可能包含查询正文，
 脱敏须取哈希，不能直接输出或只截短前缀。
+核对工具时注意：当前`/api/v1/ai/mcp/tools/get-tools`读取企业启用服务的缓存工具清单，
+实现未按`sessionID`筛选，也不返回Runtime实际绑定的完整参数Schema。两会话该响应
+相同不能证明装配相同；应结合Runtime的服务绑定、实时`tools/list`与实际工具调用取证。
+音频相同也不保证STT相同；跨场景对照先在内存比较真实STT并仅记录长度/哈希/相等性。
 
 真机云端音频闭环应使用
 `firmware/watcher/scripts/run_ur_ai_e2e.py --port <serial-port> --repeat 5 --timeout 75`。

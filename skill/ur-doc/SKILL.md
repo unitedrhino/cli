@@ -1,11 +1,11 @@
 ---
 name: ur-doc
-description: "Use when 用户上传或引用文档需要读取内容: 解析 PDF/Word/PPT/Excel/HTML/Markdown/邮件/图片为结构地图、Markdown 或无损 Docling JSON;章节提取、表格数字来源解释、excel 公式溯源、扫描件 OCR。triggers: 文档解析, 解析PDF, 解析Excel, 解析Word, 读附件, 用户上传文件, 文件内容, excel公式, 数字怎么来的, 第几章讲的什么, ur doc parse, ur doc"
+description: "Use when 用户上传或引用文档/CAD 图纸需要读取内容: 解析 PDF/Word/PPT/Excel/HTML/Markdown/邮件/图片/CAD 图纸(DWG/DXF)为结构地图、Markdown 或无损 Docling JSON;章节提取、表格数字来源解释、excel 公式溯源、扫描件 OCR、施工图逐图框拆分与图名提取、图纸转图片、图纸知识库入库。triggers: 文档解析, 解析PDF, 解析Excel, 解析Word, 读附件, 用户上传文件, 文件内容, excel公式, 数字怎么来的, 第几章讲的什么, 解析CAD, 解析DWG, 解析DXF, 施工图, 图纸拆分, 图纸转图片, 图纸知识库, ur doc parse, ur doc"
 ---
 
 # ur-doc — 文档解析(`ur doc`)
 
-`ur doc` 基于 docling 库把 15 类扩展名(pdf/docx/pptx/xlsx/csv/html/md/adoc/txt/eml/png/jpg/bmp/webp)转为 AI 友好输出。命令只做**通用转换**;单元格、公式、章节等精查交给 jq(沙箱已预装)。
+`ur doc` 基于 docling 库把 18 类扩展名(pdf/docx/pptx/xlsx/csv/html/md/adoc/txt/eml/png/jpg/bmp/webp/dwg/dxf/dxfb)转为 AI 友好输出。命令只做**通用转换**;单元格、公式、章节等精查交给 jq(沙箱已预装)。CAD 图纸(DWG R9~R2018/DXF)自动按图框拆分:每张图框一节(图名标题+渲染图+图框内文本),中文标注与 φ/°/± 符号原生可读。
 
 ## 命令
 
@@ -42,6 +42,17 @@ jq '.tables[].data.table_cells[] | select(.ref."$ref" == "#/texts/3") | {text, r
 ```
 
 表格单元格 `start_row_offset_idx`/`start_col_offset_idx` 是区域内 0-based 相对坐标,配合表格 prov BBox 换算工作簿绝对坐标(如 D3 = row2/col3)。
+
+## 场景 3:「这份施工图里都有什么」(CAD)
+
+```bash
+ur doc parse 施工图.dwg --format outline   # 1. 图框清单:每张图的图名/页号(渐进式披露)
+ur doc parse 施工图.dwg --format md        # 2. 全文:每图框一节(图名标题+图框内文本),含标注数值/图例表
+ur doc parse 施工图.dwg --format json --out d.json   # 3. 无损 JSON:文本带页号与 BBox,图片项内嵌渲染 PNG
+```
+
+- DWG 自动按图框拆分,图名从标题栏提取(如"RD-31-十三层弱电平面图");设计说明/图例表等无框内容自动兜底切分
+- 中文标注、φ/°/± 符号、尺寸标注数值直接可读,适合图纸知识库入库与多模态问答(文本+渲染图一起给模型)
 
 ## 大文档纪律
 

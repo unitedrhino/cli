@@ -41,6 +41,10 @@ github.com/tiendc/go-deepcopy v1.7.2 h1:Ut2yYR7W9tWjTQitganoIue4UGxZwCcJy3orjrrI
 github.com/tiendc/go-deepcopy v1.7.2/go.mod h1:4bKjNC2r7boYOkD2IOuZpYjmlDdzjbpTRyCx+goBCJQ=
 github.com/unitedrhino/docling v1.2.0 h1:+D2nZSzN28We/NqBJrkmU6XdLrfu+4bJmaPMFx0/nPs=
 github.com/unitedrhino/docling v1.2.0/go.mod h1:eWOklLqjSbiE+2ge6wMm9/KWerNzLwvqvEzd4NI3Wlk=
+github.com/unitedrhino/docling v1.4.0 h1:OEbSl1cmUZbjy+woVJ+lrgBESNMjcLlWvRY/etrVy4s=
+github.com/unitedrhino/docling v1.4.0/go.mod h1:g5ZRimQCNLVtUaOFrRlHbZmP7rs4bhmOIG9ZTuXgxWI=
+github.com/unitedrhino/go-cad v0.0.0-20261001090957-ddd91eea9618 h1:0nHkFHRgw+w6C1gNhJszzzBON906sY/n+xbItLeSF+g=
+github.com/unitedrhino/go-cad v0.0.0-20261001090957-ddd91eea9618/go.mod h1:/lJP5vXeqEveWggGtlZhwbs2L2D9RSLZiKjhyWaSSvQ=
 github.com/xuri/efp v0.0.1 h1:fws5Rv3myXyYni8uwj2qKjVaRP30PdjeYe2Y6FDsCL8=
 github.com/xuri/efp v0.0.1/go.mod h1:ybY/Jr0T0GTCnYjKqmdwxyxn2BQf2RcQIIvex5QldPI=
 github.com/xuri/excelize/v2 v2.11.0 h1:HxaEFl6sRN2+8J5a8HaKq+0M4FsjBGMnWWtjOCPSG88=

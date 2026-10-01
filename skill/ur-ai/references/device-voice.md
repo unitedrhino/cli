@@ -157,6 +157,13 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
 的全新资源场景；若共享文字也失败而隔离通过，应继续检查有效上下文与模型选择，
 不要归因于固件采音，也不能清共享历史、修改提示词或放宽控制门槛来获得通过。
 
+若实际提示的稳定画像不同，可运行`TestVoiceControlStableProfileReplay`（同一资源入口，
+`-count=1`、devicesim包、420秒预算）：只读固定共享模拟资源的画像，内存中经现有
+记忆API写入本次独占分身，空画像与重放画像分别运行原控制流程并自动回收。
+不读取真实用户画像、不输出正文、不改共享历史。标准API也创建来源记录，不能称为
+仅替换系统提示词的纯变量实验；隔离通过只说明在这组新资源条件下未复现，仍须检查
+共享动态召回/历史组合并原样复测失败用例，不能凭画像存在就修改生产过滤规则。
+
 真机云端音频闭环应使用
 `firmware/watcher/scripts/run_ur_ai_e2e.py --port <serial-port> --repeat 5 --timeout 75`。
 它使用由 devicesim 编码器生成的 16 kHz/60 ms Opus 样本，只替换麦克风输入，仍连接真实

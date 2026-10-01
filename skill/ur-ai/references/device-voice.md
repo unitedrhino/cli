@@ -113,6 +113,31 @@ bash shell/devicesim-oneclick-test.sh
 保存脱敏的方法序列与阶段耗时。延迟门限建议为 AudioStop 到首个音频帧小于 8 秒、
 STTDone 到 TextDone 小于 15 秒。
 
+### 有声首音与可重复隔离验收
+
+测“用户说完→回复首音”时运行`TestVoiceFirstTurnGreetingReplyHasAudio`，不能用
+`respAudioStart`或首个静音UDP包替代。有声输入结束取最后一个超过RMS阈值的60ms帧，
+回复首音要求连续两个有声解码帧，结果日志标明`endpoint=simulator_decoded_audio`。
+`input_end_to_first_voiced_reply`包含输入尾部静音和audioStop等待；它不包含真实设备
+麦克风、播放缓冲或扬声器声学延迟。现场首字需另用同时录下输入与设备回复的音频测量，
+少量重复结果不报告为P95。
+
+在已授权测试环境加载受限认证后，从SaaS仓库根目录复测；遵循仓库构建位置与资源门禁，
+不把Token、供应商正文或完整MQTT参数打印出来：
+
+```bash
+DEVICESIM_AUDIO_SAMPLE_RATE=16000 bash shell/remote-build.sh run --kind backend --scope backend --timeout 900 -- \
+  bash -lc 'cd backend && go test ./things/tools/devicesim -run "^TestVoiceFirstTurnGreetingReplyHasAudio$" -count=3 -timeout 720s'
+bash shell/remote-build.sh run --kind backend --scope backend --timeout 180 -- \
+  bash -lc 'cd backend && go test -race ./things/tools/devicesim -run "^Test(FirstVoice.*|LastSpeechFrameIndex|FrameRMS|OpusAudioReceiverRequiresConsecutiveSpeechFrames|RepeatedOpusSilenceRemainsSilent|SilenceAfterSpeechRemainsSilent)$" -count=10 -timeout 90s'
+```
+
+该首音用例使用随机产品/Agent前缀，退出时以独立30秒上下文执行`CleanupAll`。
+当前devicesim的`CreatedDevice`是旧引导器的清理策略，自建产品时为false，不代表设备已存在；
+完整清理以本次新建产品和Agent归属为保护条件，不修改公共复用用例或删除历史固定前缀资源。
+清理失败同样算E2E失败。定位失败残留时先核对精确名称、创建窗口和关联关系，再仅回收
+本次资源；空列表可能为null，读取时不能把验证器异常当成删除失败并盲目重复删除。
+
 平台基线通过后，还要在 `firmware/watcher` 运行固件生产协议核心的单元测试与时序回放：
 
 ```bash

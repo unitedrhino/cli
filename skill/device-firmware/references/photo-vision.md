@@ -158,7 +158,7 @@ go test -race ./core/service/aisvr/internal/domain/chat \
 先运行平台基线。测试凭据使用已有 profile、环境变量或权限不宽于 `0600` 的受限文件：
 
 ```bash
-DEVICESIM_TEST_PATTERN='Test(TakePhotoEndToEnd|ImageInputEndToEnd|EmojiEmotionText|EmojiNotSentForPlainQuestion)$' \
+DEVICESIM_TEST_PATTERN='Test(TakePhotoEndToEnd|ImageInputEndToEnd|ImageInputDuringVoiceAudioStop|EmojiEmotionText|EmojiNotSentForPlainQuestion)$' \
 DEVICESIM_AUDIO_SAMPLE_RATE=16000 \
 bash shell/devicesim-oneclick-test.sh
 ```
@@ -166,6 +166,11 @@ bash shell/devicesim-oneclick-test.sh
 测试图片必须是仓库自有、内容固定的 JPEG，并断言模型实际识别其文字、颜色和形状；仅断言
 “收到一段回复”不够。`TestTakePhotoEndToEnd` 验证工具调用、action、可下载 `fileUri` 和
 识图回复，`TestImageInputEndToEnd` 验证双击等价的 `inputSend(image_url)` 路径。
+
+`TestImageInputDuringVoiceAudioStop` 另行覆盖 audioStart→图片输入→audioStop 交错：
+必须识别图片内容、收到真实连续有声帧，并等待同 respId 的 respAudioDone。文本和
+音频开始都成功但缺终态仍是失败。若后端 ASR 收尾定时器取消了活跃模型/TTS，
+修复通用回复生命周期与 inputSend 工作计数，不延长测试超时或添加拍照特例。
 
 固件侧运行完整测试发现入口；关键纯逻辑用例至少连续 10 次：
 
@@ -180,6 +185,40 @@ token 去重、相机互斥、队列拥塞、超时、断线、OTA 拒绝、图�
 
 ## 6. 真机验收
 
+### 无需现场反复按键的串口回归
+
+如已获准刷测试固件，启用 `ENABLE_UR_AI_E2E_TEST=1`，使用固件仓库
+`scripts/run_ur_hw_e2e.py --port <串口> --expect <现场物品词> --repeat 5 --log-dir <受限目录>`。
+脚本走真实相机捕获、上传、图片输入、模型识物与语音播放；预期物品词仅在设备内比较，
+不发送给模型。追加 `--reconnect` 测 WiFi 断线后的 AI 恢复，追加 `--interrupt`
+测真实播报中按键打断及后续拍照。两个选项可分别运行以隔离失败。
+
+串口命令 `ur_hw_test photo-hex <UTF8十六进制>` 是完整用例，runner 自动编码物品词，
+避免终端行编辑器不能正确处理中文参数；`photo-start`、`press`、
+`state`、`wifi-reconnect` 是控制入口，ACK 不能当成 PASS。运行前确认该版本含这些
+测试入口；结束后恢复 `ENABLE_UR_AI_E2E_TEST=0` 的正式固件并检查联网。
+一个串口只保留一个读写进程，优先使用 runner 原始文件描述符；默认 DTR/RTS
+翻转可能重启设备，不能将开串口造成的重启或此时的命令超时误判为业务故障。
+
+MQTT 重连测试必须检查 AI 就绪，不仅检查属性上报：SDK 可能已发出重连事件，
+但在同一次 Yield 内把返回码覆盖为成功。固件应保留待恢复事件，在任务中完成
+重订阅后再通知 AI；用生产回调/恢复分支的编译执行测试覆盖该路径。
+
+长图片描述还要覆盖 MQTT 传输层容量：若出现 `MQTT Recv buffer not enough`，
+先核对完整 TextDone/工具报文长度与 SDK 接收缓冲，不要误判为服务端掉线。
+Watcher AI 构建通过项目自有预包含头统一将 SDK 接收容量设为 16 KiB，
+不能只改变一个翻译单元而造成客户端结构布局不一致。回放真实读包函数，
+验证旧 2 KiB 配置拒绝 2512 字节、新配置接收长报文、越界仍拒绝。
+
+相机能预览不代表上传校验通过：SSCMA 的 JPEG 传输缓冲可能在 EOI 后附带零填充。
+先记录 SOI/EOI 校验结果、图片长度与填充长度，不输出图片正文；只剥离全零尾部，
+再对实际图片执行原有严格校验。测试必须覆盖零填充、非零尾部、缺失 EOI、全零输入
+和原始缓冲超限，不能靠删除 JPEG 校验解决上传失败。
+RTOS worker 必须先退出 C++ 处理函数、完成局部对象析构，再调用任务自删；
+不能在结果回调内直接自删，否则 URL、上传结果等对象不会释放。用编译真实 worker
+的测试在删除边界检查存活分配数，覆盖成功、捕获/认证/上传失败与非法 URL。
+模拟事件不能证明物理按键触点、屏幕可见效果或真实听感；这些仍需现场确认。
+
 1. 使用受控 OTA 从已确认旧版升级，核对镜像摘要、版本、`reportInfoReply` 和平台任务。
 2. 说出明确拍照意图，验证 MCP、action 下行、预览、上传、actionReply、真实识图、字幕、
    语音和表情完整闭环。
@@ -191,6 +230,25 @@ token 去重、相机互斥、队列拥塞、超时、断线、OTA 拒绝、图�
 真实按键、镜头画面、屏幕表情、扬声器和断电必须由现场观察；不可由协议回放代签。
 
 ## 7. 分层排障
+
+相机 `preview_decoded` 只证明 JPEG 解码，不能证明 LCD 已呈现。Watcher 的多行字幕层
+位于预览上方，旧长回复可能撑满屏幕；验证预览时必须覆盖上一轮长字幕、预览中新到字幕、
+字幕开关和预览结束恢复。应隐藏显示层但保留文本，而不是丢弃回复；用真实显示函数的
+主机测试验证状态切换，再由现场确认可见效果。
+
+实拍识物失败时，分开记录传输/播放通过与语义断言失败。核对实际上传帧，并听取现场对
+画面中物体的确认；助手或模型的第一次描述不是物体真值，不能据此断言用户未对准。
+预期物品仅用于断言，不注入模型提示词来制造通过；静态预览也不能当作持续取景。
+
+扩大 MQTT 接收缓冲后必须复查内部堆与 DMA 可用量；SDK 若使用 `pvPortMalloc`，
+普通 malloc 的 PSRAM 阈值不生效。大块 CPU 缓冲可在项目适配层优先分配 PSRAM，
+保留失败回退，并验证原释放器兼容；不能把 DMA 缓冲一并搬到 PSRAM。
+串口采集遇到 panic 后继续读取完整寄存器和 Backtrace，再用匹配镜像 ELF 定位；
+没有完整栈时，内存改善或未再次复现不能作为已修复崩溃根因的证明。
+
+图片有文本无语音时，核对服务端 TTS 首帧计时是否包含视觉模型等待：若模型较晚
+返回文本、TTS 以零帧超时，应记录平台阻塞，不能反复改设备播放链路。
+设备侧捕获/上传/行为回复通过，与图片识别/完整语音通过必须分栏记录。
 
 | 现象 | 先查 | 常见根因 |
 |---|---|---|

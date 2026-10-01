@@ -56,6 +56,10 @@ go test ./things/tools/devicesim -run '^TestVoiceControlSessionTransition$' -cou
 ```
 
 新设备通过不代表原故障已修复，仍须同配置复测原失败设备并比较有效模型、Clone历史和工具。
+怀疑历史覆盖当前要求时，用真实Runtime模型边界测试
+`TestRecentDeviceInputControlModelBoundary`检查最新user消息、长历史压缩及跨轮隔离：
+从backend目录运行`go test ./core/service/aisvr/internal/domain/agentruntime -run '^TestRecentDeviceInput' -count=10`。
+它只替换外部模型，不能证明供应商工具选择或真实设备执行成功；不要据它清除旧历史。
 该用例使用唯一prefix并清理本次新建的设备、产品和Agent，不删除共享MCP。
 `NameSuffix`当前不参与资源名称，不能据它宣称隔离；`CreatedDevice`表示AC自动清理策略，
 不是新建事实。非AC的`CleanupDevice`可能不删除；仅确认产品和Agent均为本次新建、

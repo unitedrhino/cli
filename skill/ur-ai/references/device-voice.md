@@ -163,6 +163,10 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
 不读取真实用户画像、不输出正文、不改共享历史。标准API也创建来源记录，不能称为
 仅替换系统提示词的纯变量实验；隔离通过只说明在这组新资源条件下未复现，仍须检查
 共享动态召回/历史组合并原样复测失败用例，不能凭画像存在就修改生产过滤规则。
+同一入口可改跑`TestVoiceControlRecallContextReplay`，在独占分身重放来源有效Dream摘要，
+核对后台实际召回及控制下行。它不复制来源ID、历史时间、权重或访问计数，标准API也会
+合并目标画像，所以只是组合对照，不是等价生产快照。记忆轨迹ID可能包含查询正文，
+脱敏须取哈希，不能直接输出或只截短前缀。
 
 真机云端音频闭环应使用
 `firmware/watcher/scripts/run_ur_ai_e2e.py --port <serial-port> --repeat 5 --timeout 75`。

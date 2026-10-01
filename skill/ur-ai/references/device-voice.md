@@ -167,6 +167,12 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
 核对后台实际召回及控制下行。它不复制来源ID、历史时间、权重或访问计数，标准API也会
 合并目标画像，所以只是组合对照，不是等价生产快照。记忆轨迹ID可能包含查询正文，
 脱敏须取哈希，不能直接输出或只截短前缀。
+需要覆盖冻结画像与新动态召回时，成对运行
+`TestVoiceControlFrozenRecallContextReplay|TestVoiceControlFrozenProfileReplay`：
+先用完整语音查询预热，再分别写入摘要或不写；核对实际控制轮画像块哈希，而非仅回读
+持久化画像。预热增加短时原文，摘要API也改变中间文字查询画像，所以仍不属于纯变量
+实验。摘要记录可能正文重复，实际格式化去重后的条数才是注入条数；红色复现必须保留，
+不得用刷新缓存、清历史或隔离对照通过替代原共享失败的修复。
 核对工具时注意：当前`/api/v1/ai/mcp/tools/get-tools`读取企业启用服务的缓存工具清单，
 实现未按`sessionID`筛选，也不返回Runtime实际绑定的完整参数Schema。两会话该响应
 相同不能证明装配相同；应结合Runtime的服务绑定、实时`tools/list`与实际工具调用取证。

@@ -23,7 +23,7 @@ func TestInspectTargets(t *testing.T) {
 		}
 	}
 	mustWrite(t, filepath.Join(targets[1].Path, "ur-api", "_meta.json"), `{"version":"v0.3.0"}`)
-	if err := os.Remove(filepath.Join(targets[2].Path, "ur-api", "ur-view", "SKILL.md")); err != nil {
+	if err := os.Remove(filepath.Join(targets[2].Path, "ur-api", "ur-view", "GUIDE.md")); err != nil {
 		t.Fatalf("remove incomplete fixture: %v", err)
 	}
 

@@ -297,6 +297,29 @@ TASK-143 新测试固件支持 `ur_ai_e2e 3`；对应 runner 增加 `--turns 3 -
 主机通过仍须在支持该参数的新固件上实测，旧测试固件可能忽略参数，runner 会因缺轮拒绝通过。
 同一句固定样本仅验证多轮音频/状态流程，不能替代不同问题的上下文记忆或打断验收。
 
+### 语音拍照的真机自动复测
+
+音量查询样本不能证明拍照工具可用。新测试固件支持额外的真实语音样本：
+
+```bash
+python3 firmware/watcher/scripts/run_ur_ai_e2e.py \\
+  --port <serial-port> --fixture take_photo --repeat 5 --timeout 75 \\
+  --log-dir <repo>/.temp/device-firmware/voice-photo-e2e
+```
+
+对应命令为 `ur_ai_e2e <1-5> photo`；缺省仍查询音量。拍照资源使用
+devicesim 的 `turn16_take_photo.mp3` 经同一 opusfixture 编码器生成，输出
+`firmware/watcher/main/testdata/ur_ai_take_photo.opuspack`，16kHz/60ms/112帧。
+只有测试开关启用时嵌入，正式固件不带资源/命令。修改生成器或样本后重新生成，
+运行 `test_ur_ai_fixture` 编译实际固件解析器，验证两份真实包及损坏包拒绝。
+
+除完整语音阶段、播放排空和原延迟门禁外，STT必须命中“拍照”，每轮必须按顺序
+具备真实捕获、上传开始、校验成功与 `action_reply code=200 published=1`。
+不能用模型口头确认、失败后一句回复、错样本或上一轮动作记录代替；runner单测覆盖
+这些失败，串口参数与STT门禁测试编译实际生产函数。MQTT发布成功仅证明发送路径接受，
+不是平台处理确认；完整模型回复仍须采集，严格语义另用确定性图片平台E2E核对。
+该测试替代麦克风输入但使用真实摄像头；仍需现场验收麦克风、画面实物、物理显示和听感。
+
 ## 7. 表情和界面
 
 `respEmotion` 必须与当前 `respId` 匹配。允许的 emoji/emotion 映射以

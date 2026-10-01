@@ -238,6 +238,11 @@ token 去重、相机互斥、队列拥塞、超时、断线、OTA 拒绝、图�
 
 ## 7. 分层排障
 
+若已有文字及有声帧但没有`respAudioDone`，先核对服务端是否提前退出语音循环并取消TTS。
+有效ASR Final与空Final是不同分支，两者都不能因ASR收尾期限截断已接收的活动回复。
+用`TestFinalASRPreservesActiveTTS`验证有效Final分支，再用上述真实语音拍照E2E验证终态；
+不要通过延长客户端等待或在异常取消后补发正常完成消息制造通过。
+
 | 现象 | 先查 | 常见根因 |
 |---|---|---|
 | devicesim 图片 E2E 失败 | 模型配置测试、Agent/MCP 回读 | 模型不支持 image、视觉流式编码、fuzai/Redis/DmRpc 或 MCP 绑定 |

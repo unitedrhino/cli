@@ -151,6 +151,12 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
 不清理共享历史；文字重放通过后仍须原样复测`TestVoiceVolumeWorkflow`，不能据此关闭
 语音缺陷或认定某条历史记忆是根因。结果分开记录，未经关联的迟到控制不能算重放成功。
 
+上述重放已经在共享Clone追加语音轮，不能单独归因于通道。更严格的对照使用
+`TestVoiceVolumeTextControlAfterQuery`：仅在独占的新资源上取得真实STT，共享设备只做
+查询→逐字文字控制→查询，并回收识别来源。再对照`TestVoiceControlSessionTransition`
+的全新资源场景；若共享文字也失败而隔离通过，应继续检查有效上下文与模型选择，
+不要归因于固件采音，也不能清共享历史、修改提示词或放宽控制门槛来获得通过。
+
 真机云端音频闭环应使用
 `firmware/watcher/scripts/run_ur_ai_e2e.py --port <serial-port> --repeat 5 --timeout 75`。
 它使用由 devicesim 编码器生成的 16 kHz/60 ms Opus 样本，只替换麦克风输入，仍连接真实

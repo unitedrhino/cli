@@ -44,6 +44,21 @@
 `go test ./things/tools/devicesim -run '^TestBootstrapLLMConfigEnvironment$' -count=10`
 验证HTTP请求边界（在backend目录运行，不连接真实平台）。
 
+控制异常需要区分共享测试设备的历史和会话切换。保留原失败用例，再用
+`TestVoiceControlSessionTransition` 对照全新设备的首次语音与先文字查询再切语音；
+两者使用原音频和相同提示词，仍要求真实控制下行目标40及上报后的查询。
+在已授权的测试环境、显式模型及现有认证下从backend目录执行：
+
+```bash
+go test ./things/tools/devicesim -run '^TestVoiceControlSessionTransition$' -count=1 -timeout 420s
+```
+
+新设备通过不代表原故障已修复，仍须同配置复测原失败设备并比较有效模型、Clone历史和工具。
+该用例使用唯一prefix并清理本次新建的设备、产品和Agent，不删除共享MCP。
+`NameSuffix`当前不参与资源名称，不能据它宣称隔离；`CreatedDevice`表示AC自动清理策略，
+不是新建事实。非AC的`CleanupDevice`可能不删除；仅确认产品和Agent均为本次新建、
+设备属于该新产品后才调用`CleanupAll`，不能据布尔字段清理已有共享资源。
+
 在仓库根目录执行完整回归。凭据通过已有 profile 或环境变量注入，不写入命令、文档或日志：
 
 ```bash

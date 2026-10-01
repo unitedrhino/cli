@@ -232,3 +232,17 @@ MQTT、UDP、ASR、LLM 和 TTS。每轮必须看到完整方法序列、播放�
 audioStop 后若识别结果仍在 hold、队列或记忆准备阶段，不能因为 LLM/TTS 尚未启动
 就关闭父 context。回复工作从入队前计数，到消费结束释放；计数按 loop 隔离，
 空 Final/关闭通道不得越过待处理回复直接退出，超时与用户关闭仍须能够释放资源。
+
+### ASR报错但设备一直等待
+
+先关联短会话ID，核对UDP接收、解码、VAD送出与ASR送出帧数，以及供应商建连和流内错误。
+送出音频而没有STT不能直接归因于麦克风或网络；供应商数字错误码也不能单独证明额度不足。
+识别层的错误不能只关闭结果通道：应通过既有`error/internalError`反馈固定提示，屏蔽供应商
+原始正文，并忽略取消上下文及过期识别实例。后续音频保留原识别重启和通道关闭所有权。
+
+离线回归运行chat包的`TestASRFailureNotifiesDevice`、
+`TestASRFailureIgnoresCancelledAndStaleRun`、`TestASRFailureRecoversOnNextAudio`，
+覆盖建连失败、流内错误、取消/旧轮隔离和同会话新Opus帧恢复识别及文字回复；通过资源入口
+分别重复十次、运行竞态检测及完整chat包。这些用例使用供应商/LLM/TTS替身，不代替真实
+平台和设备稳定性验收。真实测试仍要求完整STT、文字、音频和播放终态，收到错误提示不能
+算成功对话；保留原失败窗口，不因错误现在可见就放宽门禁或将新窗口与旧窗口拼接。

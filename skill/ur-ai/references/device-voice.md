@@ -127,6 +127,22 @@ python3 -m unittest \
 旧消息。该协议 E2E 不连接云端，不能替代上面的 devicesim 真实 E2E 或最终真机测试；
 三层结果应分别记录。
 
+排查“识别到控制要求但模型只查询”时，增加模型边界合同测试，不直接清历史或修改提示词：
+
+```bash
+bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
+  bash -lc 'cd backend && go test ./core/service/aisvr/internal/domain/llm -run "^(TestTracedTransport.*|TestModelRequestPreservesCurrentInput|TestMediaGuard|TestVisionRouter.*)$" -count=10 -timeout 120s'
+```
+
+该测试使用真实模型工厂、门禁、路由和OpenAI适配器，将固定夹具发送到本地HTTP模拟
+供应商，核验纯文本、查询历史、召回上下文和工具结果之后的消息顺序与工具定义。
+供应商响应是模拟值，不能证明真实模型会选择控制工具，也不能替代失败的原始devicesim
+用例。Runtime模型调用前的摘要仅能证明该边界的输入；不带会话/trace关联的摘要不能
+单独用于跨并发定位。继续核对实际模型配置、MCP清单、工具选择和真实控制回执。
+模型HTTP时序诊断不得预读、关闭或以旧GetBody覆盖当前请求体，不落盘请求JSON；
+正文可能含对话、工具参数及内联图片。旧诊断文件需另行核实留存和删除授权，不清空共享目录。
+旧provider测试若依赖硬编码外部凭据，不借其发起真实调用，也不把所选离线集合称为整包全绿。
+
 真机云端音频闭环应使用
 `firmware/watcher/scripts/run_ur_ai_e2e.py --port <serial-port> --repeat 5 --timeout 75`。
 它使用由 devicesim 编码器生成的 16 kHz/60 ms Opus 样本，只替换麦克风输入，仍连接真实

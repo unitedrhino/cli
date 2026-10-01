@@ -296,7 +296,9 @@ else:
         ).read_text()
         platform_guide = (ROOT / 'skill/ur-ai/references/device-voice.md').read_text()
         for expected in (
-            'Test(TakePhotoEndToEnd|ImageInputEndToEnd|EmojiEmotionText|EmojiNotSentForPlainQuestion)',
+            'Test(TakePhotoEndToEnd|VoiceTakePhotoEndToEnd|ImageInputEndToEnd|EmojiEmotionText|EmojiNotSentForPlainQuestion)',
+            'turn16_take_photo.mp3',
+            'respAudioDone',
             '"actionID": "takePhoto"',
             '"type": "image_url"',
             '上传成功、失败或 MQTT 断线后都立即清零副本',

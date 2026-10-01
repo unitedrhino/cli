@@ -171,13 +171,13 @@ go test -race ./core/service/aisvr/internal/domain/chat \
 找不到 fuzai 或更新测试产品返回权限不足时，先核对上述上下文与资源归属，不能直接断言
 后端缺功能、重新注册 MCP 或扩大权限。
 
-视觉三项用例使用每次独立的随机前缀，并断言 `CleanupAll` 成功；已有 `CleanupDevice`
+视觉四项用例使用每次独立的随机前缀，并断言 `CleanupAll` 成功；已有 `CleanupDevice`
 为固定前缀复用场景保留部分资源，不适用于一次性隔离资源。清理仅针对本次新建对象，
 不得按 sim 前缀批量删除历史资源。还应运行 `TestImageInputDuringVoiceAudioStop`，
 验证图片输入与停止收音交错时仍有完整语音，而不只是文本通过。
 
 ```bash
-DEVICESIM_TEST_PATTERN='Test(TakePhotoEndToEnd|ImageInputEndToEnd|EmojiEmotionText|EmojiNotSentForPlainQuestion)$' \
+DEVICESIM_TEST_PATTERN='Test(TakePhotoEndToEnd|VoiceTakePhotoEndToEnd|ImageInputEndToEnd|EmojiEmotionText|EmojiNotSentForPlainQuestion)$' \
 DEVICESIM_AUDIO_SAMPLE_RATE=16000 \
 bash shell/devicesim-oneclick-test.sh
 ```
@@ -185,6 +185,12 @@ bash shell/devicesim-oneclick-test.sh
 测试图片必须是仓库自有、内容固定的 JPEG，并断言模型实际识别其文字、颜色和形状；仅断言
 “收到一段回复”不够。`TestTakePhotoEndToEnd` 验证工具调用、action、可下载 `fileUri` 和
 识图回复，`TestImageInputEndToEnd` 验证双击等价的 `inputSend(image_url)` 路径。
+
+文字拍照不能替代语音入口。`TestVoiceTakePhotoEndToEnd`使用可复生成的
+`turn16_take_photo.mp3`，以16kHz Opus经真实MQTT/UDP完成ASR、工具与识图，
+还要求解码到有声帧并在本用例45秒终态预算内收到相同respId的`respAudioDone`。
+识图内容或首帧通过但缺少终态仍失败，保留方法序列继续排查，不延长等待掩盖缺事件。
+它由模拟设备上传确定性图片，不证明真实相机；Watcher仍需独立真机语音拍照验收。
 
 固件侧运行完整测试发现入口；关键纯逻辑用例至少连续 10 次：
 

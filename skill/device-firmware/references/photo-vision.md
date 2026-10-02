@@ -290,6 +290,21 @@ runner 要求本次断开与订阅恢复，随后才拍照；还应独立核验�
 仍需对照该轮解码、门控与 ASR 输入。新窗口通过不覆盖旧失败，测试结束恢复正式包。
 即使关键词、文字与音频闭环全部通过，也可能缺失部分源帧；闭环与音频完整性分别记录。
 
+主仓维护入口`firmware/watcher/scripts/ur_udp_evidence.py`只读取既有证据：
+`--device-log <受限串口日志> --ingress-metadata <受限JSON> --session <八位短ID>
+--expected-packets <实际总包数> --output <全新结果文件>`。
+JSON外层为`sessions`数组；所选项包含`session`、`captureReady`、`exitCode`、
+`incompleteBytes`、`packets:[{seq,bytes}]`和
+`statistics:{captured,receivedByFilter,droppedByKernel}`。
+用`parse_capture_statistics`读取真实英文tcpdump终态，缺失/重复不得补默认零；
+读完stderr后再Wait，防止子进程管道被提前关闭而截断统计。
+`receivedByFilter`不一定等于捕获数；要求捕获数等于解析数且内核丢包为零。
+退出0为本轮完整，1为确定的发送/送达不一致，2为证据不足；首包未观测、迟启动、
+统计缺失或解析不完整不能宣称网络丢包。`test_ur_udp_evidence.py`覆盖三态、
+乱序/重复/四帧缺口与权限、旧文件/符号链接防覆盖，结果只保留数值，不覆盖旧失败。
+隔离模拟双端校准通过只证明观测方法，不替代Watcher实际无线链路或旧失败复现。
+
+
 
 若上传完成后在 HTTP 断线回调中看门狗重启，先用当前已部署镜像的原 ELF 解码，
 不能用后来重建的 ELF 猜调用栈。检查被动断连是否仅因 `connected=false` 跳过接收线程

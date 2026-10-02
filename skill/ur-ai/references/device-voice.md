@@ -281,6 +281,15 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 600 -- \
 
 ### ASR报错但设备一直等待
 
+若是建立会话后先播放文字回复、再取消播报开麦，先比对ASR建连与audioStart时间。
+豆包`45000081`表示等包超时，不能当作额度不足；仅建立会话/播放文字或图片回复时
+不应提前消耗识别连接预算。显式监听保留首句预建连，尚未开麦则沿用有效音频首帧懒启动，
+不得吞掉真正识别失败或提高供应商超时来掩盖生命周期错误。
+`TestVoiceLoopASRStartsOnlyWhenListening`同步断言生产ASR句柄：未开麦时不启动、
+开麦后真实Opus首帧启动并提交、显式监听仍预建连。与ASR失败/恢复和UDP退出清理用例
+一起做竞态十次及完整chat包，再原样执行`TestVoiceCancelDuringTTSThenContinue`；
+本地转绿不等于运行后端已更新，也不能拿普通多轮通过代替取消后继续验收。
+
 先关联短会话ID，核对UDP接收、解码、VAD送出与ASR送出帧数，以及供应商建连和流内错误。
 送出音频而没有STT不能直接归因于麦克风或网络；供应商数字错误码也不能单独证明额度不足。
 识别层的错误不能只关闭结果通道：应通过既有`error/internalError`反馈固定提示，屏蔽供应商

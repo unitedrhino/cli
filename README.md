@@ -150,6 +150,14 @@ cd cli
 go build -ldflags "-X main.version=$(git describe --tags)" -o dist/bin/ur .
 ```
 
+**方式三 — 国内一键脚本（Harbor 制品源，免 GitHub）**：
+
+```bash
+curl -fsSL https://doc.unitedrhino.com/cli/install.sh | bash
+```
+
+自动查询 Harbor 公开制品（`docker.unitedrhino.com`）最新版本，下载、SHA256 校验并安装到 `~/.local`（含 `skill/` 目录）。指定版本：`UR_TAG=v0.8.5 curl -fsSL ... | bash`。
+
 #### 版本升级与 Skills
 
 ```bash

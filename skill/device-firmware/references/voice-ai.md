@@ -311,7 +311,7 @@ python3 firmware/watcher/scripts/run_ur_ai_e2e.py \\
 devicesim 的 `turn16_take_photo.mp3` 经同一 opusfixture 编码器生成，输出
 `firmware/watcher/main/testdata/ur_ai_take_photo.opuspack`，16kHz/60ms/112帧。
 只有测试开关启用时嵌入，正式固件不带资源/命令。修改生成器或样本后重新生成，
-运行 `test_ur_ai_fixture` 编译实际固件解析器，验证两份真实包及损坏包拒绝。
+运行 `test_ur_ai_fixture` 编译实际固件解析器，验证三份真实包及损坏包拒绝。
 
 除完整语音阶段、播放排空和原延迟门禁外，STT必须命中“拍照”，每轮必须按顺序
 具备真实捕获、上传开始、校验成功与 `action_reply code=200 published=1`。
@@ -319,6 +319,27 @@ devicesim 的 `turn16_take_photo.mp3` 经同一 opusfixture 编码器生成，�
 这些失败，串口参数与STT门禁测试编译实际生产函数。MQTT发布成功仅证明发送路径接受，
 不是平台处理确认；完整模型回复仍须采集，严格语义另用确定性图片平台E2E核对。
 该测试替代麦克风输入但使用真实摄像头；仍需现场验收麦克风、画面实物、物理显示和听感。
+
+### 语音控制的真机自动复测
+
+支持控制资源的新测试固件使用以下入口；正式固件不开启测试开关或嵌入样本。
+
+```bash
+python3 firmware/watcher/scripts/run_ur_ai_e2e.py \
+  --port <serial-port> --fixture control_volume --turns 1 --repeat 1 \
+  --log-dir <repo>/.temp/device-firmware/voice-control-e2e
+```
+
+对应串口`ur_ai_e2e 1 control`。原`turn5_set_volume_prefix_40.mp3`通过生产
+opusfixture编码器生成`ur_ai_control_volume.opuspack`，16kHz/60ms/40帧；不注入
+STT文字。每次必须先通过现有平台属性控制准备音量55，并核验实际上报。入口不偷偷
+设置初值，初值已是40或不符55时拒绝；只有完整真实回复、播放排空后实际codec音量
+变为40才通过。runner拒绝旧标记、无变化和错误初值；只允许单次单轮，重复执行须
+重新准备55。75秒总预算及8秒/15秒延迟门禁不放宽。
+
+设备值变化不是全部平台证据。须同时关联本轮MCP调用、属性下行、原token的
+`controlReply code=200`与后续属性上报；只看到文字确认、设备原本就是目标值或
+主机替身通过都不能判闭环成功。串口测试替代现场采音，不替代麦克风和扬声器验收。
 
 总回复预算不能等同于首帧延迟：拍照测试等待完整回复120秒，runner缺省150秒，
 音量缺省75秒；显式 `--timeout` 可覆盖。长回复可能合成为一分钟音频，按60ms帧

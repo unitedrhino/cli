@@ -156,7 +156,7 @@ python3 -m unittest \
 
 ```bash
 bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
-  bash -lc 'cd backend && go test ./core/service/aisvr/internal/domain/llm -run "^(TestTracedTransport.*|TestModelRequestPreservesCurrentInput|TestMediaGuard|TestVisionRouter.*)$" -count=10 -timeout 120s'
+  bash -lc 'cd backend && go test -race ./core/service/aisvr/internal/domain/llm -run "^(TestTracedTransport.*|TestModelRequest.*|TestMediaGuard.*|TestVisionRouter.*)$" -count=10 -timeout 120s'
 ```
 
 该测试使用真实模型工厂、门禁、路由和OpenAI适配器，将固定夹具发送到本地HTTP模拟
@@ -167,6 +167,13 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
 模型HTTP时序诊断不得预读、关闭或以旧GetBody覆盖当前请求体，不落盘请求JSON；
 正文可能含对话、工具参数及内联图片。旧诊断文件需另行核实留存和删除授权，不清空共享目录。
 旧provider测试若依赖硬编码外部凭据，不借其发起真实调用，也不把所选离线集合称为整包全绿。
+
+`TestModelRequestToolBindingIsolation`从同一工厂衍生无工具、只读工具和写入工具模型，
+经生产包装器并发发送重复请求，核验实际HTTP工具隔离、完整固定请求一致及模型/流式/
+token上限/思考参数。供应商仍为本地固定SSE，不证明真实LLM正确选择工具。
+时序观测也要覆盖竞态：连接复用可能让后台拨号回调晚于RoundTrip返回，回调写入与
+日志读取需要同一同步边界；返回时复制快照后再写日志，不持锁等待网络或读取正文。
+诊断竞态修复与模型选错工具是不同问题，前者转绿不能关闭原真实控制E2E失败。
 
 进一步区分ASR措辞和输入通道时，可运行`TestVoiceVolumeRecognizedTextReplay`：
 沿用共享模拟设备、原音频和提示词，取得真实STT后逐字经文字入口发送，并核验控制下行

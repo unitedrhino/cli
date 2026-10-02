@@ -3,24 +3,58 @@
 # ur CLI 一键安装脚本（官网/文档站提供：curl -fsSL <url> | bash）
 #
 # 与 urops 安装同源同链路：查询 Harbor 公开制品最新版本 → 匿名 token →
-# 下载完整发布包（ur 二进制 + skill/ 目录）与 sha256 → 校验 → 解压安装
-# → 打印版本。无固定版本号：每次执行都取 Harbor 最新发布（与 ur upgrade 同源）。
+# 下载当前平台的完整发布包（ur 二进制 + skill/ 目录）与 sha256 → 校验 →
+# 解压安装 → 打印版本。无固定版本号：每次执行都取 Harbor 最新发布。
+#
+# 支持平台：Linux x86_64/aarch64、macOS Intel/Apple Silicon（自动检测）。
 #
 # 环境变量（可选）：
 #   UR_PREFIX    安装前缀（默认 ~/.local；ur 落 PREFIX/bin，skill/ 落 PREFIX/lib/ur）
 #   UR_TAG       指定安装版本（默认取 Harbor 最新 vX.Y.Z）
+#   UR_PLATFORM  强制平台（默认自动检测，形如 Linux-x86_64/macOS-arm64）
 # =============================================================================
 set -euo pipefail
 
 REGISTRY="docker.unitedrhino.com"
 PROJECT="urops"
-REPO="ur-cli-linux-amd64"
 PREFIX="${UR_PREFIX:-$HOME/.local}"
 LIB_DIR="$PREFIX/lib/ur"
 BIN_DIR="$PREFIX/bin"
 
 command -v tar >/dev/null || { echo "✗ 需要 tar" >&2; exit 1; }
-command -v sha256sum >/dev/null || { echo "✗ 需要 sha256sum" >&2; exit 1; }
+
+# sha256 工具兼容：Linux 用 sha256sum，macOS 只有 shasum -a 256
+if command -v sha256sum >/dev/null 2>&1; then
+  sha_gen()  { sha256sum "$@"; }
+  sha_check_dir() { (cd "$1" && sha256sum -c sha256sums.txt); }
+else
+  sha_gen()  { shasum -a 256 "$@"; }
+  sha_check_dir() { (cd "$1" && shasum -a 256 -c sha256sums.txt); }
+fi
+
+# 平台检测：映射到发布资产命名（Linux-x86_64 / Linux-aarch64 / macOS-x86_64 / macOS-arm64）
+if [[ -n "${UR_PLATFORM:-}" ]]; then
+  PLATFORM="$UR_PLATFORM"
+else
+  case "$(uname -s)" in
+    Linux)  GOOS="Linux";;
+    Darwin) GOOS="macOS";;
+    *) echo "✗ 不支持的平台: $(uname -s)（支持 Linux / macOS；Windows 用 install.ps1）" >&2; exit 1;;
+  esac
+  case "$(uname -m)" in
+    x86_64|amd64)  GOARCH="amd64";;
+    aarch64|arm64) GOARCH="arm64";;
+    *) echo "✗ 不支持的架构: $(uname -m)" >&2; exit 1;;
+  esac
+  PLATFORM="${GOOS}-${GOARCH}"
+fi
+case "$PLATFORM" in
+  Linux-amd64|Linux-x86_64)  REPO="ur-cli-linux-amd64";;
+  Linux-arm64|Linux-aarch64) REPO="ur-cli-linux-arm64";;
+  macOS-amd64|macOS-x86_64)  REPO="ur-cli-darwin-amd64";;
+  macOS-arm64)               REPO="ur-cli-darwin-arm64";;
+  *) echo "✗ 不支持的平台: $PLATFORM" >&2; exit 1;;
+esac
 
 # 1. 最新版本（独立 API 路径绕过 EdgeOne 历史缓存；按语义版本取最大值）
 if [[ -z "${UR_TAG:-}" ]]; then
@@ -29,7 +63,7 @@ if [[ -z "${UR_TAG:-}" ]]; then
     | grep -oE '"name":"v[0-9.]+"' | cut -d'"' -f4 | sort -V | tail -1 || true)
   [[ -n "${UR_TAG}" ]] || { echo "✗ 无法获取最新版本（检查到 ${REGISTRY} 的网络）" >&2; exit 1; }
 fi
-echo "==> 安装 ur CLI ${UR_TAG}"
+echo "==> 安装 ur CLI ${UR_TAG}（${PLATFORM}）"
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
@@ -41,7 +75,7 @@ TOKEN=$(curl -fsSL --max-time 15 "${T}?service=${S}&scope=repository:${PROJECT}/
 [[ -n "${TOKEN}" ]] || { echo "✗ 获取匿名 token 失败" >&2; exit 1; }
 
 # 3. manifest 层 digest（第 0 层=完整发布包 tar.gz，第 1 层=sha256 文件；
-#    第 1 个 digest 为 config，跳过）
+#    第 1 个 digest 为 config，跳过。兼容紧凑/带空格两种 JSON 序列化）
 MANIFEST=$(curl -fsSL --max-time 15 -H "Authorization: Bearer ${TOKEN}" \
   -H "Accept: application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json" \
   "https://${REGISTRY}/v2/${PROJECT}/${REPO}/manifests/${UR_TAG}")
@@ -65,7 +99,7 @@ tar -xzf "$WORK/pkg.blob" -C "$WORK"
 
 # 5. 校验
 echo "==> 校验 sha256"
-(cd "$WORK" && sha256sum -c sha256sums.txt) || { echo "✗ 校验失败" >&2; exit 1; }
+sha_check_dir "$WORK" || { echo "✗ 校验失败" >&2; exit 1; }
 
 # 6. 安装：ur 与 skill/ 保持同级（ur skills 依赖该布局），并软链进 PATH
 mkdir -p "$LIB_DIR" "$BIN_DIR"

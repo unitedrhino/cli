@@ -156,7 +156,7 @@ go build -ldflags "-X main.version=$(git describe --tags)" -o dist/bin/ur .
 curl -fsSL https://doc.unitedrhino.com/cli/install.sh | bash
 ```
 
-自动查询 Harbor 公开制品（`docker.unitedrhino.com`）最新版本，下载、SHA256 校验并安装到 `~/.local`（含 `skill/` 目录）。指定版本：`UR_TAG=v0.8.5 curl -fsSL ... | bash`。
+自动查询 Harbor 公开制品（`docker.unitedrhino.com`）最新版本，下载、SHA256 校验并安装到 `~/.local`（含 `skill/` 目录）。支持 **Linux x86_64/aarch64 与 macOS Intel/Apple Silicon**（自动检测）；指定版本：`UR_TAG=v0.8.5 curl -fsSL ... | bash`。发版时 `scripts/release.sh` 会自动把常见五平台制品推送 Harbor。
 
 **Windows（PowerShell 5.1+，无需管理员）：**
 

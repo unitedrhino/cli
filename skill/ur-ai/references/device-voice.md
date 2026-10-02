@@ -258,6 +258,27 @@ audioStop 后若识别结果仍在 hold、队列或记忆准备阶段，不能�
 就关闭父 context。回复工作从入队前计数，到消费结束释放；计数按 loop 隔离，
 空 Final/关闭通道不得越过待处理回复直接退出，超时与用户关闭仍须能够释放资源。
 
+### 前段语音已播，工具返回后一直等待
+
+先关联同一 session/respId，区分“合成前模型等待五秒”和“首帧之后三秒帧间超时”。
+已有真实音频后，工具执行与后续模型待输入可能暂时没有可合成文本，不能把它判为
+供应商停滞。使用本轮独占等待状态及时通知播放循环；收到有效文本或输入结束后恢复
+原帧间预算，等待仍受请求取消约束，不按工具名称、图片私有字段或固定提示词判断。
+真正TTS失败不能伪造respAudioDone，应通过既有error关联当前respId及时结束设备等待，
+固定提示不得包含供应商错误正文。旧轮取消不向新轮反馈错误。
+
+从SaaS根目录运行确定性事件/音频回归（无真实模型和相机），再做平台和真机复测：
+
+```bash
+bash shell/remote-build.sh run --kind backend --scope backend --timeout 600 -- \
+  bash -lc 'cd backend && go test -race ./core/service/aisvr/internal/domain/chat -run "^Test(TTSInputWaitTransitions|AudioPacingToolWaitCancel|ConsumeStreamEvents_(ToolWait.*|ReliableFailureExplicitError))$" -count=10 -timeout 180s'
+```
+
+失败用例必须先证明前段实际已发送、工具等待超过原预算、后段文字仍完整但音频丢失；
+修复后同时断言前后音频、单次开始/正常完成。负例覆盖重复通知、跨轮隔离、取消、
+输入结束后真实停滞与明确失败。随后原样重复TestVoiceTakePhotoEndToEnd及真机串口
+拍照，要求真实有声帧与同轮终态；单测转绿、只有文字或首帧都不能关闭整机缺陷。
+
 ### ASR报错但设备一直等待
 
 先关联短会话ID，核对UDP接收、解码、VAD送出与ASR送出帧数，以及供应商建连和流内错误。

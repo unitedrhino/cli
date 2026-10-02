@@ -67,6 +67,13 @@ go test ./things/tools/devicesim -run '^TestVoiceControlSessionTransition$' -cou
 
 在仓库根目录执行完整回归。凭据通过已有 profile 或环境变量注入，不写入命令、文档或日志：
 
+`devicesim-oneclick-test.sh`自行以umask077新建0700目录/0600原日志，不依赖调用者权限；
+同秒同路径或预置链接会在探测前失败。输出持有独占打开的描述符，后续路径替换也不
+重定向证据；已有目录不批量chmod，应先核对归属和权限。原日志可能含对话/诊断，
+受限保存不是脱敏，分享前仍须脱敏。离线复测运行
+`python3 shell/test-devicesim-oneclick.py -v`：实际Bash入口七项文件系统检查，覆盖
+权限、冲突、正常/悬空链接和运行中路径竞争，外部命令隔离，不作为平台E2E通过证据。
+
 ```bash
 DEVICESIM_TEST_PATTERN='Test(MultiTurnVoiceChat|VoiceInterruptDuringTTSThenContinue|VoiceCancelDuringTTSThenContinue|VoiceTurnWithoutAudioStopStillGetsSTT|TextToTTSAudioEvents|EmojiEmotionText|DeviceControlSuccess)$' \
 DEVICESIM_AUDIO_SAMPLE_RATE=16000 \

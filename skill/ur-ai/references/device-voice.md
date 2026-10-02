@@ -175,6 +175,18 @@ token上限/思考参数。供应商仍为本地固定SSE，不证明真实LLM�
 日志读取需要同一同步边界；返回时复制快照后再写日志，不持锁等待网络或读取正文。
 诊断竞态修复与模型选错工具是不同问题，前者转绿不能关闭原真实控制E2E失败。
 
+工具响应的关联还需通过真实SDK和Runtime累积路径核验，而非只看出站请求：
+
+```bash
+bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
+  bash -lc 'cd backend && go test -race ./core/service/aisvr/internal/domain/agentruntime -run "^TestModelResponseToolCallCorrelation$" -count=10 -timeout 120s'
+```
+
+该用例以本地固定SSE覆盖共享模型并发查询/写入、同一响应两个工具的交错参数分片，
+实际执行模型工厂、门禁、路由、SDK和`streamAndAccumulate`，逐项检查调用ID、工具名、
+完整参数及文本增量。它不调用真实LLM，也不模拟设备回执；通过只证明这些固定响应
+正确关联，不能据此宣布供应商工具选择正确或原语音控制E2E转绿。
+
 进一步区分ASR措辞和输入通道时，可运行`TestVoiceVolumeRecognizedTextReplay`：
 沿用共享模拟设备、原音频和提示词，取得真实STT后逐字经文字入口发送，并核验控制下行
 和后续属性查询。使用上面的资源入口，把`-run`改为`^TestVoiceVolumeRecognizedTextReplay$`、

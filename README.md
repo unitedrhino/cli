@@ -158,6 +158,14 @@ curl -fsSL https://doc.unitedrhino.com/cli/install.sh | bash
 
 自动查询 Harbor 公开制品（`docker.unitedrhino.com`）最新版本，下载、SHA256 校验并安装到 `~/.local`（含 `skill/` 目录）。指定版本：`UR_TAG=v0.8.5 curl -fsSL ... | bash`。
 
+**Windows（PowerShell 5.1+，无需管理员）：**
+
+```powershell
+irm https://doc.unitedrhino.com/cli/install.ps1 | iex
+```
+
+安装到 `%LOCALAPPDATA%\Programs\ur`（`ur.exe` + `skill/`）并加入用户 PATH；`$env:UR_TAG` 可指定版本。
+
 #### 版本升级与 Skills
 
 ```bash

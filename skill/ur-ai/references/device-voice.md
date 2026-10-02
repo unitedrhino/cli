@@ -225,6 +225,27 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
 持久化画像。预热增加短时原文，摘要API也改变中间文字查询画像，所以仍不属于纯变量
 实验。摘要记录可能正文重复，实际格式化去重后的条数才是注入条数；红色复现必须保留，
 不得用刷新缓存、清历史或隔离对照通过替代原共享失败的修复。
+
+需要对照助手“查询不等于执行”的业务规则时，使用独立具名用例
+`TestVoiceControlCompletionPolicyFrozenReplay`，不要替换原共享用例的提示词：
+
+```bash
+DEVICESIM_AUDIO_SAMPLE_RATE=16000 bash shell/remote-build.sh run --kind backend --scope backend --timeout 600 -- \
+  bash -lc 'cd backend && go test ./things/tools/devicesim -run "^TestVoiceControlCompletionPolicyFrozenReplay$" -count=3 -timeout 480s'
+bash shell/converge-watcher-vision.sh --check --control-policy
+```
+
+隔离用例与配置脚本共用`testdata/control_completion_policy.txt`，仍保留原音频、
+预热查询、45秒实际下行及后续属性查询；它是待验收的配置候选，不默认应用。
+正式复跑已有预热查询失败，不能凭后续设置成功或早期少量通过采纳候选。
+先核对失败预热的真实STT长度/摘要及查询语义，再关联上传音频、会话和ASR链路；
+识别输入偏离查询样本时不能直接归因于模型工具策略，不记录对话正文或重跑到全绿。
+显式应用使用`--apply --control-policy`及`WATCHER_CONTROL_POLICY_BACKUP_FILE`：
+备份须为受限目录中未占用的绝对路径，仅追加自有SystemPrompt，拒绝冻结继承提示词；
+写前回读与写后配置核验不能替代API原子比较交换。恢复经既有Agent更新API提交备份，
+先确认没有后续他人编辑。规则单测为`TestDeviceControlCompletionPolicy`，
+脚本回归为`bash shell/test-converge-watcher-vision.sh`；Mock通过不等于实际语音通过。
+
 召回格式调整需先用`TestFormatPromptMemoryContext`覆盖背景不冒充系统指令、当前请求及
 授权优先、原内容保留与空结果不注入；这类单测只验证格式，不证明模型工具选择。
 候选发布后应分别原样复测共享控制（至少重复运行）、暖缓存摘要组合及画像对照，

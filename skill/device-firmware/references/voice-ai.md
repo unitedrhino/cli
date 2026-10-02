@@ -238,9 +238,16 @@ Opus 解码、播放队列和界面状态。不能用直接注入 STT 文字或�
 | `VOICE-UNIT-002` 固件协议 | 运行 `test_ur_ai_contract`、`test_ur_ai_runtime` | token/respId、乱序、重复、过期、断线、UDP 和 21 类表情 | 每次修改语音固件 |
 | `VOICE-RUNNER-001` 判定器 | 运行 `test_run_ur_ai_e2e` | 成功、乱序、缺阶段、崩溃标记和严格延迟门槛 | 每次修改 runner |
 | `VOICE-SIM-001` 平台基线 | 运行 devicesim workflow（含两种打断路径） | ASR、LLM、TTS、UDP、MCP、多轮和打断 | 平台配置或服务变更后 |
+| `VOICE-SIM-IDLE` 长停顿 | `TestVoiceLongIdleRecovery`，建议 `-count=3` | 完整首轮结束后静置35秒，同session第二轮文本、有声帧、同respId音频起止；不重建会话 | 停顿后无回复或服务变更后 |
 | `VOICE-HW-001` 单轮闭环 | runner `--repeat 1`，固定语料“当前音量多少” | 全部阶段、STT 命中“音量”、七个 RESULT 标志、两项延迟和无致命标记 | 每次测试固件刷写后 |
 | `VOICE-HW-002` 重复稳定性 | runner `--repeat 5` 或更高 | 每轮独立 session、全部通过、各轮原始日志和 JSON | MR 前至少五轮 |
 | `VOICE-MANUAL-001` 硬件验收 | 真人唤醒、说话并观察/听取设备 | 麦克风、唤醒词、扬声器、字幕和表情实物效果 | 发版与现场验收 |
+
+长停顿用例已纳入默认 `shell/devicesim-oneclick-test.sh`。离线判定器
+`TestIdleVoiceReplyEvidence` 用合成消息拒绝只有STT、静音/旧有声点、串轮音频起止及
+过期终态，可竞态十次复测；它不复现实际服务故障。真实平台回归须检查解码有声帧，
+不能用“识别了但没有回复”判通过；通过只定位到平台链路，不代签Watcher麦克风、
+本地VAD、息屏及实际声学行为。环境认证和模型从环境文档注入，不为此改服务配置。
 
 音频资源必须由 devicesim 的同一 MP3→Opus 编码器生成，不手工组帧：
 

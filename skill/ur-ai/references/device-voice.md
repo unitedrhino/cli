@@ -289,6 +289,13 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 600 -- \
 开麦后真实Opus首帧启动并提交、显式监听仍预建连。与ASR失败/恢复和UDP退出清理用例
 一起做竞态十次及完整chat包，再原样执行`TestVoiceCancelDuringTTSThenContinue`；
 本地转绿不等于运行后端已更新，也不能拿普通多轮通过代替取消后继续验收。
+若该修复后原用例仍红，继续检查是谁调用了初始OnListen：UDP路由预热也可能隐式
+调用OnAudioStart，令循环误判已正式开麦。sessionCreate会话的预热只能建立路由，
+不能产生监听意图；未声明显式会话的旧端才保留首包补监听，且不能覆盖先到的开麦参数。
+`TestUDPPrewarmRequiresExplicitAudioStart`与`TestUDPPrewarmLegacyFallback`同步覆盖
+新建/恢复、开麦与预热先后、旧端兼容和空目标；再跑chat/UDP整包及两种真实打断E2E。
+不得删除静音预热、吞供应商错误或让测试忽略internalError来凑绿；过期实例后续恢复
+不能抵消原轮失败。该边界不改变UDP加密报文、不新增HTTP API或数据库字段。
 
 先关联短会话ID，核对UDP接收、解码、VAD送出与ASR送出帧数，以及供应商建连和流内错误。
 送出音频而没有STT不能直接归因于麦克风或网络；供应商数字错误码也不能单独证明额度不足。

@@ -302,8 +302,8 @@ TASK-143 新测试固件支持 `ur_ai_e2e 3`；对应 runner 增加 `--turns 3 -
 音量查询样本不能证明拍照工具可用。新测试固件支持额外的真实语音样本：
 
 ```bash
-python3 firmware/watcher/scripts/run_ur_ai_e2e.py \\
-  --port <serial-port> --fixture take_photo --repeat 5 --timeout 150 \\
+python3 firmware/watcher/scripts/run_ur_ai_e2e.py \
+  --port <serial-port> --fixture take_photo --repeat 5 --timeout 150 \
   --log-dir <repo>/.temp/device-firmware/voice-photo-e2e
 ```
 

@@ -187,6 +187,14 @@ bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
 完整参数及文本增量。它不调用真实LLM，也不模拟设备回执；通过只证明这些固定响应
 正确关联，不能据此宣布供应商工具选择正确或原语音控制E2E转绿。
 
+还须覆盖工具执行后的下一步请求：同一资源入口把`-run`改为
+`^TestModelResponseRuntimeToolRoundTrip$`，竞态重复十次。该用例执行真实工厂、SDK、
+完整`Run`循环及MCP适配器，只在外部供应商/MCP边界使用固定合成读写响应，
+核验读后写的实际调用、原参数、自动会话注入、下一步HTTP的tool结果/调用ID和单次终态，
+同时覆盖同步返回与事件流；不能只调用累积函数就称完整Runtime已执行。
+生产Run可能自动添加系统提示，夹具必须保留并核验，不能关掉装配分支凑预期消息数量。
+这仍不是模型意图识别或设备回执验收；原真实控制用例失败时仍记未解决。
+
 进一步区分ASR措辞和输入通道时，可运行`TestVoiceVolumeRecognizedTextReplay`：
 沿用共享模拟设备、原音频和提示词，取得真实STT后逐字经文字入口发送，并核验控制下行
 和后续属性查询。使用上面的资源入口，把`-run`改为`^TestVoiceVolumeRecognizedTextReplay$`、

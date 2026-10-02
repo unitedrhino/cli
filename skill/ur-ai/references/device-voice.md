@@ -240,6 +240,10 @@ bash shell/converge-watcher-vision.sh --check --control-policy
 正式复跑已有预热查询失败，不能凭后续设置成功或早期少量通过采纳候选。
 先核对失败预热的真实STT长度/摘要及查询语义，再关联上传音频、会话和ASR链路；
 识别输入偏离查询样本时不能直接归因于模型工具策略，不记录对话正文或重跑到全绿。
+回放要求真实STT保留固定查询的对象及查询关键字，否则立即停止后续记忆写入与控制对照；
+`TestWarmVolumeQuerySemanticGuard`覆盖这个输入门禁，但不模拟ASR正确率。
+ASR一次提交可能包含多帧前导缓存，不能把提交批次与UDP帧数差直接当作丢包；
+需要关联实际序号、解码帧数与ASR前PCM，再区分网络、接收队列、VAD和供应商层。
 显式应用使用`--apply --control-policy`及`WATCHER_CONTROL_POLICY_BACKUP_FILE`：
 备份须为受限目录中未占用的绝对路径，仅追加自有SystemPrompt，拒绝冻结继承提示词；
 写前回读与写后配置核验不能替代API原子比较交换。恢复经既有Agent更新API提交备份，

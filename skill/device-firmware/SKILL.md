@@ -46,6 +46,8 @@ description: "Use when bringing a physical device onto 联犀 IoT from zero or m
   [物模型线协议](references/thing-model-wire-protocol.md)。
 - BLE/SoftAP 配网、状态机和失败回退：读
   [配网与绑定](references/provisioning.md)。
+- 圆屏菜单、保留绑定换网、候选配置回滚和小程序联合验收：读
+  [Watcher UI 与换网](references/watcher-ui-network.md)。首次绑定不能代替换网验收。
 - 构建、备份、分区级首刷和真实断电：读
   [构建与烧录](references/build-flash.md)。
 - 固件上传、平台任务、设备 worker、确认与回滚：读

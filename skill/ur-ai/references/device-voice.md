@@ -51,6 +51,11 @@
 脚本或技能中硬编码历史 ID。fuzai 运行环境必须启用内置 MCP、Redis 和 DmRpc；Agent 在
 保留已审核 IoT MCP 的同时显式绑定 fuzai。所有变更走现有 API，不直接写数据库。
 
+服务范围、企业身份、空列表与工具发现的检查见
+`device-firmware/references/photo-vision.md`的“平台与物模型”；平台私有ID可见不等于
+设备企业运行时可加载。模拟模型优先级、无结果轮次及控制工具分层检查见
+`device-firmware/references/voice-ai.md`，不要用默认模型对照未核验的真机配置。
+
 `sessionCreated.supportedModalities` 包含 `image`，并返回当前 session 的短期 `uploadUrl`。
 图片上传成功后有两条等价入口：
 
@@ -108,6 +113,31 @@ bash shell/devicesim-oneclick-test.sh
 保存脱敏的方法序列与阶段耗时。延迟门限建议为 AudioStop 到首个音频帧小于 8 秒、
 STTDone 到 TextDone 小于 15 秒。
 
+### 有声首音与可重复隔离验收
+
+测“用户说完→回复首音”时运行`TestVoiceFirstTurnGreetingReplyHasAudio`，不能用
+`respAudioStart`或首个静音UDP包替代。有声输入结束取最后一个超过RMS阈值的60ms帧，
+回复首音要求连续两个有声解码帧，结果日志标明`endpoint=simulator_decoded_audio`。
+`input_end_to_first_voiced_reply`包含输入尾部静音和audioStop等待；它不包含真实设备
+麦克风、播放缓冲或扬声器声学延迟。现场首字需另用同时录下输入与设备回复的音频测量，
+少量重复结果不报告为P95。
+
+在已授权测试环境加载受限认证后，从SaaS仓库根目录复测；遵循仓库构建位置与资源门禁，
+不把Token、供应商正文或完整MQTT参数打印出来：
+
+```bash
+DEVICESIM_AUDIO_SAMPLE_RATE=16000 bash shell/remote-build.sh run --kind backend --scope backend --timeout 900 -- \
+  bash -lc 'cd backend && go test ./things/tools/devicesim -run "^TestVoiceFirstTurnGreetingReplyHasAudio$" -count=3 -timeout 720s'
+bash shell/remote-build.sh run --kind backend --scope backend --timeout 180 -- \
+  bash -lc 'cd backend && go test -race ./things/tools/devicesim -run "^Test(FirstVoice.*|LastSpeechFrameIndex|FrameRMS|OpusAudioReceiverRequiresConsecutiveSpeechFrames|RepeatedOpusSilenceRemainsSilent|SilenceAfterSpeechRemainsSilent)$" -count=10 -timeout 90s'
+```
+
+该首音用例使用随机产品/Agent前缀，退出时以独立30秒上下文执行`CleanupAll`。
+当前devicesim的`CreatedDevice`是旧引导器的清理策略，自建产品时为false，不代表设备已存在；
+完整清理以本次新建产品和Agent归属为保护条件，不修改公共复用用例或删除历史固定前缀资源。
+清理失败同样算E2E失败。定位失败残留时先核对精确名称、创建窗口和关联关系，再仅回收
+本次资源；空列表可能为null，读取时不能把验证器异常当成删除失败并盲目重复删除。
+
 平台基线通过后，还要在 `firmware/watcher` 运行固件生产协议核心的单元测试与时序回放：
 
 ```bash
@@ -121,6 +151,149 @@ python3 -m unittest \
 表情、session/respId、终态去重和 UDP 帧头代码，并回放多轮、乱序、重复、打断和断线
 旧消息。该协议 E2E 不连接云端，不能替代上面的 devicesim 真实 E2E 或最终真机测试；
 三层结果应分别记录。
+
+排查“识别到控制要求但模型只查询”时，增加模型边界合同测试，不直接清历史或修改提示词：
+
+```bash
+bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
+  bash -lc 'cd backend && go test -race ./core/service/aisvr/internal/domain/llm -run "^(TestTracedTransport.*|TestModelRequest.*|TestMediaGuard.*|TestVisionRouter.*)$" -count=10 -timeout 120s'
+```
+
+该测试使用真实模型工厂、门禁、路由和OpenAI适配器，将固定夹具发送到本地HTTP模拟
+供应商，核验纯文本、查询历史、召回上下文和工具结果之后的消息顺序与工具定义。
+供应商响应是模拟值，不能证明真实模型会选择控制工具，也不能替代失败的原始devicesim
+用例。Runtime模型调用前的摘要仅能证明该边界的输入；不带会话/trace关联的摘要不能
+单独用于跨并发定位。继续核对实际模型配置、MCP清单、工具选择和真实控制回执。
+模型HTTP时序诊断不得预读、关闭或以旧GetBody覆盖当前请求体，不落盘请求JSON；
+正文可能含对话、工具参数及内联图片。旧诊断文件需另行核实留存和删除授权，不清空共享目录。
+旧provider测试若依赖硬编码外部凭据，不借其发起真实调用，也不把所选离线集合称为整包全绿。
+
+`TestModelRequestToolBindingIsolation`从同一工厂衍生无工具、只读工具和写入工具模型，
+经生产包装器并发发送重复请求，核验实际HTTP工具隔离、完整固定请求一致及模型/流式/
+token上限/思考参数。供应商仍为本地固定SSE，不证明真实LLM正确选择工具。
+时序观测也要覆盖竞态：连接复用可能让后台拨号回调晚于RoundTrip返回，回调写入与
+日志读取需要同一同步边界；返回时复制快照后再写日志，不持锁等待网络或读取正文。
+诊断竞态修复与模型选错工具是不同问题，前者转绿不能关闭原真实控制E2E失败。
+
+工具响应的关联还需通过真实SDK和Runtime累积路径核验，而非只看出站请求：
+
+```bash
+bash shell/remote-build.sh run --kind backend --scope backend --timeout 300 -- \
+  bash -lc 'cd backend && go test -race ./core/service/aisvr/internal/domain/agentruntime -run "^TestModelResponseToolCallCorrelation$" -count=10 -timeout 120s'
+```
+
+该用例以本地固定SSE覆盖共享模型并发查询/写入、同一响应两个工具的交错参数分片，
+实际执行模型工厂、门禁、路由、SDK和`streamAndAccumulate`，逐项检查调用ID、工具名、
+完整参数及文本增量。它不调用真实LLM，也不模拟设备回执；通过只证明这些固定响应
+正确关联，不能据此宣布供应商工具选择正确或原语音控制E2E转绿。
+
+还须覆盖工具执行后的下一步请求：同一资源入口把`-run`改为
+`^TestModelResponseRuntimeToolRoundTrip$`，竞态重复十次。该用例执行真实工厂、SDK、
+完整`Run`循环及MCP适配器，只在外部供应商/MCP边界使用固定合成读写响应，
+核验读后写的实际调用、原参数、自动会话注入、下一步HTTP的tool结果/调用ID和单次终态，
+同时覆盖同步返回与事件流；不能只调用累积函数就称完整Runtime已执行。
+生产Run可能自动添加系统提示，夹具必须保留并核验，不能关掉装配分支凑预期消息数量。
+这仍不是模型意图识别或设备回执验收；原真实控制用例失败时仍记未解决。
+
+进一步区分ASR措辞和输入通道时，可运行`TestVoiceVolumeRecognizedTextReplay`：
+沿用共享模拟设备、原音频和提示词，取得真实STT后逐字经文字入口发送，并核验控制下行
+和后续属性查询。使用上面的资源入口，把`-run`改为`^TestVoiceVolumeRecognizedTextReplay$`、
+`-count=1`，包路径改为`./things/tools/devicesim`，测试预算改为240秒。
+语音轮已经控制成功时该诊断明确跳过，跳过不计通过。测试会正常追加会话历史和模拟属性，
+不清理共享历史；文字重放通过后仍须原样复测`TestVoiceVolumeWorkflow`，不能据此关闭
+语音缺陷或认定某条历史记忆是根因。结果分开记录，未经关联的迟到控制不能算重放成功。
+
+上述重放已经在共享Clone追加语音轮，不能单独归因于通道。更严格的对照使用
+`TestVoiceVolumeTextControlAfterQuery`：仅在独占的新资源上取得真实STT，共享设备只做
+查询→逐字文字控制→查询，并回收识别来源。再对照`TestVoiceControlSessionTransition`
+的全新资源场景；若共享文字也失败而隔离通过，应继续检查有效上下文与模型选择，
+不要归因于固件采音，也不能清共享历史、修改提示词或放宽控制门槛来获得通过。
+
+若实际提示的稳定画像不同，可运行`TestVoiceControlStableProfileReplay`（同一资源入口，
+`-count=1`、devicesim包、420秒预算）：只读固定共享模拟资源的画像，内存中经现有
+记忆API写入本次独占分身，空画像与重放画像分别运行原控制流程并自动回收。
+不读取真实用户画像、不输出正文、不改共享历史。标准API也创建来源记录，不能称为
+仅替换系统提示词的纯变量实验；隔离通过只说明在这组新资源条件下未复现，仍须检查
+共享动态召回/历史组合并原样复测失败用例，不能凭画像存在就修改生产过滤规则。
+同一入口可改跑`TestVoiceControlRecallContextReplay`，在独占分身重放来源有效Dream摘要，
+核对后台实际召回及控制下行。它不复制来源ID、历史时间、权重或访问计数，标准API也会
+合并目标画像，所以只是组合对照，不是等价生产快照。记忆轨迹ID可能包含查询正文，
+脱敏须取哈希，不能直接输出或只截短前缀。
+需要覆盖冻结画像与新动态召回时，成对运行
+`TestVoiceControlFrozenRecallContextReplay|TestVoiceControlFrozenProfileReplay`：
+先用完整语音查询预热，再分别写入摘要或不写；核对实际控制轮画像块哈希，而非仅回读
+持久化画像。预热增加短时原文，摘要API也改变中间文字查询画像，所以仍不属于纯变量
+实验。摘要记录可能正文重复，实际格式化去重后的条数才是注入条数；红色复现必须保留，
+不得用刷新缓存、清历史或隔离对照通过替代原共享失败的修复。
+
+需要对照助手“查询不等于执行”的业务规则时，使用独立具名用例
+`TestVoiceControlCompletionPolicyFrozenReplay`，不要替换原共享用例的提示词：
+
+```bash
+DEVICESIM_AUDIO_SAMPLE_RATE=16000 bash shell/remote-build.sh run --kind backend --scope backend --timeout 600 -- \
+  bash -lc 'cd backend && go test ./things/tools/devicesim -run "^TestVoiceControlCompletionPolicyFrozenReplay$" -count=3 -timeout 480s'
+bash shell/converge-watcher-vision.sh --check --control-policy
+```
+
+隔离用例与配置脚本共用`testdata/control_completion_policy.txt`，仍保留原音频、
+预热查询、45秒实际下行及后续属性查询；它是待验收的配置候选，不默认应用。
+若复跑出现预热查询失败，不能凭后续设置成功或早期少量通过采纳候选。
+先核对失败预热的真实STT长度/摘要及查询语义，再关联上传音频、会话和ASR链路；
+识别输入偏离查询样本时不能直接归因于模型工具策略，不记录对话正文或重跑到全绿。
+回放要求真实STT保留固定查询的对象及查询关键字，否则立即停止后续记忆写入与控制对照；
+`TestWarmVolumeQuerySemanticGuard`覆盖这个输入门禁，但不模拟ASR正确率。
+ASR一次提交可能包含多帧前导缓存，不能把提交批次与UDP帧数差直接当作丢包；
+需要关联实际序号、解码帧数与ASR前PCM，再区分网络、接收队列、VAD和供应商层。
+显式应用使用`--apply --control-policy`及`WATCHER_CONTROL_POLICY_BACKUP_FILE`：
+备份须为受限目录中未占用的绝对路径，仅追加自有SystemPrompt，拒绝冻结继承提示词；
+写前回读与写后配置核验不能替代API原子比较交换。恢复经既有Agent更新API提交备份，
+先确认没有后续他人编辑。规则单测为`TestDeviceControlCompletionPolicy`，
+脚本回归为`bash shell/test-converge-watcher-vision.sh`；Mock通过不等于实际语音通过。
+
+测试助手人设通过后，仍需检查实际助手自有人设与候选的组合。使用当前助手所属组织的
+认证，显式设置`DEVICESIM_CONTROL_POLICY_SOURCE_AGENT_ID=<来源助手ID>`及匹配的
+`DEVICESIM_LLM_CONFIG_ID=<实际模型配置ID>`，运行
+`TestVoiceControlConfiguredAgentPromptPolicy`。它只读来源身份、模型与自有人设，保留
+原文追加同一规则，在独占模拟设备执行查询→语音设置→真实下行→上报后查询，并清理
+新建集合；不更新来源，不复制分组、历史或全部MCP绑定，不代签真实设备控制。
+未指定来源时跳过，不能把该跳过计作通过；`TestConfiguredAgentPolicyPrompt`覆盖身份、
+模型、继承人设拒绝、逐字保留及重复规则边界。规则在测试环境应用后仍须回读配置，
+再通过真实设备当前会话、实际状态与后续上报验证，不以候选人设的小样本通过关闭原失败。
+
+召回格式调整需先用`TestFormatPromptMemoryContext`覆盖背景不冒充系统指令、当前请求及
+授权优先、原内容保留与空结果不注入；这类单测只验证格式，不证明模型工具选择。
+候选发布后应分别原样复测共享控制（至少重复运行）、暖缓存摘要组合及画像对照，
+并保留冷启动矩阵回归。共享用例重复通过而暖缓存组合仍失败时，只能记局部改善；
+进程重启可能改变工具数组次序，须同时核验集合与有序指纹，不能据一次通过确认根因。
+
+重放摘要时先通过现有`memoryKind=dreamSummary`、`status=1`服务端过滤，再校验总数及
+分页ID唯一性。列表按更新时间排序时，无关记录的后台访问可能移动跨页边界；准备阶段的
+重复ID失败不等于控制失败，也不得静默丢弃重复项后宣称读取完整。过滤后的来源内容须与
+原目标集合一致，保留原失败记录后复测，不修改平台接口或共享摘要。
+
+画像已成功写入但设备仍读旧值时，检查写入路径是否调用已有设备快照失效通知。
+`TestMemoryCreateRefreshesDeviceSnapshot`经真实记忆创建logic及数据库覆盖预热→写入→
+voice/MQTT回读，并保留HTTP同会话冻结及其他分身隔离断言（包为
+`./core/service/aisvr/internal/logic/ai/clone/memory`）。只在成功写入后定向失效是缓存一致性
+修复，不等于为通过测试手工清缓存；不得移除历史或放宽原控制断言，也不能以该单测
+证明暖缓存组合的真实模型工具选择已恢复。
+
+核对工具时注意：当前`/api/v1/ai/mcp/tools/get-tools`读取企业启用服务的缓存工具清单，
+实现未按`sessionID`筛选，也不返回Runtime实际绑定的完整参数Schema。两会话该响应
+相同不能证明装配相同；应结合Runtime的服务绑定、实时`tools/list`与实际工具调用取证。
+启用无正文Runtime诊断时，用会话哈希关联`agentruntime.input/tools`：仅在
+`fingerprint_valid=true`时比较数量及`set_hash`；集合摘要相同、有序摘要不同只说明
+工具数组次序不同。指纹覆盖实际`WithTools`的名称、描述与参数定义（含前端工具），
+不输出原文，但它仍不是供应商实际HTTP请求证明；诊断未部署时不能拿本地单测替代运行取证。
+音频相同也不保证STT相同；跨场景对照先在内存比较真实STT并仅记录长度/哈希/相等性。
+
+当前文本、工具和系统提示相同仍不能排除短时历史或动态召回差异。启用
+`agentruntime.context/context_message`时先核验诊断已部署；它用同一会话哈希记录纯文本首轮的序列及逐消息
+角色、长度和摘要；只有`valid=true`才可比较。该诊断最多64条、50000字节，含媒体、
+工具字段、扩展元数据或超限时整体跳过，不保存正文、不读取HTTP请求体、不修改输入。
+先定位变化的消息，再按装配来源核对，不能仅凭位置猜测因果；摘要相同也不涵盖模型
+配置、供应商转换或采样行为。离线用`TestPlainContextSummary`系列覆盖边界、隐私和
+真实Run模型边界（agentruntime包，竞态十次），再原样复测失败E2E；诊断通过不是修复。
 
 真机云端音频闭环应使用
 `firmware/watcher/scripts/run_ur_ai_e2e.py --port <serial-port> --repeat 5 --timeout 75`。
@@ -154,3 +327,54 @@ MQTT、UDP、ASR、LLM 和 TTS。每轮必须看到完整方法序列、播放�
 audioStop 后若识别结果仍在 hold、队列或记忆准备阶段，不能因为 LLM/TTS 尚未启动
 就关闭父 context。回复工作从入队前计数，到消费结束释放；计数按 loop 隔离，
 空 Final/关闭通道不得越过待处理回复直接退出，超时与用户关闭仍须能够释放资源。
+
+### 前段语音已播，工具返回后一直等待
+
+先关联同一 session/respId，区分“合成前模型等待五秒”和“首帧之后三秒帧间超时”。
+已有真实音频后，工具执行与后续模型待输入可能暂时没有可合成文本，不能把它判为
+供应商停滞。使用本轮独占等待状态及时通知播放循环；收到有效文本或输入结束后恢复
+原帧间预算，等待仍受请求取消约束，不按工具名称、图片私有字段或固定提示词判断。
+真正TTS失败不能伪造respAudioDone，应通过既有error关联当前respId及时结束设备等待，
+固定提示不得包含供应商错误正文。旧轮取消不向新轮反馈错误。
+
+从SaaS根目录运行确定性事件/音频回归（无真实模型和相机），再做平台和真机复测：
+
+```bash
+bash shell/remote-build.sh run --kind backend --scope backend --timeout 600 -- \
+  bash -lc 'cd backend && go test -race ./core/service/aisvr/internal/domain/chat -run "^Test(TTSInputWaitTransitions|AudioPacingToolWaitCancel|ConsumeStreamEvents_(ToolWait.*|ReliableFailureExplicitError))$" -count=10 -timeout 180s'
+```
+
+失败用例必须先证明前段实际已发送、工具等待超过原预算、后段文字仍完整但音频丢失；
+修复后同时断言前后音频、单次开始/正常完成。负例覆盖重复通知、跨轮隔离、取消、
+输入结束后真实停滞与明确失败。随后原样重复TestVoiceTakePhotoEndToEnd及真机串口
+拍照，要求真实有声帧与同轮终态；单测转绿、只有文字或首帧都不能关闭整机缺陷。
+
+### ASR报错但设备一直等待
+
+若是建立会话后先播放文字回复、再取消播报开麦，先比对ASR建连与audioStart时间。
+豆包`45000081`表示等包超时，不能当作额度不足；仅建立会话/播放文字或图片回复时
+不应提前消耗识别连接预算。显式监听保留首句预建连，尚未开麦则沿用有效音频首帧懒启动，
+不得吞掉真正识别失败或提高供应商超时来掩盖生命周期错误。
+`TestVoiceLoopASRStartsOnlyWhenListening`同步断言生产ASR句柄：未开麦时不启动、
+开麦后真实Opus首帧启动并提交、显式监听仍预建连。与ASR失败/恢复和UDP退出清理用例
+一起做竞态十次及完整chat包，再原样执行`TestVoiceCancelDuringTTSThenContinue`；
+本地转绿不等于运行后端已更新，也不能拿普通多轮通过代替取消后继续验收。
+若该修复后原用例仍红，继续检查是谁调用了初始OnListen：UDP路由预热也可能隐式
+调用OnAudioStart，令循环误判已正式开麦。sessionCreate会话的预热只能建立路由，
+不能产生监听意图；未声明显式会话的旧端才保留首包补监听，且不能覆盖先到的开麦参数。
+`TestUDPPrewarmRequiresExplicitAudioStart`与`TestUDPPrewarmLegacyFallback`同步覆盖
+新建/恢复、开麦与预热先后、旧端兼容和空目标；再跑chat/UDP整包及两种真实打断E2E。
+不得删除静音预热、吞供应商错误或让测试忽略internalError来凑绿；过期实例后续恢复
+不能抵消原轮失败。该边界不改变UDP加密报文、不新增HTTP API或数据库字段。
+
+先关联短会话ID，核对UDP接收、解码、VAD送出与ASR送出帧数，以及供应商建连和流内错误。
+送出音频而没有STT不能直接归因于麦克风或网络；供应商数字错误码也不能单独证明额度不足。
+识别层的错误不能只关闭结果通道：应通过既有`error/internalError`反馈固定提示，屏蔽供应商
+原始正文，并忽略取消上下文及过期识别实例。后续音频保留原识别重启和通道关闭所有权。
+
+离线回归运行chat包的`TestASRFailureNotifiesDevice`、
+`TestASRFailureIgnoresCancelledAndStaleRun`、`TestASRFailureRecoversOnNextAudio`，
+覆盖建连失败、流内错误、取消/旧轮隔离和同会话新Opus帧恢复识别及文字回复；通过资源入口
+分别重复十次、运行竞态检测及完整chat包。这些用例使用供应商/LLM/TTS替身，不代替真实
+平台和设备稳定性验收。真实测试仍要求完整STT、文字、音频和播放终态，收到错误提示不能
+算成功对话；保留原失败窗口，不因错误现在可见就放宽门禁或将新窗口与旧窗口拼接。

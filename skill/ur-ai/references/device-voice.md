@@ -85,6 +85,28 @@
 物模型下行、设备 `controlReply/actionReply`、真实状态变化和后续属性上报。仅有模型文本
 或 toolCallResult 不代表设备执行成功。
 
+## 物模型 AI 开放范围
+
+只有物模型 `isCanSceneLinkage=1` 的能力开放给设备 AI；`2`（关闭）、`0`（未明确开启）
+和未知值均不开放。先聚合设备与产品定义，再过滤，设备级关闭优先于产品级开启。
+只读属性可以查询但不能写入，上行行为不可下发。普通 App 的完整物模型及现有管理权限
+不因此删除或收紧。
+
+排查“AI 不知道某个属性/行为”时，核对产品与设备覆盖项的开关、当前会话提示词、
+`get_thing_model` 返回范围和实际工具执行回执。修改开关后重新开始会话以刷新提示词；
+不能仅在提示词中隐藏，属性读取、属性控制和行为下发也要使用同一开放范围。
+物模型查询失败必须拒绝执行；读取空列表只能查询已开放属性，空白名单不能变成全量查询。
+fuzai `deviceTakePhoto` 也须校验聚合物模型中的 `takePhoto`，MCP 工具名注册可见不代表
+当前设备行为已授权；双击拍照的本地用户操作不由 AI 工具开放开关决定。
+
+修改过滤逻辑时先跑失败用例，再验证 `TestForAISceneLinkage`、
+`TestForAIKeepsDeviceOverride`、`TestSchemaSceneLinkageRoundTrip`、
+`TestTSLPromptSceneLinkage`、`TestMCPSceneLinkageIntegration` 和
+`TestTakePhotoSceneLinkageIntegration`。MCP 集成用真实 HTTP 工具路由、内存 Redis 和
+公共 RPC mock 覆盖开启/关闭/未配置、设备覆盖、只读、上行、查询失败及空白名单；
+断言关闭项未进入模型结果、敏感值未泄漏、禁止项没有实际 RPC 下发。
+这些模拟验证不能替代真机拍照、语音和控制回执验收。
+
 ## 基线验证
 
 先运行 devicesim，不通过时禁止用刷固件来试错：

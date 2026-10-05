@@ -133,6 +133,17 @@ build_for_arch() {
   mkdir -p "${api_skill_dir}/references"
   cp -R "${ROOT}/references/." "${api_skill_dir}/references/"
 
+  # 手写调试指南不由 Swagger 生成，分发时保留正文并补一个幂等导航入口。
+  cp "${ROOT}/skill/references/client-debug.md" "${api_skill_dir}/references/client-debug.md"
+  if ! grep -Fq '(references/client-debug.md)' "${api_skill_dir}/SKILL.md"; then
+    cat >> "${api_skill_dir}/SKILL.md" <<'CLIENT_DEBUG'
+
+## 客户端实时调试
+
+先读[客户端调试 AI 流程](references/client-debug.md)。本次会话一次授权，后续白名单动作不再弹窗；逐条核对执行结果，用户可通过控制标识立即取消，结束时关闭流。
+CLIENT_DEBUG
+  fi
+
   # 各子 skill references 顶层的手写操作指南（如 ur-org-manage 的 flow-approval.md）
   # 不由 generate-skills 生成（生成器只写 groups/、*-index 与 SKILL.md），必须随包分发，
   # 否则 SKILL.md 速查表的指引链接会指向不存在的文件。

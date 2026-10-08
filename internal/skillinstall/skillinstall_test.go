@@ -12,7 +12,7 @@ func makeFakeSource(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
 	mustWrite(t, filepath.Join(dir, "SKILL.md"), "---\nname: ur-api\n---\n")
-	mustWrite(t, filepath.Join(dir, "ur-view", "SKILL.md"), "---\nname: ur-view\n---\n")
+	mustWrite(t, filepath.Join(dir, "ur-view", "SKILL.md"), "---\nname: ur-view\n---\n# 大屏指南\n")
 	mustWrite(t, filepath.Join(dir, "_meta.json"), `{"version":"v0.4.0"}`)
 	return dir
 }
@@ -167,9 +167,18 @@ func TestInstall_CopyAndPreserveOthers(t *testing.T) {
 	}
 
 	dest := filepath.Join(home, ".claude", "skills", "ur-api")
-	for _, f := range []string{"SKILL.md", "ur-view/SKILL.md", "_meta.json"} {
+	for _, f := range []string{"SKILL.md", "ur-view/GUIDE.md", "_meta.json"} {
 		if _, err := os.Stat(filepath.Join(dest, f)); err != nil {
 			t.Errorf("ur-api/%s should exist: %v", f, err)
+		}
+	}
+	// 聚合形态：子域 SKILL.md 不落盘，GUIDE.md 剥离 frontmatter 后只含正文
+	if _, err := os.Stat(filepath.Join(dest, "ur-view", "SKILL.md")); err == nil {
+		t.Error("ur-api/ur-view/SKILL.md should be demoted to GUIDE.md")
+	}
+	if data, err := os.ReadFile(filepath.Join(dest, "ur-view", "GUIDE.md")); err == nil {
+		if len(data) == 0 || data[0] == '-' {
+			t.Errorf("ur-view/GUIDE.md should strip frontmatter, got %q", data)
 		}
 	}
 	// 其他 AI 自有 skill 保留

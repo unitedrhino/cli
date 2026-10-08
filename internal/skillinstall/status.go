@@ -80,7 +80,9 @@ type StatusResult struct {
 
 // InspectTargets 比较内置 Skills 与各目标中的 ur-api，定位旧版和不完整副本。
 func InspectTargets(src string, targets []Target) (*StatusResult, error) {
-	sourceFiles, err := treeSignatures(src)
+	// 源侧按安装形态计算签名：子域 SKILL.md 转换为 GUIDE.md 后再比较，
+	// install 写入目标的内容与此口径一致，status 才能判定 current。
+	sourceFiles, err := treeSignatures(src, true)
 	if err != nil {
 		return nil, fmt.Errorf("读取内置 Skills 失败: %w", err)
 	}
@@ -101,7 +103,7 @@ func InspectTargets(src string, targets []Target) (*StatusResult, error) {
 		// 残留检测对所有状态生效：即使 ur-api 本身正常（甚至缺失），
 		// 同级的备份目录也会被 AI 客户端注册成重复技能。
 		status.DuplicateDirs = FindDuplicateDirs(target.Path)
-		targetFiles, targetErr := treeSignatures(destination)
+		targetFiles, targetErr := treeSignatures(destination, false)
 		if os.IsNotExist(targetErr) {
 			result.Targets = append(result.Targets, status)
 			continue
@@ -184,7 +186,9 @@ func readVersion(root string) string {
 }
 
 // treeSignatures 计算目录下每个普通文件的 SHA-256，用于完整性对比。
-func treeSignatures(root string) (map[string]string, error) {
+// applyAggregate 为 true 时先按安装形态转换（子域 SKILL.md → GUIDE.md 并
+// 剥离 frontmatter），使源侧签名与 install 写入目标的内容可直接比较。
+func treeSignatures(root string, applyAggregate bool) (map[string]string, error) {
 	info, err := os.Stat(root)
 	if err != nil {
 		return nil, err
@@ -220,7 +224,18 @@ func treeSignatures(root string) (map[string]string, error) {
 		if closeErr != nil {
 			return closeErr
 		}
-		signatures[filepath.ToSlash(relative)] = hex.EncodeToString(hash.Sum(nil))
+		installedKey := filepath.ToSlash(relative)
+		if applyAggregate && isAggregatable(installedKey) {
+			data, readErr := os.ReadFile(path)
+			if readErr != nil {
+				return readErr
+			}
+			transformedKey, content := transformAggregate(installedKey, data)
+			sum := sha256.Sum256(content)
+			signatures[transformedKey] = hex.EncodeToString(sum[:])
+			return nil
+		}
+		signatures[installedKey] = hex.EncodeToString(hash.Sum(nil))
 		return nil
 	})
 	return signatures, err

@@ -4,7 +4,6 @@ package skillinstall
 import (
 	"archive/zip"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -81,27 +80,29 @@ func ExportZIP(src, output string) (*ExportResult, error) {
 		if err != nil {
 			return err
 		}
+		// 聚合形态：子域 SKILL.md 降级为 GUIDE.md（剥离 frontmatter），
+		// 导入平台后同样只注册顶层 ur-api 一个技能
+		installedRel := installedRelPath(relative)
+		aggregate := isAggregatable(filepath.ToSlash(relative))
 		header, err := zip.FileInfoHeader(info)
 		if err != nil {
 			return err
 		}
-		header.Name = "ur-api/" + filepath.ToSlash(relative)
+		header.Name = "ur-api/" + filepath.ToSlash(installedRel)
 		header.Method = zip.Deflate
 		writer, err := archive.CreateHeader(header)
 		if err != nil {
 			return err
 		}
-		file, err := os.Open(path)
+		data, err := os.ReadFile(path)
 		if err != nil {
 			return err
 		}
-		_, copyErr := io.Copy(writer, file)
-		closeErr := file.Close()
-		if copyErr != nil {
-			return copyErr
+		if aggregate {
+			_, data = transformAggregate(filepath.ToSlash(relative), data)
 		}
-		if closeErr != nil {
-			return closeErr
+		if _, writeErr := writer.Write(data); writeErr != nil {
+			return writeErr
 		}
 		files++
 		return nil

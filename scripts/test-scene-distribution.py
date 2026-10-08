@@ -41,35 +41,42 @@ class SceneDistributionTest(unittest.TestCase):
         for name, content in self.payloads.items():
             self.write(self.root / 'skill/ur-view' / name, content)
         # 设备固件是非 Swagger 手写技能，入口与全部参考资料都必须逐字节分发。
-        firmware_root = ROOT / 'skill/device-firmware'
+        firmware_root = ROOT / 'skill/ur-iot/device-firmware'
         self.firmware_payloads = {
             str(path.relative_to(firmware_root)): path.read_bytes()
             for path in firmware_root.rglob('*') if path.is_file()
         }
         for name, content in self.firmware_payloads.items():
-            self.write(self.root / 'skill/device-firmware' / name, content)
+            self.write(self.root / 'skill/ur-iot/device-firmware' / name, content)
         # OTA 的 API 参考可生成，但平台工作流入口是手写内容，整个目录必须完整分发。
-        ota_root = ROOT / 'skill/ur-ota'
+        ota_root = ROOT / 'skill/ur-iot/ur-ota'
         self.ota_payloads = {
             str(path.relative_to(ota_root)): path.read_bytes()
             for path in ota_root.rglob('*') if path.is_file()
         }
         for name, content in self.ota_payloads.items():
-            self.write(self.root / 'skill/ur-ota' / name, content)
-        self.write(self.root / 'skill/SKILL.md', '# 统一技能\n')
+            self.write(self.root / 'skill/ur-iot/ur-ota' / name, content)
+        self.write(self.root / 'skill/SKILL.md',
+                   '# 统一技能\n[调试](references/client-debug.md)\n'
+                   '[控制](ur-iot/ur-device/references/device-control.md)\n'
+                   '[大屏技能](ur-view/SKILL.md)\n'
+                   '[设备固件技能](ur-iot/device-firmware/SKILL.md)\n'
+                   '[语音](ur-ai/references/device-voice.md)\n'
+                   '[OTA 管理技能](ur-iot/ur-ota/SKILL.md)\n')
+        self.write(self.root / 'skill/references/quick-reference.md', '# 通用速查\n')
         self.write(self.root / 'references/README.md', '# API 参考\n')
         # 客户端调试指南是手写根引用，Swagger 生成不会自动补齐。
         self.debug_guide = (ROOT / 'skill/references/client-debug.md').read_bytes()
         self.write(self.root / 'skill/references/client-debug.md', self.debug_guide)
         # 真实手写指南使用 persona 约定的域级路径，不能只依赖扁平兼容副本。
-        self.guide = (ROOT / 'skill/ur-device/references/device-control.md').read_bytes()
-        self.write(self.root / 'skill/ur-device/references/device-control.md', self.guide)
+        self.guide = (ROOT / 'skill/ur-iot/ur-device/references/device-control.md').read_bytes()
+        self.write(self.root / 'skill/ur-iot/ur-device/references/device-control.md', self.guide)
         self.ai_voice_guide = (ROOT / 'skill/ur-ai/references/device-voice.md').read_bytes()
         self.write(self.root / 'skill/ur-ai/references/device-voice.md', self.ai_voice_guide)
-        self.photo_guide = (ROOT / 'skill/device-firmware/references/photo-vision.md').read_bytes()
-        self.write(self.root / 'skill/ur-device/references/shared.md', '设备同名指南\n')
-        self.write(self.root / 'skill/ur-product/references/shared.md', '产品同名指南\n')
-        self.write(self.root / 'references/quick-reference.md', (ROOT / 'references/quick-reference.md').read_bytes())
+        self.photo_guide = (ROOT / 'skill/ur-iot/device-firmware/references/photo-vision.md').read_bytes()
+        self.write(self.root / 'skill/ur-iot/ur-device/references/shared.md', '设备同名指南\n')
+        self.write(self.root / 'skill/ur-iot/ur-product/references/shared.md', '产品同名指南\n')
+        self.write(self.root / 'references/quick-reference.md', (self.root / 'skill/references/quick-reference.md').read_bytes())
         self.write(self.root / 'npm-package/package.json', (ROOT / 'npm-package/package.json').read_text())
         self.write(self.root / 'scripts/package-skill.sh', (ROOT / 'scripts/package-skill.sh').read_text())
 
@@ -131,90 +138,65 @@ else:
             self.assertEqual((api_root / 'references/client-debug.md').read_bytes(), self.debug_guide)
             self.assertEqual((api_root / 'SKILL.md').read_text()
                              .count('(references/client-debug.md)'), 1)
-            self.assert_firmware_tree(api_root / 'device-firmware')
-            self.assert_ota_tree(api_root / 'ur-ota')
-            self.assertEqual((api_root / 'ur-device/references/device-control.md').read_bytes(), self.guide)
+            self.assert_firmware_tree(api_root / 'ur-iot/device-firmware')
+            self.assert_ota_tree(api_root / 'ur-iot/ur-ota')
+            self.assertEqual((api_root / 'ur-iot/ur-device/references/device-control.md').read_bytes(), self.guide)
             self.assertEqual((api_root / 'ur-ai/references/device-voice.md').read_bytes(),
                              self.ai_voice_guide)
-            self.assertEqual((api_root / 'device-firmware/references/photo-vision.md').read_bytes(),
+            self.assertEqual((api_root / 'ur-iot/device-firmware/references/photo-vision.md').read_bytes(),
                              self.photo_guide)
-            self.assertEqual((api_root / 'ur-device/references/shared.md').read_text(), '设备同名指南\n')
-            self.assertEqual((api_root / 'ur-product/references/shared.md').read_text(), '产品同名指南\n')
-            self.assertEqual((api_root / 'SKILL.md').read_text().count('(ur-device/references/device-control.md)'), 1)
+            self.assertEqual((api_root / 'ur-iot/ur-device/references/shared.md').read_text(), '设备同名指南\n')
+            self.assertEqual((api_root / 'ur-iot/ur-product/references/shared.md').read_text(), '产品同名指南\n')
+            self.assertEqual((api_root / 'SKILL.md').read_text().count('(ur-iot/ur-device/references/device-control.md)'), 1)
             self.assertFalse((api_root / 'references/references').exists())
             self.assertEqual((api_root / 'references/quick-reference.md').read_bytes(),
-                             (ROOT / 'references/quick-reference.md').read_bytes())
+                             (self.root / 'skill/references/quick-reference.md').read_bytes())
             self.assertFalse((output / 'x64-linux/skill/ur-api/ur-view/ur-view').exists())
             self.assertEqual((output / 'x64-linux/skill/ur-api/SKILL.md').read_text()
                              .count('[大屏技能](ur-view/SKILL.md)'), 1)
             self.assertEqual((api_root / 'SKILL.md').read_text()
-                             .count('[设备固件技能](device-firmware/SKILL.md)'), 1)
+                             .count('[设备固件技能](ur-iot/device-firmware/SKILL.md)'), 1)
             self.assertEqual((api_root / 'SKILL.md').read_text()
                              .count('(ur-ai/references/device-voice.md)'), 1)
             self.assertEqual((api_root / 'SKILL.md').read_text()
-                             .count('[OTA 管理技能](ur-ota/SKILL.md)'), 1)
+                             .count('[OTA 管理技能](ur-iot/ur-ota/SKILL.md)'), 1)
         # --dry-run 不生成归档或上传；--ignore-scripts 避免运行 npm 发布构建。
         result = subprocess.run(['npm', 'pack', '--dry-run', '--json', '--ignore-scripts'],
                                 cwd=self.root / 'npm-package', check=True, capture_output=True, text=True)
         files = {entry['path'] for entry in json.loads(result.stdout)[0]['files']}
         self.assertIn('ur-api/references/client-debug.md', files)
-        self.assertIn('ur-api/ur-device/references/device-control.md', files)
+        self.assertIn('ur-api/ur-iot/ur-device/references/device-control.md', files)
         self.assertIn('ur-api/ur-ai/references/device-voice.md', files)
-        self.assertIn('ur-api/device-firmware/references/photo-vision.md', files)
-        self.assertIn('ur-api/ur-product/references/shared.md', files)
+        self.assertIn('ur-api/ur-iot/device-firmware/references/photo-vision.md', files)
+        self.assertIn('ur-api/ur-iot/ur-product/references/shared.md', files)
         for name in self.firmware_payloads:
-            self.assertIn('ur-api/device-firmware/' + name, files, f'npm 包漏掉 {name}')
+            self.assertIn('ur-api/ur-iot/device-firmware/' + name, files, f'npm 包漏掉 {name}')
         for name in self.ota_payloads:
-            self.assertIn('ur-api/ur-ota/' + name, files, f'npm 包漏掉 OTA 文件 {name}')
+            self.assertIn('ur-api/ur-iot/ur-ota/' + name, files, f'npm 包漏掉 OTA 文件 {name}')
         for name in self.payloads:
             # npm 固定排除 Git 忽略规则；它不属于运行、复制或打包所需源码。
             if Path(name).name == '.gitignore':
                 continue
             self.assertIn('ur-api/ur-view/' + name, files, f'npm 包漏掉 {name}')
 
-    def test_existing_scene_directory(self):
-        """对已存在的技能输出连续执行实际复制段，防止目录嵌套和重复导航。"""
+    def test_existing_group_directory(self):
+        """连续复制实际完整技能段，验证组内资源与生成索引保留且路径不嵌套。"""
         script = (ROOT / 'scripts/package-skill.sh').read_text()
-        begin = script.index('  # Swagger 导出不包含手写场景模板')
+        begin = script.index('  # 完整分发五组技能树')
         end = script.index('  # 保留顶层 SKILL.md', begin)
         destination = self.root / 'existing/ur-api'
-        self.write(destination / 'SKILL.md', '# API 索引\n')
-        self.write(destination / 'ur-view/preserved.txt', '已有其它内容\n')
+        self.write(destination / 'references/generated-index.md', '保留生成索引\n')
         command = 'ROOT="$1"; api_skill_dir="$2"\n' + script[begin:end]
         for _ in range(2):
-            subprocess.run(['bash', '-c', command, 'scene-distribution', str(self.root), str(destination)],
+            subprocess.run(['bash', '-c', command, 'group-distribution', str(self.root), str(destination)],
                            check=True, capture_output=True, text=True)
             self.assert_tree(destination / 'ur-view')
-            self.assertFalse((destination / 'ur-view/ur-view').exists())
-            self.assertEqual((destination / 'SKILL.md').read_text().count('[大屏技能](ur-view/SKILL.md)'), 1)
-            self.assertEqual((destination / 'ur-view/preserved.txt').read_text(), '已有其它内容\n')
-
-    def test_existing_reference_directory(self):
-        """已有导出目录重复同步时保留生成索引，且路径不嵌套、导航不重复。"""
-        script = (ROOT / 'scripts/package-skill.sh').read_text()
-        begin = script.index('  mkdir -p "${api_skill_dir}/references"')
-        end = script.index('  # Swagger 导出不包含手写场景模板', begin)
-        destination = self.root / 'existing-references/ur-api'
-        self.write(destination / 'SKILL.md', '# API 索引\n')
-        self.write(destination / 'references/generated-index.md', '保留生成索引\n')
-        command = 'ROOT="$1"; api_skill_dir="$2"\ncopy_references() {\n' + script[begin:end] + '\n}\ncopy_references'
-        for _ in range(2):
-            subprocess.run(['bash', '-c', command, 'reference-distribution', str(self.root), str(destination)],
-                           check=True, capture_output=True, text=True)
-            self.assertEqual((destination / 'ur-device/references/device-control.md').read_bytes(), self.guide)
-            self.assertEqual((destination / 'ur-ai/references/device-voice.md').read_bytes(),
-                             self.ai_voice_guide)
+            self.assert_firmware_tree(destination / 'ur-iot/device-firmware')
+            self.assert_ota_tree(destination / 'ur-iot/ur-ota')
             self.assertEqual((destination / 'references/generated-index.md').read_text(), '保留生成索引\n')
-            self.assertFalse((destination / 'references/references').exists())
-            self.assertEqual((destination / 'SKILL.md').read_text().count('(ur-device/references/device-control.md)'), 1)
-            self.assert_firmware_tree(destination / 'device-firmware')
-            self.assert_ota_tree(destination / 'ur-ota')
-            self.assertEqual((destination / 'SKILL.md').read_text()
-                             .count('[设备固件技能](device-firmware/SKILL.md)'), 1)
-            self.assertEqual((destination / 'SKILL.md').read_text()
-                             .count('(ur-ai/references/device-voice.md)'), 1)
-            self.assertEqual((destination / 'SKILL.md').read_text()
-                             .count('[OTA 管理技能](ur-ota/SKILL.md)'), 1)
+            self.assertFalse((destination / 'ur-iot/device-firmware/device-firmware').exists())
+            self.assertEqual((destination / 'SKILL.md').read_bytes(),
+                             (self.root / 'skill/SKILL.md').read_bytes())
 
     def test_release_copy(self):
         """执行 release.sh 的实际共享复制函数，覆盖平台包和独立 skills ZIP 的资源来源。"""
@@ -227,9 +209,9 @@ else:
                        check=True, capture_output=True, text=True)
         self.assert_tree(destination / 'ur-view')
         self.assertEqual((destination / 'references/client-debug.md').read_bytes(), self.debug_guide)
-        self.assert_firmware_tree(destination / 'device-firmware')
-        self.assert_ota_tree(destination / 'ur-ota')
-        self.assertEqual((destination / 'ur-device/references/device-control.md').read_bytes(), self.guide)
+        self.assert_firmware_tree(destination / 'ur-iot/device-firmware')
+        self.assert_ota_tree(destination / 'ur-iot/ur-ota')
+        self.assertEqual((destination / 'ur-iot/ur-device/references/device-control.md').read_bytes(), self.guide)
         self.assertEqual((destination / 'ur-ai/references/device-voice.md').read_bytes(),
                          self.ai_voice_guide)
 
@@ -249,20 +231,20 @@ else:
 
     def test_device_intent_reference_contract(self):
         """验证两种发行入口的导航和模拟控制合同没有回退到旧样例。"""
-        guide = (ROOT / 'skill/ur-device/references/device-control.md').read_text()
+        guide = (ROOT / 'skill/ur-iot/ur-device/references/device-control.md').read_text()
         for expected in ('--shadow-control 4', '/api/v1/things/device/simulate/report',
                          '`--data` 的属性值必须是字符串', 'proc.exited', '--project-id',
                          '先按意图区分'):
             self.assertIn(expected, guide)
-        for relative in ('references/quick-reference.md', 'skill/references/quick-reference.md'):
-            self.assertIn('../ur-device/references/device-control.md', (ROOT / relative).read_text())
-        self.assertIn('(ur-device/references/device-control.md)', (ROOT / 'skill/SKILL.md').read_text())
+        for relative in ('skill/references/quick-reference.md',):
+            self.assertIn('../ur-iot/ur-device/references/device-control.md', (ROOT / relative).read_text())
+        self.assertIn('(ur-iot/ur-device/references/device-control.md)', (ROOT / 'skill/SKILL.md').read_text())
 
     def test_manual_device_ai_navigation_generator(self):
         """生成型技能的语音和视觉指南入口必须可重入，且链接指向真实文件。"""
         skill_root = self.root / 'generated-navigation'
         for domain in ('ur-ai', 'ur-device-debug', 'ur-product'):
-            self.write(skill_root / domain / 'SKILL.md', '# 测试技能\n\n## 典型业务场景\n')
+            self.write(skill_root / ('ur-iot/' + domain if domain in ('ur-device-debug', 'ur-product') else domain) / 'SKILL.md', '# 测试技能\n\n## 典型业务场景\n')
         generator = ROOT / 'scripts/generate-api-lists.py'
         command = ['python3', str(generator), '--manual-guides-only', '--skill-dir', str(skill_root)]
         subprocess.run(command, check=True, capture_output=True, text=True)
@@ -271,7 +253,7 @@ else:
         expected_links = {
             'ur-ai': ('(references/device-voice.md)',
                       '(references/device-voice.md#拍照识图与图片输入)'),
-            'ur-device-debug': ('(../ur-ai/references/device-voice.md)',
+            'ur-device-debug': ('(../../ur-ai/references/device-voice.md)',
                                 '(../device-firmware/references/photo-vision.md)',
                                 '(../device-firmware/references/watcher-ui-network.md)'),
             'ur-product': ('(../device-firmware/references/voice-ai.md)',
@@ -279,20 +261,20 @@ else:
                            '(../device-firmware/references/watcher-ui-network.md)'),
         }
         for domain, links in expected_links.items():
-            content = (skill_root / domain / 'SKILL.md').read_text()
+            content = (skill_root / ('ur-iot/' + domain if domain in ('ur-device-debug', 'ur-product') else domain) / 'SKILL.md').read_text()
             self.assertEqual(content.count(f'<!-- MANUAL_GUIDES:{domain} -->'), 1)
             for expected_link in links:
                 self.assertEqual(content.count(expected_link), 1)
 
         self.assertTrue((ROOT / 'skill/ur-ai/references/device-voice.md').is_file())
-        self.assertTrue((ROOT / 'skill/device-firmware/references/voice-ai.md').is_file())
-        self.assertTrue((ROOT / 'skill/device-firmware/references/photo-vision.md').is_file())
-        self.assertTrue((ROOT / 'skill/device-firmware/references/watcher-ui-network.md').is_file())
+        self.assertTrue((ROOT / 'skill/ur-iot/device-firmware/references/voice-ai.md').is_file())
+        self.assertTrue((ROOT / 'skill/ur-iot/device-firmware/references/photo-vision.md').is_file())
+        self.assertTrue((ROOT / 'skill/ur-iot/device-firmware/references/watcher-ui-network.md').is_file())
 
     def test_repeatable_photo_vision_reference_contract(self):
         """视觉技能必须保留两条图片入口、凭据边界和三层可复测门禁。"""
         firmware_guide = (
-            ROOT / 'skill/device-firmware/references/photo-vision.md'
+            ROOT / 'skill/ur-iot/device-firmware/references/photo-vision.md'
         ).read_text()
         platform_guide = (ROOT / 'skill/ur-ai/references/device-voice.md').read_text()
         for expected in (
@@ -318,7 +300,7 @@ else:
     def test_repeatable_voice_e2e_reference_contract(self):
         """语音技能必须保留 16kHz 协议基准、分层解码和可循环的真机 runner。"""
         firmware_guide = (
-            ROOT / 'skill/device-firmware/references/voice-ai.md'
+            ROOT / 'skill/ur-iot/device-firmware/references/voice-ai.md'
         ).read_text()
         platform_guide = (ROOT / 'skill/ur-ai/references/device-voice.md').read_text()
         for expected in (
@@ -340,7 +322,7 @@ else:
             'DEVICESIM_AUDIO_SAMPLE_RATE=16000',
             'run_ur_ai_e2e.py --port <serial-port> --repeat 5',
             'Watcher 保持 16 kHz 会话并由 Opus 解码器直接输出 24 kHz PCM',
-            'device-firmware/references/voice-ai.md',
+            'ur-iot/device-firmware/references/voice-ai.md',
         ):
             self.assertIn(expected, platform_guide)
 

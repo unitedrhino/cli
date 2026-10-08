@@ -74,7 +74,7 @@ ur check --json
 - `UserInfo` / `UserTenant`：`backend/core/service/apisvr/http/system/user/info.api`
 - `RoleInfo`：`backend/core/service/apisvr/http/system/role.api`
 
-> **说明**：`ur-user/SKILL.md` 由 `ur generate-skills` 自动生成，字段级约定统一写在本主 `SKILL.md`，避免与子域生成文件重复且被覆盖。
+> **说明**：`ur-org-manage/ur-user/SKILL.md` 由 `ur generate-skills` 自动生成，字段级约定统一写在本主 `SKILL.md`，避免与子域生成文件重复且被覆盖。
 
 ---
 
@@ -113,7 +113,9 @@ ur check
 
 ### 第三步：IoT AI 工具调用设计
 
-设备模拟、测试数据或属性控制先读 [设备控制与模拟](ur-device/references/device-control.md)，区分纯生成、云端改值、模拟上报和实体控制；不能用仅修改云端属性证明实体控制成功。
+下列三个客户端专题只随 CLI 完整技能包和 SaaS 整理副本提供，位于 `ur-iot/` 内；公开 skills 源仓不包含这些专题。
+
+设备模拟、测试数据或属性控制先读 [设备控制与模拟](ur-iot/ur-device/references/device-control.md)，区分纯生成、云端改值、模拟上报和实体控制；不能用仅修改云端属性证明实体控制成功。
 
 | 用户意图 / 关键词 | 加载子域 | 说明 |
 |----------------|---------|------|
@@ -158,30 +160,18 @@ ur check
 | ur-tenant | 38 | 企业管理：企业CRUD、用户管理、权限配置 |
 | ur-ai | 36 | AI管理：Agent、告警、规则引擎、场景联动 |
 
-详细端点列表见各子域 SKILL.md：
-- `ur-device/SKILL.md`
-- `ur-product/SKILL.md`
-- `ur-project/SKILL.md`
-- `ur-user/SKILL.md`
-- `ur-system/SKILL.md`
-- `ur-tenant/SKILL.md`
-- `ur-ai/SKILL.md`
+## 业务分组导航
 
-IoT AI 工具迁移相关子域：
-- `ur-iot-device/SKILL.md`
-- `ur-iot-context/SKILL.md`
-- `ur-iot-client/SKILL.md`
+按任务选择业务组，再按组内导航读取子模块；各层入口统一使用 `SKILL.md`。
 
-设备数据分析子域：
-- `ur-device-analytics/SKILL.md` — 属性历史查询、趋势分析、聚合统计、报表生成（物模型驱动）
+| 业务组 | 内容 | 入口 |
+|--------|------|------|
+| 物联网 | 设备、产品、项目、固件、OTA、物模型、协议、联动、数据与调试 | [ur-iot](ur-iot/SKILL.md) |
+| 组织管理 | 企业、用户、权限、系统与审批 | [ur-org-manage](ur-org-manage/SKILL.md) |
+| AI | Agent、告警、设备智能与 AI 工具 | [ur-ai](ur-ai/SKILL.md) |
+| 大屏 | GoView、数据绑定与场景模板 | [ur-view](ur-view/SKILL.md) |
+| 文档解析 | PDF、Office、图片与 CAD 解析 | [ur-doc](ur-doc/SKILL.md) |
 
-设备调试子域：
-- `ur-device-debug/SKILL.md` — 设备日志查询（属性/事件/命令/上下线/异常/诊断/SDK）、实时调试（属性控制/行为调用/事件发送/Mock数据）
-
-大屏可视化子域：
-- `ur-view/SKILL.md` — 大屏（GoView）项目 CRUD、画布 JSON 本地编辑闭环（pull/validate/push/publish/screenshot）、素材库管理、IoT 数据绑定配方
-
----
 
 ## 快速开始
 

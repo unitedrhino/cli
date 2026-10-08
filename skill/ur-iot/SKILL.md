@@ -177,3 +177,25 @@ ur alarm event deal --id <eventID> --action acked
 | AI 工具创建 | `/api/v1/ai/tool/create` | ai-tool |
 
 > 完整 API 端点速查见各子域 `references/api/{domain}-all-endpoints.md`
+
+## 组内技能导航
+
+- [ur-device](ur-device/SKILL.md)
+- [ur-product](ur-product/SKILL.md)
+- [ur-project](ur-project/SKILL.md)
+- [device-firmware](device-firmware/SKILL.md)
+- [ur-ota](ur-ota/SKILL.md)
+- [thing-model](thing-model/SKILL.md)
+- [protocol-script](protocol-script/SKILL.md)
+- [scene-linkage](scene-linkage/SKILL.md)
+- [ur-device-analytics](ur-device-analytics/SKILL.md)
+- [ur-device-debug](ur-device-debug/SKILL.md)
+- [ur-protocol API 参考](ur-protocol/references/api/)
+- [ur-rule API 参考](ur-rule/references/api/)
+- [ur-schema API 参考](ur-schema/references/api/)
+- [ur-iot-user API 参考](ur-iot-user/references/api/)
+- [ur-iot-config API 参考](ur-iot-config/references/api/)
+- [ur-iot-hook API 参考](ur-iot-hook/references/api/)
+- [ur-iot-device](ur-iot-device/SKILL.md)
+- [ur-iot-context](ur-iot-context/SKILL.md)
+- [ur-iot-client](ur-iot-client/SKILL.md)

@@ -44,6 +44,22 @@ DOMAIN_PREFIXES = {
     "ur-view": ["/api/v1/view/"],
 }
 
+# DOMAIN_DIRECTORIES 将现有 API 域映射到五组目录；不改变端点所属域和生成标记。
+DOMAIN_DIRECTORIES = {
+    **{name: f"ur-iot/{name}" for name in (
+        "ur-device", "ur-device-analytics", "ur-device-debug", "ur-product", "ur-project",
+        "ur-ota", "ur-protocol", "ur-rule", "ur-schema", "ur-iot-user", "ur-iot-config",
+        "ur-iot-hook", "scene-linkage",
+    )},
+    **{name: f"ur-org-manage/{name}" for name in ("ur-user", "ur-tenant", "ur-system")},
+}
+
+
+def domain_directory(skill_dir, domain):
+    """返回 API 域的技能目录；参数为技能根目录与原有域名，返回分组后的路径。"""
+    return Path(skill_dir) / DOMAIN_DIRECTORIES.get(domain, domain)
+
+
 # 反向映射：路径前缀 -> domain
 PREFIX_TO_DOMAIN = []
 for domain, prefixes in DOMAIN_PREFIXES.items():
@@ -73,7 +89,7 @@ MANUAL_GUIDES = {
     ],
     "ur-device-debug": [
         ("设备语音排障", "先用 devicesim 分离平台、协议和真机硬件问题",
-         "../ur-ai/references/device-voice.md"),
+         "../../ur-ai/references/device-voice.md"),
         ("拍照识图排障", "分离模型/MCP、上传/行为、相机/按键和表情显示问题",
          "../device-firmware/references/photo-vision.md"),
         ("圆屏与换网排障", "候选事务、GATT 身份、请求关联与手机/真机分层验收",
@@ -557,7 +573,7 @@ def generate_all_endpoints_table(endpoints, schemas):
 
 def ensure_references_dir(skill_dir, domain):
     """确保 references/api/ 目录存在，并清理旧文件"""
-    ref_dir = Path(skill_dir) / domain / "references" / "api"
+    ref_dir = domain_directory(skill_dir, domain) / "references" / "api"
     if ref_dir.exists():
         # 清理旧的 .md 文件
         for f in ref_dir.glob("*.md"):
@@ -589,7 +605,7 @@ def write_reference_files(ref_dir, domain, group_endpoints, schemas):
 
 def update_skill_file(skill_dir, domain, new_content):
     """更新 skill 文件中的 AUTO-GENERATED 区域"""
-    skill_path = Path(skill_dir) / domain / "SKILL.md"
+    skill_path = domain_directory(skill_dir, domain) / "SKILL.md"
     if not skill_path.exists():
         print(f"警告: 找不到 {skill_path}", file=sys.stderr)
         return False
@@ -621,7 +637,7 @@ def update_skill_file(skill_dir, domain, new_content):
 
 def update_manual_guides(skill_dir, domain, guides):
     """以生成标记写入专项指南导航，重复运行不产生重复段落。"""
-    skill_path = Path(skill_dir) / domain / "SKILL.md"
+    skill_path = domain_directory(skill_dir, domain) / "SKILL.md"
     if not skill_path.exists():
         print(f"警告: 找不到 {skill_path}", file=sys.stderr)
         return False
@@ -664,6 +680,7 @@ def update_all_manual_guides(skill_dir):
 
 
 def main():
+    """解析生成选项，将 API 参考及入口标记写入五组目录；参数错误返回非零退出码。"""
     cli_dir = Path(__file__).parent.parent
     skill_dir = cli_dir / "skill"
     arguments = list(sys.argv[1:])

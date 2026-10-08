@@ -1,7 +1,7 @@
 # 设备语音会话、表情与 MCP 控制
 
 本指南描述联犀平台侧设备语音助手的配置与验证。设备固件实现、刷写、UDP 加密和
-真机验收同时读取 `device-firmware/references/voice-ai.md`。
+真机验收同时读取 `ur-iot/device-firmware/references/voice-ai.md`。
 
 ## 配置对象
 
@@ -52,9 +52,9 @@
 保留已审核 IoT MCP 的同时显式绑定 fuzai。所有变更走现有 API，不直接写数据库。
 
 服务范围、企业身份、空列表与工具发现的检查见
-`device-firmware/references/photo-vision.md`的“平台与物模型”；平台私有ID可见不等于
+`ur-iot/device-firmware/references/photo-vision.md`的“平台与物模型”；平台私有ID可见不等于
 设备企业运行时可加载。模拟模型优先级、无结果轮次及控制工具分层检查见
-`device-firmware/references/voice-ai.md`，不要用默认模型对照未核验的真机配置。
+`ur-iot/device-firmware/references/voice-ai.md`，不要用默认模型对照未核验的真机配置。
 
 `sessionCreated.supportedModalities` 包含 `image`，并返回当前 session 的短期 `uploadUrl`。
 图片上传成功后有两条等价入口：
@@ -64,7 +64,7 @@
   `modalities` 设为 `text`、`audio`。
 
 完整固件回执、上传安全、按键和真机步骤见
-`device-firmware/references/photo-vision.md`。
+`ur-iot/device-firmware/references/photo-vision.md`。
 
 设备业务不得进入 core：fuzai 返回标准 MCP `image(data,mimeType)` 内容块，
 文件引用仅为文本元数据；core 的通用适配器传递结构化图文并复用多模态转换和视觉路由，
@@ -323,7 +323,7 @@ voice/MQTT回读，并保留HTTP同会话冻结及其他分身隔离断言（包
 MQTT、UDP、ASR、LLM 和 TTS。每轮必须看到完整方法序列、播放队列排空与 PASS，
 并使用 ESP 日志 uptime 验证 8 秒/15 秒门禁。生产固件不得启用该内置样本。
 音频生成、测试构建和失败分层的完整步骤见
-`device-firmware/references/voice-ai.md`。
+`ur-iot/device-firmware/references/voice-ai.md`。
 
 ## 分层排障
 

@@ -582,7 +582,7 @@ go test -cover ./...
 ### 前置条件
 
 - 从已合并的主线提交创建版本标签；各远端同名标签必须指向同一提交。
-- 构建机须安装 Docker 与 buildx，并已使用维护环境提供的制品仓库凭据完成 `docker login`。正式发布禁止设置 `SKIP_HARBOR=1`；缺少 Docker、跳过推送或任一平台失败，都属于未完成发布。
+- 构建机须安装 Docker 与 buildx，并已使用维护环境提供的制品仓库凭据完成 `docker login`。脚本会在清理旧产物、编译和创建 Release 前检查 Docker、buildx、daemon，并拒绝 `SKIP_HARBOR` 的非零值；任一检查失败立即停止，保留原有产物。任一平台推送失败均属于未完成发布。
 - GitHub 和 Gitee 的 API token 可通过环境变量传入，或写入项目根目录的 `.env` 文件（已被 `.gitignore` 忽略，不会提交）：
 
 ```bash

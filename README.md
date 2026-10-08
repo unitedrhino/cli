@@ -498,6 +498,10 @@ ur generate-skills --output ./my-skills/
 
 生成的 Skill 文档可直接用于 AI Agent 调用联犀 API。
 
+Skills 总入口下按 `ur-iot`、`ur-org-manage`、`ur-ai`、`ur-view`、`ur-doc` 五组组织，各层入口统一使用 `SKILL.md`。`generate-skills --all` 从完整发布包的内置技能或开发目录 `skill/` 复制业务树，再生成 Swagger 索引；默认输出到 `.temp/generated-skills/<应用名>/`，也可用 `--output` 指定独立目录。
+
+升级配套 CLI 和 Skills 后重新运行 `ur skills install`，安装器替换自身管理的旧平铺目录及旧 `GUIDE.md` 入口；手动导入的用户需重新导入新版包。API、鉴权、CLI 业务命令不变；引用技能文件的调用须改用分组后的路径。递归扫描技能的工具仍可能发现子层入口。
+
 ### 运行时环境变量
 
 无需配置文件，直接通过环境变量认证。设置 `UR_BASE_URL` 后进入 env-only 模式，不读取或改写磁盘 profile；认证组必须完整：

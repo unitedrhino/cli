@@ -445,36 +445,6 @@ if ! release_gitee; then
   PUBLISH_FAILED=1
 fi
 
-# ─── 发布成功后清理本地构建产物 ──────────────────────────────────────────
-# 资产已上传远端 Release（GitHub/Gitee），本地 dist/release-* 无保留价值。
-# 全平台包体积约 700MB+/版本，历史上多次发布累计可占数 GB。
-# KEEP_RELEASES=N 可保留最近 N 个历史版本目录（默认 0=全部清理）。
-# 任一平台发布失败时跳过清理，便于重传。
-if [[ -f "${RELEASE_DIR}/sha256sums.txt" && "${PUBLISH_FAILED}" -eq 0 ]]; then
-  echo ""
-  echo "========================================"
-  echo "  清理本地构建产物（KEEP_RELEASES=${KEEP_RELEASES}）"
-  echo "========================================"
-  removed_total=0
-  if [[ "${KEEP_RELEASES}" -gt 0 ]]; then
-    # 保留最近 N 个版本：按版本号倒序，跳过前 N 个，其余删除
-    old_releases=$(ls -1d "${ROOT}"/dist/release-v* 2>/dev/null | sort -rV | tail -n +$((KEEP_RELEASES + 1)))
-  else
-    old_releases=$(ls -1d "${ROOT}"/dist/release-v* 2>/dev/null)
-  fi
-  for old_dir in ${old_releases}; do
-    rm -rf "${old_dir}"
-    echo "已清理 $(basename "${old_dir}")"
-    removed_total=$((removed_total + 1))
-  done
-  if [[ "${removed_total}" -eq 0 ]]; then
-    echo "无历史产物需要清理"
-  fi
-else
-  echo ""
-  echo "[cleanup] 检测到发布未完成，保留 ${BUILD_DIR} 便于排查/重传"
-fi
-
 echo ""
 echo "========================================"
 echo "  Harbor 制品推送（常见五平台，SKIP_HARBOR=1 跳过）"
@@ -482,7 +452,7 @@ echo "========================================"
 # 把发布包推为 Harbor 公开制品（urops/ur-cli-<repo_suffix>:${VERSION}），
 # 供 doc 站 /cli/install.sh、/cli/install.ps1 一键安装脚本国内免 GitHub 安装。
 # 依赖：docker 已安装且 docker login docker.unitedrhino.com 已登录；单平台失败
-# 仅告警不阻断发版（GitHub/Gitee 资产已完成，Harbor 可重跑本段补齐）。
+# 任一平台失败时保留本次产物并返回非零退出码，允许使用原产物补传。
 if [[ "${SKIP_HARBOR:-0}" == "1" ]]; then
   echo "跳过 Harbor 制品推送（SKIP_HARBOR=1）"
 elif ! command -v docker >/dev/null 2>&1; then
@@ -521,6 +491,39 @@ else
   done
   rm -rf "$HARBOR_WORK"
   echo "Harbor 推送完成：成功 $HARBOR_OK，失败 $HARBOR_FAIL"
+  if [[ "$HARBOR_FAIL" -ne 0 ]]; then
+    PUBLISH_FAILED=1
+  fi
+fi
+
+# ─── 发布成功后清理本地构建产物 ──────────────────────────────────────────
+# 资产已上传远端 Release（GitHub/Gitee），本地 dist/release-* 无保留价值。
+# 全平台包体积约 700MB+/版本，历史上多次发布累计可占数 GB。
+# KEEP_RELEASES=N 可保留最近 N 个历史版本目录（默认 0=全部清理）。
+# GitHub、Gitee 或 Harbor 任一分发失败时跳过清理，便于重传。
+if [[ -f "${RELEASE_DIR}/sha256sums.txt" && "${PUBLISH_FAILED}" -eq 0 ]]; then
+  echo ""
+  echo "========================================"
+  echo "  清理本地构建产物（KEEP_RELEASES=${KEEP_RELEASES}）"
+  echo "========================================"
+  removed_total=0
+  if [[ "${KEEP_RELEASES}" -gt 0 ]]; then
+    # 保留最近 N 个版本：按版本号倒序，跳过前 N 个，其余删除
+    old_releases=$(ls -1d "${ROOT}"/dist/release-v* 2>/dev/null | sort -rV | tail -n +$((KEEP_RELEASES + 1)))
+  else
+    old_releases=$(ls -1d "${ROOT}"/dist/release-v* 2>/dev/null)
+  fi
+  for old_dir in ${old_releases}; do
+    rm -rf "${old_dir}"
+    echo "已清理 $(basename "${old_dir}")"
+    removed_total=$((removed_total + 1))
+  done
+  if [[ "${removed_total}" -eq 0 ]]; then
+    echo "无历史产物需要清理"
+  fi
+else
+  echo ""
+  echo "[cleanup] 检测到发布未完成，保留 ${BUILD_DIR} 便于排查/重传"
 fi
 
 echo ""

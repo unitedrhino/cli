@@ -1,12 +1,12 @@
 ---
-name: ur-api
-description: "ur-api — 联犀 SaaS 平台统一 API 工具（涵盖所有应用）"
+name: ur-org-manage
+description: "企业、用户、权限、系统与审批管理；按任务读取组织管理组内技能。"
 metadata:
   hermes:
     tags: [api, cli, saas, iot, platform, org, energy, console]
 ---
 
-# ur-api — 联犀 SaaS 平台
+# ur-org-manage — 组织管理
 
 > **配置检查**：如果尚未配置联犀连接，请先运行 `ur-api login --no-wait`，按指引在浏览器中完成授权。`setup` 命令是终端交互式的，在 AI 聊天环境中无法使用。
 
@@ -219,3 +219,9 @@ ur-iot check
 # 调用 API
 ur-iot api /api/v1/system/user/self/get-one
 ```
+
+## 组内技能导航
+
+- [ur-tenant](ur-tenant/SKILL.md)
+- [ur-user](ur-user/SKILL.md)
+- [ur-system](ur-system/SKILL.md)

@@ -4,13 +4,14 @@ set -euo pipefail
 # update-skills.sh — 可选镜像上游 skills,并一键更新 + 同步到 skills 仓库
 # 用法: bash scripts/update-skills.sh [--apply] [--mirror-only] [--skip-mirror] [--source <dir>]
 #
-# skills 流向(本仓 skill/ 为发布源;上游编辑仓为可选镜像源,不配置则跳过镜像):
-#   上游 skills 源(可选) --镜像--> cli skill/ --release 发版--> ur-api-skills-<版本>.zip
-#                                    └--本脚本同步--> unitedrhino/skills 仓库
+# skills 流向(独立 skills 仓库为业务原型源，本仓 skill/ 为发布副本):
+#   unitedrhino/skills --镜像--> cli skill/ --release 发版--> ur-api-skills-<版本>.zip
+#                         └--生成 API 后同步公开内容回原型源仓
+# 隔离工作区通过 UR_SKILLS_REPO 指定源仓，--source 可覆盖镜像源。
 # 客户端(AI 工具)通过 ur upgrade / ur skills install 拿到发布版本,不直接感知任何源仓库。
 #
 # 流程:
-#   1. 镜像主仓 skills(默认 dry-run 仅列差异,--apply 执行;--skip-mirror 跳过)
+#   1. 镜像原型源仓 skills(默认 dry-run 仅列差异,--apply 执行;--skip-mirror 跳过)
 #   2. 从 backend/.swagger/ 读取最新 swagger
 #   3. 运行 generate-api-lists.py 更新所有 skill 的 API 端点列表
 #   4. 同步到 unitedrhino/skills 仓库
@@ -39,9 +40,9 @@ while [ $# -gt 0 ]; do
 done
 
 # 查找 skills 仓库
-SKILLS_REPO=""
+SKILLS_REPO="${UR_SKILLS_REPO:-}"
 for path in "${CLI_DIR}/../skills" "${CLI_DIR}/../../.gits/skills"; do
-  if [ -d "$path/.git" ]; then
+  if [ -z "$SKILLS_REPO" ] && [ -e "$path/.git" ]; then
     SKILLS_REPO="$(cd "$path" && pwd)"
     break
   fi
@@ -52,13 +53,13 @@ echo "  ur Skills 更新脚本"
 echo "========================================"
 echo ""
 
-# Step 1: 从 saas 主仓镜像 skills(单向覆盖,主仓为准)
+# Step 1: 从 skills 原型源仓镜像；显式 --source 可指定隔离编辑源。
 if [ "$SKIP_MIRROR" -eq 1 ]; then
   echo "[1/5] 跳过镜像(--skip-mirror)"
 else
   echo "[1/5] 镜像上游 skills(如已配置)..."
   SOURCE_DIR=""
-  for candidate in "${SOURCE_OVERRIDE}" "${CLI_DIR}/../../.agents/skills/ur-api"; do
+  for candidate in "${SOURCE_OVERRIDE}" "${SKILLS_REPO}"; do
     # 默认候选必须位于 git 工作树内，避免把 ~/.ur 或用户级的安装产物误当编辑源
     if [ -n "$candidate" ] && [ -f "$candidate/SKILL.md" ] \
       && git -C "$candidate" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -70,7 +71,7 @@ else
   if [ -z "$SOURCE_DIR" ]; then
     echo "  未检测到上游 skills 源,跳过镜像(--source <dir> 或环境变量 UR_SKILLS_SOURCE 可指定)"
   elif ! command -v rsync >/dev/null 2>&1; then
-    echo "  警告: 未安装 rsync,跳过镜像;请手工把主仓改动拷入 skill/"
+    echo "  警告: 未安装 rsync,跳过镜像;请安装 rsync 后重试"
   else
     echo "  镜像源: $SOURCE_DIR"
     repo_root="$(git -C "$SOURCE_DIR" rev-parse --show-toplevel 2>/dev/null || true)"
@@ -78,16 +79,18 @@ else
       echo "  注意: 上游源存在未提交改动,镜像的是工作区当前状态"
     fi
     # -c 按内容校验和比较,避免仅 mtime 不同造成假差异
-    RSYNC_ARGS=(-a -c --delete --exclude=_meta.json --itemize-changes)
+    RSYNC_ARGS=(-a -c --delete --exclude=_meta.json --exclude=.git --exclude=.worktrees
+      --exclude=ur-iot/ur-iot-client --exclude=ur-iot/ur-iot-context --exclude=ur-iot/ur-iot-device
+      --itemize-changes)
     # _meta.json 由 release.sh 打包时自动生成,不从主仓带入
     if [ "$MIRROR_APPLY" -eq 1 ]; then
       echo "  执行镜像(--apply):"
-      rsync "${RSYNC_ARGS[@]}" "${SOURCE_DIR}/" "${SKILL_DIR}/" | grep -v '^\.' | sed 's/^/    /' || true
+      python3 "${SCRIPT_DIR}/sync-skills.py" "${SOURCE_DIR}" "${SKILL_DIR}" --preserve-client-guides
       echo "  镜像完成"
     else
       echo "  预览(dry-run,加 --apply 执行):"
-      rsync "${RSYNC_ARGS[@]}" -n "${SOURCE_DIR}/" "${SKILL_DIR}/" | grep -v '^\.' | sed 's/^/    /' || true
-      echo "  注意: 镜像以源为准,skill/ 多出的文件会被删除;"
+      rsync "${RSYNC_ARGS[@]}" -n "${SOURCE_DIR}/" "${SKILL_DIR}/" | sed 's/^/    /'
+      echo "  注意: 镜像以源为准,保留三个内部客户端专题,删除其他过期文件;"
       echo "  若 skill/ 有尚未合入上游源的内容(如未合并 PR 的技能),先更新上游再 --apply"
     fi
   fi
@@ -132,22 +135,8 @@ if [ -z "$SKILLS_REPO" ]; then
 else
   echo "  skills 仓库: $SKILLS_REPO"
 
-  # 复制主 skill
-  cp "${SKILL_DIR}/SKILL.md" "${SKILLS_REPO}/SKILL.md"
-
-  # 复制子 skill
-  for sub in ai-tool ur-device ur-device-analytics ur-device-debug ur-product ur-project ur-user ur-system ur-tenant ur-ai ur-view scene-linkage thing-model protocol-script; do
-    if [ -d "${SKILL_DIR}/${sub}" ]; then
-      rm -rf "${SKILLS_REPO}/${sub}"
-      cp -r "${SKILL_DIR}/${sub}" "${SKILLS_REPO}/${sub}"
-      echo "  同步: $sub"
-    fi
-  done
-
-  # 排除内部文档
-  for ex in ur-iot-client ur-iot-context ur-iot-device; do
-    rm -rf "${SKILLS_REPO}/${ex}"
-  done
+  # 同步五组完整目录和通用参考，内部客户端专题不进入公开源仓。
+  python3 "${SCRIPT_DIR}/sync-skills.py" "${SKILL_DIR}" "${SKILLS_REPO}" --public
 
   echo "  同步完成"
 fi

@@ -8,16 +8,7 @@
     "index.js",
     "index.d.ts",
     "SKILL.md",
-    "ur-*/SKILL.md",
-    "ur-*/references/**",
-    "ur-*/scripts/**",
-    "ur-*/assets/**",
-    "ur-*/ur-view/**",
-    "ur-*/device-firmware/SKILL.md",
-    "ur-*/device-firmware/references/**",
-    "ur-*/ur-*/SKILL.md",
-    "ur-*/ur-*/references/**",
-    "ur-*/swagger-index.md"
+    "ur-*/**"
   ],
   "scripts": {
     "build": "node scripts/build.js",

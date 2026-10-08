@@ -44,6 +44,17 @@ metadata:
 
 > 完整命令帮助：`ur alarm help`、`ur scene help`
 
+<!-- MANUAL_GUIDES:ur-ai -->
+
+## 专项指南
+
+| 场景 | 说明 | 参考文档 |
+|------|------|---------|
+| 设备语音会话 | Agent/模型/MCP、MQTT 会话、表情、多轮与打断 | [device-voice.md](references/device-voice.md) |
+| 设备拍照识图 | 视觉模型、fuzai MCP、图片输入、表情与真机闭环 | [device-voice.md](references/device-voice.md#拍照识图与图片输入) |
+
+<!-- END_MANUAL_GUIDES -->
+
 ## 典型业务场景
 
 ### AI Agent 与设备绑定
@@ -167,3 +178,7 @@ ur ai chat -m "写一首诗" --stream
 - CLI 命令自动处理请求头（`app-id`、`tenant-code` 和认证头）
 - 响应格式: `{code, msg, data}`，code=200 表示成功
 - 分页格式: `{page: {page: 1, size: 10}, total: 0, list: [...]}`
+
+## 组内技能导航
+
+- [ai-tool](ai-tool/SKILL.md)

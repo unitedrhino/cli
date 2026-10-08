@@ -445,11 +445,62 @@ if ! release_gitee; then
   PUBLISH_FAILED=1
 fi
 
+echo ""
+echo "========================================"
+echo "  Harbor 制品推送（常见五平台，SKIP_HARBOR=1 跳过）"
+echo "========================================"
+# 把发布包推为 Harbor 公开制品（urops/ur-cli-<repo_suffix>:${VERSION}），
+# 供 doc 站 /cli/install.sh、/cli/install.ps1 一键安装脚本国内免 GitHub 安装。
+# 依赖：docker 已安装且 docker login docker.unitedrhino.com 已登录；单平台失败
+# 任一平台失败时保留本次产物并返回非零退出码，允许使用原产物补传。
+if [[ "${SKIP_HARBOR:-0}" == "1" ]]; then
+  echo "跳过 Harbor 制品推送（SKIP_HARBOR=1）"
+elif ! command -v docker >/dev/null 2>&1; then
+  echo "[harbor] 未安装 docker，跳过 Harbor 制品推送"
+else
+  HARBOR_WORK="$(mktemp -d)"
+  HARBOR_OK=0
+  HARBOR_FAIL=0
+  for mapping in "linux-amd64:Linux-x86_64" "linux-arm64:Linux-aarch64" "darwin-amd64:macOS-x86_64" "darwin-arm64:macOS-arm64" "windows-amd64:Windows-x86_64"; do
+    repo_suffix="${mapping%%:*}"
+    asset_plat="${mapping##*:}"
+    if [[ "$asset_plat" == Windows-* ]]; then
+      pkg="${RELEASE_DIR}/ur-cli-${VERSION}-${asset_plat}.zip"
+    else
+      pkg="${RELEASE_DIR}/ur-cli-${VERSION}-${asset_plat}.tar.gz"
+    fi
+    if [[ ! -f "$pkg" ]]; then
+      echo "[harbor] 跳过 $repo_suffix（找不到 $pkg）"
+      HARBOR_FAIL=$((HARBOR_FAIL + 1))
+      continue
+    fi
+    hw="$HARBOR_WORK/$repo_suffix"
+    mkdir -p "$hw"
+    cp "$pkg" "$hw/"
+    (cd "$hw" && sha256sum "$(basename "$pkg")" > sha256sums.txt)
+    printf 'FROM scratch\nCOPY %s /%s\nCOPY sha256sums.txt /sha256sums.txt\n' "$(basename "$pkg")" "$(basename "$pkg")" > "$hw/Dockerfile"
+    if docker buildx build --platform "${repo_suffix%%-*}/${repo_suffix##*-}" --provenance=false --sbom=false \
+        --output "type=image,name=docker.unitedrhino.com/urops/ur-cli-$repo_suffix:${VERSION},push=true" \
+        -f "$hw/Dockerfile" "$hw" >/dev/null 2>&1; then
+      echo "[harbor] 已推送 urops/ur-cli-$repo_suffix:${VERSION}"
+      HARBOR_OK=$((HARBOR_OK + 1))
+    else
+      echo "[harbor] 推送失败：urops/ur-cli-$repo_suffix:${VERSION}（可用本段重跑补齐）"
+      HARBOR_FAIL=$((HARBOR_FAIL + 1))
+    fi
+  done
+  rm -rf "$HARBOR_WORK"
+  echo "Harbor 推送完成：成功 $HARBOR_OK，失败 $HARBOR_FAIL"
+  if [[ "$HARBOR_FAIL" -ne 0 ]]; then
+    PUBLISH_FAILED=1
+  fi
+fi
+
 # ─── 发布成功后清理本地构建产物 ──────────────────────────────────────────
 # 资产已上传远端 Release（GitHub/Gitee），本地 dist/release-* 无保留价值。
 # 全平台包体积约 700MB+/版本，历史上多次发布累计可占数 GB。
 # KEEP_RELEASES=N 可保留最近 N 个历史版本目录（默认 0=全部清理）。
-# 任一平台发布失败时跳过清理，便于重传。
+# GitHub、Gitee 或 Harbor 任一分发失败时跳过清理，便于重传。
 if [[ -f "${RELEASE_DIR}/sha256sums.txt" && "${PUBLISH_FAILED}" -eq 0 ]]; then
   echo ""
   echo "========================================"

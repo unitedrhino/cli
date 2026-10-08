@@ -1,10 +1,13 @@
 # 高频端点速查（Top 15）
 
+设备模拟/控制前先读 [属性控制与行为](../ur-iot/ur-device/references/device-control.md)：纯生成、云端改值、模拟上报与实体控制不可混用；标识以物模型为准，控制接口 data 是 JSON 字符串，需检查外层与内层成功码。
+
 | 操作 | 端点 | 最小请求体 |
 |------|------|-----------|
 | 设备列表 | POST /api/v1/things/device/info/get-list | `{"page":{"page":1,"size":10}}` |
 | 当前用户信息 | POST /api/v1/system/user/self/get-one | `{}` |
-| 控制设备属性 | POST /api/v1/things/device/interact/property-control-send | `{"productID":"x","deviceName":"x","data":{"Key":值}}` |
+| 控制设备属性 | POST /api/v1/things/device/interact/property-control-send | `{"productID":"x","deviceName":"x","data":"{\"Key\":25.5}","shadowControl":1}`；仅在明确要求实体实时控制时使用模式1 |
+| 仅云端属性模拟（不下发） | POST /api/v1/things/device/interact/property-control-send | `{"productID":"x","deviceName":"x","data":"{\"Key\":25.5}","shadowControl":4}`；项目接口传 `--project-id` |
 | 设备最新属性 | POST /api/v1/things/device/msg/property-latest/get-list | `{"productID":"x","deviceName":"x"}` |
 | 产品列表 | POST /api/v1/things/product/info/get-list | `{"page":{"page":1,"size":10}}` |
 | 产品物模型 | POST /api/v1/things/product/schema/get-list | `{"productID":"x"}` |

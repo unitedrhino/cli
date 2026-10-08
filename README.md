@@ -150,6 +150,22 @@ cd cli
 go build -ldflags "-X main.version=$(git describe --tags)" -o dist/bin/ur .
 ```
 
+**方式三 — 国内一键脚本（Harbor 制品源，免 GitHub）**：
+
+```bash
+curl -fsSL https://doc.unitedrhino.com/cli/install.sh | bash
+```
+
+自动查询 Harbor 公开制品（`docker.unitedrhino.com`）最新版本，下载、SHA256 校验并安装到 `~/.local`（含 `skill/` 目录）。支持 **Linux x86_64/aarch64 与 macOS Intel/Apple Silicon**（自动检测）；指定版本：`UR_TAG=v0.8.5 curl -fsSL ... | bash`。发版时 `scripts/release.sh` 会自动把常见五平台制品推送 Harbor。
+
+**Windows（PowerShell 5.1+，无需管理员）：**
+
+```powershell
+irm https://doc.unitedrhino.com/cli/install.ps1 | iex
+```
+
+安装到 `%LOCALAPPDATA%\Programs\ur`（`ur.exe` + `skill/`）并加入用户 PATH；`$env:UR_TAG` 可指定版本。
+
 #### 版本升级与 Skills
 
 ```bash
@@ -481,6 +497,10 @@ ur generate-skills --output ./my-skills/
 ```
 
 生成的 Skill 文档可直接用于 AI Agent 调用联犀 API。
+
+Skills 总入口下按 `ur-iot`、`ur-org-manage`、`ur-ai`、`ur-view`、`ur-doc` 五组组织，各层入口统一使用 `SKILL.md`。`generate-skills --all` 从完整发布包的内置技能或开发目录 `skill/` 复制业务树，再生成 Swagger 索引；默认输出到 `.temp/generated-skills/<应用名>/`，也可用 `--output` 指定独立目录。
+
+升级配套 CLI 和 Skills 后重新运行 `ur skills install`，安装器替换自身管理的旧平铺目录及旧 `GUIDE.md` 入口；手动导入的用户需重新导入新版包。API、鉴权、CLI 业务命令不变；引用技能文件的调用须改用分组后的路径。递归扫描技能的工具仍可能发现子层入口。
 
 ### 运行时环境变量
 

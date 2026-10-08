@@ -187,12 +187,12 @@ ur things device control -p xxx -d yyy --data '{"power":1}'
 ## 设备数据分析
 
 设备属性历史数据的查询与分析见子域 Skill：
-- **`ur-device-analytics/SKILL.md`** — 属性历史查询、趋势分析、聚合统计、报表生成
+- **`ur-iot/ur-device-analytics/SKILL.md`** — 属性历史查询、趋势分析、聚合统计、报表生成
 
 ## 设备调试
 
 设备日志查询和实时调试见子域 Skill：
-- **`ur-device-debug/SKILL.md`** — 设备日志查询、属性控制、行为调用、事件发送、Mock数据生成
+- **`ur-iot/ur-device-debug/SKILL.md`** — 设备日志查询、属性控制、行为调用、事件发送、Mock数据生成
 
 覆盖内容：
 - 7 种日志查询：属性、事件、命令、上下线、异常、诊断(Hub)、SDK

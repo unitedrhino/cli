@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""执行真实发版脚本的隔离夹具，验证 Harbor 分发先于清理、失败保留安装包；不访问网络。"""
+"""执行真实发版脚本的隔离夹具，验证 Harbor 必需检查、分发及失败保留；不访问网络。"""
 
 import os
 from pathlib import Path
@@ -28,7 +28,8 @@ class ReleaseDistributionTest(unittest.TestCase):
         self.tools = self.root / 'tools'
         self.tools.mkdir()
         self.write_tool('go', '''#!/usr/bin/env python3
-import pathlib,sys
+import os,pathlib,sys
+pathlib.Path(os.environ['RELEASE_TEST_GO_LOG']).write_text('called')
 args=sys.argv[1:]
 if args == ['tool', 'dist', 'list']:
     print('linux/amd64\\nlinux/arm64\\ndarwin/amd64\\ndarwin/arm64\\nwindows/amd64')
@@ -39,7 +40,8 @@ else:
     raise SystemExit('unexpected go command')
 ''')
         self.write_tool('curl', '''#!/usr/bin/env python3
-import sys
+import os,pathlib,sys
+pathlib.Path(os.environ['RELEASE_TEST_CURL_LOG']).write_text('called')
 args=sys.argv[1:]
 if any('api.github.com/repos/' in arg for arg in args):
     print('{"upload_url": "https://uploads.example.invalid/release"}')
@@ -50,6 +52,12 @@ else:
 ''')
         self.write_tool('docker', '''#!/usr/bin/env python3
 import os,pathlib,sys
+if sys.argv[1:] == ['buildx', 'version']:
+    raise SystemExit(1 if os.environ.get('RELEASE_TEST_BUILDX_FAIL')=='1' else 0)
+if sys.argv[1:] == ['info']:
+    raise SystemExit(1 if os.environ.get('RELEASE_TEST_DAEMON_FAIL')=='1' else 0)
+if sys.argv[1:3] != ['buildx', 'build']:
+    raise SystemExit('unexpected docker command')
 context=pathlib.Path(sys.argv[-1])
 packages=list(context.glob('*.zip'))+list(context.glob('*.tar.gz'))
 if not packages or not packages[0].is_file():
@@ -65,16 +73,52 @@ raise SystemExit(1 if os.environ.get('RELEASE_TEST_HARBOR_FAIL')=='1' else 0)
         target.write_text(content)
         target.chmod(0o755)
 
-    def execute_release(self, fail=False):
-        """执行真实发版脚本；fail 模拟 Harbor 失败，返回进程结果和上传记录。"""
+    def execute_release(self, fail=False, overrides=None):
+        """执行真实脚本；fail 模拟推送失败，overrides 覆盖前置环境，返回结果和上传记录。"""
         log = self.root / 'harbor.log'
         environment = dict(os.environ, PATH=str(self.tools) + ':' + os.environ['PATH'],
                            GITHUB_TOKEN='fake', GITEE_TOKEN='fake', PARALLEL='1',
                            KEEP_RELEASES='0', SKIP_HARBOR='0', TMPDIR=str(self.root),
-                           RELEASE_TEST_LOG=str(log), RELEASE_TEST_HARBOR_FAIL='1' if fail else '0')
+                           RELEASE_TEST_LOG=str(log), RELEASE_TEST_HARBOR_FAIL='1' if fail else '0',
+                           RELEASE_TEST_GO_LOG=str(self.root / 'go.log'),
+                           RELEASE_TEST_CURL_LOG=str(self.root / 'curl.log'),
+                           RELEASE_TEST_BUILDX_FAIL='0', RELEASE_TEST_DAEMON_FAIL='0')
+        environment.update(overrides or {})
         result = subprocess.run(['bash', str(self.root / 'scripts/release.sh'), 'v0.8.6'],
                                 env=environment, capture_output=True, text=True)
         return result, log
+
+    def assert_preflight_failure(self, overrides, message):
+        """前置检查失败须保留旧产物，并在编译或访问发布平台前停止。"""
+        marker = self.root / 'dist/release-v0.8.6/old-package'
+        marker.parent.mkdir(parents=True)
+        marker.write_text('retained')
+        result, log = self.execute_release(overrides=overrides)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(message, result.stdout + result.stderr)
+        self.assertEqual(marker.read_text(), 'retained')
+        for path in [log, self.root / 'go.log', self.root / 'curl.log']:
+            self.assertFalse(path.exists(), path)
+
+    def test_skip_harbor_is_rejected_before_build(self):
+        """正式发布不能通过跳过 Harbor 返回成功，也不能提前清理旧产物。"""
+        self.assert_preflight_failure({'SKIP_HARBOR': '1'}, '禁止跳过 Harbor')
+
+    def test_missing_docker_is_rejected_before_build(self):
+        """隔离 PATH 中不提供 Docker，确认脚本明确报错并在构建前停止。"""
+        minimal_tools = self.root / 'minimal-tools'
+        minimal_tools.mkdir()
+        for name in ['bash', 'dirname']:
+            (minimal_tools / name).symlink_to(shutil.which(name))
+        self.assert_preflight_failure({'PATH': str(minimal_tools)}, '未安装 Docker')
+
+    def test_unavailable_buildx_is_rejected_before_build(self):
+        """缺少 buildx 插件时停止发布，不产生 Release 或丢弃已有包。"""
+        self.assert_preflight_failure({'RELEASE_TEST_BUILDX_FAIL': '1'}, 'buildx 不可用')
+
+    def test_unavailable_daemon_is_rejected_before_build(self):
+        """Docker daemon 不可访问时停止发布，避免构建完成后才发现无法分发。"""
+        self.assert_preflight_failure({'RELEASE_TEST_DAEMON_FAIL': '1'}, 'Docker daemon 不可用')
 
     def test_harbor_before_cleanup(self):
         """默认清理策略下五平台均先取得安装包，全部分发完成后才删除构建目录。"""

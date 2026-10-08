@@ -120,12 +120,32 @@ ur skills download --json
 
 #### 安装 CLI
 
-**方式一 — 下载预编译二进制（推荐）：**
+**方式一 — 国内一键脚本（推荐，Harbor 制品源）：**
+
+```bash
+curl -fsSL https://doc.unitedrhino.com/cli/install.sh | bash
+```
+
+自动查询 Harbor 公开制品最新版本，下载、SHA256 校验并安装到 `~/.local`（CLI 与 `skill/` 一起安装）。支持 **Linux x86_64/aarch64 与 macOS Intel/Apple Silicon**（自动检测）。指定版本时把变量传给安装脚本：
+
+```bash
+curl -fsSL https://doc.unitedrhino.com/cli/install.sh | UR_TAG=v0.8.6 bash
+```
+
+**Windows（PowerShell 5.1+，无需管理员）：**
+
+```powershell
+irm https://doc.unitedrhino.com/cli/install.ps1 | iex
+```
+
+安装到 `%LOCALAPPDATA%\Programs\ur`（`ur.exe` + `skill/`）并加入用户 PATH；`$env:UR_TAG` 可指定版本。
+
+**方式二 — 从 GitHub 下载预编译二进制（其他平台或手动安装）：**
 
 ```bash
 # 1. 确定平台（注意使用 release 资产中的友好平台名）
 PLATFORM="Linux-x86_64"    # Linux-x86_64 / Linux-aarch64 / macOS-x86_64 / macOS-arm64 / Windows-x86_64
-VERSION="v0.4.1"
+VERSION="v0.8.6"
 
 # 2. 下载
 wget "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz"
@@ -142,7 +162,7 @@ mkdir -p ~/.local/bin && ln -sf ~/.local/lib/ur/ur ~/.local/bin/ur
 # 再将 ur.exe 所在目录加入系统 PATH
 ```
 
-**方式二 — 从源码构建：**
+**方式三 — 从源码构建：**
 
 ```bash
 git clone https://github.com/unitedrhino/cli.git
@@ -150,23 +170,9 @@ cd cli
 go build -ldflags "-X main.version=$(git describe --tags)" -o dist/bin/ur .
 ```
 
-**方式三 — 国内一键脚本（Harbor 制品源，免 GitHub）**：
-
-```bash
-curl -fsSL https://doc.unitedrhino.com/cli/install.sh | bash
-```
-
-自动查询 Harbor 公开制品（`docker.unitedrhino.com`）最新版本，下载、SHA256 校验并安装到 `~/.local`（含 `skill/` 目录）。支持 **Linux x86_64/aarch64 与 macOS Intel/Apple Silicon**（自动检测）；指定版本：`UR_TAG=v0.8.5 curl -fsSL ... | bash`。发版时 `scripts/release.sh` 会自动把常见五平台制品推送 Harbor。
-
-**Windows（PowerShell 5.1+，无需管理员）：**
-
-```powershell
-irm https://doc.unitedrhino.com/cli/install.ps1 | iex
-```
-
-安装到 `%LOCALAPPDATA%\Programs\ur`（`ur.exe` + `skill/`）并加入用户 PATH；`$env:UR_TAG` 可指定版本。
-
 #### 版本升级与 Skills
+
+当前 `ur upgrade` 默认优先从 Gitee 下载，失败后回退 GitHub；`UR_RELEASE_SOURCE=github` 可显式选择 GitHub。Harbor 是上述国内一键安装脚本的制品源，正式发版必须同步完成 Harbor 分发。
 
 ```bash
 # 检查是否有新版本，不安装
@@ -571,9 +577,13 @@ go test -cover ./...
 
 ## 发布（维护者）
 
+**CLI 与配套 Skills 正式发布以 Harbor 为必需渠道。** 必须发布 Linux amd64/arm64、macOS amd64/arm64、Windows amd64 五个平台的完整包，每个包同时包含 CLI、`skill/` 和版本元数据。GitHub、Gitee Release 用于同步分发、自动升级及其他平台下载；仅创建源码标签或上传 Release 不能算正式发布完成。
+
 ### 前置条件
 
-需要 GitHub 和 Gitee 的 API token，写入项目根目录的 `.env` 文件（已被 `.gitignore` 忽略，不会提交）：
+- 从已合并的主线提交创建版本标签；各远端同名标签必须指向同一提交。
+- 构建机须安装 Docker 与 buildx，并已使用维护环境提供的制品仓库凭据完成 `docker login`。正式发布禁止设置 `SKIP_HARBOR=1`；缺少 Docker、跳过推送或任一平台失败，都属于未完成发布。
+- GitHub 和 Gitee 的 API token 可通过环境变量传入，或写入项目根目录的 `.env` 文件（已被 `.gitignore` 忽略，不会提交）：
 
 ```bash
 # .env 文件内容
@@ -589,31 +599,29 @@ GITEE_RELEASE_ASSET_MODE="common"
 
 ```bash
 # 语法：bash scripts/release.sh <版本号>
-bash scripts/release.sh v0.3.7
+bash scripts/release.sh v0.8.6
 ```
 
 脚本会自动完成：
+
 1. 构建 39 个平台的二进制（Linux/macOS/Windows/FreeBSD/OpenBSD/NetBSD/Plan9/Solaris/Illumos/DragonFly/AIX × amd64/arm64/386/arm/mips/riscv64 等）
 2. 复制 skill 资源到每个平台的发布目录，写入版本元数据 `_meta.json`
 3. 打包 tar.gz（Unix）或 zip（Windows）
 4. 生成 SHA256 校验和文件 `sha256sums.txt`
 5. 创建 GitHub Release 并上传所有资产
-6. 创建 Gitee Release，默认上传校验文件、Skills 包和 Linux x86_64 常用包；完整跨平台资产由 GitHub Release 提供
+6. 创建 Gitee Release，默认上传校验文件、Skills 包和上述五个平台包；完整跨平台资产由 GitHub Release 提供
+7. 将五个平台包及各自的 SHA256 校验文件推送为 Harbor 制品，仓库名为 `urops/ur-cli-<平台>`，平台后缀为 `linux-amd64`、`linux-arm64`、`darwin-amd64`、`darwin-arm64`、`windows-amd64`，tag 为同一个版本号
+8. 全部分发成功后清理本地历史产物；任一渠道失败时保留产物并返回失败，供原构建节点补传
 
 上传使用超时和 HTTP 状态检查，任一资产失败都会明确报错。认证信息通过文件描述符或标准输入传给 `curl`，不会出现在进程参数中。
 
-### 手动发布（仅某个平台）
+### 发布验收与失败补传
 
-如果只需要发布单个平台，可手动运行对应步骤：
+- 逐一从 Harbor 读取五个平台的版本标签，并下载包核对 SHA256、CLI 版本及 `skill/_meta.json` 版本。确认 `ur-api` 五组目录、各层 `SKILL.md` 和必要资产完整；独立 Skills ZIP 应与平台包业务内容一致。
+- 核对 GitHub、Gitee 的同版本资产和发布说明，说明路径变化及迁移要求。正常 `ur upgrade` 已同步内置 Skills 和客户端副本；仅补装或指定其他目录时再运行 `ur skills install`。
+- 报告发布结果时明确写出 Harbor 五个平台的状态，附 Release 页面链接供查询；只给 GitHub/Gitee 链接不能代替 Harbor 验收结果。
 
-```bash
-# 临时设置 token
-export GITHUB_TOKEN="ghp_xxxxxxxx"
-export GITEE_TOKEN="xxxxxxxx"
-
-# 仅构建和发布
-bash scripts/release.sh v0.3.7
-```
+单个平台或单个渠道失败时，在原构建节点使用保留的 `dist/release-<版本>/packages/` 产物补传，并重新验收失败项；不得以跳过 Harbor 结束发布。`release.sh` 每次启动会重建产物并重新创建 Release，不应把完整重跑当作仅补传一个平台的命令。
 
 ---
 

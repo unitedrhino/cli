@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gitee.com/unitedrhino/cli/internal/client"
 )
@@ -177,11 +179,16 @@ func runSystemUploadFile(ctx context.Context, args []string, stdout, stderr io.W
 		fmt.Fprintf(stderr, "Error: upload-file response missing fileUri\n")
 		return 1
 	}
+	// 页面识别约定使用 /oss/ 开头的相对路径：后端可能返回带 host 的绝对地址，剥掉 scheme+host
+	relativeUri := fileUri
+	if parsed, err := url.Parse(fileUri); err == nil && parsed.Path != "" && strings.HasPrefix(parsed.Path, "/oss/") {
+		relativeUri = parsed.Path
+	}
 	fmt.Fprintf(stdout, "fileUri:  %s\n", fileUri)
 	if filePathOut != "" {
 		fmt.Fprintf(stdout, "filePath: %s\n", filePathOut)
 	}
-	fmt.Fprintln(stdout, "markdown: ["+remoteName+"]("+fileUri+")")
+	fmt.Fprintln(stdout, "markdown: ["+remoteName+"]("+relativeUri+")")
 	return 0
 }
 

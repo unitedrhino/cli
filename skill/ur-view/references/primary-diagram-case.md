@@ -109,8 +109,8 @@ ur view screen publish --id <screen-id>        # 预览页 /view/{id} 只认发�
 
 ```bash
 # 1. 截发布页全图当封面（playwright/agent-browser 均可）
-# 2. 上传（scene 必须带，返回临时桶签名 URL）
-curl -F file=@cover.png -F scene=goView/projectIndexImage .../api/v1/system/common/upload-file
+# 2. 上传临时桶（内置 multipart 直传，输出 fileUri）
+ur system upload-file --file cover.png
 # 3. 取 fileUri 路径并剥掉 "/oss/temporary/" 前缀得到临时桶 key，传给 update：
 #    后端会 CopyFromTempBucket 到公共桶并保存公共路径（/oss/public/...），永久有效
 ur api /api/v1/view/project/update --body '{"id":<屏ID>,"indexImage":"<临时桶key>","type":"screen"}'

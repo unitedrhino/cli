@@ -462,12 +462,11 @@ python3 .claude/skills/thing-model-skill/scripts/convert_gateway_schema.py
 **步骤 1：上传 ZIP 到 OSS**
 
 ```bash
-curl -X POST http://115.190.3.202:7777/api/v1/system/common/upload-file \
-  -H "token: <jwt_token>" \
-  -F "file=@/tmp/schema_import/schema.zip"
+ur system upload-file --file /tmp/schema_import/schema.zip
 
-# 响应：
-# {"code":0,"data":{"fileUri":"/oss/ithings-temporary/xxx.zip","filePath":"xxx.zip"}}
+# 输出：
+# fileUri:  /oss/ithings-temporary/xxx.zip
+# filePath: xxx.zip
 ```
 
 **步骤 2：调用批量导入**

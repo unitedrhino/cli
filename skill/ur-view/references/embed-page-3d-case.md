@@ -69,12 +69,9 @@ curl -X POST '<base>/api/v1/view/asset/upload-zip' \
 
 ```bash
 # 1. agent-browser 打开发布页，等场景数据上屏后截图（对 iframe 元素截），缩放转 JPEG
-# 2. 上传封面（注意 scene 是 goView/projectIndexImage，与素材的 goView/asset 不同）
-curl -X POST '<base>/api/v1/system/common/upload-file' \
-  -H "token: $TOKEN" -H "tenant-code: <tenantCode>" -H "app-id: 200" \
-  -F file=@cover.jpg -F isPublic=true -F business=view \
-  -F scene=goView/projectIndexImage -F useBy=user
-# 3. 回写大屏 indexImage（取上一步返回的 data.fileUri）
+# 2. 上传公开桶封面（注意 scene 是 goView/projectIndexImage，与素材的 goView/asset 不同）
+ur system upload-file --file cover.jpg --public --business view --scene goView/projectIndexImage --use-by user
+# 3. 回写大屏 indexImage（取上一步返回的 fileUri）
 ur api /api/v1/view/project/update --body '{"id":"<screenID>","indexImage":"<fileUri>"}'
 ```
 

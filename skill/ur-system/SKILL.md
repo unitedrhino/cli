@@ -125,8 +125,17 @@ metadata:
 
 上传文件 / 获取上传地址
 
-- 涉及 CLI: `ur system upload upload-file`, `ur system upload upload-url create`
+- 涉及 CLI: `ur system upload-file`, `ur system upload upload-url create`
 - 工作流: 获取上传 URL 或直接上传 → 返回文件访问路径
+
+**AI 生成文件交付给用户下载**
+
+沙箱内生成文件（统计 Excel、报表等）后交给页面用户
+
+- 涉及 CLI: `ur system upload-file`
+- 工作流: 生成文件 → `ur system upload-file --file <路径>` 上传临时桶 → 取输出的 fileUri → **在回复文本中以 markdown 链接给出** `[文件名.xlsx](/oss/ithings-temporary/xxx.xlsx)` → 页面渲染文件卡片并提供预览/下载
+- 边界: 临时桶 7 天自动过期；必须用 markdown 链接形式（页面识别约定）；不要拼对象存储绝对地址
+- 详细说明: [system-upload.md](references/system-upload.md)
 
 **批量接口调用**
 

@@ -1,6 +1,6 @@
 ---
 name: ur-api
-description: "Use when calling 联犀 SaaS 平台 API, bringing physical IoT firmware onto the platform, or parsing documents: product and device management, provisioning, MQTT, uplink/downlink, debugging, OTA, authentication recovery, project management, system management, bigscreen visualization, and document parsing. triggers: API调用, CLI登录, CLI升级, _notice, Sandbox认证, 账号密码登录, AKSK, 设备列表, IoT设备控制, 设备固件, 固件接入, BLE配网, MQTT, OTA升级, 鉴权恢复, 设备注册, 访问令牌, 物模型管理, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 大屏, 数据可视化, GoView, 文档解析, 解析PDF, 解析Excel, 读附件, ur doc"
+description: "Use when calling 联犀 SaaS 平台 API: device management, user management, product management, tenant management, AI management, project management, system management, bigscreen visualization, client debugging, or IoT device operations. triggers: API调用, CLI登录, CLI升级, _notice, Sandbox认证, 账号密码登录, AKSK, 设备列表, IoT设备控制, 设备注册, 访问令牌, 物模型管理, OTA升级, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 客户端调试, 控制台报错, 远程诊断, 问题反馈, 提交反馈, 反馈类型, 使用问题, 业务受损, 业务不可用, 大屏, 数据可视化, GoView, 画布, 看板, 编辑大屏, 发布大屏, 文档解析, 解析PDF, 解析Excel, 读附件, ur doc"
 ---
 
 # ur-api — 联犀 SaaS 平台 API 工具
@@ -25,9 +25,21 @@ CLI 主实现位于独立仓库 `unitedrhino/cli`，通过 Go CLI `ur` 提供能
 
 业务命令的 JSON 结果可能包含 `_notice.update` 或 `_notice.skills`。先完成用户当前请求，再按 `command` 简短提示或执行用户已授权的升级；统一使用 `ur upgrade` 更新 CLI 与客户端 Skills。详细规则见 `references/cli-usage.md` 的“CLI 更新提示与处理”。
 
+## 生成文件交付（AI 产文件给用户下载）
+
+用户要求生成文件（Excel/报表/图片等）并下载时，直接在沙箱内完成，不要把步骤留给用户：
+1. 用沙箱内工具生成文件（如 Python openpyxl 写 xlsx；文件名建议用英文）
+2. 执行 `ur system upload-file --file <文件路径>` 上传到临时桶（凭据已注入环境变量，无需登录）
+3. 从命令输出的 markdown 行**原样复制** `[文件名](/oss/temporary/....xlsx)` 写进回复——页面会渲染为可下载的文件卡片；fileUri 以命令输出为准，不要自行拼接或修改路径
+4. fileUri 的 `/oss/` 相对路径即为正确形态（页面经登录态代理下载）；不要拼 `http://allinone:7777` 等沙箱内地址。需要把链接发到对话外直接打开时，改用 `--public --business <业务> --use-by user` 上传公开桶（返回永久 URL）
+
 ## 文档解析(ur doc)
 
 用户上传或引用文档(PDF/Word/PPT/Excel/图片/邮件等)需要读取内容时,使用 `ur doc parse`:先 `--format outline` 看结构地图,再按需 `--format md` 通读/`--section` 取章节,或 `--format json` 落盘后用 jq 精查(excel 公式溯源、单元格坐标)。扫描件/图片加 `--ocr`(默认平台模型池计费)。完整用法见 `ur-doc/SKILL.md`。
+
+## 客户端实时调试
+
+排查已接入调试桥的客户端控制台报错、白屏或状态异常时，先读 [客户端调试 AI 流程](references/client-debug.md)。使用通用 `ur api --stream` 保持 SSE 会话，用普通 `ur api` 请求操控和诊断动作；本次会话只请求一次操控授权，后续白名单动作不再弹窗；逐条核对执行结果，用户可通过控制标识立即取消，结束时关闭流。
 
 ## 角色权限区分
 
@@ -47,14 +59,13 @@ CLI 主实现位于独立仓库 `unitedrhino/cli`，通过 Go CLI `ur` 提供能
 | ur-device | 无权限 | 设备 CRUD、属性控制 | 设备分享、收藏 |
 | ur-user | 无权限 | 用户 CRUD、角色管理 | 个人信息、修改密码 |
 | ur-product | 无权限 | 产品 CRUD、物模型管理 | 无权限 |
-| ur-ota | 无权限 | 固件包、模块与升级任务管理 | 无权限 |
 | ur-project | 无权限 | 项目 CRUD、区域管理 | 查看权限内项目 |
 | ur-ai | 无权限 | Agent 配置、告警管理 | 无权限 |
 | ur-view | 无权限 | 大屏 CRUD、画布编辑、发布管理、素材管理 | 无权限 |
 
 ### 当前用户身份
 
-调用任何联犀平台 API 前，**先运行 check 确认角色**，错误的角色会导致 403。纯外部 HTTP 任务不依赖平台角色，不为此运行 `ur check`：
+调用任何 API 前，**先运行 check 确认角色**，错误的角色会导致 403：
 
 ```bash
 ur check --json
@@ -71,13 +82,11 @@ ur check --json
 - `UserInfo` / `UserTenant`：`backend/core/service/apisvr/http/system/user/info.api`
 - `RoleInfo`：`backend/core/service/apisvr/http/system/role.api`
 
-> **说明**：`ur-user/SKILL.md` 由 `ur generate-skills` 自动生成，字段级约定统一写在本主 `SKILL.md`，避免与子域生成文件重复且被覆盖。
+> **说明**：`ur-org-manage/ur-user/SKILL.md` 由 `ur generate-skills` 自动生成，字段级约定统一写在本主 `SKILL.md`，避免与子域生成文件重复且被覆盖。
 
 ---
 
 ## AI 快速决策
-
-规则引擎 AI 任务、定时 HTTP、设备状态查询后转发或跨设备控制，先读 [AI 工具开发](ai-tool/SKILL.md)，再按其中的具体平台操作加载对应子域。设备数据模拟只是通用任务的一个可选分支，不要把模拟澄清问题或接口合同套用到普通 HTTP、巡检和转发任务。
 
 ### 第一步：确认当前用户角色
 
@@ -101,19 +110,20 @@ ur check
 | 用户意图 / 关键词 | 加载子域 | 最低所需角色 |
 |----------------|---------|------------|
 | 设备列表、设备控制、属性上报、MQTT、三元组、网关、OTA升级设备 | `ur-device` | admin（控制/CRUD），user（分享/收藏） |
-| 设备固件从零接入、编译烧录、配网、MQTT 契约、OTA 回滚、鉴权自愈 | `device-firmware` | 固件操作无平台角色；平台初始化通常需 admin |
-| OTA 升级包、模块、任务创建和进度核验 | `ur-ota` | admin |
 | 产品定义、物模型、协议脚本、OTA固件包、品类 | `ur-product` | admin |
 | 项目、区域、分组、数据权限申请 | `ur-project` | admin（管理），user（申请权限） |
 | 登录、用户信息、角色、部门、字典、通知、访问令牌、修改密码 | `ur-user` | admin（CRUD），user（自身信息） |
 | 文件上传、WebSocket、批量接口、应用管理、Hook | `ur-system` | user（上传/WS），admin（应用），platform（全局应用） |
+| 客户端控制台报错、实时日志、AI 远程诊断 | [客户端调试 AI 流程](references/client-debug.md) | 目标用户本人或平台管理员 |
 | 创建企业、企业列表、企业配置、邀请用户加入企业 | `ur-tenant` | **platform**（创建/查看全部），admin（管理本企业） |
 | AI Agent、场景联动、告警规则、数字分身、AI会话 | `ur-ai` | admin |
 | 大屏、数据可视化、GoView、画布编辑、发布大屏、看板、素材库 | `ur-view` | admin |
 
 ### 第三步：IoT AI 工具调用设计
 
-设备模拟或控制先读 [属性控制与模拟数据](ur-device/references/device-control.md)：区分云端改值、模拟上报、实体控制与只生成样例；泛称“模拟数据”时先澄清目的，不默认下发。
+下列三个客户端专题只随 CLI 完整技能包和 SaaS 整理副本提供，位于 `ur-iot/` 内；公开 skills 源仓不包含这些专题。
+
+设备模拟、测试数据或属性控制先读 [设备控制与模拟](ur-iot/ur-device/references/device-control.md)，区分纯生成、云端改值、模拟上报和实体控制；不能用仅修改云端属性证明实体控制成功。
 
 | 用户意图 / 关键词 | 加载子域 | 说明 |
 |----------------|---------|------|
@@ -158,36 +168,18 @@ ur check
 | ur-tenant | 38 | 企业管理：企业CRUD、用户管理、权限配置 |
 | ur-ai | 36 | AI管理：Agent、告警、规则引擎、场景联动 |
 
-详细端点列表见各子域 SKILL.md：
-- `ur-device/SKILL.md`
-- `ur-product/SKILL.md`
-- `ur-project/SKILL.md`
-- `ur-user/SKILL.md`
-- `ur-system/SKILL.md`
-- `ur-tenant/SKILL.md`
-- `ur-ai/SKILL.md`
+## 业务分组导航
 
-IoT AI 工具迁移相关子域：
-- `ur-iot-device/SKILL.md`
-- `ur-iot-context/SKILL.md`
-- `ur-iot-client/SKILL.md`
+按任务选择业务组，再按组内导航读取子模块；各层入口统一使用 `SKILL.md`。
 
-设备数据分析子域：
-- `ur-device-analytics/SKILL.md` — 属性历史查询、趋势分析、聚合统计、报表生成（物模型驱动）
+| 业务组 | 内容 | 入口 |
+|--------|------|------|
+| 物联网 | 设备、产品、项目、固件、OTA、物模型、协议、联动、数据与调试 | [ur-iot](ur-iot/SKILL.md) |
+| 组织管理 | 企业、用户、权限、系统与审批 | [ur-org-manage](ur-org-manage/SKILL.md) |
+| AI | Agent、告警、设备智能与 AI 工具 | [ur-ai](ur-ai/SKILL.md) |
+| 大屏 | GoView、数据绑定与场景模板 | [ur-view](ur-view/SKILL.md) |
+| 文档解析 | PDF、Office、图片与 CAD 解析 | [ur-doc](ur-doc/SKILL.md) |
 
-设备调试子域：
-- `ur-device-debug/SKILL.md` — 设备日志查询（属性/事件/命令/上下线/异常/诊断/SDK）、实时调试（属性控制/行为调用/事件发送/Mock数据）
-
-大屏可视化子域：
-- `ur-view/SKILL.md` — 大屏（GoView）项目 CRUD、画布 JSON 本地编辑闭环（pull/validate/push/publish/screenshot）、素材库管理、IoT 数据绑定配方
-
-设备端固件子域：
-- `device-firmware/SKILL.md` — 设备从产品/物模型初始化到固件接入、首刷、调试、全量 OTA、鉴权恢复和实机验收
-
-OTA 管理子域：
-- `ur-ota/SKILL.md` — 升级包上传登记、模块和升级任务管理；设备端协议与回滚由 `device-firmware` 负责
-
----
 
 ## 快速开始
 
@@ -259,6 +251,7 @@ ur check --json
 |------|------|
 | `references/auth.md` | 认证方式详解（Device Auth / JWT / 环境变量） |
 | `references/cli-usage.md` | CLI 命令用法（更新通知、多客户端 Skills 分发、API 调用、物模型、场景联动、协议脚本、schema） |
+| `references/client-debug.md` | 客户端实时调试的 SSE、日志过滤、操控确认与排障流程 |
 | `references/api-conventions.md` | API 通用约定（请求格式、响应格式、分页、权限标注） |
 | `references/troubleshooting.md` | 常见问题排查（登录失败、401/403、连接问题、问题反馈） |
 | `references/quick-reference.md` | 高频端点速查（Top 15 最常用端点） |

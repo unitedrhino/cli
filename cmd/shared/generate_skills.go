@@ -1,3 +1,4 @@
+// generate_skills.go 从 Swagger 生成 API 索引，跨应用输出同时分发完整五组业务技能。
 package shared
 
 import (
@@ -9,11 +10,15 @@ import (
 	"strings"
 
 	"gitee.com/unitedrhino/cli/internal/config"
+	"gitee.com/unitedrhino/cli/internal/skillinstall"
 	"gitee.com/unitedrhino/cli/internal/swagger"
+	"gitee.com/unitedrhino/cli/internal/upgrade"
 )
 
+// runGenerateSkills 读取应用及输出参数，将技能和索引写入目标目录，返回命令退出码。
 func runGenerateSkills(app config.CLIApp, args []string, stdout, stderr io.Writer) int {
-	outputDir := filepath.Join(".", "skill", app.BinaryName())
+	// 默认写入独立生成目录，避免覆盖作为业务内容源的 skill/。
+	outputDir := filepath.Join(".", ".temp", "generated-skills", app.BinaryName())
 	allEndpoints := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -50,10 +55,23 @@ func runGenerateSkills(app config.CLIApp, args []string, stdout, stderr io.Write
 		return 1
 	}
 
-	// 生成 SKILL.md
-	skillMD := generateSkillMD(app, filtered, allEndpoints)
+	// 跨应用输出先分发业务技能树；总入口以手写源为准，避免生成时丢失组内导航。
 	skillPath := filepath.Join(outputDir, "SKILL.md")
-	if err := os.WriteFile(skillPath, []byte(skillMD), 0o644); err != nil {
+	if allEndpoints {
+		binary, _ := os.Executable()
+		source := upgrade.FindSkillsDir(binary)
+		if _, err := os.Stat(filepath.Join("skill", "ur-iot", "SKILL.md")); err == nil {
+			source = "skill"
+		}
+		if source == "" {
+			fmt.Fprintln(stderr, "缺少内置 Skills，请使用完整 CLI 发布包或在 CLI 源仓目录运行")
+			return 1
+		}
+		if err := skillinstall.CopySource(source, outputDir); err != nil {
+			fmt.Fprintln(stderr, err.Error())
+			return 1
+		}
+	} else if err := os.WriteFile(skillPath, []byte(generateSkillMD(app, filtered, false)), 0o644); err != nil {
 		fmt.Fprintln(stderr, err.Error())
 		return 1
 	}
@@ -181,7 +199,7 @@ func runGenerateSkills(app config.CLIApp, args []string, stdout, stderr io.Write
 	return 0
 }
 
-// hermesTags 映射：CLI app → Hermes tags
+// hermesTags 将 CLI 应用映射到 Hermes 分类标签。
 var hermesTags = map[string]string{
 	"ur-platform-manage": "[platform, admin, tenant, user, auth, system]",
 	"ur-iot":             "[iot, device, product, project, ota, protocol, thing-model, rule, schema]",
@@ -197,6 +215,7 @@ var hermesTags = map[string]string{
 	"ur-iot-hook":        "[hook, webhook]",
 }
 
+// generateSkillMD 根据应用与端点生成入口正文；allEndpoints 控制跨应用索引描述。
 func generateSkillMD(app config.CLIApp, endpoints []swagger.Endpoint, allEndpoints bool) string {
 	var b strings.Builder
 

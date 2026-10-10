@@ -74,7 +74,7 @@ var docFormatsCmd = &cobra.Command{
 	Use:   "formats",
 	Short: "列出 doc 解析支持的文件格式",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		for _, e := range []string{"pdf", "docx", "pptx", "xlsx", "csv", "html", "md", "adoc", "txt", "eml", "png", "jpg", "jpeg", "bmp", "webp"} {
+		for _, e := range []string{"pdf", "docx", "pptx", "xlsx", "csv", "html", "md", "adoc", "txt", "eml", "png", "jpg", "jpeg", "bmp", "webp", "dwg", "dxf", "dxfb"} {
 			cmd.Println(e)
 		}
 		return nil

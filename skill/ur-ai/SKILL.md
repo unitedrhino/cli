@@ -178,3 +178,7 @@ ur ai chat -m "写一首诗" --stream
 - CLI 命令自动处理请求头（`app-id`、`tenant-code` 和认证头）
 - 响应格式: `{code, msg, data}`，code=200 表示成功
 - 分页格式: `{page: {page: 1, size: 10}, total: 0, list: [...]}`
+
+## 组内技能导航
+
+- [ai-tool](ai-tool/SKILL.md)

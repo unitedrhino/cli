@@ -239,6 +239,29 @@ func copyDir(src, dst string) error {
 	})
 }
 
+// CopySource 将完整五组技能源复制到生成目录，保留 SKILL.md 元信息及嵌套资源。
+// src 为内置技能根目录，dst 为生成目录；路径重叠或复制失败时返回错误。
+func CopySource(src, dst string) error {
+	source, err := filepath.Abs(src)
+	if err != nil {
+		return err
+	}
+	destination, err := filepath.Abs(dst)
+	if err != nil {
+		return err
+	}
+	if source == destination || strings.HasPrefix(destination, source+string(os.PathSeparator)) || strings.HasPrefix(source, destination+string(os.PathSeparator)) {
+		return fmt.Errorf("技能源与生成目录不得重叠")
+	}
+	// 拒绝旧平铺源，避免生成命令悄悄分发不符合当前层级的安装包。
+	for _, group := range []string{"ur-iot", "ur-org-manage", "ur-ai", "ur-view", "ur-doc"} {
+		if _, err := os.Stat(filepath.Join(source, group, "SKILL.md")); err != nil {
+			return fmt.Errorf("技能源缺少 %s/SKILL.md，请升级完整 Skills 包: %w", group, err)
+		}
+	}
+	return copyDir(source, destination)
+}
+
 // Install 将内置 skills 源（整个 ur-api：SKILL.md + 子域 + _meta.json）整体拷贝覆盖
 // 到各目标的 ur-api/ 目录。只覆盖 ur-api，保留目标内其他 AI 自有 skill；幂等。
 // dryRun 为 true 时只模拟，不写盘。

@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1#变压器低压系统 3D 电力组态图 · 依据 1.dwg 一次图</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#060b14; font-family:"Microsoft YaHei","PingFang SC",sans-serif; }
+  #app { position:fixed; inset:0; }
+  canvas { display:block; }
+
+  /* ---------- 顶部标题栏 ---------- */
+  #topbar {
+    position:fixed; top:0; left:0; right:0; height:58px; z-index:10;
+    display:flex; align-items:center; padding:0 20px; gap:16px;
+    background:linear-gradient(180deg, rgba(7,17,32,.92), rgba(7,17,32,.55) 80%, transparent);
+    pointer-events:none;
+  }
+  #topbar .logo {
+    width:34px; height:34px; border:2px solid #17e6c8; border-radius:6px; position:relative;
+    box-shadow:0 0 12px rgba(23,230,200,.45), inset 0 0 8px rgba(23,230,200,.25);
+  }
+  #topbar .logo::after {
+    content:"⚡"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:18px; color:#17e6c8;
+  }
+  #topbar h1 { font-size:19px; color:#e8f6ff; letter-spacing:2px; font-weight:600; text-shadow:0 0 14px rgba(23,180,255,.5); }
+  #topbar .sub { font-size:11px; color:#5f7f9d; letter-spacing:1px; margin-top:2px; }
+  #topbar .clock { margin-left:auto; text-align:right; pointer-events:auto; }
+  #topbar .clock .t { font-size:18px; color:#9fdcff; font-family:Consolas,monospace; text-shadow:0 0 10px rgba(80,180,255,.6); }
+  #topbar .clock .d { font-size:10px; color:#4a6a88; }
+
+  /* ---------- 左侧系统概览 ---------- */
+  #overview {
+    position:fixed; left:14px; top:70px; width:252px; z-index:10;
+    background:linear-gradient(160deg, rgba(10,25,45,.88), rgba(8,18,34,.78));
+    border:1px solid rgba(38,120,180,.45); border-radius:8px; padding:12px 14px;
+    box-shadow:0 0 24px rgba(0,60,120,.35); backdrop-filter:blur(4px);
+  }
+  #overview h2 { font-size:13px; color:#7fd8ff; letter-spacing:2px; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+  #overview h2::before { content:""; width:3px; height:12px; background:#17e6c8; box-shadow:0 0 6px #17e6c8; }
+  .kv { display:flex; justify-content:space-between; font-size:11px; padding:3px 0; border-bottom:1px dashed rgba(60,110,150,.18); }
+  .kv .k { color:#61809e; }
+  .kv .v { color:#c9ecff; font-family:Consolas,monospace; }
+  .kv .v.hl { color:#17e6c8; }
+  .gauge-row { margin-top:10px; }
+  .gauge-row .lab { font-size:10px; color:#61809e; margin-bottom:3px; }
+  .bar { height:8px; background:rgba(20,50,80,.6); border-radius:4px; overflow:hidden; border:1px solid rgba(60,120,170,.3); }
+  .bar i { display:block; height:100%; background:linear-gradient(90deg,#0fb8ff,#17e6c8); border-radius:4px; transition:width .8s; box-shadow:0 0 8px rgba(23,230,200,.6); }
+  .bar.warn i { background:linear-gradient(90deg,#ffb020,#ff6a00); box-shadow:0 0 8px rgba(255,140,0,.7); }
+
+  /* ---------- 右侧柜详情 ---------- */
+  #detail {
+    position:fixed; right:14px; top:70px; width:318px; max-height:calc(100vh - 150px); z-index:10;
+    background:linear-gradient(160deg, rgba(10,25,45,.9), rgba(8,18,34,.8));
+    border:1px solid rgba(38,120,180,.45); border-radius:8px; padding:12px 14px;
+    box-shadow:0 0 24px rgba(0,60,120,.35); backdrop-filter:blur(4px);
+    display:none; flex-direction:column;
+  }
+  #detail.show { display:flex; }
+  #detail h2 { font-size:14px; color:#17e6c8; letter-spacing:1px; display:flex; align-items:center; justify-content:space-between; }
+  #detail h2 .close { cursor:pointer; color:#5f7f9d; font-size:16px; padding:0 4px; pointer-events:auto; }
+  #detail h2 .close:hover { color:#fff; }
+  #detail .meta { font-size:10px; color:#61809e; margin:4px 0 8px; line-height:1.5; }
+  #circuit-list { overflow-y:auto; flex:1; }
+  #circuit-list::-webkit-scrollbar { width:4px; }
+  #circuit-list::-webkit-scrollbar-thumb { background:rgba(60,130,180,.4); border-radius:2px; }
+  .ckt {
+    border:1px solid rgba(50,110,160,.35); border-radius:6px; padding:6px 8px; margin-bottom:6px;
+    background:rgba(15,40,70,.35); font-size:11px;
+  }
+  .ckt .r1 { display:flex; justify-content:space-between; align-items:center; }
+  .ckt .nm { color:#e8f6ff; font-weight:600; }
+  .ckt .id { color:#7fd8ff; font-family:Consolas,monospace; font-size:10px; background:rgba(30,90,140,.4); padding:1px 5px; border-radius:3px; margin-left:6px; }
+  .ckt .r2 { display:flex; justify-content:space-between; margin-top:3px; font-family:Consolas,monospace; }
+  .ckt .r2 .brk { color:#8fb8d8; }
+  .ckt .r2 .val { color:#17e6c8; }
+  .ckt .r2 .val small { color:#4a7a9a; }
+  .ckt.spare { opacity:.45; }
+  .ckt.fire { border-color:rgba(0,220,120,.4); }
+  .ckt.fire .nm::after { content:"消防"; font-size:9px; color:#00e67a; border:1px solid rgba(0,230,120,.5); border-radius:3px; padding:0 3px; margin-left:5px; }
+  .ckt.alarm { border-color:rgba(255,140,0,.7); animation:blink 1s infinite; }
+  @keyframes blink { 50% { background:rgba(255,120,0,.18); } }
+  .ckt.alarm .r2 .val { color:#ffab2e; }
+
+  /* ---------- 底部提示 ---------- */
+  #tips {
+    position:fixed; bottom:12px; left:50%; transform:translateX(-50%); z-index:10;
+    display:flex; gap:18px; font-size:11px; color:#5f8fb5; padding:8px 20px;
+    background:rgba(8,20,36,.6); border:1px solid rgba(40,100,150,.3); border-radius:20px;
+    backdrop-filter:blur(3px); pointer-events:none;
+  }
+  #tips b { color:#9fdcff; font-weight:600; }
+  #legend {
+    position:fixed; bottom:12px; left:14px; z-index:10; font-size:10px; color:#5f8fb5;
+    background:rgba(8,20,36,.6); border:1px solid rgba(40,100,150,.3); border-radius:6px; padding:7px 10px; line-height:1.7;
+  }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:5px; vertical-align:middle; }
+
+  /* ---------- 柜标签 tooltip ---------- */
+  #hud-label {
+    position:fixed; z-index:11; pointer-events:none; display:none;
+    background:rgba(6,18,34,.92); border:1px solid rgba(23,230,200,.5); border-radius:6px;
+    padding:6px 10px; font-size:11px; color:#c9ecff; box-shadow:0 0 14px rgba(0,80,140,.5);
+  }
+  #hud-label b { color:#17e6c8; font-size:12px; }
+  #hud-label .s { color:#61809e; font-size:10px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="topbar">
+  <div class="logo"></div>
+  <div>
+    <h1>1# 变压器低压系统 · 3D 电力组态图</h1>
+    <div class="sub">依据 1.dwg 一次系统图重绘 · SCB14-800kVA / T1D1~T1D9 · GCS 型低压开关柜</div>
+  </div>
+  <div class="clock"><div class="t" id="clock-t">--:--:--</div><div class="d" id="clock-d"></div></div>
+</div>
+
+<div id="overview">
+  <h2>系统概览</h2>
+  <div class="kv"><span class="k">变压器</span><span class="v">SCB14 800kVA</span></div>
+  <div class="kv"><span class="k">电压比</span><span class="v">10±2×2.5%/0.4kV</span></div>
+  <div class="kv"><span class="k">接线组别</span><span class="v">Dyn11 · Uk 6%</span></div>
+  <div class="kv"><span class="k">低压额定</span><span class="v hl">1154.7 A</span></div>
+  <div class="kv"><span class="k">主受断路器</span><span class="v">1600A/3P</span></div>
+  <div class="kv"><span class="k">母线规格</span><span class="v">TMY-3×(80×10)</span></div>
+  <div class="kv"><span class="k">无功补偿</span><span class="v">SVG 50kvar + 190kvar</span></div>
+  <div class="gauge-row">
+    <div class="lab">变压器负载率 <span id="load-pct" style="color:#17e6c8;font-family:Consolas">--%</span></div>
+    <div class="bar" id="load-bar"><i style="width:0%"></i></div>
+  </div>
+  <div class="gauge-row">
+    <div class="lab">总功率 <span id="total-p" style="color:#9fdcff;font-family:Consolas">--</span> kW / 回路 <span id="ckt-count">--</span></div>
+    <div class="bar"><i id="total-bar" style="width:0%"></i></div>
+  </div>
+</div>
+
+<div id="detail">
+  <h2><span id="detail-title">--</span><span class="close" onclick="closeDetail()">✕</span></h2>
+  <div class="meta" id="detail-meta"></div>
+  <div id="circuit-list"></div>
+</div>
+
+<div id="legend">
+  <div><span class="dot" style="background:#17e6c8"></span>运行回路（电流实时模拟）</div>
+  <div><span class="dot" style="background:#00e67a"></span>消防回路（双电源）</div>
+  <div class="dot" style="background:#ffab2e"></div>负载告警（>85%）<br>
+  <div><span class="dot" style="background:#5b7f9e"></span>备用回路</div>
+</div>
+
+<div id="tips">
+  <span><b>左键拖动</b> 旋转</span><span><b>滚轮</b> 缩放</span><span><b>右键</b> 平移</span><span><b>点击柜体</b> 查看回路</span>
+</div>
+
+<div id="hud-label"></div>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/OrbitControls.js"></script>
+<script>
+/* =====================================================================
+ * 1# 变压器低压系统 3D 电力组态图
+ * 数据来源：1.dwg（低压配电一次系统图）解析结果
+ *  - 变压器：SCB14-800kVA，10±2×2.5%/0.4kV，Dyn11，Uk=6%，In=46.2/1154.7A
+ *  - 总柜：1600A/3P 断路器（Ir1=1200A），CT BH-0.66 1500/5×3，DT862-2 电能表
+ *  - SVG柜：50kvar（带滤波），断路器 100A/3P，CT 1500/5×3，熔断器×3
+ *  - 电容柜：190kvar 自动补偿，HH15-400A/3P 刀开关，CT 400/5，避雷器 HY1.5W-0.28/1.3
+ *  - 母线：TMY-3×(80×10)+N(80×10)，1600A 密集型母线槽（至 LLT1~2# 柜顶）
+ *  - PE 排：TMY-80×6
+ * 实时数据：当前为模拟源（正弦波动+噪声），预留对接钩子：
+ *    window.PRIMARY3D.setCircuitValue(cabinetId, circuitId, {Ia, P, Energy, online})
+ *    window.PRIMARY3D.setMode('live')  // 切换为外部驱动（如联犀 WS 推送）
+ * ===================================================================== */
+
+/* ---------------- 一次图回路数据（解析自 DWG） ---------------- */
+const CABINETS = [
+  { id:'T1D3', name:'T1D3 馈线柜', w:0.6, type:'feed', size:'600×1000×2200', circuits:[
+    { id:'AL2',    name:'泛光照明电源2',  brk:'50A/3P',  ct:'50/5',  kw:16,   run:true },
+    { id:'1ATXK',  name:'消控中心（备）', brk:'40A/3P',  ct:'50/5',  kw:10,   run:true, fire:true },
+    { id:'SP-1',   name:'备用',           brk:'80A/3P',  ct:'80/5',  kw:0,    run:false },
+    { id:'SP-2',   name:'备用',           brk:'80A/3P',  ct:'80/5',  kw:0,    run:false },
+    { id:'SP-3',   name:'备用',           brk:'80A/3P',  ct:'80/5',  kw:0,    run:false },
+  ]},
+  { id:'T1D4', name:'T1D4 馈线柜', w:0.6, type:'feed', size:'600×1000×2200', circuits:[
+    { id:'AL1',    name:'泛光照明电源1',  brk:'63A/3P',  ct:'80/5',  kw:24,   run:true },
+    { id:'1ATJK',  name:'监控中心（主）', brk:'63A/3P',  ct:'80/5',  kw:30,   run:true },
+    { id:'JFATXDT',name:'消防电梯（主）', brk:'80A/3P',  ct:'80/5',  kw:20,   run:true, fire:true },
+    { id:'1AL',    name:'咖啡吧配电箱',   brk:'160A/3P', ct:'200/5', kw:70,   run:true },
+    { id:'CDZ-1',  name:'充电桩预留电源1',brk:'400A/3P', ct:'400/5', kw:120,  run:true },
+    { id:'SP-1',   name:'备用',           brk:'200A/3P', ct:'200/5', kw:0,    run:false },
+    { id:'SP-2',   name:'备用',           brk:'160A/3P', ct:'200/5', kw:0,    run:false },
+    { id:'SP-3',   name:'备用',           brk:'100A/3P', ct:'',      kw:0,    run:false },
+  ]},
+  { id:'T1D5', name:'T1D5 馈线柜', w:0.6, type:'feed', size:'600×1000×2200', circuits:[
+    { id:'JFATXF', name:'屋顶消防风机（主）', brk:'80A/3P',  ct:'80/5',  kw:30,  run:true, fire:true },
+    { id:'3ATXF1', name:'3层消防风机1（主）',brk:'125A/3P', ct:'150/5', kw:44,  run:true, fire:true },
+    { id:'3ATXF2', name:'3层消防风机2（备）',brk:'125A/3P', ct:'150/5', kw:44,  run:true, fire:true },
+    { id:'3ATDT',  name:'主楼应急照明（主）',brk:'80A/3P',  ct:'80/5',  kw:32,  run:true, fire:true },
+    { id:'JFAPKT3',name:'屋顶空调外机电源3', brk:'400A/3P', ct:'400/5', kw:196, run:true, load:0.88 },
+    { id:'SP-1',   name:'备用',              brk:'200A/3P', ct:'200/5', kw:0,   run:false },
+    { id:'SP-2',   name:'备用',              brk:'160A/3P', ct:'',      kw:0,   run:false },
+  ]},
+  { id:'T1D6', name:'T1D6 馈线柜', w:0.6, type:'feed', size:'600×1000×2200', circuits:[
+    { id:'JFAPKT1',name:'屋顶空调外机电源1', brk:'400A/3P', ct:'400/5', kw:194, run:true },
+    { id:'3ATDT',  name:'裙房电梯配电箱（主）',brk:'80A/3P', ct:'80/5', kw:20,  run:true },
+    { id:'RDX',    name:'三层弱电机房（主）', brk:'63A/3P', ct:'80/5', kw:30,  run:true },
+    { id:'3APKQY', name:'空气源热泵配电箱',   brk:'40A/3P', ct:'50/5', kw:14,  run:true },
+    { id:'3APWT',  name:'舞台设备配电箱',     brk:'100A/3P',ct:'100/5',kw:50,  run:true },
+    { id:'SP-1',   name:'备用',               brk:'80A/3P', ct:'80/5', kw:0,   run:false },
+    { id:'SP-2',   name:'备用',               brk:'200A/3P',ct:'200/5',kw:0,   run:false },
+  ]},
+  { id:'T1D7', name:'T1D7 馈线柜', w:0.6, type:'feed', size:'600×1000×2200', circuits:[
+    { id:'2APBGT', name:'剧场主配电箱',       brk:'350A/3P',ct:'400/5', kw:155, run:true },
+    { id:'1ALGG',  name:'一层公共照明箱（备）',brk:'100A/3P',ct:'100/5',kw:50,  run:true },
+    { id:'JFATDT', name:'客梯配电箱（备）',   brk:'160A/3P',ct:'200/5', kw:40,  run:true },
+    { id:'APKT',   name:'主楼空调内机电源',   brk:'160A/3P',ct:'200/5', kw:80,  run:true },
+    { id:'2ALE1',  name:'剧场应急照明箱（备）',brk:'25A/3P', ct:'30/5', kw:2,   run:true, fire:true },
+    { id:'SP-1',   name:'备用',               brk:'200A/3P',ct:'200/5', kw:0,   run:false },
+    { id:'SP-2',   name:'备用',               brk:'100A/3P',ct:'100/5', kw:0,   run:false },
+  ]},
+  { id:'T1D8', name:'T1D8 馈线柜', w:0.6, type:'feed', size:'600×1000×2200', circuits:[
+    { id:'B1-ATSHB1',name:'地下室应急照明（主）',brk:'25A/3P', ct:'30/5', kw:3,    run:true, fire:true },
+    { id:'JFATJZ',  name:'5G基站配电箱（备）',  brk:'100A/3P',ct:'100/5',kw:50,   run:true },
+    { id:'2AL',     name:'2层办公用电',         brk:'160A/3P',ct:'200/5',kw:65,   run:true },
+    { id:'3AL',     name:'3层办公用电',         brk:'200A/3P',ct:'200/5',kw:100,  run:true },
+    { id:'4AL',     name:'4层办公电源',         brk:'200A/3P',ct:'200/5',kw:100,  run:true },
+    { id:'ALgg',    name:'楼上公共照明电源（备）',brk:'160A/3P',ct:'200/5',kw:90, run:true },
+    { id:'B1-1APRF1',name:'人防配电箱（备）',   brk:'125A/3P',ct:'150/5',kw:51.4, run:true },
+    { id:'B1-1AT1', name:'地下防火分区1消防（备）',brk:'350A/3P',ct:'400/5',kw:138,run:true, fire:true },
+    { id:'ATTYPSB1',name:'下沉庭院排水泵（主）',brk:'32A/3P', ct:'50/5', kw:8,    run:true },
+    { id:'SP-1',    name:'备用',                brk:'350A/3P',ct:'400/5',kw:0,    run:false },
+  ]},
+  { id:'T1D9', name:'T1D9 馈线柜', w:0.6, type:'feed', size:'600×1000×2200', circuits:[
+    { id:'B1-ATXFB1',name:'消防泵房（主）',        brk:'320A/3P',ct:'400/5',kw:125, run:true, fire:true },
+    { id:'B1-3AT1', name:'地下防火分区3消防（备）',brk:'125A/3P',ct:'150/5',kw:45.5,run:true, fire:true },
+    { id:'B1-4AT1', name:'地下防火分区4消防（备）',brk:'80A/3P', ct:'80/5', kw:27,  run:true, fire:true },
+    { id:'B1-ALSY1',name:'地下室配套用房1',        brk:'160A/3P',ct:'200/5',kw:80,  run:true },
+    { id:'B1-APZ1', name:'地下室非消防总箱1',      brk:'100A/3P',ct:'100/5',kw:46,  run:true },
+    { id:'B1-ATSHB1',name:'生活泵房（主）',        brk:'40A/3P', ct:'50/5', kw:15,  run:true },
+    { id:'SP-1',    name:'备用',                   brk:'200A/3P',ct:'200/5',kw:0,   run:false },
+    { id:'SP-2',    name:'备用',                   brk:'160A/3P',ct:'',     kw:0,   run:false },
+  ]},
+];
+
+const SPECIAL = {
+  transformer: { name:'T1#配变 SCB14-800kVA', un:'10±2×2.5%/0.4kV', dyn:'Dyn11 · Uk=6%', in:'46.2 / 1154.7 A' },
+  incomer:     { name:'ZC-YJV-8.7/15kV 3×70', desc:'引自本配电房相应高压柜' },
+  main:        { id:'T1#总柜', size:'1000×1000×2200', brk:'1600A/3P · Ir1=1200A', ct:'BH-0.66 1500/5×3', meter:'DT862-2 + 多功能数显表 + 浪涌保护器' },
+  svg:         { id:'SVG柜', size:'600×1000×2200', cap:'SVG 50kvar（带滤波）', brk:'100A/3P', ct:'1500/5×3 · 熔断器×3' },
+  capbank:     { id:'电容柜（可自投）', size:'800×1000×2200', cap:'无功补偿 190kvar', brk:'HH15-400A/3P 刀开关', ct:'BH-0.66 400/5', others:'控制器/接触器/电容电抗组 25kvar·7% / 30kvar·7% / 避雷器 HY1.5W-0.28/1.3' },
+};
+
+/* ---------------- Three.js 场景 ---------------- */
+const app = document.getElementById('app');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x060b14);
+scene.fog = new THREE.FogExp2(0x060b14, 0.028);
+
+const camera = new THREE.PerspectiveCamera(48, innerWidth/innerHeight, 0.1, 200);
+const QUIET = new URLSearchParams(location.search).has('shot');   // 截图模式：跳过开场动画
+const HOME_POS = new THREE.Vector3(7.4, 3.1, 7.6);
+const HOME_TGT = new THREE.Vector3(3.4, 1.2, 0);
+camera.position.copy(QUIET ? HOME_POS : new THREE.Vector3(16, 9, 22));
+
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+app.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI * 0.49;
+controls.minDistance = 2;
+controls.maxDistance = 30;
+controls.target.copy(HOME_TGT);
+
+/* 灯光 */
+scene.add(new THREE.AmbientLight(0x8899bb, 0.8));
+scene.add(new THREE.HemisphereLight(0x9fd4ff, 0x1a2a3a, 0.5));
+const key = new THREE.DirectionalLight(0xbfe4ff, 1.0); key.position.set(6, 10, 6); scene.add(key);
+const fill = new THREE.DirectionalLight(0x3a6a9a, 0.45); fill.position.set(-8, 6, -4); scene.add(fill);
+
+/* 地面 */
+{
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(60, 40),
+    new THREE.MeshStandardMaterial({ color:0x0a1524, roughness:0.85, metalness:0.35 })
+  );
+  ground.rotation.x = -Math.PI/2; ground.position.y = -0.01; scene.add(ground);
+  const grid = new THREE.GridHelper(60, 120, 0x14406a, 0x0c2440);
+  grid.material.transparent = true; grid.material.opacity = 0.55; grid.position.y = 0.001;
+  scene.add(grid);
+}
+
+/* 布局（左→右）：变压器 → 总柜 → SVG → 电容 → T1D3..T1D9 */
+const GAP = 0.72;                 // 柜中心距
+const CAB_H = 2.2, CAB_D = 1.0;
+let cursor = 0;
+const items = [];                 // {mesh, def, centerX, face}
+const cabTexes = [];              // 需要刷新的纹理
+
+function layoutX(w) { cursor += w/2; const x = cursor; cursor += w/2 + (GAP - w) * 0.5; return x; }
+
+/* 材质工厂 */
+const bodyMat  = (c) => new THREE.MeshStandardMaterial({ color:c, roughness:0.4, metalness:0.7, emissive:0x0a1c30, emissiveIntensity:0.5 });
+const edgeMat  = new THREE.LineBasicMaterial({ color:0x3fc8f8, transparent:true, opacity:0.95 });
+const glowEdge = (c) => new THREE.LineBasicMaterial({ color:c, transparent:true, opacity:0.95 });
+
+function addEdges(mesh, mat) {
+  const e = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry), mat || edgeMat);
+  mesh.add(e); return e;
+}
+
+/* ---------- 柜面 2D 组态纹理 ---------- */
+function makeFaceTexture(cab) {
+  const cv = document.createElement('canvas');
+  cv.width = 512; cv.height = 1536;
+  const tex = new THREE.CanvasTexture(cv);
+  tex.anisotropy = 4;
+  tex.userData = { cv, cab };
+  return tex;
+}
+
+function drawFace(tex) {
+  const { cv, cab } = tex.userData;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  // 底
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#0d2036'); g.addColorStop(0.5, '#0a1a2e'); g.addColorStop(1, '#081526');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // 网格
+  ctx.strokeStyle = 'rgba(45,110,160,.14)'; ctx.lineWidth = 1;
+  for (let x = 0; x <= W; x += 32) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y <= H; y += 32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  // 柜名条
+  ctx.fillStyle = 'rgba(18,60,95,.85)'; ctx.fillRect(0, 0, W, 86);
+  ctx.strokeStyle = '#2fd8ff'; ctx.lineWidth = 2; ctx.strokeRect(1, 1, W-2, 85);
+  ctx.fillStyle = '#bfefff'; ctx.font = 'bold 34px "Microsoft YaHei"'; ctx.textAlign = 'center';
+  ctx.fillText(cab.name, W/2, 40);
+  ctx.fillStyle = '#5f9fc8'; ctx.font = '18px Consolas';
+  ctx.fillText(cab.size, W/2, 70);
+  // 回路行
+  const n = cab.circuits.length;
+  const y0 = 100, rowH = (H - y0 - 14) / n;
+  cab.circuits.forEach((c, i) => {
+    const y = y0 + i * rowH;
+    const st = c.state || {};
+    const alarm = st.alarm, spare = !c.run;
+    // 抽屉格
+    ctx.fillStyle = spare ? 'rgba(40,60,80,.35)' : (c.fire ? 'rgba(6,70,45,.5)' : 'rgba(16,48,78,.55)');
+    roundRect(ctx, 10, y+5, W-20, rowH-10, 8); ctx.fill();
+    ctx.strokeStyle = alarm ? 'rgba(255,150,40,.9)' : (c.fire ? 'rgba(0,230,120,.5)' : (spare ? 'rgba(70,100,120,.3)' : 'rgba(40,140,200,.5)'));
+    ctx.lineWidth = alarm ? 2.5 : 1.2;
+    roundRect(ctx, 10, y+5, W-20, rowH-10, 8); ctx.stroke();
+    // 名称
+    ctx.textAlign = 'left';
+    ctx.fillStyle = spare ? '#5b7f9e' : (c.fire ? '#7dffc4' : (alarm ? '#ffc36b' : '#d8f2ff'));
+    let nm = c.name;
+    ctx.font = 'bold 22px "Microsoft YaHei"';
+    if (ctx.measureText(nm).width > W-200) nm = nm.slice(0, 9) + '…';
+    ctx.fillText(nm, 24, y + rowH/2 - 12);
+    ctx.fillStyle = '#5f9fc8'; ctx.font = '17px Consolas';
+    ctx.fillText(c.id, 24, y + rowH/2 + 16);
+    ctx.fillStyle = '#6fa8c8'; ctx.font = '18px Consolas';
+    ctx.textAlign = 'right';
+    ctx.fillText(c.brk, W-24, y + rowH/2 - 12);
+    if (!spare) {
+      const I = st.Ia || 0, P = st.P || 0;
+      ctx.fillStyle = alarm ? '#ffab2e' : '#17e6c8';
+      ctx.fillText(`${I.toFixed(1)}A  ${P.toFixed(1)}kW`, W-24, y + rowH/2 + 16);
+    } else {
+      ctx.fillStyle = '#3d5a75'; ctx.fillText('备用', W-24, y + rowH/2 + 16);
+    }
+  });
+  // 告警条纹
+  if (cab.alarmFlash) {
+    ctx.fillStyle = 'rgba(255,140,0,.10)'; ctx.fillRect(0, 0, W, H);
+  }
+  tex.needsUpdate = true;
+}
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath();
+}
+
+/* ---------- 普通开关柜 ---------- */
+function buildCabinet(cab) {
+  const grp = new THREE.Group();
+  const x = layoutX(cab.w);
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(cab.w, CAB_H, CAB_D),
+    bodyMat(0x11263e)
+  );
+  body.position.set(x, CAB_H/2, 0);
+  addEdges(body);
+  grp.add(body);
+
+  // 柜面
+  const tex = makeFaceTexture(cab);
+  drawFace(tex);
+  const face = new THREE.Mesh(
+    new THREE.PlaneGeometry(cab.w - 0.06, CAB_H - 0.08),
+    new THREE.MeshBasicMaterial({ map: tex })
+  );
+  face.position.set(x, CAB_H/2, CAB_D/2 + 0.005);
+  grp.add(face);
+  cabTexes.push(tex);
+
+  // 顶部柜名 sprite（小号，贴近柜顶）
+  const spr = makeTextSprite(cab.name, '#7fe8ff', 34);
+  spr.position.set(x, CAB_H + 0.26, 0);
+  spr.scale.set(1.35, 0.2, 1);
+  grp.add(spr);
+
+  // 选中高亮框
+  const hl = new THREE.Mesh(
+    new THREE.BoxGeometry(cab.w + 0.08, CAB_H + 0.08, CAB_D + 0.08),
+    new THREE.MeshBasicMaterial({ color:0x17e6c8, transparent:true, opacity:0.0 })
+  );
+  hl.position.set(x, CAB_H/2, 0);
+  grp.add(hl);
+
+  const unit = { grp, def:cab, centerX:x, faceMesh:face, body, hl, kind:'cabinet' };
+  body.userData.unit = unit; face.userData.unit = unit; hl.userData.unit = unit;
+  scene.add(grp);
+  items.push(unit);
+  return unit;
+}
+
+/* ---------- 特殊柜（总柜/SVG/电容） ---------- */
+function buildSpecial(def, w, canvas2d) {
+  const cab = { id:def.id, name:def.id, size:def.size, circuits: canvas2d.circuits };
+  const grp = new THREE.Group();
+  const x = layoutX(w);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(w, CAB_H, CAB_D), bodyMat(0x14304a));
+  body.position.set(x, CAB_H/2, 0); addEdges(body, glowEdge(0x37c4ff)); grp.add(body);
+
+  const tex = makeFaceTexture(cab);
+  drawFace(tex);
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(w-0.06, CAB_H-0.08), new THREE.MeshBasicMaterial({ map:tex }));
+  face.position.set(x, CAB_H/2, CAB_D/2 + 0.005); grp.add(face);
+  cabTexes.push(tex);
+
+  const spr = makeTextSprite(def.id, '#37c4ff', 34);
+  spr.position.set(x, CAB_H + 0.26, 0); spr.scale.set(1.5, 0.2, 1); grp.add(spr);
+
+  const hl = new THREE.Mesh(new THREE.BoxGeometry(w+0.08, CAB_H+0.08, CAB_D+0.08),
+    new THREE.MeshBasicMaterial({ color:0x37c4ff, transparent:true, opacity:0 }));
+  hl.position.set(x, CAB_H/2, 0); grp.add(hl);
+
+  const unit = { grp, def:cab, centerX:x, body, hl, kind:'special', meta:def };
+  body.userData.unit = unit; face.userData.unit = unit; hl.userData.unit = unit;
+  scene.add(grp);
+  items.push(unit);
+  return unit;
+}
+
+/* ---------- 干式变压器 ---------- */
+function buildTransformer() {
+  const w = 2.0, grp = new THREE.Group();
+  const x = layoutX(w);
+  // 底座
+  const base = new THREE.Mesh(new THREE.BoxGeometry(w, 0.12, 1.5), bodyMat(0x1c3040));
+  base.position.set(x, 0.06, 0); grp.add(base);
+  // 外壳（网孔 → 半透明+线框）
+  const shell = new THREE.Mesh(
+    new THREE.BoxGeometry(w, 2.2, 1.5),
+    new THREE.MeshStandardMaterial({ color:0x14406a, transparent:true, opacity:0.3, roughness:0.5, metalness:0.6 })
+  );
+  shell.position.set(x, 1.22, 0);
+  const se = new THREE.LineSegments(new THREE.EdgesGeometry(shell.geometry), glowEdge(0x2fd8ff));
+  shell.add(se); grp.add(shell);
+
+  // 三相线圈（俯视 z 排布 A/B/C）
+  const phaseCol = [0xffd24a, 0x59ff9e, 0xff6a5e];
+  const coilMat = (c) => new THREE.MeshStandardMaterial({ color:c, roughness:0.35, metalness:0.8, emissive:c, emissiveIntensity:0.45 });
+  for (let p = 0; p < 3; p++) {
+    const cz = (p - 1) * 0.44;
+    // 低压线圈（外）
+    const lv = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 1.3, 32, 1, true), coilMat(0x9fd8ff));
+    lv.position.set(x, 0.85, cz); grp.add(lv);
+    // 高压线圈（内）
+    const hv = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 1.18, 24, 1, true), coilMat(phaseCol[p]));
+    hv.position.set(x, 0.85, cz); grp.add(hv);
+    // 铁芯柱
+    const core = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 1.5, 16), bodyMat(0x6a7a8a));
+    core.position.set(x, 0.88, cz); grp.add(core);
+    // 上下夹件
+    const clamp = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.08, 0.22), bodyMat(0x3a8a5a));
+    clamp.position.set(x, 1.62, cz); grp.add(clamp);
+    const clamp2 = clamp.clone(); clamp2.position.y = 0.1; grp.add(clamp2);
+  }
+  // 顶部风机
+  for (let p = 0; p < 3; p++) {
+    const fan = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 0.12, 20), bodyMat(0x2a5a7a));
+    fan.position.set(x, 1.78, (p-1)*0.44); grp.add(fan);
+  }
+  // 铭牌
+  const t = SPECIAL.transformer;
+  const label = makeTextSprite(`SCB14-800kVA  ${t.un}  ${t.dyn}  In ${t.in}`, '#9fe8ff', 26, 900);
+  label.position.set(x, 2.85, 0); label.scale.set(4.4, 0.47, 1); grp.add(label);
+
+  const hl = new THREE.Mesh(new THREE.BoxGeometry(w+0.1, 2.3, 1.6),
+    new THREE.MeshBasicMaterial({ color:0xffd24a, transparent:true, opacity:0 }));
+  hl.position.set(x, 1.2, 0); grp.add(hl);
+
+  const unit = { grp, centerX:x, body:shell, hl, kind:'transformer',
+    def:{ id:'T1#配变', name:'T1#配变', size:'2000×1500×2200（外壳）', circuits:[] }, meta:t };
+  shell.userData.unit = unit; hl.userData.unit = unit;
+  scene.add(grp);
+  items.push(unit);
+  return unit;
+}
+
+/* 文字 sprite */
+function makeTextSprite(text, color, fontSize = 44, width = 512) {
+  const cv = document.createElement('canvas');
+  cv.width = width; cv.height = 96;
+  const ctx = cv.getContext('2d');
+  ctx.font = `bold ${fontSize}px "Microsoft YaHei"`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowColor = color; ctx.shadowBlur = 12;
+  ctx.fillStyle = color;
+  ctx.fillText(text, cv.width/2, cv.height/2);
+  const tex = new THREE.CanvasTexture(cv);
+  const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, transparent:true, depthWrite:false }));
+  spr.scale.set(2.2, 0.42, 1);
+  return spr;
+}
+
+/* ---------- 母排 ---------- */
+const busGroups = [];
+function buildBusbars(x1, x2, y) {
+  // 三相 + N：颜色 L1黄 L2绿 L3红 N蓝（一次图规范色）
+  const defs = [
+    { c:0xffd24a, name:'L1' }, { c:0x59ff9e, name:'L2' }, { c:0xff6a5e, name:'L3' }, { c:0x5aa8ff, name:'N' }
+  ];
+  const grp = new THREE.Group();
+  const dz = 0.09;
+  defs.forEach((d, i) => {
+    const geo = new THREE.BoxGeometry(x2 - x1, 0.045, 0.035);
+    const m = new THREE.MeshStandardMaterial({ color:d.c, emissive:d.c, emissiveIntensity:0.55, roughness:0.3, metalness:0.85 });
+    const bar = new THREE.Mesh(geo, m);
+    bar.position.set((x1+x2)/2, y, (i - 1.5) * dz);
+    grp.add(bar);
+    busGroups.push({ mesh:bar, phase:d.name });
+  });
+  return grp;
+}
+
+/* 柜顶连接支排 */
+function buildDroppers(cx, y) {
+  const mat = new THREE.MeshStandardMaterial({ color:0xffd24a, emissive:0xffd24a, emissiveIntensity:0.4, metalness:0.85, roughness:0.35 });
+  for (let i = 0; i < 4; i++) {
+    const d = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.14, 0.03), mat);
+    d.position.set(cx, y - 0.07, (i - 1.5) * 0.09);
+    scene.add(d);
+  }
+}
+
+/* ---------- 能量流动光点 ---------- */
+const flowDots = [];
+function buildFlow(pathPts, count, color, speed, size) {
+  const curve = new THREE.CatmullRomCurve3(pathPts);
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(count * 3);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const mat = new THREE.PointsMaterial({ color, size:size||0.06, transparent:true, opacity:0.95, blending:THREE.AdditiveBlending, depthWrite:false });
+  const pts = new THREE.Points(geo, mat);
+  scene.add(pts);
+  flowDots.push({ curve, geo, count, offset:Math.random(), speed });
+}
+
+/* ---------- 构建场景 ---------- */
+const txUnit = buildTransformer();
+const mainUnit = buildSpecial(SPECIAL.main, 1.0, { circuits:[
+  { id:'DL',  name:'主受断路器', brk:'1600A/3P', run:true },
+  { id:'CT',  name:'BH-0.66 1500/5 ×3', brk:'Ir1=1200A', run:true },
+  { id:'MTR', name:'DT862-2 + 数显表 + SPD', brk:'I级试验型', run:true },
+]});
+const svgUnit = buildSpecial(SPECIAL.svg, 0.6, { circuits:[
+  { id:'SVG', name:'SVG 50kvar（带滤波）', brk:'100A/3P', run:true },
+  { id:'CT',  name:'电流互感器 1500/5', brk:'×3', run:true },
+  { id:'FU',  name:'熔断器', brk:'×3', run:true },
+]});
+const capUnit = buildSpecial(SPECIAL.capbank, 0.8, { circuits:[
+  { id:'CB',   name:'无功补偿 190kvar（自动）', brk:'HH15-400A/3P', run:true },
+  { id:'C/R',  name:'电容电抗组 25/30kvar·7%', brk:'12/9 只', run:true },
+  { id:'LA',   name:'避雷器 HY1.5W-0.28/1.3', brk:'×3', run:true },
+]});
+const feedUnits = CABINETS.map(c => buildCabinet(c));
+
+const allUnits = [txUnit, mainUnit, svgUnit, capUnit, ...feedUnits];
+const xMin = txUnit.centerX - 1.0, xMax = feedUnits[feedUnits.length-1].centerX + 0.3;
+const BUS_Y = 2.36;
+
+/* 主母排（贯穿全部柜顶） */
+scene.add(buildBusbars(xMin, xMax + 0.4, BUS_Y));
+allUnits.forEach(u => buildDroppers(u.centerX, BUS_Y));
+
+/* 变压器低压端子 → 母排（粗连接母排） */
+scene.add(buildBusbars(txUnit.centerX - 0.2, txUnit.centerX + 0.55, 1.85));
+
+/* 高压进线电缆（从地面后方上来） */
+{
+  const p1 = new THREE.Vector3(txUnit.centerX + 1.9, -0.05, -2.9);
+  const p2 = new THREE.Vector3(txUnit.centerX + 1.3, 0.7, -2.0);
+  const p3 = new THREE.Vector3(txUnit.centerX + 0.5, 1.6, -1.0);
+  const p4 = new THREE.Vector3(txUnit.centerX + 0.1, 2.05, -0.35);
+  const curve = new THREE.CatmullRomCurve3([p1, p2, p3, p4]);
+  const tube = new THREE.Mesh(
+    new THREE.TubeGeometry(curve, 40, 0.022, 10),
+    new THREE.MeshStandardMaterial({ color:0x1c3a4c, emissive:0x0e2836, emissiveIntensity:0.6, roughness:0.6 })
+  );
+  scene.add(tube);
+  const lab = makeTextSprite('10kV 进线  ZC-YJV-8.7/15kV 3×70', '#ffd24a', 30, 900);
+  lab.position.set(txUnit.centerX + 1.35, 1.35, -1.85); lab.scale.set(2.9, 0.31, 1);
+  scene.add(lab);
+  const lab2 = makeTextSprite('引自本配电房相应高压柜', '#7fa8c8', 26, 700);
+  lab2.position.set(txUnit.centerX + 1.35, 1.02, -1.85); lab2.scale.set(2.2, 0.26, 1);
+  scene.add(lab2);
+}
+
+/* 能量流：高压电缆 + 低压母排 */
+buildFlow([
+  new THREE.Vector3(txUnit.centerX + 3.2, -0.05, -3.2),
+  new THREE.Vector3(txUnit.centerX + 0.9, 1.4, -1.2),
+  new THREE.Vector3(txUnit.centerX, 2.0, -0.5),
+], 14, 0xffd24a, 0.28, 0.05);
+buildFlow([
+  new THREE.Vector3(txUnit.centerX, 2.3, 0),
+  new THREE.Vector3(txUnit.centerX - 0.6, 2.32, 0),
+  new THREE.Vector3(mainUnit.centerX, 2.33, 0),
+  new THREE.Vector3(xMax + 0.4, 2.36, 0),
+], 60, 0x2fe0ff, 0.16, 0.07);
+
+/* 低压出线光点（母线槽流向 2# 变压器柜） */
+buildFlow([
+  new THREE.Vector3(xMax + 0.4, BUS_Y, 0),
+  new THREE.Vector3(xMax + 1.2, BUS_Y - 0.2, -0.6),
+  new THREE.Vector3(xMax + 1.8, 1.2, -1.4),
+], 10, 0x9f6aff, 0.2, 0.05);
+{
+  const lab = makeTextSprite('至LLT1~2#柜顶母排（1600A 密集型母线槽）', '#9f8aff', 28, 900);
+  lab.position.set(xMax + 1.2, 2.0, -1.2); lab.scale.set(3.6, 0.34, 1);
+  scene.add(lab);
+}
+
+/* PE 排 */
+{
+  const pe = new THREE.Mesh(
+    new THREE.BoxGeometry(xMax - xMin + 0.4, 0.035, 0.03),
+    new THREE.MeshStandardMaterial({ color:0x7ac8a8, emissive:0x2a6a4a, emissiveIntensity:0.5, metalness:0.8, roughness:0.4 })
+  );
+  pe.position.set((xMin + xMax)/2, 2.2, 0.35);
+  scene.add(pe);
+  const lab = makeTextSprite('PE 排 TMY-80×6', '#7ac8a8', 24, 400);
+  lab.position.set(xMax + 0.7, 2.2, 0.35); lab.scale.set(1.6, 0.24, 1);
+  scene.add(lab);
+}
+
+/* ---------------- 实时模拟数据 ---------------- */
+let SIM = { mode:'sim', t:0 };
+function ratedCurrent(brk) { return parseFloat(brk) || 100; }
+function computeState() {
+  SIM.t += 0.5;
+  const t = SIM.t;
+  let totalP = 0, runningN = 0, alarmN = 0;
+  CABINETS.forEach(cab => {
+    cab.circuits.forEach(c => {
+      if (!c.run) { c.state = { Ia:0, P:0, alarm:false }; return; }
+      const load = (c.load || 0.55) + Math.sin(t * 0.35 + hash(c.id) * 6.28) * 0.06 + Math.sin(t*0.9+hash(c.id)*12) * 0.03 + (Math.random()-0.5)*0.02;
+      const P = c.kw * Math.max(0.1, load);
+      const Ia = P * 1000 / (1.732 * 400 * 0.88);
+      const alarm = load > 0.85;
+      c.state = { Ia, P, alarm };
+      totalP += P; runningN++;
+      if (alarm) alarmN++;
+      c.alarm = alarm;
+    });
+  });
+  // 柜级告警标记
+  CABINETS.forEach(cab => cab.alarmFlash = cab.circuits.some(c => c.state && c.state.alarm));
+  return { totalP, runningN, alarmN };
+}
+function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h*31 + s.charCodeAt(i)) % 997; return h/997; }
+
+function refreshFaces() { cabTexes.forEach(drawFace); }
+
+/* 总柜/SVG/电容 特殊柜的电流模拟 */
+let mainIa = 0;
+function refreshSpecials(totalP) {
+  mainIa = totalP * 1000 / (1.732 * 400) * (1 + Math.sin(SIM.t*0.5)*0.01);
+}
+
+/* ---------------- UI 刷新 ---------------- */
+const $ = id => document.getElementById(id);
+function updateHUD(info) {
+  const pct = Math.round(info.totalP / 800 * 100);
+  $('load-pct').textContent = pct + '%';
+  const bar = $('load-bar');
+  bar.querySelector('i').style.width = Math.min(pct, 100) + '%';
+  bar.classList.toggle('warn', pct > 80);
+  $('total-p').textContent = info.totalP.toFixed(1);
+  $('total-bar').style.width = Math.min(info.totalP / 640 * 100, 100) + '%';
+  $('ckt-count').textContent = info.runningN + '运行' + (info.alarmN ? ' / ' + info.alarmN + '告警' : '');
+}
+function updateClock() {
+  const d = new Date();
+  $('clock-t').textContent = d.toLocaleTimeString('zh-CN', { hour12:false });
+  $('clock-d').textContent = d.toLocaleDateString('zh-CN') + ' 周' + '日一二三四五六'[d.getDay()];
+}
+
+/* ---------------- 交互：点击柜体 ---------------- */
+const ray = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let selected = null;
+let camTween = null;
+
+renderer.domElement.addEventListener('pointerdown', e => {
+  if (e.button !== 0) return;
+  mouse.x = (e.clientX / innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+  ray.setFromCamera(mouse, camera);
+  const meshes = [];
+  items.forEach(u => { u.body && meshes.push(u.body); });
+  const hit = ray.intersectObjects(meshes, false)[0];
+  if (hit && hit.object.userData.unit) selectUnit(hit.object.userData.unit);
+});
+
+function selectUnit(unit) {
+  selected = unit;
+  items.forEach(u => u.hl && (u.hl.material.opacity = 0));
+  if (unit.hl) unit.hl.material.opacity = 0.16;
+  // 相机 tween 到柜前
+  const cx = unit.centerX;
+  const target = new THREE.Vector3(cx, 1.2, 0);
+  const dist = unit.kind === 'transformer' ? 5.2 : 4.2;
+  const pos = new THREE.Vector3(cx + dist*0.0, 1.9, dist);
+  camTween = { p0:camera.position.clone(), p1:pos, t0:controls.target.clone(), t1:target, k:0 };
+  showDetail(unit);
+}
+function closeDetail() {
+  selected = null;
+  $('detail').classList.remove('show');
+  items.forEach(u => u.hl && (u.hl.material.opacity = 0));
+}
+window.closeDetail = closeDetail;
+
+function showDetail(unit) {
+  const d = $('detail');
+  d.classList.add('show');
+  const meta = unit.meta || unit.def;
+  if (unit.kind === 'transformer') {
+    $('detail-title').textContent = 'T1# 配变';
+    $('detail-meta').innerHTML = `SCB14-800kVA 干式变压器（带外壳）<br>${meta.un} · ${meta.dyn} · In ${meta.in}<br>风机/温控器：变压器厂家配套 · 外壳防护 IP30<br>配变温度保护电源：32A/3P`;
+    renderCircuits([]);
+  } else if (unit.kind === 'special') {
+    $('detail-title').textContent = meta.id;
+    const rows = Object.entries(meta).filter(([k]) => !['id','size'].includes(k)).map(([k, v]) => `${k === 'name' ? '' : ''}${v}`).join('<br>');
+    $('detail-meta').innerHTML = `柜体 ${meta.size}<br>` + rows;
+    renderCircuits(unit.def.circuits.map(c => ({ ...c, state:{ Ia: 0, P: 0 } })), true);
+  } else {
+    $('detail-title').textContent = unit.def.name;
+    $('detail-meta').innerHTML = `GCS 型低压开关柜 · 柜体 ${unit.def.size}<br>母线 TMY-3×(80×10)+N(80×10) · 抽屉式回路`;
+    renderCircuits(unit.def.circuits);
+  }
+}
+function renderCircuits(list, staticMode) {
+  const el = $('circuit-list');
+  if (!list.length) { el.innerHTML = '<div style="color:#5f7f9e;font-size:11px;padding:8px">（变压器本体无二次回路，温控/风机由厂家配套）</div>'; return; }
+  el.innerHTML = list.map(c => {
+    const st = c.state || {};
+    const cls = c.run ? (st.alarm ? 'alarm' : (c.fire ? 'fire' : '')) : 'spare';
+    const vals = staticMode ? `<span class="val">—</span>`
+      : (c.run ? `<span class="val">${(st.Ia||0).toFixed(1)}A · ${(st.P||0).toFixed(1)}kW <small>${st.alarm ? '⚠过载' : ''}</small></span>`
+               : `<span class="val" style="color:#5b7f9e">未投运</span>`);
+    return `<div class="ckt ${cls}">
+      <div class="r1"><span class="nm">${c.name}</span><span class="id">${c.id}</span></div>
+      <div class="r2"><span class="brk">${c.brk}${c.ct ? ' · CT ' + c.ct : ''}</span>${vals}</div>
+    </div>`;
+  }).join('');
+}
+
+/* HUD 标签跟随 */
+const hud = $('hud-label');
+renderer.domElement.addEventListener('pointermove', e => {
+  mouse.x = (e.clientX / innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+  ray.setFromCamera(mouse, camera);
+  const meshes = items.filter(u => u.body).map(u => u.body);
+  const hit = ray.intersectObjects(meshes, false)[0];
+  if (hit && hit.object.userData.unit) {
+    const u = hit.object.userData.unit;
+    hud.style.display = 'block';
+    hud.style.left = (e.clientX + 14) + 'px';
+    hud.style.top = (e.clientY + 14) + 'px';
+    const n = u.def.circuits ? u.def.circuits.filter(c => c.run).length : 0;
+    hud.innerHTML = `<b>${u.def.id}</b><br><span class="s">${u.kind === 'transformer' ? 'SCB14-800kVA 干式变压器' : (n ? n + ' 个运行回路 · 点击查看' : u.def.size || '')}</span>`;
+    renderer.domElement.style.cursor = 'pointer';
+  } else {
+    hud.style.display = 'none';
+    renderer.domElement.style.cursor = 'default';
+  }
+});
+
+/* ---------------- 外部数据对接钩子（联犀 IoT 预留） ---------------- */
+window.PRIMARY3D = {
+  mode: 'sim',
+  setMode(m) { this.mode = m; SIM.mode = m; },
+  /* 传入真实值：setCircuitValue('T1D4','1AL',{Ia:120.5,P:66.8,Energy:1023.4}) */
+  setCircuitValue(cabId, cktId, data) {
+    const cab = CABINETS.find(c => c.id === cabId);
+    if (!cab) return false;
+    const c = cab.circuits.find(x => x.id === cktId);
+    if (!c) return false;
+    c.state = Object.assign(c.state || {}, data);
+    return true;
+  }
+};
+
+/* ---------------- 主循环 ---------------- */
+let last = performance.now(), acc = 0, faceAcc = 0;
+function animate(now) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((now - last) / 1000, 0.1); last = now;
+
+  // 相机 tween
+  if (camTween) {
+    camTween.k = Math.min(camTween.k + dt * 2.2, 1);
+    const k = 1 - Math.pow(1 - camTween.k, 3);
+    camera.position.lerpVectors(camTween.p0, camTween.p1, k);
+    controls.target.lerpVectors(camTween.t0, camTween.t1, k);
+    if (camTween.k >= 1) camTween = null;
+  }
+
+  // 能量流光点
+  flowDots.forEach(f => {
+    const pos = f.geo.attributes.position.array;
+    for (let i = 0; i < f.count; i++) {
+      const u = ((i / f.count) + now * 0.001 * f.speed + f.offset) % 1;
+      const p = f.curve.getPoint(u);
+      pos[i*3] = p.x; pos[i*3+1] = p.y; pos[i*3+2] = p.z;
+    }
+    f.geo.attributes.position.needsUpdate = true;
+  });
+
+  // 母排呼吸发光
+  busGroups.forEach((b, i) => {
+    b.mesh.material.emissiveIntensity = 0.45 + Math.sin(now * 0.002 + i) * 0.15;
+  });
+
+  // 每 0.5s 模拟一次数据
+  acc += dt;
+  if (acc >= 0.5 && SIM.mode === 'sim') {
+    acc = 0;
+    const info = computeState();
+    refreshSpecials(info.totalP);
+    updateHUD(info);
+  }
+  // 每 1s 重绘柜面
+  faceAcc += dt;
+  if (faceAcc >= 1) {
+    faceAcc = 0;
+    refreshFaces();
+    if (selected) showDetail(selected);
+    updateClock();
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+updateClock();
+refreshFaces();
+requestAnimationFrame(animate);
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+/* 初始自动巡游：从全景推到柜列（截图模式直接就位） */
+if (!QUIET) {
+  camTween = { p0:new THREE.Vector3(16, 9, 22), p1:HOME_POS.clone(),
+               t0:new THREE.Vector3(3.4, 1.2, 0), t1:HOME_TGT.clone(), k:0 };
+  camera.position.copy(camTween.p0);
+}
+
+/* URL 参数 ?sel=T1D4：自动选中柜体（验证交互 / 分享定位） */
+{
+  const want = new URLSearchParams(location.search).get('sel');
+  if (want) {
+    const u = items.find(x => x.def.id === want || (x.def.name || '').startsWith(want));
+    if (u) setTimeout(() => selectUnit(u), 300);
+  }
+}
+</script>
+</body>
+</html>

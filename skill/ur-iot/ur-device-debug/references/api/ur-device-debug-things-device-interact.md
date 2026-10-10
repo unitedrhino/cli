@@ -1,4 +1,8 @@
-# 全部端点速查
+# ur-device-debug things/device/interact
+
+获取调用设备行为的结果 等
+
+## 端点概览
 
 | 方法 | 端点 | 说明 | 权限 |
 |------|------|------|------|
@@ -13,10 +17,8 @@
 | POST | `/api/v1/things/device/interact/property-get-report-batch-send` | 批量请求设备获取设备最新属性 | admin |
 | POST | `/api/v1/things/device/interact/property-get-report-send` | 请求设备获取设备最新属性 | admin |
 | POST | `/api/v1/things/device/interact/schema-mock-gen` | 生成物模型模拟数据 | admin |
-| POST | `/api/v1/things/device/interact/gateway-get-found-send` | 请求网关上报拓扑关系 | admin |
-| POST | `/api/v1/things/device/interact/gateway-notify-bind-send` | 通知网关绑定子设备 | admin |
 
-## 端点详情
+## 详细说明
 
 ### POST `/api/v1/things/device/interact/action-get-one`
 
@@ -538,7 +540,7 @@ ur api /api/v1/things/device/interact/property-get-report-send \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `dataIDs` | array[string] | 否 | 属性不填生成全部属性，事件不填生成全部上行事件，行为不填生成全部下行行为 |
+| `dataIDs` | array[string] | 否 | 属性不填为返回全部, 事件和行为必须填一个 |
 | `deviceName` | string | 否 | 设备名 |
 | `productID` | string | 是 | 产品id |
 | `type` | integer | 是 | 物模型类型 1:property属性 2:event事件 3:action行为 (格式: int64) |
@@ -570,84 +572,4 @@ ur api /api/v1/things/device/interact/property-get-report-send \
 ```bash
 ur api /api/v1/things/device/interact/schema-mock-gen \
   --body '{"dataIDs": ["string"], "deviceName": "string", "productID": "string", "type": 1}'
-```
-
-### POST `/api/v1/things/device/interact/gateway-get-found-send`
-
-**说明**: 请求网关上报拓扑关系
-
-**权限**: admin
-
-**请求体字段**:
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `deviceName` | string | 是 | 设备名(必填) |
-| `productID` | string | 是 | 产品id (必填) |
-
-**请求示例**:
-```json
-{
-  "deviceName": "string",
-  "productID": "string"
-}
-```
-
-**响应示例**:
-```json
-{
-  "code": 200,
-  "msg": "success"
-}
-```
-
-**调用示例**:
-```bash
-ur api /api/v1/things/device/interact/gateway-get-found-send \
-  --body '{"deviceName": "string", "productID": "string"}'
-```
-
-### POST `/api/v1/things/device/interact/gateway-notify-bind-send`
-
-**说明**: 通知网关绑定子设备
-
-**权限**: admin
-
-**请求体字段**:
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `gateway` | object | 是 |  |
-| `gateway.deviceName` | string | 是 | 设备名称 |
-| `gateway.productID` | string | 是 | 产品ID |
-| `subDevices` | array[DeviceCore] | 是 | 如果是不同的产品,则传这个字段,上面两个参数填了优先使用 |
-
-**请求示例**:
-```json
-{
-  "gateway": {
-    "deviceName": "示例名称",
-    "productID": "string"
-  },
-  "subDevices": [
-    {
-      "deviceName": "示例名称",
-      "productID": "string"
-    }
-  ]
-}
-```
-
-**响应示例**:
-```json
-{
-  "code": 200,
-  "msg": "success"
-}
-```
-
-**调用示例**:
-```bash
-ur api /api/v1/things/device/interact/gateway-notify-bind-send \
-  --body '{"gateway": {"deviceName": "示例名称", "productID": "string"}, "subDevices": [{"deviceName": "示例名称", "productID": "string"}]}'
 ```

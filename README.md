@@ -392,6 +392,19 @@ ur doc parse report.pdf --pdf-max-file-size-mb 100 --pdf-max-pages 5000
 
 本地文件会在读取前检查大小，URL 与 stdin 使用有界读取；限制参数必须大于 0。PDF 结构资源超限直接失败，单张损坏或超限图片只被跳过，不影响可安全提取的正文。
 
+CAD 图纸按图框组织图名、渲染图和文本。GLB 2.0 三维模型使用 docling v1.5.0 提取场景、节点关系、网格、渲染材质及文件已有的 `extras` / `extensions` 属性，保留对象索引和来源 JSON 指针：
+
+```bash
+ur doc formats
+ur doc parse 施工图.dwg --format outline
+ur doc parse 模型.glb --format outline
+ur doc parse 模型.glb --format md --section 泵
+ur doc parse 模型.glb --format content-list --out model-items.json
+ur doc parse 模型.glb --format json --out model.json
+```
+
+在 WorkBuddy 等已安装联犀 Skills 的 AI 工具中，可指定模型文件，让 AI 整理节点关系、设备名称和已有属性，并注明来源。CLI 本地解析不需要平台认证；它输出模型元数据，不渲染几何、不解压扩展几何，也不从外观推断工程材料、尺寸或设备参数。GLB 解析上限为文件 128 MiB、JSON 块 16 MiB、节点 10,000 个。
+
 ### API 调用
 
 ```bash

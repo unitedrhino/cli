@@ -5,7 +5,7 @@ go 1.25.6
 require (
 	github.com/spf13/cobra v1.10.2
 	github.com/tidwall/gjson v1.19.0
-	github.com/unitedrhino/docling v1.4.0
+	github.com/unitedrhino/docling v1.5.0
 )
 
 require (
@@ -17,6 +17,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.27 // indirect
 	github.com/mrjoshuak/go-jpeg2000 v1.5.12 // indirect
 	github.com/pdfcpu/pdfcpu v0.15.0 // indirect
+	github.com/qmuntal/gltf v0.29.0 // indirect
 	github.com/richardlehane/mscfb v1.0.7 // indirect
 	github.com/richardlehane/msoleps v1.0.6 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect

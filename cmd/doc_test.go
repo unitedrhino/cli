@@ -180,8 +180,15 @@ func TestDocFormatsCommand(t *testing.T) {
 	if err := docFormatsCmd.RunE(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(out.String(), "pdf") || !strings.Contains(out.String(), "xlsx") {
-		t.Fatalf("formats=%s", out.String())
+	formats := strings.Fields(out.String())
+	for _, want := range []string{"pdf", "xlsx", "dwg", "dxf", "dxfb", "glb"} {
+		found := false
+		for _, format := range formats {
+			found = found || format == want
+		}
+		if !found {
+			t.Fatalf("formats 缺少 %q: %s", want, out.String())
+		}
 	}
 }
 

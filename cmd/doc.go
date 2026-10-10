@@ -60,6 +60,8 @@ var docParseCmd = &cobra.Command{
   ur doc parse 报告.pdf --format outline
   ur doc parse 报告.pdf --format md --section 第四章
   ur doc parse 报表.xlsx --format json --out d.json
+  ur doc parse 模型.glb --format outline
+  ur doc parse 模型.glb --format md --section 泵
   jq -r '.texts[]|select(.meta.docling__xlsx_formula)|[.text,.meta.docling__xlsx_formula]|@tsv' d.json`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
@@ -74,7 +76,7 @@ var docFormatsCmd = &cobra.Command{
 	Use:   "formats",
 	Short: "列出 doc 解析支持的文件格式",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		for _, e := range []string{"pdf", "docx", "pptx", "xlsx", "csv", "html", "md", "adoc", "txt", "eml", "png", "jpg", "jpeg", "bmp", "webp", "dwg", "dxf", "dxfb"} {
+		for _, e := range []string{"pdf", "docx", "pptx", "xlsx", "csv", "html", "md", "adoc", "txt", "eml", "png", "jpg", "jpeg", "bmp", "webp", "dwg", "dxf", "dxfb", "glb"} {
 			cmd.Println(e)
 		}
 		return nil
@@ -82,7 +84,7 @@ var docFormatsCmd = &cobra.Command{
 }
 
 // docCmd 是 `ur doc` 父命令。
-var docCmd = &cobra.Command{Use: "doc", Short: "文档解析:把 PDF/Office/图片等转为 AI 友好的结构化输出"}
+var docCmd = &cobra.Command{Use: "doc", Short: "文档解析:把 PDF/Office/图片/CAD/GLB 转为 AI 友好的结构化输出"}
 
 func init() {
 	docParseCmd.Flags().StringVar(&docParseOpts.format, "format", "outline", "输出格式: outline|md|content-list|json")

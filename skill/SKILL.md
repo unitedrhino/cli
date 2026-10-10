@@ -1,6 +1,6 @@
 ---
 name: ur-api
-description: "Use when calling 联犀 SaaS 平台 API: device management, user management, product management, tenant management, AI management, project management, system management, bigscreen visualization, client debugging, or IoT device operations. triggers: API调用, CLI登录, CLI升级, _notice, Sandbox认证, 账号密码登录, AKSK, 设备列表, IoT设备控制, 设备注册, 访问令牌, 物模型管理, OTA升级, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 客户端调试, 控制台报错, 远程诊断, 问题反馈, 提交反馈, 反馈类型, 使用问题, 业务受损, 业务不可用, 大屏, 数据可视化, GoView, 画布, 看板, 编辑大屏, 发布大屏, 文档解析, 解析PDF, 解析Excel, 读附件, ur doc"
+description: "Use when calling 联犀 SaaS 平台 API: device management, user management, product management, tenant management, AI management, project management, system management, bigscreen visualization, client debugging, or IoT device operations. triggers: API调用, CLI登录, CLI升级, _notice, Sandbox认证, 账号密码登录, AKSK, 设备列表, IoT设备控制, 设备注册, 访问令牌, 物模型管理, OTA升级, 场景联动, 权限配置, swagger schema, 项目管理, 区域管理, 系统管理, 客户端调试, 控制台报错, 远程诊断, 问题反馈, 提交反馈, 反馈类型, 使用问题, 业务受损, 业务不可用, 大屏, 数据可视化, GoView, 画布, 看板, 编辑大屏, 发布大屏, 文档解析, 解析PDF, 解析Excel, 读附件, 解析GLB, 三维模型分析, ur doc"
 ---
 
 # ur-api — 联犀 SaaS 平台 API 工具
@@ -27,7 +27,7 @@ CLI 主实现位于独立仓库 `unitedrhino/cli`，通过 Go CLI `ur` 提供能
 
 ## 文档解析(ur doc)
 
-用户上传或引用文档(PDF/Word/PPT/Excel/图片/邮件等)需要读取内容时,使用 `ur doc parse`:先 `--format outline` 看结构地图,再按需 `--format md` 通读/`--section` 取章节,或 `--format json` 落盘后用 jq 精查(excel 公式溯源、单元格坐标)。扫描件/图片加 `--ocr`(默认平台模型池计费)。完整用法见 `ur-doc/SKILL.md`。
+用户上传或引用 PDF、Office、图片、邮件、CAD 图纸或 GLB 三维模型时，使用 `ur doc parse`：先 `--format outline` 看结构，再用 `--format md --section` 读取相关章节，或 `--format json --out` 落盘精查。GLB 只读取模型已有结构与属性，并保留来源；不能从外观推测工程参数。本地解析不需要平台认证，扫描件 OCR 需要对应模型凭据。完整用法见 [文档解析](ur-doc/SKILL.md)。
 
 ## 客户端实时调试
 
@@ -170,7 +170,7 @@ ur check
 | 组织管理 | 企业、用户、权限、系统与审批 | [ur-org-manage](ur-org-manage/SKILL.md) |
 | AI | Agent、告警、设备智能与 AI 工具 | [ur-ai](ur-ai/SKILL.md) |
 | 大屏 | GoView、数据绑定与场景模板 | [ur-view](ur-view/SKILL.md) |
-| 文档解析 | PDF、Office、图片与 CAD 解析 | [ur-doc](ur-doc/SKILL.md) |
+| 文档解析 | PDF、Office、图片、CAD 与 GLB 解析 | [ur-doc](ur-doc/SKILL.md) |
 
 
 ## 快速开始

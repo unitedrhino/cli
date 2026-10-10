@@ -1,11 +1,13 @@
 ---
 name: ur-doc
-description: "Use when 用户上传或引用文档/CAD 图纸需要读取内容: 解析 PDF/Word/PPT/Excel/HTML/Markdown/邮件/图片/CAD 图纸(DWG/DXF)为结构地图、Markdown 或无损 Docling JSON;章节提取、表格数字来源解释、excel 公式溯源、扫描件 OCR、施工图逐图框拆分与图名提取、图纸转图片、图纸知识库入库。triggers: 文档解析, 解析PDF, 解析Excel, 解析Word, 读附件, 用户上传文件, 文件内容, excel公式, 数字怎么来的, 第几章讲的什么, 解析CAD, 解析DWG, 解析DXF, 施工图, 图纸拆分, 图纸转图片, 图纸知识库, ur doc parse, ur doc"
+description: "使用联犀 CLI 解析文档、CAD 图纸和 GLB 三维模型，提取章节、图框、文本、模型属性与来源；适用于读附件、图纸分析、模型分析、知识库入库和 ur doc 命令。"
 ---
 
 # ur-doc — 文档解析(`ur doc`)
 
-`ur doc` 基于 docling 库把 18 类扩展名(pdf/docx/pptx/xlsx/csv/html/md/adoc/txt/eml/png/jpg/bmp/webp/dwg/dxf/dxfb)转为 AI 友好输出。命令只做**通用转换**;单元格、公式、章节等精查交给 jq(沙箱已预装)。CAD 图纸(DWG R9~R2018/DXF)自动按图框拆分:每张图框一节(图名标题+渲染图+图框内文本),中文标注与 φ/°/± 符号原生可读。
+`ur doc` 基于 docling 将 PDF、Office、图片、邮件等文档，以及 DWG/DXF/DXFB 图纸、GLB 2.0 三维模型转为结构地图、Markdown、content-list 或 Docling JSON。用 `ur doc formats` 查看当前 CLI 支持的扩展名。
+
+CAD 图纸自动按识别到的图框组织图名、渲染图和文本。GLB 提取场景、节点关系、网格、渲染材质及已有属性；CLI 只做元数据转换，不渲染三维几何。
 
 ## 命令
 
@@ -53,6 +55,29 @@ ur doc parse 施工图.dwg --format json --out d.json   # 3. 无损 JSON:文本�
 
 - DWG 自动按图框拆分,图名从标题栏提取(如"RD-31-十三层弱电平面图");设计说明/图例表等无框内容自动兜底切分
 - 中文标注、φ/°/± 符号、尺寸标注数值直接可读,适合图纸知识库入库与多模态问答(文本+渲染图一起给模型)
+
+## 场景 4：读取 GLB 三维模型
+
+先查看结构，再只读取相关节点的属性，保留对象索引与来源：
+
+```bash
+ur doc parse 模型.glb --format outline
+ur doc parse 模型.glb --format md --section 泵
+ur doc parse 模型.glb --format content-list --out model-items.json
+ur doc parse 模型.glb --format json --out model.json
+# 查看对象来源；pointer 如 #/nodes/1，可回到原模型 JSON 定位。
+jq '.texts[] | select(.meta["glb:source"]) | {text, source: .meta["glb:source"]}' model.json
+```
+
+在 WorkBuddy / CodeBuddy 中，指定可访问的文件后，可请求：
+
+> 用联犀 CLI 分析工作目录里的“模型.glb”，整理场景、节点关系、设备名称和已有属性，注明节点索引及来源；模型没有写明的参数单独列出。
+
+- GLB 支持来自 docling v1.5.0；使用前核对 `ur doc formats` 包含 `glb`。老版本使用 `ur upgrade` 更新 CLI 与客户端 Skills，重新加载会话后再解析。
+- `extras` / `extensions` 中已有属性进入正文和 JSON；设备编号等大整数保持原始精度。content-list 保留节点章节与“模型来源”正文，JSON 另有 `glb:source` 元数据。
+- 渲染材质名称不等于工程材料。没有写入文件的尺寸、数量、BOM 和设备参数不能凭外观或节点名称推测。
+- 不请求外部纹理或缓冲，不解压 Draco 几何或解码 KTX2 纹理，也不把 `--ocr` 用作三维视觉分析。模型结构与属性可接入知识库；三维预览由知识库前端提供。
+- 文件上限 128 MiB、JSON 块上限 16 MiB、节点上限 10,000；损坏容器或非法节点关系直接报错。
 
 ## 大文档纪律
 

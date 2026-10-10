@@ -137,6 +137,7 @@ build_for_arch() {
   # 覆盖生成器的总入口，保留其生成的 references 索引，不生成扁平兼容副本。
   cp -R "${ROOT}/skill/." "${api_skill_dir}/"
 
+
   # 保留顶层 SKILL.md 作为向后兼容的入口（内容指向 ur-api）
   cat > "${skill_dir}/SKILL.md" <<'INDEX'
 ---

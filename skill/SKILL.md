@@ -25,6 +25,14 @@ CLI 主实现位于独立仓库 `unitedrhino/cli`，通过 Go CLI `ur` 提供能
 
 业务命令的 JSON 结果可能包含 `_notice.update` 或 `_notice.skills`。先完成用户当前请求，再按 `command` 简短提示或执行用户已授权的升级；统一使用 `ur upgrade` 更新 CLI 与客户端 Skills。详细规则见 `references/cli-usage.md` 的“CLI 更新提示与处理”。
 
+## 生成文件交付（AI 产文件给用户下载）
+
+用户要求生成文件（Excel/报表/图片等）并下载时，直接在沙箱内完成，不要把步骤留给用户：
+1. 用沙箱内工具生成文件（如 Python openpyxl 写 xlsx；文件名建议用英文）
+2. 执行 `ur system upload-file --file <文件路径>` 上传到临时桶（凭据已注入环境变量，无需登录）
+3. 从命令输出的 markdown 行**原样复制** `[文件名](/oss/temporary/....xlsx)` 写进回复——页面会渲染为可下载的文件卡片；fileUri 以命令输出为准，不要自行拼接或修改路径
+4. fileUri 的 `/oss/` 相对路径即为正确形态（页面经登录态代理下载）；不要拼 `http://allinone:7777` 等沙箱内地址。需要把链接发到对话外直接打开时，改用 `--public --business <业务> --use-by user` 上传公开桶（返回永久 URL）
+
 ## 文档解析(ur doc)
 
 用户上传或引用文档(PDF/Word/PPT/Excel/图片/邮件等)需要读取内容时,使用 `ur doc parse`:先 `--format outline` 看结构地图,再按需 `--format md` 通读/`--section` 取章节,或 `--format json` 落盘后用 jq 精查(excel 公式溯源、单元格坐标)。扫描件/图片加 `--ocr`(默认平台模型池计费)。完整用法见 `ur-doc/SKILL.md`。

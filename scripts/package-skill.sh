@@ -200,6 +200,21 @@ DEVICE_VOICE_AI
 OTA_MANAGEMENT
   fi
 
+  # Swagger 导出不包含文件交付工作流（沙箱 terminal 与 upload-file 属 CLI 领域命令），
+  # 通用对话助手需要该约定才能在用户只说「生成 XX 给我」时自主完成生成与交付。
+  if ! grep -Fq '生成文件交付' "${api_skill_dir}/SKILL.md"; then
+    cat >> "${api_skill_dir}/SKILL.md" <<'FILE_DELIVERY'
+
+## 生成文件交付（AI 产文件给用户下载）
+
+用户要求生成文件（Excel/报表/图片等）并下载时，直接在沙箱内完成，不要把步骤留给用户：
+1. 用沙箱内工具生成文件（如 Python openpyxl 写 xlsx；文件名建议用英文）
+2. 执行 `ur system upload-file --file <文件路径>` 上传到临时桶（凭据已注入环境变量，无需登录）
+3. 从命令输出的 markdown 行**原样复制** `[文件名](/oss/temporary/....xlsx)` 写进回复——页面会渲染为可下载的文件卡片；fileUri 以命令输出为准，不要自行拼接或修改路径
+4. fileUri 的 `/oss/` 相对路径即为正确形态（页面经登录态代理下载）；不要拼 `http://allinone:7777` 等沙箱内地址。需要把链接发到对话外直接打开时，改用 `--public --business <业务> --use-by user` 上传公开桶（返回永久 URL）
+FILE_DELIVERY
+  fi
+
   # Swagger 导出不包含手写场景模板，必须随统一技能递归分发源码和本地资源。
   mkdir -p "${api_skill_dir}/ur-view"
   cp -R "${ROOT}/skill/ur-view/." "${api_skill_dir}/ur-view/"

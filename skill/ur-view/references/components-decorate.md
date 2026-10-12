@@ -1,11 +1,12 @@
 # Decorates 装饰 / Presets 预置组件
 
-> 本文件是 [components.md](components.md) 的子文档：Decorates 装饰（30）与 Presets 预置（6）类别清单（快照日期 2026-08-03，内容未改动）。
+> 本文件是 [components.md](components.md) 的子文档：Decorates 装饰（31）与 Presets 预置（6）类别清单（快照日期 2026-08-03；2026-10-12 手工补充自研 SceneEmbed 行）。
 
-## Decorates 装饰（30）
+## Decorates 装饰（31）
 
 | key | chartKey | 标题 | chartFrame | 支持的 IoT queryType | 适用场景 | 状态与注意点 |
 | --- | --- | --- | --- | --- | --- | --- |
+| SceneEmbed | VSceneEmbed | 3D嵌入场景 | common | property, deviceStatus | 三维场景嵌入（自研） | 见 [scene-embed.md](scene-embed.md)；nodeBindings 绑定场景锚点 |
 | Border01 | VBorder01 | 边框-01 | static | — | 纯装饰组件 | 无数据绑定 |
 | Border02 | VBorder02 | 边框-02 | static | — | 纯装饰组件 | 无数据绑定 |
 | Border03 | VBorder03 | 边框-03 | static | — | 纯装饰组件 | 无数据绑定 |

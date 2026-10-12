@@ -119,9 +119,9 @@ export UR_FRONT_BASE_URL=<front-base>
 
 ## 组件清单
 
-GoView 共 **77 个静态注册组件**，分 8 类：Charts 图表（23）、Informations 信息（13）、Tables 表格（3）、Decorates 装饰（30）、Icons 图标（1）、Photos 图片（0）、Presets 预置（6）、Interact 交互（1）。Icons 面板另有 127 个动态图标条目（`uim:` / `line-md:` / `wi:` 前缀，统一重定向到 Icon 组件）；Photos 无静态组件，素材库/本地上传/共享图片运行时动态生成，重定向到 Image 组件。
+GoView 共 **78 个静态注册组件**，分 8 类：Charts 图表（23）、Informations 信息（13）、Tables 表格（3）、Decorates 装饰（31）、Icons 图标（1）、Photos 图片（0）、Presets 预置（6）、Interact 交互（1）。Icons 面板另有 127 个动态图标条目（`uim:` / `line-md:` / `wi:` 前缀，统一重定向到 Icon 组件）；Photos 无静态组件，素材库/本地上传/共享图片运行时动态生成，重定向到 Image 组件。
 
-完整清单（key/chartKey/chartFrame/IoT 支持矩阵/适用场景）见 **[references/components.md](references/components.md)**。
+完整清单（key/chartKey/chartFrame/IoT 支持矩阵/适用场景）见 **[references/components.md](references/components.md)**；其中自研「3D 嵌入场景组件（SceneEmbed）」专项说明见 **[references/scene-embed.md](references/scene-embed.md)**。
 
 ---
 
@@ -163,6 +163,7 @@ GoView 共 **77 个静态注册组件**，分 8 类：Charts 图表（23）、In
 
 ## 注意事项
 
+- ⚠️ **API 直建画布必须补齐 goview 规范字段**（2026-09-09 SceneEmbed KVM 验证实测）：手工从零拼 `componentList` 时若缺 `styles`（含 `animations`）/`events`/`status` 等字段，`detail/update` 纯透传不拦，但发布页 `PreviewRenderList` 读 `item.styles.animations` 会直接崩白屏。正确做法：**不要从零拼组件元素**——从已有大屏 `pull` 后改，或复制对应组件 `config.ts` 的 `PublicConfigClass` 默认结构（含 styles/events/status/preview 全量默认值）再改业务字段。
 - **发布快照机制**：编辑态改动不影响发布页；`push --publish` 或单独 `publish` 后发布页才更新。截图验证效果时确认截的是发布态（默认）且已重新发布。
 - **validate / push 校验规则摘要**（push 默认前置校验，error 阻断，`--force` 跳过）：
   - 顶层：`editCanvasConfig` 存在且 `width`/`height` 为正数；`componentList` 为数组；`requestGlobalConfig` 缺失仅 warning。

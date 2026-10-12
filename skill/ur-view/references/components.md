@@ -12,17 +12,17 @@
 | Charts 图表 | 23 | — |
 | Informations 信息 | 13 | — |
 | Tables 表格 | 3 | — |
-| Decorates 装饰 | 30 | — |
+| Decorates 装饰 | 31 | 含自研 SceneEmbed（2026-10-12 手工补充） |
 | Icons 图标 | 1 | 另有 127 个图标库动态条目（uim:/line-md:/wi: 前缀），统一重定向到 Icon 组件 |
 | Photos 图片 | 0 | 无静态组件，资源库/本地上传/共享图片运行时动态生成，重定向到 Informations/Mores/Image |
 | Presets 预置 | 6 | 业务复合组件，通过 redirectComponent 指向底层实现 |
 | Interact 交互 | 1 | — |
-| **合计** | **77** | 静态注册组件总数 |
+| **合计** | **78** | 静态注册组件总数 |
 
 > 本清单已按类别拆分到子文档（内容同为 2026-08-03 快照，总览与附录保留在本文件）：
 > - [components-chart.md](components-chart.md) — Charts 图表（23）完整表
 > - [components-info.md](components-info.md) — Informations 信息（13）/ Tables 表格（3）/ Icons 图标（1）/ Photos 图片（0）/ Interact 交互（1）
-> - [components-decorate.md](components-decorate.md) — Decorates 装饰（30）/ Presets 预置（6）
+> - [components-decorate.md](components-decorate.md) — Decorates 装饰（31）/ Presets 预置（6）
 > - [components-iot-config.md](components-iot-config.md) — RequestIoTDeviceConfigType 字段表（附录 C）与 IoT queryType 支持矩阵（附录 D）
 > 注：本文件由 `scripts/gen-view-components.py` 生成，重新生成后需同步维护上述子文档。
 

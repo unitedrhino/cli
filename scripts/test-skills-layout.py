@@ -33,6 +33,13 @@ def load_script(name):
     return module
 
 
+def strip_code(text):
+    """剥离 fenced code block 与行内 code span，返回参与链接检查的正文，示例链接不误判。"""
+    text = re.sub(r'```.*?```', '', text, flags=re.S)
+    text = re.sub(r'``.*?``', '', text, flags=re.S)
+    return re.sub(r'`[^`\n]*`', '', text)
+
+
 class SkillsLayoutTest(unittest.TestCase):
     """覆盖结构、公开边界与可重入生成，防止工具链重新生成平铺目录。"""
 
@@ -59,7 +66,8 @@ class SkillsLayoutTest(unittest.TestCase):
             self.assertTrue(metadata['description'])
             names.add(name)
         for entry in SKILLS.rglob('*.md'):
-            for raw in re.findall(r'!?\[[^\]\n]*\]\(\s*(<[^>]+>|[^\s)]+)', entry.read_text()):
+            text = strip_code(entry.read_text())
+            for raw in re.findall(r'!?\[[^\]\n]*\]\(\s*(<[^>]+>|[^\s)]+)', text):
                 parsed = urlsplit(raw.strip('<>'))
                 if not parsed.scheme and not parsed.netloc and parsed.path:
                     self.assertTrue((entry.parent / unquote(parsed.path)).exists(), f'{entry}: {raw}')

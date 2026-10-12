@@ -291,3 +291,85 @@ ur scene template manual
 - 场景类型：auto（自动）/ manual（手动）
 - 设备模式：single（单设备）/ multi（多设备）
 - 状态值：1（启用）/ 2（禁用）
+
+---
+
+## CLI 校验工具
+
+场景联动 JSON 可使用 CLI 命令进行基础结构验证：
+
+```bash
+ur scene validate scene.json
+```
+
+校验内容：
+- 必填字段是否缺失
+- 枚举值是否合法
+- Compare 的 termType 与 values 数量是否匹配
+- Action 的类型与对应详情字段是否一致
+
+也支持生成模板：
+
+```bash
+ur scene template auto     # 生成自动触发场景模板
+ur scene template manual   # 生成手动触发场景模板
+```
+
+## 枚举/类型速查表
+
+| 类型 | 可选值 |
+|------|--------|
+| SceneType | `manual`, `auto` |
+| DeviceMode | `single`, `multi` |
+| Status | `1`(启用), `2`(禁用) |
+| TriggerType | `device`, `timer`, `weather`, `manual`, `scene` |
+| SelectType | `all`, `fixed`, `area`, `areaWithChildren`, `group` |
+| TriggerDeviceMode | `edge`, `level` |
+| TriggerDeviceType | `connected`, `disConnected`, `propertyReport`, `eventReport` |
+| ExecType | `at`, `sunRises`, `sunSet`, `loop` |
+| RepeatType | `once`, `week`, `mount`, `allDay`, `customRange` |
+| WeatherType | `temp`, `humidity` |
+| WhenRangeType | `date`, `time` |
+| DateRangeType | `allDay`, `workday`, `weekend`, `holiday`, `customRange`, `customWeek` |
+| TimeRangeType | `allDay`, `light`, `night`, `customRange` |
+| TermCondType | `and`, `or` |
+| TermColumnType | `property`, `event`, `time`, `weather` |
+| ActionType | `device`, `delay`, `notify`, `alarm`, `scene` |
+| ActionDeviceType | `propertyControl`, `action` |
+| NotifyType | `sms`, `email`, `dingTalk`, `wxMini`, `message`, `phoneCall`, `wxEWebhook` |
+| NotifyUserType | `account`, `userID`, `deviceOwner`, `deviceProjectAdmin`, `deviceAreaAdmin`, `deviceProjectAll`, `deviceAreaAll` |
+| AlarmMode | `trigger`, `relieve` |
+| CmpType | `eq`, `not`, `btw`, `gt`, `gte`, `lt`, `lte`, `in`, `all` |
+| StateKeepType | `duration`, `repeat` |
+
+## 关键源码文件
+
+| 文件 | 用途 |
+|------|------|
+| `backend/things/service/udsvr/internal/domain/scene/scene.go` | Info 结构体、场景类型枚举 |
+| `backend/things/service/udsvr/internal/domain/scene/if.go` | Trigger 结构体、触发器类型 |
+| `backend/things/service/udsvr/internal/domain/scene/triggerDevice.go` | 设备触发详情 |
+| `backend/things/service/udsvr/internal/domain/scene/triggerTimer.go` | 定时触发详情 |
+| `backend/things/service/udsvr/internal/domain/scene/triggerWeather.go` | 天气触发详情 |
+| `backend/things/service/udsvr/internal/domain/scene/when.go` | When 结构体、时间/日期范围 |
+| `backend/things/service/udsvr/internal/domain/scene/whenCondition.go` | Conditions 和 Term 结构体 |
+| `backend/things/service/udsvr/internal/domain/scene/whenConditionTermProperty.go` | 属性条件 Term |
+| `backend/things/service/udsvr/internal/domain/scene/whenConditionTermTime.go` | 时间条件 Term |
+| `backend/things/service/udsvr/internal/domain/scene/whenConditionTermWeather.go` | 天气条件 Term |
+| `backend/things/service/udsvr/internal/domain/scene/then.go` | Then 结构体 |
+| `backend/things/service/udsvr/internal/domain/scene/thenAction.go` | Action 通用结构 |
+| `backend/things/service/udsvr/internal/domain/scene/thenActionDevice.go` | 设备动作详情 |
+| `backend/things/service/udsvr/internal/domain/scene/thenActionNotify.go` | 通知动作详情 |
+| `backend/things/service/udsvr/internal/domain/scene/thenActionAlarm.go` | 告警动作详情 |
+| `backend/things/service/udsvr/internal/domain/scene/thenActionScene.go` | 场景动作详情 |
+| `backend/things/service/udsvr/internal/domain/scene/compare.go` | Compare 比较逻辑 |
+| `backend/things/service/udsvr/internal/domain/scene/time.go` | 时间范围、重复类型枚举 |
+| `backend/things/service/udsvr/internal/domain/scene/stateKeep.go` | 状态保持配置 |
+| `backend/things/share/domain/schema/affordance.go` | Affordance 结构定义 |
+| `backend/things/share/domain/schema/model.go` | 物模型 Property/Event/Action 定义 |
+
+## 前端模型参考
+
+| 文件 | 用途 |
+|------|------|
+| `apps/web/packages/api/src/things-api/models/scene-info.ts` | SceneInfo 模型定义 |

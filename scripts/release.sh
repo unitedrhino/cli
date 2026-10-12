@@ -277,6 +277,17 @@ if [[ ${#FAILED_PLATFORMS[@]} -gt 0 ]]; then
 fi
 echo ""
 
+# 打包 skills 资产前校验手写文档体积：超限文档会被 AI 客户端截断，失败则中止发布
+if [[ -f "${ROOT}/scripts/check-skill-size.py" ]]; then
+  if ! python3 "${ROOT}/scripts/check-skill-size.py"; then
+    echo "[skills] 错误: skill/ 存在超过 12000 字节的手写文档，AI 客户端读取会被截断" >&2
+    echo "[skills] 请按 SKILL_MAINTENANCE.md「文件体积规范」拆分到 references/ 后重新发布" >&2
+    exit 1
+  fi
+else
+  echo "[skills] 警告: 未找到 scripts/check-skill-size.py，跳过文档体积校验"
+fi
+
 # ========================================
 # 独立打包 skills 资产（构建循环之外，全平台共用一份）
 # zip 内顶层目录为 ur-api/，解压后直接是 ur-api/SKILL.md ...，

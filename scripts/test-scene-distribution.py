@@ -15,6 +15,14 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def read_guide_with_references(relative):
+    """主文档拼接同目录拆分子文档后返回全文；relative 为主文档相对仓库根的路径。"""
+    main = ROOT / relative
+    parts = [main.read_text()]
+    parts.extend(path.read_text() for path in sorted(main.parent.glob(f'{main.stem}-*.md')))
+    return '\n'.join(parts)
+
+
 class SceneDistributionTest(unittest.TestCase):
     """以固件、OTA 和嵌套场景夹具检查真实分发脚本。"""
 
@@ -231,7 +239,7 @@ else:
 
     def test_device_intent_reference_contract(self):
         """验证两种发行入口的导航和模拟控制合同没有回退到旧样例。"""
-        guide = (ROOT / 'skill/ur-iot/ur-device/references/device-control.md').read_text()
+        guide = read_guide_with_references('skill/ur-iot/ur-device/references/device-control.md')
         for expected in ('--shadow-control 4', '/api/v1/things/device/simulate/report',
                          '`--data` 的属性值必须是字符串', 'proc.exited', '--project-id',
                          '先按意图区分'):
@@ -273,9 +281,8 @@ else:
 
     def test_repeatable_photo_vision_reference_contract(self):
         """视觉技能必须保留两条图片入口、凭据边界和三层可复测门禁。"""
-        firmware_guide = (
-            ROOT / 'skill/ur-iot/device-firmware/references/photo-vision.md'
-        ).read_text()
+        firmware_guide = read_guide_with_references(
+            'skill/ur-iot/device-firmware/references/photo-vision.md')
         platform_guide = (ROOT / 'skill/ur-ai/references/device-voice.md').read_text()
         for expected in (
             'Test(TakePhotoEndToEnd|VoiceTakePhotoEndToEnd|ImageInputEndToEnd|EmojiEmotionText|EmojiNotSentForPlainQuestion)',
@@ -299,10 +306,9 @@ else:
 
     def test_repeatable_voice_e2e_reference_contract(self):
         """语音技能必须保留 16kHz 协议基准、分层解码和可循环的真机 runner。"""
-        firmware_guide = (
-            ROOT / 'skill/ur-iot/device-firmware/references/voice-ai.md'
-        ).read_text()
-        platform_guide = (ROOT / 'skill/ur-ai/references/device-voice.md').read_text()
+        firmware_guide = read_guide_with_references(
+            'skill/ur-iot/device-firmware/references/voice-ai.md')
+        platform_guide = read_guide_with_references('skill/ur-ai/references/device-voice.md')
         for expected in (
             'DEVICESIM_AUDIO_SAMPLE_RATE=16000',
             'tools/devicesim/cmd/opusfixture',

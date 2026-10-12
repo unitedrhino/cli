@@ -23,7 +23,26 @@ CLI 主实现位于独立仓库 `unitedrhino/cli`，通过 Go CLI `ur` 提供能
 
 敏感值优先通过 Sandbox 环境变量或 stdin 注入。`--password`、`--access-secret` 明文参数仅用于兼容，可能进入 shell 历史或进程列表；不得把密码、AccessSecret 或完整 Token 写入 skill、日志、截图和版本库。
 
-业务命令的 JSON 结果可能包含 `_notice.update` 或 `_notice.skills`。先完成用户当前请求，再按 `command` 简短提示或执行用户已授权的升级；统一使用 `ur upgrade` 更新 CLI 与客户端 Skills。详细规则见 `references/cli-usage.md` 的“CLI 更新提示与处理”。
+业务命令的 JSON 结果可能包含 `_notice.update` 或 `_notice.skills`：先完成用户当前请求，再按 `command` 简短提示或执行用户已授权的升级（统一用 `ur upgrade`）；详细规则见 `references/cli-usage.md` 的“CLI 更新提示与处理”。
+
+## 生成文件交付（AI 产文件给用户下载）
+
+用户要求生成文件（Excel/报表/图片等）并下载时，直接在沙箱内完成，不要把步骤留给用户：
+1. 用沙箱内工具生成文件（如 Python openpyxl 写 xlsx；文件名建议用英文）
+2. 执行 `ur system upload-file --file <文件路径>` 上传到临时桶（凭据已注入环境变量，无需登录）
+3. 回复中写 markdown 链接 `[文件名](/oss/temporary/<filePath>)` 交付——`<filePath>` 取命令输出 `filePath:` 行的对象路径；页面会渲染为可下载的文件卡片
+4. 只允许 `/oss/` 开头的相对路径（临时桶前缀 `/oss/temporary/`、公开桶 `/oss/public/`）；不要使用 `http(s)://` 完整地址（如 COS 签名 URL，有时效且不渲染卡片），不要拼 `http://allinone:7777` 等沙箱内地址。需要把链接发到对话外直接打开时，改用 `--public --business <业务> --use-by user` 上传公开桶
+
+## 快速开始
+
+先运行 `ur check --json`；检查通过后直接调用 API，仅在返回缺少认证时选择以下一种登录方式：
+
+- 方式 1（默认）Device Flow：`ur login --method device`；方式 2 账号密码：`ur login --method password`（密码必须是原始密码）；方式 3 AccessKey/JWT：`ur login --method aksk`（不要求 `userID`）
+- 方式 4 Sandbox 环境变量（无需 login）：`UR_BASE_URL` + `UR_APP_ID` + `UR_TENANT_CODE` 及任一完整凭据组
+
+四种方式的完整命令示例与历史 profile 兼容说明见 `references/auth.md`。
+
+---
 
 ## 生成文件交付（AI 产文件给用户下载）
 
@@ -35,54 +54,11 @@ CLI 主实现位于独立仓库 `unitedrhino/cli`，通过 Go CLI `ur` 提供能
 
 ## 文档解析(ur doc)
 
-用户上传或引用文档(PDF/Word/PPT/Excel/图片/邮件等)需要读取内容时,使用 `ur doc parse`:先 `--format outline` 看结构地图,再按需 `--format md` 通读/`--section` 取章节,或 `--format json` 落盘后用 jq 精查(excel 公式溯源、单元格坐标)。扫描件/图片加 `--ocr`(默认平台模型池计费)。完整用法见 `ur-doc/SKILL.md`。
+用户上传或引用文档(PDF/Word/PPT/Excel/图片/邮件等)需要读取内容时,使用 `ur doc parse`:先 `--format outline` 看结构地图,再按需 `--format md` 通读/`--section` 取章节,或 `--format json` 落盘后用 jq 精查;扫描件/图片加 `--ocr`。完整用法见 `ur-doc/SKILL.md`。
 
 ## 客户端实时调试
 
-排查已接入调试桥的客户端控制台报错、白屏或状态异常时，先读 [客户端调试 AI 流程](references/client-debug.md)。使用通用 `ur api --stream` 保持 SSE 会话，用普通 `ur api` 请求操控和诊断动作；本次会话只请求一次操控授权，后续白名单动作不再弹窗；逐条核对执行结果，用户可通过控制标识立即取消，结束时关闭流。
-
-## 角色权限区分
-
-**全栈权限总索引**（契约 / 运行时 / 前端 / 消歧）：仓库根目录 `docs/中台/功能说明/权限体系总览.md`。
-
-| 角色 | 权限范围 | 典型场景 |
-|------|---------|----------|
-| **平台管理员** | 跨企业操作、企业 CRUD、查看所有企业 | 创建企业、管理企业配置 |
-| **企业管理员** | 本企业内 CRUD、用户管理、角色分配 | 创建设备、管理用户、配置项目 |
-| **普通用户** | 个人信息、设备分享、查看权限范围内数据 | 登录、修改密码、分享设备 |
-
-### 按角色区分的域
-
-| 域 | 平台管理员 | 企业管理员 | 普通用户 |
-|---|-----------|-----------|---------|
-| ur-tenant | 创建/删除企业、查看所有企业 | 管理本企业、邀请用户 | 无权限 |
-| ur-device | 无权限 | 设备 CRUD、属性控制 | 设备分享、收藏 |
-| ur-user | 无权限 | 用户 CRUD、角色管理 | 个人信息、修改密码 |
-| ur-product | 无权限 | 产品 CRUD、物模型管理 | 无权限 |
-| ur-project | 无权限 | 项目 CRUD、区域管理 | 查看权限内项目 |
-| ur-ai | 无权限 | Agent 配置、告警管理 | 无权限 |
-| ur-view | 无权限 | 大屏 CRUD、画布编辑、发布管理、素材管理 | 无权限 |
-
-### 当前用户身份
-
-调用任何 API 前，**先运行 check 确认角色**，错误的角色会导致 403：
-
-```bash
-ur check --json
-```
-
-前端或自动化工具需要区分角色时，应以 **HTTP 接口返回结构** 为准：
-
-- **端点**：`POST /api/v1/system/user/self/get-one`
-- **组织侧管理员线索**：`tenants[]` → `UserTenant` 上的 `isTenantOwner` 及 `roles[]`
-- **角色编码**：`UserTenant.roles` 的元素类型 `RoleInfo` 中的 `code`（如 `admin` / `client` / `supper`）
-- **平台侧上下文**：结合请求头 `tenant-code` 与 `tenantCode` + `roles[].code` 综合判断
-
-**类型定义单一事实来源**：
-- `UserInfo` / `UserTenant`：`backend/core/service/apisvr/http/system/user/info.api`
-- `RoleInfo`：`backend/core/service/apisvr/http/system/role.api`
-
-> **说明**：`ur-org-manage/ur-user/SKILL.md` 由 `ur generate-skills` 自动生成，字段级约定统一写在本主 `SKILL.md`，避免与子域生成文件重复且被覆盖。
+排查已接入调试桥的客户端控制台报错、白屏或状态异常时，先读 [客户端调试 AI 流程](references/client-debug.md)；使用通用 `ur api --stream` 保持 SSE 会话，逐条核对执行结果，结束时关闭流。
 
 ---
 
@@ -90,20 +66,7 @@ ur check --json
 
 ### 第一步：确认当前用户角色
 
-```bash
-ur check
-```
-
-| 角色 | 可操作范围 | 配置方式 |
-|------|----------|---------|
-| **平台管理员** | 所有域（platform/admin/all 接口） | 先复用环境/profile；必要时用 `ur login` 切换认证 |
-| **企业管理员** | 本企业 CRUD（admin/all 接口） | 先复用环境/profile；必要时用 `ur login` 切换认证 |
-| **普通用户** | 个人信息、设备分享（仅 all 接口） | 先复用环境/profile；必要时用 `ur login` 切换认证 |
-
-> **切换角色**：重新运行 `ur login`（用不同账号授权），或用 `--app` 切换应用上下文：
-> ```bash
-> ur --app platform-manage api /api/v1/...
-> ```
+调用任何 API 前，**先运行 check 确认角色**，错误的角色会导致 403。角色不足时直接告知用户切换，不要尝试后 403。角色表、接口范围（platform/admin/all）、切换方式（`ur login` 或用 `--app` 切换应用上下文）与接口侧身份判定（`/api/v1/system/user/self/get-one`、`UserTenant`/`RoleInfo` 字段与类型定义来源）见 `references/role-permissions.md`。
 
 ### 第二步：根据任务选择子域
 
@@ -119,54 +82,23 @@ ur check
 | AI Agent、场景联动、告警规则、数字分身、AI会话 | `ur-ai` | admin |
 | 大屏、数据可视化、GoView、画布编辑、发布大屏、看板、素材库 | `ur-view` | admin |
 
-### 第三步：IoT AI 工具调用设计
-
-下列三个客户端专题只随 CLI 完整技能包和 SaaS 整理副本提供，位于 `ur-iot/` 内；公开 skills 源仓不包含这些专题。
-
 设备模拟、测试数据或属性控制先读 [设备控制与模拟](ur-iot/ur-device/references/device-control.md)，区分纯生成、云端改值、模拟上报和实体控制；不能用仅修改云端属性证明实体控制成功。
 
-| 用户意图 / 关键词 | 加载子域 | 说明 |
-|----------------|---------|------|
-| MCP 工具、frontend tools、设备工具语义、物模型调用顺序、实时属性查询 | `ur-iot-device` | 关注设备工具本体与工具语义对齐 |
-| 所有设备可见、设备上下文、session 绑定、工具作用目标、前端不负责绑定设备 | `ur-iot-context` | 关注 Web 前端全设备可见场景下的上下文约束 |
-| Web、Win AI、MQTT、UDP、客户端差异、共存迁移 | `ur-iot-client` | 关注多客户端执行链路差异 |
-
-版本说明见：`references/iot-tools-versions.md`
-
-> **角色不足时不要尝试调用**：如果 check 显示为 `user` 但任务需要 `admin`，直接告知用户切换角色，不要尝试然后 403。
+三个客户端专题（ur-iot-device / ur-iot-context / ur-iot-client）的适用场景表见 `references/app-selection.md`。
 
 ### 数量 / 列表类问题
 
-- 如果用户问"有几个""多少个""当前有哪些"这类业务数据问题，优先直接调用真实的 `get-list` 接口。
-- 数量统一优先从返回的 `data.total` 读取；不要自己数当前页 `list.length`，除非接口根本没有 `total`。
-- 不要先调用 `schema` 再决定是否查询数据；`schema` 只用于查看已知接口的字段结构，不用于查询业务结果。
+问“有几个”“多少个”“当前有哪些”时直接调用真实的 `get-list` 接口，数量优先从返回的 `data.total` 读取；不要先调用 `schema` 再决定是否查询数据。完整规则见 `references/api-conventions.md`。
 
 ### API 路径选择与 404 回退策略（强制）
 
-**绝对禁止臆造不存在的 API 路径。** 以下行为严格禁止：
-
-1. **不要拼接或猜测路径**：严禁根据自然语言描述自行拼接 `/api/v1/...` 路径。
-2. **不要假设近义词路径**：设备管理域的真实接口以 `/api/v1/things/device/info/...` 和 `/api/v1/things/device/interact/...` 等为准。
-3. **404 后必须停止猜测**：如果一次 API 调用返回 `404 page not found`，**必须立即停止继续尝试其他相似路径**。正确的回退顺序是：
-   - 第一步：查阅本 SKILL 的「高频端点速查」或各子域 SKILL.md 中的端点列表。
-   - 第二步：如果仍不确定，调用 `knowledge_search` 检索知识库中关于该业务的真实接口文档。
-4. **优先使用已知真实路径**：只有在本 SKILL 中明确列出的路径、或各子域 SKILL.md 中记录的路径，才是可调用的真实路径。
+**绝对禁止臆造不存在的 API 路径**：不要拼接或猜测 `/api/v1/...` 路径，不要假设近义词路径；调用一次返回 `404 page not found` 后**必须立即停止猜测**，改为查阅本 SKILL 的「高频端点速查」或各子域 SKILL.md 的端点列表，仍不确定时调用 `knowledge_search` 检索知识库。完整回退策略见 `references/troubleshooting.md`。
 
 ---
 
 ## API 域划分
 
-共 7 个子域，覆盖 492 个端点（100% 覆盖）：
-
-| 域 | 端点数 | 说明 |
-|---|--------|------|
-| ur-device | 85 | 设备管理：设备CRUD、状态、属性控制、认证、物模型 |
-| ur-product | 86 | 产品管理：产品CRUD、物模型、协议脚本、OTA |
-| ur-project | 41 | 项目管理：项目、区域、分组、数据权限、用户权限 |
-| ur-user | 153 | 用户管理：登录、角色、部门、字典、任务、通知、日志 |
-| ur-system | 53 | 系统管理：通用接口、应用管理、授权码、Hook能力 |
-| ur-tenant | 38 | 企业管理：企业CRUD、用户管理、权限配置 |
-| ur-ai | 36 | AI管理：Agent、告警、规则引擎、场景联动 |
+共 7 个子域，覆盖 492 个端点（100% 覆盖）；域划分表见 `references/app-selection.md`。
 
 ## 业务分组导航
 
@@ -179,69 +111,6 @@ ur check
 | AI | Agent、告警、设备智能与 AI 工具 | [ur-ai](ur-ai/SKILL.md) |
 | 大屏 | GoView、数据绑定与场景模板 | [ur-view](ur-view/SKILL.md) |
 | 文档解析 | PDF、Office、图片与 CAD 解析 | [ur-doc](ur-doc/SKILL.md) |
-
-
-## 快速开始
-
-```bash
-# 总是先检查现有 Sandbox 环境或历史 profile
-ur check --json
-```
-
-检查通过后直接调用 API。仅在返回缺少认证时选择以下一种登录方式。
-
-### 方式 1：Device Flow（默认）
-
-```bash
-# 1. 运行 login，CLI 生成 setup code 并输出授权 URL
-ur login --method device
-
-# 2. 在浏览器中打开 URL，登录控制台后创建/选择访问令牌
-# 3. 点击「完成 CLI 绑定」
-# 4. CLI 自动轮询获取 AK/SK，保存到 ~/.ur/config.json
-
-# 验证连通性
-ur check --json
-
-# 调用 API
-ur api /api/v1/system/user/self/get-one
-```
-
-### 方式 2：账号密码
-
-```bash
-# 推荐由环境或 stdin 提供秘密；password 必须是原始密码
-UR_PASSWORD='<原始密码>' ur login --method password \
-  --account '<账号>' --tenant-code '<企业编码>' --json
-# 或：printf '%s' "$UR_PASSWORD" | ur login --method password \
-#       --account '<账号>' --tenant-code '<企业编码>' --password-stdin --json
-```
-
-### 方式 3：AccessKey/JWT
-
-```bash
-UR_ACCESS_SECRET='<AccessSecret>' ur login --method aksk \
-  --access-key '<AccessKey>' --tenant-code '<企业编码>' --json
-```
-
-AK/SK 登录不要求 `userID`。需要先在平台 UI 创建访问令牌：用户设置 → 访问令牌 → 创建。
-
-### 方式 4：Sandbox 环境变量（无需 login）
-
-```bash
-export UR_BASE_URL='<平台地址>'
-export UR_APP_ID='<应用ID>'
-export UR_TENANT_CODE='<企业编码>'
-
-# 以下三组任选一组，不要混用半套凭据：
-export UR_TOKEN='<Session Token>'
-# export UR_ACCESS_KEY='<AccessKey>' UR_ACCESS_SECRET='<AccessSecret>'
-# export UR_ACCOUNT='<账号>' UR_PASSWORD='<原始密码>'
-
-ur check --json
-```
-
-旧 `~/.ur/config.json` 中仅有账号/密码，或同时遗留 Token、AK/SK 的 profile 仍会自动兼容；不要为了升级主动重写或删除它。`ur setup` 仅保留为人类终端的兼容向导，不是 AI 首选入口。
 
 ---
 
@@ -258,5 +127,6 @@ ur check --json
 | `references/workflows.md` | 跨域工作流示例（设备上线、企业初始化、告警通知） |
 | `references/maintenance.md` | 新增接口维护规范（检查清单、权限标注指南） |
 | `references/frontend-permissions.md` | 前端应用权限映射（平台应用 / 组织应用 / 公共应用） |
-
-详细 API 端点见各子域 SKILL.md：ur-device、ur-product、ur-project、ur-user、ur-system、ur-tenant、ur-ai
+| `references/role-permissions.md` | 角色权限细节（角色总览、按角色区分的域、可操作范围、接口侧身份判定） |
+| `references/app-selection.md` | 子域与端点清单（API 域划分、IoT AI 工具专题与应用场景表） |
+| `references/upload-file.md` | 文件上传（`ur system upload-file` 参数、示例与临时桶/公开桶说明） |

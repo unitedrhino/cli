@@ -23,7 +23,7 @@ metadata:
 | **project（大屏项目）** | 一个大屏即一个 project，`projectID` 为唯一标识 | CRUD 走 `/api/v1/view/project/*` |
 | **content（画布 JSON）** | 大屏的完整画布描述，字符串化 JSON 存在 project detail 里 | 顶层结构：`editCanvasConfig` / `componentList` / `requestGlobalConfig` |
 | **发布快照** | 发布 = `project/update {projectID, status:1}`，取消发布 status:2；无独立发布接口 | 发布页读已发布快照（`detail/get-one forView=true`），编辑态改动不影响发布页，**改完必须重新 publish** |
-| **组件元素** | `componentList` 数组中的一项，含定位（attr）、渲染（chartConfig/option）、数据（request）、事件（events） | 结构速览见下文 |
+| **组件元素** | `componentList` 数组中的一项，含定位（attr）、渲染（chartConfig/option）、数据（request）、事件（events） | 结构速览见 [references/canvas-structure.md](references/canvas-structure.md) |
 | **asset（素材）** | 资源库条目（image/video/audio/other），URL 可在画布 JSON 中引用 | 上传是两步链路，CLI 已串成一条命令 |
 | **WS 实时频道** | 大屏已绑定项目后，属性实时推送频道 `project.prop.{projectID}`、设备上下线频道 `project.conn.{projectID}` | 发布页实时数据依赖这两个频道 |
 
@@ -36,10 +36,7 @@ metadata:
 
 ### 企业边界与菜单判定
 
-- `platform` 只负责维护 `tenantCode=common`、`type=template` 的系统模板；**不得在平台企业下创建 IoT 验收项目、业务产品/设备或 `type=screen` 的大屏实例**。
-- 基于模板创建大屏时，必须先切换到已正式开通物联网应用的普通企业，以该企业管理员身份创建 IoT 项目和 `type=screen` 实例；请求同时使用该企业的 `tenant-code` 与 IoT 项目的 `project-id`。
-- 平台管理员没有“大屏项目”菜单是正常产品边界。当前企业或角色没有对应菜单时，先核对企业应用开通和角色授权；若正常配置下仍不可见，应按“当前身份不具备该能力”记录并停止该项验收，**不得通过改库补菜单、伪造权限或直接拼接隐藏路由强行处理**。
-- 浏览器验收必须从当前身份真实可见的“物联网 → 大屏管理 → 大屏项目”菜单进入；CLI/API 验收也必须使用同一普通企业上下文，不能用平台数据代替。
+企业边界、菜单判定、能源系统模板数据与视觉验收合同及验收顺序见 [references/bigscreen-acceptance.md](references/bigscreen-acceptance.md)。
 
 ---
 
@@ -102,182 +99,21 @@ export UR_FRONT_BASE_URL=<front-base>
 | `ur view screen describe` | 组件摘要 | `-f <file>` 或 `--id <projectID>` `[--json]` |
 | `ur view screen screenshot` | 页面截图 | `--id <projectID>` `-o <png>` `[--front-base]` `[--wait 秒]` `[--edit]` `[--url-template]` |
 
-### content 顶层结构
+### 画布 JSON 结构
 
-| 字段 | 说明 |
-|------|------|
-| `editCanvasConfig` | 画布配置：`width` / `height` / `background` / `backgroundImage` / `chartThemeColor` / `previewScaleType` / `projectName` |
-| `componentList` | 组件元素数组（见下节结构速览） |
-| `requestGlobalConfig` | 全局请求配置（缺失时 validate 仅给 warning，组件用默认配置） |
-
-### 组件元素字段
-
-| 字段 | 说明 |
-|------|------|
-| `id` | 组件实例 ID，画布内全局唯一 |
-| `title` | 组件标题（显示名） |
-| `chartKey` / `conKey` | 渲染/配置面板注册键，约定 `chartKey="V"+key`、`conKey="VC"+key` |
-| `chartConfig` | 组件元数据：`key` / `chartKey` / `conKey` / `title` / `category` / `package` / `chartFrame` |
-| `attr` | 布局：`x` / `y` / `w` / `h` / `zIndex` |
-| `option` | 组件专有配置（样式 + 静态 `dataset`） |
-| `styles` | 通用样式 |
-| `request` | 数据绑定：`requestDataType` + 各类型对应配置（IoT 见下节） |
-| `status` | `{lock, hide}` 锁定与隐藏 |
-| `events` | `{baseEvent, advancedEvents, interactEvents}` 事件三件套 |
-| `isGroup` / `groupList` | 分组组件标记与子组件列表（分组无独立 key 体系） |
+画布 content 顶层字段、组件元素字段与可直接抄改的 componentList 骨架示例（含分组组件）见 [references/canvas-structure.md](references/canvas-structure.md)。
 
 ---
 
 ## 图片素材工作流
 
-```bash
-# 1. 上传（一条命令串两步：system/common/upload-file 拿 URL → view/asset/upload 登记）
-ur view asset upload -f ./logo.png --name "企业LOGO" --tags "logo,brand"
-
-# 2. 拿到返回的 url 后，在画布 JSON 中引用：
-#    - Image 组件（Informations/Mores/Image）：option.dataset = "<url>"
-#    - 画布背景图：editCanvasConfig.backgroundImage = "<url>"
-
-# 3. 管理素材
-ur view asset get-list --type image --page 1 --size 20
-ur view asset get-list --name logo
-ur view asset delete --id <assetID>
-```
-
-上传细节：
-- 第一步走 `system/common/upload-file` 的 **multipart** 表单，与前端封面上传同口径：`isPublic=true` + `business=view` + `scene=goView/asset` + `useBy=user`，返回**公开桶永久 URL**（`public-*.cos.*`），可直接在画布 JSON 中长期引用
-- `--tags` 传逗号分隔字符串（如 `"logo,brand"`），后端按字符串存储
-- 上传时按扩展名自动推断类型：image（jpg/jpeg/png/gif/svg/webp/bmp/ico）、video（mp4/webm/mov）、audio（mp3/wav/ogg），其余归 `other`
+素材上传（两步链路已封装为一条命令）、画布内 URL 引用与管理命令见 [references/asset-workflow.md](references/asset-workflow.md)。
 
 ---
 
 ## IoT 数据配置手册
 
-组件数据绑定由 `request.requestDataType` 决定：
-
-| requestDataType | 类型 | 说明 |
-|-----------------|------|------|
-| 0 | 静态 | 用 `option.dataset` 内置数据，不发请求 |
-| 1 | AJAX | 走 `request.requestUrl` 等 HTTP 配置 |
-| 2 | Pond | 公共数据池 |
-| 5 | IoT 设备数据 | 走 `request.requestIoTDeviceConfig`，接设备属性/状态/信息 |
-
-`requestDataType=5` 时 `requestIoTDeviceConfig` 必填，核心字段：`queryType`（`property` / `deviceStatus` / `deviceInfo`）、`productID`、`deviceNames`、`dataIDs`、`mode`（`latest` / `log`）。**注意**：`deviceStatus` 按产品维度统计在线状态，**不需要** `deviceNames`/`dataIDs`（真实画布即只填 `productID`，可留空数组）；`property`/`deviceInfo` 必须填非空 `deviceNames` 与 `dataIDs`（validate 会按此规则校验）。完整字段表见 [references/components.md](references/components.md) 附录 C。
-
-### queryType 支持矩阵摘要（以附录 D 真实矩阵为准）
-
-| 组件分组 | property | deviceStatus | deviceInfo |
-|----------|----------|--------------|------------|
-| 折线组（LineCommon 等） | ✓（仅 log） | ✗ | ✗ |
-| 饼图组（PieCircle / PieCommon） | ✓（仅 latest） | ✓ | ✗ |
-| 柱状组（BarCommon / BarCrossrange / BarLine） | ✓ | ✓ | ✗ |
-| 文字组（TextCommon / FlipperNumber） | ✓ | ✓ | ✗ |
-| 表格-信息组（TablesBasic / TableList） | ✓ | ✓ | ✓ |
-| 表格-滚动组（TableScrollBoard） | ✓ | ✓ | ✗ |
-| 雷达组（Radar） | ✓ | ✓ | ✗ |
-| 进度组（Process / WaterPolo） | ✓（仅 latest） | ✓ | ✗ |
-| 胶囊组（CapsuleChart） | ✓（仅 latest） | ✓ | ✓ |
-| 其他可绑定数据组件 | ✓ | ✓ | ✓ |
-| 静态/装饰组件 | ✗ | ✗ | ✗ |
-
-单值自渲染组件（Dial / PieCircle / Process / WaterPolo）拿到 IoT 单值后自行渲染，不走 ECharts dataset 覆盖。
-
-### 能源模板数据与视觉验收合同
-
-五类系统模板均为 `1920×1080`、14 个顶层组件。系统模板只在 `common` 企业维护；业务大屏必须切换到已开通物联网应用的普通企业，再基于模板创建。
-
-| 模板标题 | 品类 | 主指标 | 用量变化量 | 单位 |
-|---|---|---|---|---|
-| 能源电力数据中心 | `dianbiao` | `P` | `TotalEnergyChange` | 主指标 kW；用量 kWh |
-| 能源水务数据中心 | `shuibiao` | `PostiveFlux` | `PostiveFluxChange` | m³ |
-| 能源燃气数据中心 | `ranqibiao` | `TotalGas` | `TotalGasChange` | m³ |
-| 能源热力数据中心 | `liangrebiao` | `TotalHeat` | `TotalHeatChange` | kWh |
-| 能源燃煤数据中心 | `meibiao` | `TotalCoal` | `TotalCoalChange` | t |
-
-- 电力辅助指标为今日功率 `max/min/avg`，左侧展示 `Ua/Ub/Uc` 和 `Ia/Ib/Ic` 趋势；非电模板辅助指标按变化量字段分别求今日、本周、本月 `sum`，左侧展示近 7 日按日用量趋势。
-- 五类模板的月度趋势使用当月范围、按日 `sum`；区域排行、设备排行和设备占比使用当月范围、`sum` 聚合，分别按区域或设备分组。所有用量组件必须绑定变化量字段，不能用累计字段直接求和。
-- 校验非电模板时，应递归检查分组子组件，不得残留 `dianbiao`、`P`、`TotalEnergyChange`、`templateAutoField=P`、“总功率/用电”或 kW 单位。
-- 视觉验收以数据可读性优先：3D 背景降低对比度；数据面板使用深蓝半透明渐变、低亮度青色边框、12px 圆角和轻阴影；正文、次要文本与网格线分级；高饱和色只用于关键指标和告警等级。
-- 模板装饰图片必须使用随 IoT 前端发布的稳定静态资源（当前统一为 `/app/iot/bigscreen/`），不得引用 `/oss/temporary/` 或写死部署域名；否则新环境或离线部署会直接裂图。
-- 画布及每个分组都要做边界检查，禁止负坐标、越界、数值或单位裁切、告警列过窄、图表重叠。大数使用千分位与合适小数位；拥挤标签隐藏，完整值通过 tooltip 查看。
-- 每张模板恰有一个 `AlarmRecord`，列表走 `POST /api/v1/things/alarm/event/get-list`，请求体使用 `{"page":{"page":1,"pageSize":20}}`；详情走 `POST /api/v1/things/alarm/event/get-one`。不得新增或恢复 `AlarmScrollList`。
-- `AlarmRecord` 的 `normal` 与历史兼容值 `recovered` 均展示“已恢复”。仅预览/发布态允许点击行或按 Enter/Space 打开只读详情；编辑态点击仍用于选中组件。详情应包含事件、触发/恢复时间、触发次数、误报、处置和通知记录，不提供处置操作。
-
-### 能源模板验收顺序
-
-1. 先校验五个种子的名称、封面、14 个顶层组件、布局边界和数据合同。
-2. 在普通企业的同一个正式 IoT 项目下创建五类产品和多台设备，通过正式 API/MQTT 生成今日、近 7 日及当月数据；累计值由差值链路生成对应 `*Change`。
-3. 从当前身份真实可见的菜单为普通企业创建五个大屏，逐张检查主指标、趋势、排行、占比、告警列表与详情弹窗。
-4. 重启服务后确认产品、系统模板和业务大屏没有重复，种子内容与 data URL 封面保持正确。
-
-### 常见配方
-
-**① 单值实时展示 → Dial / PieCircle / Process / WaterPolo**
-
-`queryType=property` + `mode=latest`，单设备单属性取最新值，组件自渲染：
-
-```json
-"request": {
-  "requestDataType": 5,
-  "requestIoTDeviceConfig": {
-    "queryType": "property",
-    "mode": "latest",
-    "productID": "p_temp_001",
-    "deviceNames": ["sensor-001"],
-    "dataIDs": ["CurrentTemperature"]
-  }
-}
-```
-
-**② 多设备同属性对比 → BarCommon（或 CapsuleChart）**
-
-`queryType=property`，`deviceNames` 填多台设备、`dataIDs` 填同一属性：
-
-```json
-"requestIoTDeviceConfig": {
-  "queryType": "property",
-  "productID": "p_temp_001",
-  "deviceNames": ["sensor-001", "sensor-002", "sensor-003"],
-  "dataIDs": ["CurrentTemperature"]
-}
-```
-
-**③ 趋势曲线 → LineCommon（折线组仅支持 log 模式）**
-
-`queryType=property` + `mode=log`，配 `logTimeRange` / `logInterval`：
-
-```json
-"requestIoTDeviceConfig": {
-  "queryType": "property",
-  "mode": "log",
-  "logTimeRange": "24h",
-  "logInterval": "1h",
-  "productID": "p_temp_001",
-  "deviceNames": ["sensor-001"],
-  "dataIDs": ["CurrentTemperature"]
-}
-```
-
-**④ 设备在线状态占比 → PieCircle / PieCommon（饼图组）**
-
-`queryType=deviceStatus`，统计所选设备在线/离线占比：
-
-```json
-"requestIoTDeviceConfig": {
-  "queryType": "deviceStatus",
-  "productID": "p_temp_001",
-  "deviceNames": ["sensor-001", "sensor-002"],
-  "dataIDs": ["CurrentTemperature"]
-}
-```
-
-**⑤ 设备信息卡片/列表 → TableList / TablesBasic（表格-信息组）**
-
-`queryType=deviceInfo` 展示设备信息字段。**注意**：`TextCommon` 的 `getQueryTypeHint` 提示语声称支持设备信息，但 `isQueryTypeSupported` 实际判定文字组**禁用 deviceInfo**——不要用 TextCommon 绑设备信息，以运行时矩阵为准。
-
-**⑥ 大数字单值 → Number / CountDown（装饰组，queryType 全放行）**
-
-`queryType=property` + `mode=latest`，适合做大字号的单值看板。
+组件数据绑定由 `request.requestDataType` 决定：0 静态 / 1 AJAX / 2 Pond / 5 IoT 设备数据；`requestDataType=5` 时 `requestIoTDeviceConfig` 必填。字段要求、queryType 支持矩阵与常见配方见 [references/iot-data-binding.md](references/iot-data-binding.md)；完整字段表见 [references/components-iot-config.md](references/components-iot-config.md) 附录 C。
 
 ---
 
@@ -286,83 +122,6 @@ ur view asset delete --id <assetID>
 GoView 共 **77 个静态注册组件**，分 8 类：Charts 图表（23）、Informations 信息（13）、Tables 表格（3）、Decorates 装饰（30）、Icons 图标（1）、Photos 图片（0）、Presets 预置（6）、Interact 交互（1）。Icons 面板另有 127 个动态图标条目（`uim:` / `line-md:` / `wi:` 前缀，统一重定向到 Icon 组件）；Photos 无静态组件，素材库/本地上传/共享图片运行时动态生成，重定向到 Image 组件。
 
 完整清单（key/chartKey/chartFrame/IoT 支持矩阵/适用场景）见 **[references/components.md](references/components.md)**。
-
-## 组件结构速览
-
-可直接抄改的 `componentList` 元素骨架。示例一：静态柱状图（BarCommon，requestDataType=0）：
-
-```json
-{
-  "id": "comp-bar-001",
-  "title": "产量对比",
-  "chartKey": "VBarCommon",
-  "conKey": "VCBarCommon",
-  "chartConfig": {
-    "key": "BarCommon",
-    "chartKey": "VBarCommon",
-    "conKey": "VCBarCommon",
-    "title": "柱状图",
-    "category": "Charts",
-    "categoryName": "图表",
-    "package": "Charts",
-    "chartFrame": "echarts",
-    "image": "bar.png"
-  },
-  "attr": { "x": 60, "y": 120, "w": 500, "h": 300, "zIndex": 1 },
-  "option": {
-    "dataset": {
-      "dimensions": ["product", "data1"],
-      "source": [
-        { "product": "一车间", "data1": 120 },
-        { "product": "二车间", "data1": 200 }
-      ]
-    }
-  },
-  "styles": {},
-  "request": { "requestDataType": 0 },
-  "status": { "lock": false, "hide": false },
-  "events": { "baseEvent": {}, "advancedEvents": {}, "interactEvents": [] }
-}
-```
-
-示例二：IoT 绑定表盘（Dial，requestDataType=5，单值自渲染）：
-
-```json
-{
-  "id": "comp-dial-001",
-  "title": "实时温度",
-  "chartKey": "VDial",
-  "conKey": "VCDial",
-  "chartConfig": {
-    "key": "Dial",
-    "chartKey": "VDial",
-    "conKey": "VCDial",
-    "title": "表盘",
-    "category": "Charts",
-    "categoryName": "图表",
-    "package": "Charts",
-    "chartFrame": "common",
-    "image": "dial.png"
-  },
-  "attr": { "x": 640, "y": 120, "w": 300, "h": 300, "zIndex": 2 },
-  "option": { "dataset": 66 },
-  "styles": {},
-  "request": {
-    "requestDataType": 5,
-    "requestIoTDeviceConfig": {
-      "queryType": "property",
-      "mode": "latest",
-      "productID": "p_temp_001",
-      "deviceNames": ["sensor-001"],
-      "dataIDs": ["CurrentTemperature"]
-    }
-  },
-  "status": { "lock": false, "hide": false },
-  "events": { "baseEvent": {}, "advancedEvents": {}, "interactEvents": [] }
-}
-```
-
-分组组件：`"isGroup": true` + `"groupList": [...]`，无独立 chartKey/conKey，validate 会递归校验子组件。
 
 ---
 
@@ -409,7 +168,7 @@ GoView 共 **77 个静态注册组件**，分 8 类：Charts 图表（23）、In
   - 顶层：`editCanvasConfig` 存在且 `width`/`height` 为正数；`componentList` 为数组；`requestGlobalConfig` 缺失仅 warning。
   - 组件级：`id` 非空且全局唯一；`chartConfig.key` 非空且在组件 key 表内；`chartKey == "V"+key`、`conKey == "VC"+key`；`attr.w`/`attr.h` 为正数，`x`/`y`/`zIndex` 为数值；`status` / `events` 三件套缺失仅 warning。
   - IoT 级：`requestDataType=5` 时 `requestIoTDeviceConfig` 必填，`queryType` 必须在该组件支持矩阵内，`productID` 非空、`deviceNames` / `dataIDs` 为非空数组。
-- **screenshot 依赖本机 agent-browser**：依次执行 `open → wait（毫秒）→ screenshot`；`--wait` 单位是秒。前端地址取 `--front-base` 或环境变量 `UR_FRONT_BASE_URL`。实测：发布页默认模板 `{base}/app/iot/#/view/{id}`（`/view/` 兼容路由始终取已发布快照；`/iot/big-bigscreen/published/{id}` 在 iot 应用内会落入应用外壳不渲染画布，勿用），编辑态默认 `{base}/app/iot/#/iot/big-bigscreen/editor/{id}`；部署形态不同可用 `--url-template` 覆盖（支持 `{base}` / `{id}` 占位符）。发布页需登录态，建议先用 agent-browser 登录 iot 应用（租户管理员 + 选择企业）保持会话。
+- **screenshot 依赖本机 agent-browser**：`--wait` 单位是秒，前端地址取 `--front-base` 或环境变量 `UR_FRONT_BASE_URL`；发布/编辑态 URL 模板、`--url-template` 覆盖与登录态准备见 [references/screenshot-tuning.md](references/screenshot-tuning.md)。
 - **鉴权口径**：view 域全部走 iot 应用上下文（app-id=200），运行时通过 `UR_*` 环境变量注入认证，先 `ur check` 确认身份。
 - **用户可见文案遵循根级文案规范**（禁用平台侧组织隔离术语，见仓库根 `AGENTS.md`）；代码层字段可保留原命名。
 - **组件数据快照**：`references/components.md` 由 `scripts/gen-view-components.py` 生成（快照日期 2026-08-03），前端组件变更后重新运行 `python3 scripts/gen-view-components.py` 刷新。

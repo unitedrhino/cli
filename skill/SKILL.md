@@ -30,8 +30,8 @@ CLI 主实现位于独立仓库 `unitedrhino/cli`，通过 Go CLI `ur` 提供能
 用户要求生成文件（Excel/报表/图片等）并下载时，直接在沙箱内完成，不要把步骤留给用户：
 1. 用沙箱内工具生成文件（如 Python openpyxl 写 xlsx；文件名建议用英文）
 2. 执行 `ur system upload-file --file <文件路径>` 上传到临时桶（凭据已注入环境变量，无需登录）
-3. 从命令输出的 markdown 行**原样复制** `[文件名](/oss/temporary/....xlsx)` 写进回复——页面会渲染为可下载的文件卡片；fileUri 以命令输出为准，不要自行拼接或修改路径
-4. fileUri 的 `/oss/` 相对路径即为正确形态（页面经登录态代理下载）；不要拼 `http://allinone:7777` 等沙箱内地址。需要把链接发到对话外直接打开时，改用 `--public --business <业务> --use-by user` 上传公开桶（返回永久 URL）
+3. 回复中写 markdown 链接 `[文件名](/oss/temporary/<filePath>)` 交付——`<filePath>` 取命令输出 `filePath:` 行的对象路径；页面会渲染为可下载的文件卡片
+4. 只允许 `/oss/` 开头的相对路径（临时桶前缀 `/oss/temporary/`、公开桶 `/oss/public/`）；不要使用 `http(s)://` 完整地址（如 COS 签名 URL，有时效且不渲染卡片），不要拼 `http://allinone:7777` 等沙箱内地址。需要把链接发到对话外直接打开时，改用 `--public --business <业务> --use-by user` 上传公开桶
 
 ## 快速开始
 

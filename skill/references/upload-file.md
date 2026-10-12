@@ -50,9 +50,9 @@ ur system upload-file --file /path/to/logo.png --public --business view --use-by
 
 ## AI 生成文件交付约定
 
-1. 沙箱内生成文件（Excel/报表等）后用本命令上传，取输出中的 `fileUri`
-2. **必须在回复文本中以 markdown 链接形式给出**：`[文件名.xlsx](/oss/ithings-temporary/xxx.xlsx)`——页面据此渲染文件卡片并提供预览/下载
-3. 边界：临时桶对象 7 天自动过期；链接需登录态（页面经 file-proxy 访问）；不要拼对象存储绝对地址
+1. 沙箱内生成文件（Excel/报表等）后用本命令上传，取输出中的 `filePath` 行
+2. **必须在回复文本中以 markdown 链接形式给出**：`[文件名.xlsx](/oss/temporary/<filePath>)`——页面据此渲染文件卡片并提供预览/下载
+3. 边界：只允许 `/oss/` 开头相对路径（临时桶 `/oss/temporary/`、公开桶 `/oss/public/`）；不要使用 `http(s)://` 完整签名地址（有时效且不渲染卡片）；临时桶对象 7 天自动过期；链接需登录态（页面经 file-proxy 访问）
 
 ## 对应 API
 

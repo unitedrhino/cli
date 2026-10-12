@@ -15,7 +15,7 @@ set -euo pipefail
 #   2. 从 backend/.swagger/ 读取最新 swagger
 #   3. 运行 generate-api-lists.py 更新所有 skill 的 API 端点列表
 #   4. 同步到 unitedrhino/skills 仓库
-#   5. 提示提交信息
+#   5. 校验手写文档体积(超限即失败)并检查变更,提示提交信息
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLI_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -145,6 +145,18 @@ fi
 echo ""
 echo "[5/5] 检查变更..."
 cd "$CLI_DIR"
+
+# 手写文档体积校验：超限文档会被 AI 客户端截断（skill_view 预算约 12000 字节）
+if [ -f "${SCRIPT_DIR}/check-skill-size.py" ]; then
+  if ! python3 "${SCRIPT_DIR}/check-skill-size.py"; then
+    echo "  错误: 存在超过 12000 字节的手写文档，AI 客户端读取会被截断" >&2
+    echo "  拆分方法: 将超限内容移入同目录 references/ 子文档（文件名小写连字符），主文档保留核心与导航；详见 SKILL_MAINTENANCE.md 的「文件体积规范」" >&2
+    exit 1
+  fi
+else
+  echo "  警告: 未找到 scripts/check-skill-size.py，跳过文档体积校验"
+fi
+
 if git diff --quiet -- skill/ 2>/dev/null; then
   echo "  skill/ 目录无变更"
 else

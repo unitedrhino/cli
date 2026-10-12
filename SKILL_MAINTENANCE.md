@@ -53,6 +53,25 @@ cli/
 └── SKILL_MAINTENANCE.md        # 本文档
 ```
 
+## 文件体积规范
+
+客户端 AI 工具（`skill_view`）读取单个技能文件有约 **12000 字节**的读取预算（约 4000 汉字），
+超出部分会被截断。此前 `skill/SKILL.md` 就因超长导致截断线以下的内容 AI 读不到（用户投诉），
+必须靠拆分解决，不能依赖客户端调大预算。
+
+规则：
+
+- **单文件上限 12000 字节**：`skill/` 下手写文档一律不得超过；`SKILL.md` 是客户端首选加载
+  入口，建议控制在 10000 字节以内。
+- **超限处理**：把超限内容拆到同目录 `references/` 子文档（文件名小写连字符），主文档只保留
+  核心结论、决策表与导航链接；`references/` 下已有相关文档时优先合并，不要另建重复主题。
+- **校验入口**：`python3 scripts/check-skill-size.py`。手写文档 >12000 字节失败（退出码 1）、
+  >10000 字节警告；已接入 `scripts/update-skills.sh` 的 `[5/5] 检查变更` 步骤与
+  `scripts/release.sh` 打包 skills 资产之前，超限会直接中止流程。
+- **生成物说明**：`references/api/`、`*-all-endpoints.md`、`swagger-index.md`、`assets/` 及
+  非 `.md` 文件等生成/资产类文件当前超限属已知遗留（由 `generate-api-lists.py` /
+  `gen-view-components.py` 等生成器改造解决），豁免于本校验，检查时只汇总提示数量。
+
 ## 快速开始
 
 ### 一键更新（推荐）

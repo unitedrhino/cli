@@ -110,3 +110,62 @@ export UR_TOKEN='<Session Token>'
 | `tenant-code` | 企业代码 | 必须 |
 
 > 不要把 AK/SK 自签 JWT 填入 `UR_TOKEN`。`UR_TOKEN` 仅表示服务端颁发的 Session Token。
+
+
+## 登录方式完整示例
+
+以下命令示例由主 `SKILL.md` 的「快速开始」拆分而来。
+
+### 方式 1：Device Flow（默认）
+
+```bash
+# 1. 运行 login，CLI 生成 setup code 并输出授权 URL
+ur login --method device
+
+# 2. 在浏览器中打开 URL，登录控制台后创建/选择访问令牌
+# 3. 点击「完成 CLI 绑定」
+# 4. CLI 自动轮询获取 AK/SK，保存到 ~/.ur/config.json
+
+# 验证连通性
+ur check --json
+
+# 调用 API
+ur api /api/v1/system/user/self/get-one
+```
+
+### 方式 2：账号密码
+
+```bash
+# 推荐由环境或 stdin 提供秘密；password 必须是原始密码
+UR_PASSWORD='<原始密码>' ur login --method password \
+  --account '<账号>' --tenant-code '<企业编码>' --json
+# 或：printf '%s' "$UR_PASSWORD" | ur login --method password \
+#       --account '<账号>' --tenant-code '<企业编码>' --password-stdin --json
+```
+
+### 方式 3：AccessKey/JWT
+
+```bash
+UR_ACCESS_SECRET='<AccessSecret>' ur login --method aksk \
+  --access-key '<AccessKey>' --tenant-code '<企业编码>' --json
+```
+
+AK/SK 登录不要求 `userID`。需要先在平台 UI 创建访问令牌：用户设置 → 访问令牌 → 创建。
+
+### 方式 4：Sandbox 环境变量（无需 login）
+
+```bash
+export UR_BASE_URL='<平台地址>'
+export UR_APP_ID='<应用ID>'
+export UR_TENANT_CODE='<企业编码>'
+
+# 以下三组任选一组，不要混用半套凭据：
+export UR_TOKEN='<Session Token>'
+# export UR_ACCESS_KEY='<AccessKey>' UR_ACCESS_SECRET='<AccessSecret>'
+# export UR_ACCOUNT='<账号>' UR_PASSWORD='<原始密码>'
+
+ur check --json
+```
+
+
+旧 `~/.ur/config.json` 中仅有账号/密码，或同时遗留 Token、AK/SK 的 profile 仍会自动兼容；不要为了升级主动重写或删除它。`ur setup` 仅保留为人类终端的兼容向导，不是 AI 首选入口。

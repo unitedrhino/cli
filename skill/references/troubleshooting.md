@@ -100,3 +100,15 @@ ur api /api/v1/system/ops/feedback/create \
 | 使用问题 | `usageProblem` | API 调用失败、功能异常 |
 | 业务受损 | `businessImpaired` | 核心功能部分不可用 |
 | 业务不可用 | `businessUnavailable` | 核心功能完全不可用 |
+
+
+## API 路径选择与 404 回退策略（强制）
+
+**绝对禁止臆造不存在的 API 路径。** 以下行为严格禁止：
+
+1. **不要拼接或猜测路径**：严禁根据自然语言描述自行拼接 `/api/v1/...` 路径。
+2. **不要假设近义词路径**：设备管理域的真实接口以 `/api/v1/things/device/info/...` 和 `/api/v1/things/device/interact/...` 等为准。
+3. **404 后必须停止猜测**：如果一次 API 调用返回 `404 page not found`，**必须立即停止继续尝试其他相似路径**。正确的回退顺序是：
+   - 第一步：查阅本 SKILL 的「高频端点速查」或各子域 SKILL.md 中的端点列表。
+   - 第二步：如果仍不确定，调用 `knowledge_search` 检索知识库中关于该业务的真实接口文档。
+4. **优先使用已知真实路径**：只有在本 SKILL 中明确列出的路径、或各子域 SKILL.md 中记录的路径，才是可调用的真实路径。

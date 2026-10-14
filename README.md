@@ -385,6 +385,7 @@ UR_APP=iot ur <command>         # 通过环境变量切换
 ur doc parse report.pdf --format outline
 ur doc parse report.pdf --format md --section 第四章
 ur doc parse scan.pdf --format md --ocr --ocr-max-pages 20
+ur doc formats # 列出当前支持的扩展名，包括 DOC、XLS、EPUB、CHM、CAD 与 GLB
 
 # PDF 默认限制为 50 MiB、2000 页；确有大文档时显式调高
 ur doc parse report.pdf --pdf-max-file-size-mb 100 --pdf-max-pages 5000
@@ -392,7 +393,7 @@ ur doc parse report.pdf --pdf-max-file-size-mb 100 --pdf-max-pages 5000
 
 本地文件会在读取前检查大小，URL 与 stdin 使用有界读取；限制参数必须大于 0。PDF 结构资源超限直接失败，单张损坏或超限图片只被跳过，不影响可安全提取的正文。
 
-CAD 图纸按图框组织图名、渲染图和文本。GLB 2.0 三维模型使用 docling v1.5.0 提取场景、节点关系、网格、渲染材质及文件已有的 `extras` / `extensions` 属性，保留对象索引和来源 JSON 指针：
+旧版 DOC/XLS、EPUB、CHM 与 CAD/GLB 文件由 docling 纯 Go 解析。DOC 保留可检索文字；BIFF8 XLS 使用缓存值；EPUB 按章节顺序、CHM 按目录主题提取。CAD 图纸按图框组织图名、渲染图和文本。GLB 2.0 三维模型使用 docling v1.6.2 提取场景、节点关系、网格、渲染材质及文件已有的 `extras` / `extensions` 属性，保留对象索引和来源 JSON 指针：
 
 ```bash
 ur doc formats

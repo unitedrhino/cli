@@ -27,7 +27,7 @@ CLI 主实现位于独立仓库 `unitedrhino/cli`，通过 Go CLI `ur` 提供能
 
 ## 文档解析(ur doc)
 
-用户上传或引用 PDF、Office、图片、邮件、CAD 图纸或 GLB 三维模型时，使用 `ur doc parse`：先 `--format outline` 看结构，再用 `--format md --section` 读取相关章节，或 `--format json --out` 落盘精查。GLB 只读取模型已有结构与属性，并保留来源；不能从外观推测工程参数。本地解析不需要平台认证，扫描件 OCR 需要对应模型凭据。完整用法见 [文档解析](ur-doc/SKILL.md)。
+用户上传或引用 PDF、Word/Excel（含旧版 DOC/XLS）、PPT、EPUB/CHM、图片、邮件、CAD 图纸或 GLB 模型时，使用 `ur doc parse`：先 `--format outline` 看结构，再用 `--format md --section` 读取相关章节，或 `--format json --out` 落盘精查。GLB 只读取模型已有结构与属性，并保留来源；不能从外观推测工程参数。本地解析不需要平台认证，扫描件 OCR 需要对应模型凭据。完整扩展名和格式范围见 [文档解析](ur-doc/SKILL.md)。
 
 ## 客户端实时调试
 

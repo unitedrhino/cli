@@ -1,4 +1,4 @@
-// doc_test.go 覆盖 ur doc 命令：parse 的 json/outline 输出、excel 公式场景
+// doc_test.go 覆盖 ur doc 命令：格式清单、parse 的 json/outline 输出、excel 公式场景
 // 与平台 OCR 客户端（env-only 认证 + 平台自有响应信封解析）。
 package cmd
 
@@ -181,7 +181,7 @@ func TestDocFormatsCommand(t *testing.T) {
 		t.Fatal(err)
 	}
 	formats := strings.Fields(out.String())
-	for _, want := range []string{"pdf", "xlsx", "dwg", "dxf", "dxfb", "glb"} {
+	for _, want := range []string{"pdf", "doc", "xls", "xlsx", "epub", "chm", "svg", "dwg", "dxf", "dxfb", "glb"} {
 		found := false
 		for _, format := range formats {
 			found = found || format == want

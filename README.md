@@ -100,6 +100,16 @@ ur skills download --json
 {"event":"skills_downloaded","downloadUrl":"https://github.com/unitedrhino/cli/releases/download/v0.4.1/ur-api-skills-v0.4.1.zip","localPath":"/home/user/.ur/downloads/ur-api","installHint":"请将上述 ur-api 目录整体拷贝到你所用 AI 工具的 skills 目录下（各 AI 工具的 skills 目录由 AI 自行确认，例如 Claude Code 为 ~/.claude/skills/），拷贝后重启 AI 工具生效"}
 ```
 
+开发自己的协议、Web、uni-app 或后端应用时，另下载 ur-kit 的 `ur-kit-development` 技能。开发技能包由 ur-kit 的固定提交构建，获取方式见 [ur-kit 使用说明](https://github.com/unitedrhino/ur-kit#使用-ai-开发)：
+
+```sh
+ur skills download --skill ur-kit-development --url <固定提交的开发技能ZIP地址> --json
+```
+
+从结果的 `localPath` 取得整个目录，保留 `references/` 与 `_meta.json`，复制到项目 `.agents/skills/` 或实际 AI 工具技能目录。在项目 `AGENTS.md` 中引用该技能入口，重启会话后加载。此操作不覆盖业务 API 技能；`ur skills install/update` 继续只管理内置 `ur-api`，开发技能升级时重新下载选定版本。
+
+`--skill` 默认 `ur-api`，选择其他技能时必须指定 `--url`；CLI 不会从默认 API 技能 release 猜测开发包。每次下载在独立目录解压、校验，旧文件不能使损坏的包误报成功。使用前通过 `ur skills download --help` 确认当前 CLI 支持 `--skill`；旧版可先从固定 ur-kit 提交获取技能源码。
+
 目标配置保存在 `~/.ur/skill-targets.json`。自动化环境也可用系统路径分隔符设置多个目录：`UR_SKILLS_DIRS=/path/a:/path/b`。WorkBuddy / CodeBuddy 的自定义配置目录通过 `CODEBUDDY_CONFIG_DIR` 自动识别。
 
 项目级目标取决于命令执行位置：CLI 会从当前工作目录向上查找 Git 仓库根，并识别其中已经存在的 `.claude/skills`、`.agents/skills`、`.codebuddy/skills`。运行 `install --all` 前先用 `ur skills target detect` 核对目标；如果只想写入明确目录，使用 `ur skills install --dir <目录>`，该次不会写入其他自动识别或已登记目标。

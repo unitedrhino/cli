@@ -149,3 +149,47 @@ func indexOf(s, sub string) int {
 	}
 	return -1
 }
+
+// TestDownloadSkillsRejectsInvalidNames 验证技能名不能包含路径且开发技能必须显式提供下载源。
+func TestDownloadSkillsRejectsInvalidNames(t *testing.T) {
+	for _, name := range []string{"../ur-api", "nested/skill", "UPPER", "ur-kit-development"} {
+		t.Run(name, func(t *testing.T) {
+			_, err := DownloadSkills(SkillsDownloadOptions{OutputDir: t.TempDir(), SkillName: name})
+			if err == nil {
+				t.Fatal("未提供有效名称和来源时不应发起默认 release 下载")
+			}
+		})
+	}
+}
+
+// TestDownloadSkillsDoesNotReusePreviousExtraction 验证目录里的旧技能不会掩盖本次包不完整。
+func TestDownloadSkillsDoesNotReusePreviousExtraction(t *testing.T) {
+	zipDir, zipName := makeURSkillsZip(t)
+	server := httptest.NewServer(http.FileServer(http.Dir(zipDir)))
+	defer server.Close()
+	output := t.TempDir()
+	previous := filepath.Join(output, "ur-kit-development")
+	if err := os.MkdirAll(previous, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(previous, "SKILL.md"), []byte("old skill"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	_, err := DownloadSkills(SkillsDownloadOptions{OutputDir: output, ZipURL: server.URL + "/" + zipName, SkillName: "ur-kit-development"})
+	if err == nil {
+		t.Fatal("只有旧下载包含目标技能时应拒绝本次包")
+	}
+	content, readErr := os.ReadFile(filepath.Join(previous, "SKILL.md"))
+	if readErr != nil || string(content) != "old skill" {
+		t.Fatal("不应修改既有技能")
+	}
+	entries, readErr := os.ReadDir(output)
+	if readErr != nil {
+		t.Fatal(readErr)
+	}
+	for _, entry := range entries {
+		if len(entry.Name()) > len("skills-") && entry.Name()[:len("skills-")] == "skills-" {
+			t.Fatalf("失败后残留解压目录: %s", entry.Name())
+		}
+	}
+}

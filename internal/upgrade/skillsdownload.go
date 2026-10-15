@@ -1,4 +1,4 @@
-// skillsdownload.go — skills 独立安装包（ur-api-skills-<版本>.zip）的下载与解压。
+// 本文件下载并定位 ur-api 或指定名称的独立开发技能包。
 //
 // 供 `ur skills download` 使用：AI 工具自助下载后自行拷贝到自己的 skills 目录，
 // CLI 不感知各 AI 工具的目录约定。复用本包已有的 release 查询（FetchLatestRelease）
@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -21,12 +22,17 @@ const (
 	GiteeReleaseBaseURL = "https://gitee.com/" + RepoOwner + "/" + RepoName + "/releases"
 )
 
+// skillDirectoryName 限制技能目录名，避免命令参数被解释为路径。
+var skillDirectoryName = regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*$`)
+
 // SkillsDownloadOptions skills 下载选项
 type SkillsDownloadOptions struct {
 	// OutputDir 下载与解压的目标目录（调用方应已把 ~ 展开为绝对路径）
 	OutputDir string
 	// ZipURL 直接指定 skills zip 下载地址（私有化/离线场景）；为空时自动查询最新 release
 	ZipURL string
+	// SkillName 是预期技能目录名；为空时保留 ur-api 默认行为。
+	SkillName string
 }
 
 // SkillsDownloadResult skills 下载结果
@@ -35,7 +41,7 @@ type SkillsDownloadResult struct {
 	Version string `json:"version"`
 	// DownloadURL 实际下载来源地址
 	DownloadURL string `json:"downloadUrl"`
-	// LocalPath 解压后 ur-api 目录的本地路径（可直接整体拷贝到 AI 工具的 skills 目录）
+	// LocalPath 解压后技能目录的本地路径（可直接整体拷贝到 AI 工具的 skills 目录）
 	LocalPath string `json:"localPath"`
 }
 
@@ -63,11 +69,21 @@ func (r *Release) FindSkillsAsset() *Asset {
 	return nil
 }
 
-// DownloadSkills 下载 skills 独立包并解压，返回解压后的 ur-api 目录路径。
+// DownloadSkills 下载技能包并在独立目录校验预期技能，返回可整体复制的目录路径。
 // 流程：确定来源（--url 直接指定，或最新 release 中的 ur-api-skills-<版本>.zip 资产）→
-// 下载 zip 到 OutputDir → 解压到 OutputDir → 定位含 SKILL.md 的 ur-api 目录。
+// 下载 zip 到 OutputDir → 隔离解压 → 定位含 SKILL.md 的指定技能目录。
 // 下载或查询失败时，错误信息附带 GitHub 与 Gitee release 页面地址，便于手动下载兜底。
 func DownloadSkills(opts SkillsDownloadOptions) (*SkillsDownloadResult, error) {
+	skillName := opts.SkillName
+	if skillName == "" {
+		skillName = "ur-api"
+	}
+	if !skillDirectoryName.MatchString(skillName) {
+		return nil, fmt.Errorf("无效技能名称: %q", skillName)
+	}
+	if skillName != "ur-api" && opts.ZipURL == "" {
+		return nil, fmt.Errorf("下载 %s 须用 --url 指定技能包；默认 release 只提供 ur-api", skillName)
+	}
 	downloadURL := opts.ZipURL
 	version := "unknown"
 	if downloadURL == "" {
@@ -100,12 +116,16 @@ func DownloadSkills(opts SkillsDownloadOptions) (*SkillsDownloadResult, error) {
 	if idx := strings.IndexAny(zipName, "?#"); idx >= 0 {
 		zipName = zipName[:idx]
 	}
-	if zipName == "" {
+	if zipName == "" || zipName == "." || zipName == ".." || strings.ContainsAny(zipName, `\`) {
 		zipName = SkillsAssetName(version)
 	}
 	// --url 场景尝试从 zip 文件名反推版本（如 ur-api-skills-v0.4.1.zip → v0.4.1）
-	if version == "unknown" && strings.HasPrefix(zipName, skillsAssetPrefix) && strings.HasSuffix(zipName, ".zip") {
-		version = strings.TrimSuffix(strings.TrimPrefix(zipName, skillsAssetPrefix), ".zip")
+	prefix := skillsAssetPrefix
+	if skillName != "ur-api" {
+		prefix = skillName + "-"
+	}
+	if version == "unknown" && strings.HasPrefix(zipName, prefix) && strings.HasSuffix(zipName, ".zip") {
+		version = strings.TrimSuffix(strings.TrimPrefix(zipName, prefix), ".zip")
 	}
 
 	if err := os.MkdirAll(opts.OutputDir, 0o755); err != nil {
@@ -118,24 +138,32 @@ func DownloadSkills(opts SkillsDownloadOptions) (*SkillsDownloadResult, error) {
 			downloadURL, err, GitHubReleaseBaseURL, GiteeReleaseBaseURL)
 	}
 
-	// 解压到 OutputDir（release 打包的 zip 内顶层为 ur-api/）
-	if err := extract(zipPath, opts.OutputDir); err != nil {
+	// 每次隔离解压，防止旧下载目录使损坏或缺失技能的包被误判为成功。
+	extracted, err := os.MkdirTemp(opts.OutputDir, "skills-"+skillName+"-")
+	if err != nil {
+		return nil, fmt.Errorf("创建技能解压目录失败: %w", err)
+	}
+	localPath := ""
+	defer func() {
+		if localPath == "" {
+			_ = os.RemoveAll(extracted)
+		}
+	}()
+	if err := extract(zipPath, extracted); err != nil {
 		return nil, fmt.Errorf("解压 skills 包失败: %w", err)
 	}
-
-	// 定位含 SKILL.md 的 ur-api 目录（兼容 zip 无顶层目录的打包形态）
-	localPath := findURAPIDir(opts.OutputDir)
+	localPath = findDownloadedSkillDir(extracted, skillName)
 	if localPath == "" {
-		return nil, fmt.Errorf("解压后未找到含 SKILL.md 的 ur-api 目录，skills 包可能不完整: %s", downloadURL)
+		return nil, fmt.Errorf("解压后未找到含 SKILL.md 的 %s 目录，skills 包可能不完整: %s", skillName, downloadURL)
 	}
 
 	return &SkillsDownloadResult{Version: version, DownloadURL: downloadURL, LocalPath: localPath}, nil
 }
 
-// findURAPIDir 在目录中查找名为 ur-api 且含 SKILL.md 的目录；
+// findDownloadedSkillDir 在本次解压目录中查找指定名称且含 SKILL.md 的技能目录；
 // 先查根下（标准打包形态），未命中再全树遍历兜底
-func findURAPIDir(dir string) string {
-	direct := filepath.Join(dir, "ur-api")
+func findDownloadedSkillDir(dir, skillName string) string {
+	direct := filepath.Join(dir, skillName)
 	if fi, err := os.Stat(filepath.Join(direct, "SKILL.md")); err == nil && !fi.IsDir() {
 		return direct
 	}
@@ -144,7 +172,7 @@ func findURAPIDir(dir string) string {
 		if err != nil || found != "" {
 			return nil
 		}
-		if info.IsDir() && info.Name() == "ur-api" {
+		if info.IsDir() && info.Name() == skillName {
 			if fi, err := os.Stat(filepath.Join(path, "SKILL.md")); err == nil && !fi.IsDir() {
 				found = path
 				return filepath.SkipAll

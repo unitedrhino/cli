@@ -277,3 +277,61 @@ func TestRunSkillsInstallStatusAndExport(t *testing.T) {
 		t.Fatalf("export output missing: %v", err)
 	}
 }
+
+// TestRunSkillsDownloadNamedSkill 验证命令可下载开发技能及参考文件，且安装指引不误报为 ur-api。
+func TestRunSkillsDownloadNamedSkill(t *testing.T) {
+	zipPath := filepath.Join(t.TempDir(), "ur-kit-development.zip")
+	file, err := os.Create(zipPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writer := zip.NewWriter(file)
+	for name, content := range map[string]string{
+		"ur-kit-development/SKILL.md":                           "---\nname: ur-kit-development\n---\n",
+		"ur-kit-development/references/protocol-development.md": "# 协议接入\n",
+	} {
+		entry, createErr := writer.Create(name)
+		if createErr != nil {
+			t.Fatal(createErr)
+		}
+		if _, writeErr := entry.Write([]byte(content)); writeErr != nil {
+			t.Fatal(writeErr)
+		}
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := file.Close(); err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(http.FileServer(http.Dir(filepath.Dir(zipPath))))
+	defer server.Close()
+	var stdout, stderr bytes.Buffer
+	code := runSkillsDownload([]string{"--skill", "ur-kit-development", "--url", server.URL + "/ur-kit-development.zip", "--output", t.TempDir(), "--json"}, &stdout, &stderr)
+	if code != 0 {
+		t.Fatalf("下载开发技能失败: code=%d stderr=%s", code, stderr.String())
+	}
+	var response struct {
+		LocalPath   string `json:"localPath"`
+		InstallHint string `json:"installHint"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &response); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(response.LocalPath, "references", "protocol-development.md")); err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains([]byte(response.InstallHint), []byte("ur-kit-development")) || bytes.Contains([]byte(response.InstallHint), []byte("ur-api 目录")) {
+		t.Fatalf("安装指引未匹配实际技能: %s", response.InstallHint)
+	}
+}
+
+// TestRunSkillsDownloadMissingSkillName 验证缺少技能名时返回参数错误，不执行网络请求。
+func TestRunSkillsDownloadMissingSkillName(t *testing.T) {
+	for _, args := range [][]string{{"--skill"}, {"--skill", "--json"}} {
+		var stdout, stderr bytes.Buffer
+		if code := runSkillsDownload(args, &stdout, &stderr); code != 2 {
+			t.Fatalf("缺少技能名时返回 %d: %s", code, stderr.String())
+		}
+	}
+}

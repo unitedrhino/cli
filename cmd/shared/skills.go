@@ -1,3 +1,4 @@
+// 本文件提供技能下载、部署、状态与目标管理命令。
 package shared
 
 import (
@@ -422,6 +423,7 @@ func cwdOr(fallback string) string {
 func runSkillsDownload(args []string, stdout, stderr io.Writer) int {
 	outputDir := ""
 	zipURL := ""
+	skillName := "ur-api"
 	jsonOutput := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -431,6 +433,14 @@ func runSkillsDownload(args []string, stdout, stderr io.Writer) int {
 				i++
 			} else {
 				fmt.Fprintln(stderr, "--output 需要指定目录")
+				return 2
+			}
+		case "--skill":
+			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "--") {
+				skillName = args[i+1]
+				i++
+			} else {
+				fmt.Fprintln(stderr, "--skill 需要指定技能名称")
 				return 2
 			}
 		case "--url":
@@ -444,9 +454,11 @@ func runSkillsDownload(args []string, stdout, stderr io.Writer) int {
 		case "--json":
 			jsonOutput = true
 		case "-h", "--help":
-			fmt.Fprintln(stdout, "用法: ur skills download [--output <目录>] [--url <zip地址>] [--json]")
+			fmt.Fprintln(stdout, "用法: ur skills download [--skill <名称>] [--output <目录>] [--url <zip地址>] [--json]")
 			fmt.Fprintln(stdout, "从最新 release 下载 skills 包（ur-api-skills-<版本>.zip）并解压到本地目录，")
 			fmt.Fprintln(stdout, "之后把其中的 ur-api 目录整体拷贝到你所用 AI 工具的 skills 目录即可（对所有 AI 工具通用）")
+			fmt.Fprintln(stdout, "--skill ur-kit-development --url <开发技能zip地址> 下载协议与应用开发指南；其他技能必须提供 --url")
+			fmt.Fprintln(stdout, "开发技能包获取方式: https://github.com/unitedrhino/ur-kit#使用-ai-开发")
 			fmt.Fprintln(stdout, "--url 可直接指定 zip 地址（私有化/离线场景）")
 			return 0
 		default:
@@ -459,7 +471,7 @@ func runSkillsDownload(args []string, stdout, stderr io.Writer) int {
 		outputDir = expandHomePath("~/.ur/downloads")
 	}
 
-	result, err := upgrade.DownloadSkills(upgrade.SkillsDownloadOptions{OutputDir: outputDir, ZipURL: zipURL})
+	result, err := upgrade.DownloadSkills(upgrade.SkillsDownloadOptions{OutputDir: outputDir, ZipURL: zipURL, SkillName: skillName})
 	if err != nil {
 		fmt.Fprintf(stderr, "下载 skills 失败: %v\n", err)
 		return 1
@@ -475,11 +487,16 @@ const skillsDownloadHint = "请将上述 ur-api 目录整体拷贝到你所用 A
 // formatSkillsDownloadResult 构造 download 成功输出：
 // JSON 模式为单行事件 {"event":"skills_downloaded",...}，否则为人类可读文本
 func formatSkillsDownloadResult(res *upgrade.SkillsDownloadResult, jsonMode bool) string {
+	// 默认 ur-api 的提示保持兼容，开发技能按实际目录名提示，避免覆盖 API 技能。
+	hint := skillsDownloadHint
+	if name := filepath.Base(res.LocalPath); name != "ur-api" {
+		hint = fmt.Sprintf("请将上述 %s 目录整体拷贝到项目 .agents/skills/ 或所用 AI 工具的 skills 目录，保留 references 和元数据；在项目 AGENTS.md 记录技能入口，重启 AI 会话后生效。ur skills install/update 只管理内置 ur-api，不会更新此开发技能", name)
+	}
 	if jsonMode {
 		return fmt.Sprintf(`{"event":"skills_downloaded","downloadUrl":%q,"localPath":%q,"installHint":%q}`,
-			res.DownloadURL, res.LocalPath, skillsDownloadHint)
+			res.DownloadURL, res.LocalPath, hint)
 	}
-	return fmt.Sprintf("下载来源: %s\n本地解压路径: %s\n%s", res.DownloadURL, res.LocalPath, skillsDownloadHint)
+	return fmt.Sprintf("下载来源: %s\n本地解压路径: %s\n%s", res.DownloadURL, res.LocalPath, hint)
 }
 
 func runSkillsList(args []string, stdout, stderr io.Writer) int {
@@ -629,6 +646,7 @@ func printSkillsHelp(w io.Writer) {
 	fmt.Fprintln(w, "示例:")
 	fmt.Fprintln(w, "  ur skills list              列出所有已安装的 skills")
 	fmt.Fprintln(w, "  ur skills download          下载最新 skills 包到 ~/.ur/downloads/ 并解压")
+	fmt.Fprintln(w, "  ur skills download --skill ur-kit-development --url <zip地址>  下载应用与协议开发技能")
 	fmt.Fprintln(w, "  ur skills download --output ~/skills-pkg   指定下载目录")
 	fmt.Fprintln(w, "  ur skills update --dry-run  检查 skills 是否有更新")
 	fmt.Fprintln(w, "  ur skills update            升级 skills 到最新版本")

@@ -35,6 +35,14 @@
 
 ---
 
+## 与 ur-kit、urops 配合开发应用
+
+- **[ur-kit](https://github.com/unitedrhino/ur-kit)** 提供固定版本的公共 SDK、应用模板、协议组件和 AI 开发指南。
+- **ur** 下载 API/开发技能，并使用操作者已有授权调用平台开放的 HTTP API，核对应用、菜单、项目和设备接入结果。需要服务自注册 RPC 的路由及定时任务消费者由自己的后端实现。
+- **urops** 在目标 Linux 主机用自己的 Compose 部署已经构建的应用/网关镜像；TUI 入口为「自定义应用与协议网关 → 部署新应用/协议网关」，填写路径并确认后执行，后续查看状态、日志、更新或停止。
+
+按「获取技能 → 开发测试 → 构建镜像 → 注册/核对平台对象 → 部署 → 实际业务验收」衔接。SDK 标签、技能来源提交、ur/urops 工具版本和应用镜像版本分别记录；合并源码不会自动更新已安装工具，新参数先通过对应 `--help` 核验。完整流程见 [ur-kit 工具协作说明](https://github.com/unitedrhino/ur-kit#ur-kitur-与-urops-如何配合)。
+
 ## Agent Skills
 
 安装 CLI 后，运行 `generate-skills` 生成 AI Agent 可用的 Skill 文档：

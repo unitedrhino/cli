@@ -8,6 +8,8 @@
     writable: false,
     busy: false,
     pending: null,
+    requested: null,
+    syncing: null,
     early: new Map(),
     timer: null,
   };
@@ -53,6 +55,14 @@
   }
   /** render 从真实状态渲染统一选中、禁用及边界；温控范围从模型获取。 */
   function render() {
+    // 回执先到而上报稍晚时，真实新值到达后结束“尚未同步”提示。
+    if (
+      state.syncing &&
+      Object.entries(state.syncing).every(([id, expected]) => Object.is(value(id), expected))
+    ) {
+      state.syncing = null;
+      feedback('设备已确认，设置成功');
+    }
     const power = value('power'),
       temperature = value('targetTemperature'),
       mode = value('mode');
@@ -115,14 +125,24 @@
     if (result.commandID !== state.pending || !labels[result.status]) return;
     clearTimeout(state.timer);
     state.pending = null;
+    state.syncing =
+      result.status === 'succeeded' && result.stateSynchronized === false ? state.requested : null;
+    state.requested = null;
     state.busy = false;
-    feedback(labels[result.status], result.status !== 'succeeded');
+    feedback(
+      result.status === 'succeeded' && result.stateSynchronized === false
+        ? '设备已确认，状态尚未同步，请稍后查看'
+        : labels[result.status],
+      result.status !== 'succeeded',
+    );
     render();
   }
   /** send 单次提交后等待实际设备回执，等待期间锁定控件，拒绝乐观伪造执行成功。 */
   async function send(values) {
     if (state.busy || Object.keys(values).some((id) => !allowed(id))) return;
     state.busy = true;
+    state.requested = { ...values };
+    state.syncing = null;
     render();
     feedback('正在发送设置…');
     try {
@@ -153,18 +173,16 @@
       }),
     ),
   );
-  document
-    .querySelectorAll('[data-property]')
-    .forEach((button) =>
-      button.addEventListener('click', () =>
-        send({
-          [button.dataset.property]:
-            state.fields.get(button.dataset.property)?.type === 'enum'
-              ? Number(button.dataset.value)
-              : button.dataset.value,
-        }),
-      ),
-    );
+  document.querySelectorAll('[data-property]').forEach((button) =>
+    button.addEventListener('click', () =>
+      send({
+        [button.dataset.property]:
+          state.fields.get(button.dataset.property)?.type === 'enum'
+            ? Number(button.dataset.value)
+            : button.dataset.value,
+      }),
+    ),
+  );
   /** start 先订阅再读值，避免初始化期间漏报；卸载时销毁当前订阅和等待定时器。 */
   async function start() {
     try {

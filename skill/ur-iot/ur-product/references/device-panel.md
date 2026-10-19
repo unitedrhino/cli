@@ -67,7 +67,7 @@ const accepted = await urPanel.writeProperties({ values: { power: true } });
 // 不再使用时调用 unsubscribe()；页面卸载会销毁所有请求和订阅。
 ```
 
-readProperties 返回 `{identifier:{value,timestamp,receivedTime,quality,source}}`。时间单位毫秒；null/UNKNOWN 不能展示成正常实时值。不同宿主能力读 context.capabilities；不可用时展示原因。命令状态为 accepted/succeeded/failed/timeout；超时表示执行未知，不得自动换到 BLE 再发一次。错误 code 为 INVALID_PARAMS/FORBIDDEN/UNSUPPORTED_CAPABILITY/TIMEOUT/SESSION_CLOSED。
+readProperties 返回 `{identifier:{value,timestamp,receivedTime,quality,source}}`。时间单位毫秒；null/UNKNOWN 不能展示成正常实时值。不同宿主能力读 context.capabilities；不可用时展示原因。命令状态为 accepted/succeeded/failed/timeout；Web 宿主在设备成功但属性尚未同步时可附带 stateSynchronized=false，此时显示“设备已确认，状态尚未同步”，不伪造上报值；超时表示执行未知，不得自动换到 BLE 再发一次。错误 code 为 INVALID_PARAMS/FORBIDDEN/UNSUPPORTED_CAPABILITY/TIMEOUT/SESSION_CLOSED。
 
 Web 通过校验 iframe 身份后的 MessageChannel 运行，sandbox 只允许脚本；面板无法读取宿主登录态。App 缓存包和属性快照，离线仅供查看；控制需要联网。本轮暂不提供蓝牙控制，capabilities.ble.available=false。Android/iOS 包安装与离线冷启动需各自真机验证。小程序能力不足时保留原生面板，不绕开业务域名和通信约束。
 

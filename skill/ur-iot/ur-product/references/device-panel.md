@@ -37,7 +37,7 @@ ur things panel pack ./my-panel --out ./my-panel.zip
 
 交付前至少用 serve 查看桌面及手机，检查320px宽度、开关、温度边界、模式/风速选中、等待回执及失败/离线状态；保留截图。不能仅验证 HTML 能打开就称为视觉验收通过。模拟工作台提供桌面/手机宽度切换和重新运行，不提供在线编辑器。
 
-后台面板管理提供“开发说明”和开关/空调“导出模板”。完整入门流程、文件职责、SDK 参数与发布验收见 [面板开发说明](device-panel-development.md)。模板下载包附同内容的 development.html，解压后可离线阅读，也可直接导入模拟。后台只有一个导入入口，在弹窗中选择当前企业或公共归属（公共仅平台管理员可选）。
+后台面板管理提供“开发说明”和开关/空调“导出模板”。完整入门流程、文件职责、SDK 参数与发布验收见 [面板开发说明](device-panel-development.md)。模板下载包附同内容的 development.html，解压后可离线阅读，也可直接导入模拟。后台只有一个导入入口：填写名称和备注，拖拽或点击上传；平台导入自动公共，其他企业自动当前企业，不提供归属选择。导入成功后可选择绑定设备、产品或品类，也可稍后绑定。
 
 ## 清单与物模型合同
 
@@ -78,7 +78,9 @@ Web 通过校验 iframe 身份后的 MessageChannel 运行，sandbox 只允许�
 以下在线命令复用已配置 CLI 账号及应用上下文；首次导入/绑定须联网。
 
 ```sh
-ur things panel import ./my-panel.zip --scope current
+ur things panel import ./my-panel.zip
+# 可选：覆盖导入清单中的名称及备注
+ur things panel import ./my-panel.zip --name "客厅面板" --desc "空调设备控制"
 ur things panel list --json '{"page":{"page":1,"size":20}}'
 ur things panel info --json '{"panelID":"<导入结果的ID>"}'
 ur things panel binding --json '{"targetType":"product","targetID":"<产品标识>"}'
@@ -87,7 +89,7 @@ ur things panel resolve --json '{"productID":"<产品标识>","deviceName":"<设
 ur things panel export --json '{"panelID":"<资产ID>"}' --out ./exported.zip
 ```
 
-普通企业使用 scope=current；common 公共资产及公共品类默认只由 platform 上下文的平台管理员维护。服务端以当前用户上传临时 filePath 导入，不能把任意 URL 或其他账号对象当面板源。导入不自动绑定，导出不包含绑定、账号、设备密钥和模拟状态。
+新导入由服务端按身份决定：平台为公共资产，其他企业为当前企业。ownerScope/--scope 仅兼容旧调用；平台传 current 也归为公共，普通企业显式请求 common 仍拒绝。公共品类仅平台管理员维护。名称覆盖后备注可为空以清除旧值；改写参与资产摘要，导出与列表信息一致。服务端以当前用户上传临时 filePath 导入，不能把任意 URL 或其他账号对象当面板源。导入不自动绑定，导出不包含绑定、账号、设备密钥和模拟状态。
 
 解析顺序：设备 > 产品 > 当前品类 > 最近上级品类 > 系统默认。mode=inherit 才继续；panel/builtin 停止。高优先级资产不兼容时返回 builtin 和原因，不能默默选择低优先级的自定义面板。
 

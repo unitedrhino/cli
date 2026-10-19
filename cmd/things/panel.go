@@ -45,6 +45,12 @@ func newPanelCommand() *cobra.Command {
 	}}
 	serve.Flags().Int("port", 0, "本机端口，0 自动分配")
 	imp := &cobra.Command{Use: "import <directory|html|zip>", Short: "校验上传并导入不可变资产，不自动绑定", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		// 导入元数据只有显式名称时才覆盖，未提供时保留工程清单。
+		name, _ := cmd.Flags().GetString("name")
+		desc, _ := cmd.Flags().GetString("desc")
+		if (cmd.Flags().Changed("name") && strings.TrimSpace(name) == "") || (desc != "" && strings.TrimSpace(name) == "") {
+			return fmt.Errorf("覆盖名称或备注时必须提供非空 --name")
+		}
 		p, e := paneldev.Load(args[0])
 		if e != nil {
 			return e
@@ -69,9 +75,19 @@ func newPanelCommand() *cobra.Command {
 			return fmt.Errorf("上传未返回 filePath")
 		}
 		scope, _ := cmd.Flags().GetString("scope")
-		return panelAPI(cmd, "package/import", map[string]any{"filePath": path, "ownerScope": scope})
+		body := map[string]any{"filePath": path}
+		if scope != "" {
+			body["ownerScope"] = scope
+		}
+		if name != "" {
+			body["name"] = strings.TrimSpace(name)
+			body["desc"] = strings.TrimSpace(desc)
+		}
+		return panelAPI(cmd, "package/import", body)
 	}}
-	imp.Flags().String("scope", "current", "current/common 资源归属")
+	imp.Flags().String("scope", "", "兼容旧调用：平台自动公共，其他企业自动当前企业")
+	imp.Flags().String("name", "", "覆盖导入清单名称；省略时保留原名称")
+	imp.Flags().String("desc", "", "配合 --name 覆盖备注，空值清除旧备注")
 	root.AddCommand(initCommand, validate, pack, serve, imp)
 	for _, item := range []struct{ name, path, short string }{{"info", "info/get-one", "查询面板详情"}, {"list", "info/get-list", "查询面板列表"}, {"resolve", "resolve", "解析当前设备面板"}, {"delete", "info/delete", "删除无直接引用的资产"}, {"export", "package/export", "导出标准面板包"}, {"binding", "binding/get-one", "读取本层配置及继承结果"}, {"bind", "binding/update", "按期望版本更新绑定，必要时显式确认影响"}, {"bindings", "binding/get-list", "查询资产直接引用"}} {
 		item := item

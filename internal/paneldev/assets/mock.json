@@ -1,0 +1,1 @@
+{"mode":"mock","properties":{"power":{"value":false,"quality":"good"}},"description":"serve 默认根据 manifest 生成模拟模型；此文件供外部测试工具扩展示例。"}

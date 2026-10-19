@@ -38,6 +38,8 @@ metadata:
 | **协议脚本** | 协议网关、协议容器、协议脚本管理 | `protocol-script` | - |
 | **AI 工具** | AI 工具创建、发布、编排 | `ai-tool` | - |
 
+HTML 设备面板的本地开发、模拟运行和三层绑定见 [产品面板指南](ur-product/references/device-panel.md)。
+
 ## 常用 CLI 命令速查
 
 ### 设备相关

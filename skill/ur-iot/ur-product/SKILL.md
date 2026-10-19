@@ -1,6 +1,6 @@
 ---
 name: ur-product
-description: "产品管理 + 物模型：产品的增删改查、物模型管理、协议脚本、OTA固件管理。triggers: 产品定义, 产品管理, 物模型, 协议脚本, OTA固件, 品类, 产品列表, 属性定义, 事件定义, 行为定义, Thing Model"
+description: "产品管理 + 物模型 + HTML 面板：产品的增删改查、物模型管理、协议脚本、OTA固件管理。triggers: 产品定义, 产品管理, 物模型, 协议脚本, OTA固件, 品类, 产品列表, 属性定义, 事件定义, 行为定义, Thing Model"
 metadata:
   hermes:
     tags: [product, thing-model, protocol, ota, firmware]
@@ -41,10 +41,13 @@ metadata:
 
 <!-- MANUAL_GUIDES:ur-product -->
 
+
+
 ## 专项指南
 
 | 场景 | 说明 | 参考文档 |
 |------|------|---------|
+| HTML 设备面板 | 本地 HTML 开发、SDK 模拟、导入导出及设备/产品/品类绑定 | [device-panel.md](references/device-panel.md) |
 | 语音设备接入 | 产品、Agent、物模型、固件、OTA 与真机闭环 | [voice-ai.md](../device-firmware/references/voice-ai.md) |
 | 拍照识图行为 | takePhoto 物模型、异步回执、图片输入与验收 | [photo-vision.md](../device-firmware/references/photo-vision.md) |
 | 保留绑定换网 | 本地 BLE 闭环、可选 configureNetwork 行为与最近网络 | [watcher-ui-network.md](../device-firmware/references/watcher-ui-network.md) |

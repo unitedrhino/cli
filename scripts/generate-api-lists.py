@@ -28,7 +28,7 @@ DOMAIN_PREFIXES = {
     "ur-device-analytics": ["/api/v1/things/device/msg/"],
     "ur-device-debug": ["/api/v1/things/device/interact/"],
     "ur-device": ["/api/v1/things/device/"],
-    "ur-product": ["/api/v1/things/product/"],
+    "ur-product": ["/api/v1/things/product/", "/api/v1/things/panel/"],
     "ur-ota": ["/api/v1/things/ota/"],
     "ur-protocol": ["/api/v1/things/protocol/"],
     "ur-rule": ["/api/v1/things/rule/"],
@@ -96,6 +96,8 @@ MANUAL_GUIDES = {
          "../device-firmware/references/watcher-ui-network.md"),
     ],
     "ur-product": [
+        ("HTML 设备面板", "本地 HTML 开发、SDK 模拟、导入导出及三层绑定",
+         "references/device-panel.md"),
         ("语音设备接入", "产品、Agent、物模型、固件、OTA 与真机闭环",
          "../device-firmware/references/voice-ai.md"),
         ("拍照识图行为", "takePhoto 物模型、异步回执、图片输入与验收",

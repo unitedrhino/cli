@@ -27,7 +27,7 @@ func TestLocalDevelopment(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if len(p.Files) != 3 {
+	if len(p.Files) != 5 {
 		t.Fatal(p.Inventory)
 	}
 	out := filepath.Join(root, "panel.zip")
@@ -101,5 +101,36 @@ func TestOfflineServer(t *testing.T) {
 		}
 	case <-time.After(2 * time.Second):
 		t.Fatal("服务未退出")
+	}
+}
+
+// TestAirConditionerTemplate 验证空调工程离线初始化、完整资源及往返打包，错误模板不留下半成品。
+func TestAirConditionerTemplate(t *testing.T) {
+	root := t.TempDir()
+	invalid := filepath.Join(root, "invalid")
+	if err := InitTemplate(invalid, "missing"); err == nil {
+		t.Fatal("接受未知模板")
+	}
+	if _, err := os.Stat(invalid); !os.IsNotExist(err) {
+		t.Fatal("未知模板写入目录")
+	}
+	project := filepath.Join(root, "ac")
+	if err := InitTemplate(project, "air-conditioner"); err != nil {
+		t.Fatal(err)
+	}
+	p, err := Load(project)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(p.Manifest.Requirements) != 5 || len(p.Files) != 5 {
+		t.Fatal("空调合同或运行资源不完整")
+	}
+	q, err := Pack(project, filepath.Join(root, "ac.zip"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	roundtrip, err := Load(filepath.Join(root, "ac.zip"))
+	if err != nil || q.Hash != roundtrip.Hash {
+		t.Fatalf("空调回导不一致: %v", err)
 	}
 }

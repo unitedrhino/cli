@@ -18,7 +18,11 @@ import (
 // newPanelCommand 构造独立命令树，离线工程与在线管理各自按需读取参数。
 func newPanelCommand() *cobra.Command {
 	root := &cobra.Command{Use: "panel", Short: "HTML 设备面板本地开发、模拟与管理"}
-	initCommand := &cobra.Command{Use: "init <directory>", Short: "离线生成面板、SDK、合同及模拟示例", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error { return paneldev.Init(args[0]) }}
+	initCommand := &cobra.Command{Use: "init <directory>", Short: "离线生成面板、SDK、合同及模拟示例", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		template, _ := cmd.Flags().GetString("template")
+		return paneldev.InitTemplate(args[0], template)
+	}}
+	initCommand.Flags().String("template", "switch", "面板样板：switch / air-conditioner")
 	validate := &cobra.Command{Use: "validate <directory|html|zip>", Short: "离线校验包资源、合同与内容摘要", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		p, e := paneldev.Load(args[0])
 		if e != nil {

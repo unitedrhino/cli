@@ -1,0 +1,77 @@
+{
+  "formatVersion": 1,
+  "name": "舒适家 · 智能空调",
+  "version": "1.0.0",
+  "entry": "index.html",
+  "sdkVersion": "1.0.0",
+  "platforms": [
+    "web",
+    "h5",
+    "appAndroid",
+    "appIos"
+  ],
+  "requirements": [
+    {
+      "kind": "property",
+      "identifier": "power",
+      "required": true,
+      "access": "write",
+      "define": {
+        "type": "bool"
+      }
+    },
+    {
+      "kind": "property",
+      "identifier": "targetTemperature",
+      "required": true,
+      "access": "write",
+      "define": {
+        "type": "int",
+        "min": 16,
+        "max": 30,
+        "step": 1,
+        "unit": "°C"
+      }
+    },
+    {
+      "kind": "property",
+      "identifier": "mode",
+      "required": true,
+      "access": "write",
+      "define": {
+        "type": "enum",
+        "mapping": {
+          "cool": "制冷",
+          "heat": "制热",
+          "dry": "除湿",
+          "auto": "自动"
+        }
+      }
+    },
+    {
+      "kind": "property",
+      "identifier": "fanSpeed",
+      "required": true,
+      "access": "write",
+      "define": {
+        "type": "enum",
+        "mapping": {
+          "auto": "自动",
+          "low": "低风",
+          "medium": "中风",
+          "high": "高风"
+        }
+      }
+    },
+    {
+      "kind": "property",
+      "identifier": "currentTemperature",
+      "required": false,
+      "access": "read",
+      "define": {
+        "type": "float",
+        "unit": "°C"
+      }
+    }
+  ]
+}

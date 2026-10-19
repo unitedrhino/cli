@@ -1,50 +1,54 @@
 <!doctype html>
+<!-- 文件说明：统一设备控制样板；全部状态和命令通过当前设备的 window.urPanel 获取。 -->
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>设备开关</title>
-  <style>body{font:16px system-ui;padding:24px}button{padding:12px 24px}pre{white-space:pre-wrap}</style>
-</head>
-<body>
-  <h1>设备开关</h1>
-  <p id="state">正在读取设备状态…</p>
-  <button id="toggle" disabled>切换开关</button>
-  <pre id="result"></pre>
-  <script src="panel-sdk.js"></script>
-  <script>
-    /* 文件说明：仅用宿主 SDK 控制当前设备；受理与设备确认分别显示，未知值不冒充关闭。 */
-    const output = document.querySelector('#result'), button = document.querySelector('#toggle');
-    let power = null, canWrite = false;
-    /** render 展示原始质量，只有已知布尔值和实际写权限才启用切换。 */
-    function render(values) {
-      const field = values.power;
-      if (!field) return;
-      power = typeof field.value === 'boolean' ? field.value : null;
-      document.querySelector('#state').textContent = `开关：${power === null ? '未知' : power ? '开' : '关'} · 质量：${field.quality || '未知'}`;
-      button.disabled = !canWrite || power === null;
-    }
-    /** start 先获取宿主实际能力，再订阅属性与命令，连接事件不覆盖最终执行结果。 */
-    async function start() {
-      try {
-        output.textContent = JSON.stringify(await urPanel.getContext(), null, 2);
-        const model = await urPanel.getThingModel();
-        canWrite = model.properties.some(field => field.identifier === 'power' && field.available !== false && field.mode === 'rw');
-        render(await urPanel.readProperties({identifiers: ['power']}));
-        await urPanel.subscribe({topics: ['property', 'command', 'connection']}, event => {
-          if (event.topic === 'property') render(event.data);
-          else if (event.topic === 'command') output.textContent = JSON.stringify(event, null, 2);
-        });
-      } catch (error) { output.textContent = error.message; }
-    }
-    /** toggle 只发送一次控制；失败由用户决定重试，accepted 不代表设备已生效。 */
-    button.onclick = async function toggle() {
-      button.disabled = true;
-      try { output.textContent = JSON.stringify(await urPanel.writeProperties({values: {power: !power}}), null, 2); }
-      catch (error) { output.textContent = error.message; }
-      finally { button.disabled = !canWrite || power === null; }
-    };
-    start();
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>智能开关</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <header class="topbar">
+        <div class="identity">
+          <span class="brand-icon"
+            ><svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v9M7 5a8 8 0 1 0 10 0" /></svg
+          ></span>
+          <div>
+            <h1>智能开关</h1>
+            <p class="subtitle" id="device-name">舒适生活，轻松掌控</p>
+          </div>
+        </div>
+        <div class="status" id="connection">
+          <i class="status-dot"></i><span id="connection-label">连接中</span>
+        </div>
+      </header>
+      <section class="card switch-hero">
+        <span class="eyebrow">DEVICE CONTROL</span>
+        <div class="switch-symbol">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9M7 5a8 8 0 1 0 10 0" /></svg>
+        </div>
+        <h2 class="hero-state" id="power-label">状态未知</h2>
+        <p class="subtitle">一键控制，轻松随心</p>
+        <button
+          type="button"
+          class="power-button"
+          id="power"
+          aria-label="设备电源"
+          aria-pressed="false"
+          disabled
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9M7 5a8 8 0 1 0 10 0" /></svg>
+        </button>
+        <p class="subtitle" id="control-note">设备回执确认后，操作才算完成。</p>
+      </section>
+      <p class="feedback" id="feedback" role="status" aria-live="polite">正在读取设备状态…</p>
+      <footer class="footer">
+        <span class="footer-mark">联犀 · 设备控制</span><span id="data-note">状态由设备上报</span>
+      </footer>
+    </main>
+    <script src="panel-sdk.js"></script>
+    <script src="panel.js"></script>
+  </body>
 </html>

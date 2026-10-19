@@ -47,7 +47,7 @@ metadata:
 
 | 场景 | 说明 | 参考文档 |
 |------|------|---------|
-| HTML 设备面板 | 本地 HTML 开发、SDK 模拟、导入导出及设备/产品/品类绑定 | [device-panel.md](references/device-panel.md) |
+| HTML 设备面板 | 开发前先读统一视觉约束；开关/空调样板、SDK 模拟、导入导出与三层绑定 | [device-panel.md](references/device-panel.md) |
 | 语音设备接入 | 产品、Agent、物模型、固件、OTA 与真机闭环 | [voice-ai.md](../device-firmware/references/voice-ai.md) |
 | 拍照识图行为 | takePhoto 物模型、异步回执、图片输入与验收 | [photo-vision.md](../device-firmware/references/photo-vision.md) |
 | 保留绑定换网 | 本地 BLE 闭环、可选 configureNetwork 行为与最近网络 | [watcher-ui-network.md](../device-firmware/references/watcher-ui-network.md) |

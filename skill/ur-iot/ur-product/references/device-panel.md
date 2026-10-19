@@ -6,6 +6,8 @@
 
 ```sh
 ur things panel init ./my-panel
+# 空调模板与默认开关共用视觉和交互规范
+ur things panel init ./air-conditioner --template air-conditioner
 ur things panel validate ./my-panel
 ur things panel serve ./my-panel
 ur things panel pack ./my-panel --out ./my-panel.zip
@@ -14,6 +16,26 @@ ur things panel pack ./my-panel --out ./my-panel.zip
 这四条命令离线可用，无需账号、后端或 CDN。serve 只监听本机，界面明确标记模拟设备，不会调用真实设备。外部修改文件后重新运行页面加载最新校验资源。模板、SDK 和 mock 示例随 CLI 可执行文件分发；也可复制本技能 [assets/device-panel](../assets/device-panel) 后使用同样命令。ZIP 输出放工程目录外，现有文件不会被覆盖。
 
 工程包含 manifest.json、index.html、panel-sdk.js 和包内 CSS/JS/图片/字体。仅单 HTML 时把 manifest 放入 `<script id="ur-panel-manifest" type="application/json">`，SDK 脚本内联。不能有外部 CDN、远程脚本、iframe、base、对象嵌入、符号链接、路径穿越或缺失资源。限制：压缩 10 MiB、展开 30 MiB、100 文件。导出归一化标准 ZIP，回导以内容复用资产。
+
+## 视觉与交互样板（开发前必读）
+
+新面板从 [开关样板](../assets/device-panel) 或 [空调样板](../assets/device-panel-air-conditioner) 改起，不重新凭空设计。两套样板共用 panel.css 和 panel.js，外层模拟工作台不属于面板资源。后台管理仍沿用所在仓库的既有设计体系，面板内部是可离线运行的独立 HTML，不引入后台 UI 库或 CDN。
+
+| 约束 | 统一要求 |
+| --- | --- |
+| 颜色 | 从 panel.css 的 --background/card/foreground/muted-foreground/border/primary 等语义变量取值；默认浅色、青绿主色。业务控件不写裸色值。换品牌仅改变量，不逐控件另配色 |
+| 字体 | 系统无衬线字体；标题 20–24px，正文/控件 12–14px，辅助 11–12px；温度可用 72–76px；数值等宽，不拉伸、不靠 emoji 装饰 |
+| 间距 | 以 8px 为基本节奏，卡片间距 14–20px，内边距 20–28px；统一细边框、轻阴影和圆角，不混用玻璃、霓虹、厚阴影 |
+| 结构 | 设备身份和连接状态 → 核心状态/控制 → 分组操作 → 固定反馈区 → 数据来源；桌面双栏、窄屏单栏，320px 不横向溢出 |
+| 控件 | 触控主按钮至少 44px；模式使用同组等宽按钮，风速使用分段按钮；正常/选中/禁用/发送中/失败/未知均有明确表现；支持键盘焦点、aria-label、aria-pressed 和实时反馈 |
+| 状态 | 不把关闭值、默认温度或缓存显示成实时状态；只读/离线/可选能力缺失禁用相应操作；accepted 与设备确认分开，等待期间锁定，失败/超时不自动重发 |
+| 用户文案 | 不显示 SDK、原始 JSON、命令 ID、packageHash 或连接栈；技术详情放在宿主调试区域。模拟与缓存必须明确标识，不能暗示真实设备 |
+
+可调整设备名称、图形、业务字段、模式文案、实际范围和控件数量；保留共享视觉变量、布局层级和状态语义。新增交互优先复用样板 class；用户明确指定品牌风格时可调整统一变量，但不要混进另一套组件外观。
+
+空调样板使用 power、targetTemperature、mode、fanSpeed，及可选 currentTemperature；具体类型、单位、枚举见其 manifest.json。它们仅为演示合同，实际产品可能叫 PowerSwitch/SetTemperature 等，必须先查物模型再一致修改 HTML 控件映射、JS 和 requirements，不能为了套模板修改真实设备协议。
+
+交付前至少用 serve 查看桌面及手机，检查320px宽度、开关、温度边界、模式/风速选中、等待回执及失败/离线状态；保留截图。不能仅验证 HTML 能打开就称为视觉验收通过。模拟工作台提供桌面/手机宽度切换和重新运行，不提供在线编辑器。
 
 ## 清单与物模型合同
 

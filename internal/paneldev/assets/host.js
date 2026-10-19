@@ -279,6 +279,14 @@
   }
 
   // apps/web/packages/saas/src/device-panel/dev-host.ts
+  document.querySelectorAll("[data-size]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const preview = document.querySelector("#preview");
+      if (preview) preview.dataset.size = button.dataset.size;
+      document.querySelectorAll("[data-size]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+    });
+  });
+  document.querySelector("#reload")?.addEventListener("click", () => location.reload());
   async function start() {
     const frame = document.querySelector("#panel");
     const error = document.querySelector("#error");

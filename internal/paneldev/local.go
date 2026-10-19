@@ -25,15 +25,26 @@ import (
 var assets embed.FS
 
 // Init 在不存在的目录写出完整可运行示例，绝不覆盖已有开发文件。
-func Init(directory string) error {
+func Init(directory string) error { return InitTemplate(directory, "switch") }
+
+// InitTemplate 按固定模板名创建完整工程；未知模板和已有目录均不写入文件。
+func InitTemplate(directory, template string) error {
+	prefix := "assets/"
+	switch template {
+	case "switch":
+	case "air-conditioner":
+		prefix += "air-conditioner/"
+	default:
+		return fmt.Errorf("未知面板模板：%s（可选 switch、air-conditioner）", template)
+	}
 	if _, err := os.Lstat(directory); !os.IsNotExist(err) {
 		return fmt.Errorf("目标目录已存在或不可访问：%s", directory)
 	}
 	if err := os.MkdirAll(directory, 0755); err != nil {
 		return err
 	}
-	for _, name := range []string{"manifest.json", "index.html", "panel-sdk.js", "mock.json", "README.md"} {
-		data, err := assets.ReadFile("assets/" + name)
+	for _, name := range []string{"manifest.json", "index.html", "panel-sdk.js", "panel.css", "panel.js", "mock.json", "README.md"} {
+		data, err := assets.ReadFile(prefix + name)
 		if err != nil {
 			return err
 		}

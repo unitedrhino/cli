@@ -39,7 +39,7 @@ ur things panel pack ./my-panel --out ./my-panel.zip
 
 ## 清单与物模型合同
 
-模板使用 bool 可写属性 power；对接其他产品时先用物模型查询取得真实 identifier、类型、单位、枚举语义和读写权限，再调整 requirements，不能从界面文字臆造字段。清单只描述能力合同，不定义组件树。
+模板使用 bool 可写属性 power；对接其他产品时先用物模型查询取得真实 identifier、类型、单位、枚举语义和读写权限，再调整 requirements，不能从界面文字臆造字段。清单只描述能力合同，不定义组件树。平台 enum 的 mapping 键必须为数字字符串；空调样板 mode=0制冷/1制热/2除湿/3自动，fanSpeed=0自动/1低风/2中风/3高风。数字类型 min/max/step 按平台合同使用数字字符串（例如 "16"/"30"/"1"），建模后回读确认范围未被默认值替换。不能把 cool/low 等文字作为枚举键；界面按数字键下发并兼容数字/数字字符串的回显。
 
 - formatVersion 固定 1；entry 固定 index.html；sdkVersion 当前 1.0.0。
 - platforms 为 web/h5/appAndroid/appIos/mini 的非空子集，声明不代表当前宿主已实现该能力。
@@ -93,4 +93,4 @@ ur things panel export --json '{"panelID":"<资产ID>"}' --out ./exported.zip
 
 ## 验证
 
-先本地 validate/serve/pack，再在隔离 KVM 中验证实际安装的 CLI、上传导入、导出回导、三层绑定、两台设备及 MQTT 回执。模拟运行不能代替真实设备链路。H5 通过后再编译小程序；Android/iOS 离线冷启动、损坏包恢复及重入需要真机证据；蓝牙不属于本轮验收。保持 packageHash、解析来源、实际终端能力与验收记录一致。
+先本地 validate/serve/pack，再在隔离 KVM 中验证实际安装的 CLI、上传导入、导出回导、三层绑定、两台设备及 MQTT 回执。用户要求后台可控制、可获取状态时，必须导入后台资产并绑定产品/设备，从设备详情的“设备面板”交付实际运行入口；不能只给 serve 或管理详情里的模拟入口。测试设备可按用户授权以 MQTT 客户端实现，但下发、回执和属性上报必须经过实际平台链路，并明确设备为软件模拟。模拟运行不能代替真实设备链路。H5 通过后再编译小程序；Android/iOS 离线冷启动、损坏包恢复及重入需要真机证据；蓝牙不属于本轮验收。保持 packageHash、解析来源、实际终端能力与验收记录一致。

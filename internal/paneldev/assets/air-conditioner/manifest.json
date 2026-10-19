@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "name": "舒适家 · 智能空调",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "entry": "index.html",
   "sdkVersion": "1.0.0",
   "platforms": [
@@ -27,9 +27,9 @@
       "access": "write",
       "define": {
         "type": "int",
-        "min": 16,
-        "max": 30,
-        "step": 1,
+        "min": "16",
+        "max": "30",
+        "step": "1",
         "unit": "°C"
       }
     },
@@ -41,10 +41,10 @@
       "define": {
         "type": "enum",
         "mapping": {
-          "cool": "制冷",
-          "heat": "制热",
-          "dry": "除湿",
-          "auto": "自动"
+          "0": "制冷",
+          "1": "制热",
+          "2": "除湿",
+          "3": "自动"
         }
       }
     },
@@ -56,10 +56,10 @@
       "define": {
         "type": "enum",
         "mapping": {
-          "auto": "自动",
-          "low": "低风",
-          "medium": "中风",
-          "high": "高风"
+          "0": "自动",
+          "1": "低风",
+          "2": "中风",
+          "3": "高风"
         }
       }
     },

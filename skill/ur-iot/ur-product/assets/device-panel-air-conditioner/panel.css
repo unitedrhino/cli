@@ -553,3 +553,39 @@ h2 {
     transition: none !important;
   }
 }
+
+/* 后台默认预览壳为620px高；桌面紧凑排列保留完整反馈，手机仍自然纵向滚动。 */
+@media (min-width: 760px) and (max-height: 700px) {
+  .panel {
+    padding: 24px 24px 16px;
+  }
+  .topbar {
+    margin-bottom: 16px;
+  }
+  .climate {
+    padding: 20px;
+    min-height: 0;
+  }
+  .appliance {
+    margin-top: 14px;
+    width: 190px;
+    height: 48px;
+  }
+  .dial {
+    width: 230px;
+    height: 188px;
+  }
+  .temperature {
+    font-size: 64px;
+  }
+  .climate-bottom {
+    margin-top: 16px;
+    padding-top: 12px;
+  }
+  .feedback {
+    margin-top: 12px;
+  }
+  .footer {
+    margin-top: 16px;
+  }
+}

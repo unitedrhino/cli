@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -124,6 +125,26 @@ func TestAirConditionerTemplate(t *testing.T) {
 	}
 	if len(p.Manifest.Requirements) != 5 || len(p.Files) != 5 {
 		t.Fatal("空调合同或运行资源不完整")
+	}
+	// 平台实际建模拒绝文字枚举键；交付样板必须能够直接建立真实产品物模型。
+	for _, requirement := range p.Manifest.Requirements {
+		if requirement.Identifier == "targetTemperature" {
+			if requirement.Define["min"] != "16" || requirement.Define["max"] != "30" || requirement.Define["step"] != "1" {
+				t.Fatal("温控范围必须符合平台数字字符串合同")
+			}
+		}
+		if requirement.Define["type"] != "enum" {
+			continue
+		}
+		mapping, ok := requirement.Define["mapping"].(map[string]any)
+		if !ok || len(mapping) != 4 {
+			t.Fatal("空调枚举合同不完整")
+		}
+		for key := range mapping {
+			if _, err := strconv.Atoi(key); err != nil {
+				t.Fatalf("平台不能创建枚举键 %s", key)
+			}
+		}
 	}
 	q, err := Pack(project, filepath.Join(root, "ac.zip"))
 	if err != nil {

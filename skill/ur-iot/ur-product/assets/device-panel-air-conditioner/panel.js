@@ -19,7 +19,7 @@
     if (element) element.textContent = value;
   };
   /** modes 映射示例枚举与用户文案；接入产品时须与真实模型同时修改。 */
-  const modes = { cool: '制冷', heat: '制热', dry: '除湿', auto: '自动' };
+  const modes = { 0: '制冷', 1: '制热', 2: '除湿', 3: '自动' };
   /** labels 只承认最终回执状态，受理不会映射成成功。 */
   const labels = {
     succeeded: '设备已确认，设置成功',
@@ -106,7 +106,7 @@
       button.disabled = !allowed(button.dataset.property);
       button.setAttribute(
         'aria-pressed',
-        String(value(button.dataset.property) === button.dataset.value),
+        String(String(value(button.dataset.property)) === button.dataset.value),
       );
     });
   }
@@ -144,22 +144,25 @@
     }
   }
   $('#power').addEventListener('click', () => send({ power: !value('power') }));
-  document
-    .querySelectorAll('[data-step]')
-    .forEach((button) =>
-      button.addEventListener('click', () =>
-        send({
-          targetTemperature:
-            value('targetTemperature') +
-            Number(button.dataset.step) * Number(state.fields.get('targetTemperature')?.step || 1),
-        }),
-      ),
-    );
+  document.querySelectorAll('[data-step]').forEach((button) =>
+    button.addEventListener('click', () =>
+      send({
+        targetTemperature:
+          value('targetTemperature') +
+          Number(button.dataset.step) * Number(state.fields.get('targetTemperature')?.step || 1),
+      }),
+    ),
+  );
   document
     .querySelectorAll('[data-property]')
     .forEach((button) =>
       button.addEventListener('click', () =>
-        send({ [button.dataset.property]: button.dataset.value }),
+        send({
+          [button.dataset.property]:
+            state.fields.get(button.dataset.property)?.type === 'enum'
+              ? Number(button.dataset.value)
+              : button.dataset.value,
+        }),
       ),
     );
   /** start 先订阅再读值，避免初始化期间漏报；卸载时销毁当前订阅和等待定时器。 */

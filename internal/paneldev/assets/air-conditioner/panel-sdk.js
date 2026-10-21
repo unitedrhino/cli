@@ -1,4 +1,4 @@
-/* 文件说明：无依赖的面板网页 SDK。Web 通过专用 MessagePort，App 可由原生层提供同合同桥；不读取主账号凭据。 */
+/* 文件说明：无依赖的面板网页 SDK；Web/App 共用属性控制、订阅、运行期认证与平台接口调用合同。 */
 (function createPanelSDK(global) {
   /** 协议版本限定当前面板消息命名空间。 */
   const protocol = 'ur-panel/v1';
@@ -30,7 +30,7 @@
     if (nativeBridge) nativeBridge.postMessage(message);
     else if (port) port.postMessage(message);
   }
-  /** receive 检查会话和消息类型后匹配结果，不广播账号或其他设备数据。 */
+  /** receive 只把响应投递给当前会话的关联请求，不向其他窗口广播认证或设备数据。 */
   function receive(message) {
     if (!message || message.protocol !== protocol || closed) return;
     if (message.type === 'init' && !sessionID && typeof message.sessionID === 'string') {
@@ -122,9 +122,11 @@
     port?.close();
     global.removeEventListener('message', receiveInit);
   }
-  /** sdk 只提供单设备语义能力，不接受任意 API 地址或设备标识。 */
+  /** sdk 保留单设备语义方法；直接调用现有平台接口时由宿主补齐当前登录上下文。 */
   const sdk = Object.freeze({
     getContext: () => call('getContext'),
+    getAuth: () => call('getAuth'),
+    request: (params) => call('request', params),
     getThingModel: () => call('getThingModel'),
     readProperties: (params) => call('readProperties', params),
     writeProperties: (params) => call('writeProperties', params),

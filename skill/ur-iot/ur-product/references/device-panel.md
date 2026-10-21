@@ -52,7 +52,7 @@ ur things panel pack ./my-panel --out ./my-panel.zip
 
 ## window.urPanel
 
-SDK 通过本机宿主桥工作。不要使用 fetch 调后台、读取父窗口 DOM、访问主账号 token、拼设备密钥或指定任意 API 路径。
+SDK 通过本机宿主桥工作；运行期可通过 getAuth 获取当前认证，通过 request 调现有平台接口。禁止读取父窗口 DOM、拼设备密钥或把凭据写入资源包。
 
 ```js
 const context = await urPanel.getContext();
@@ -71,7 +71,39 @@ const accepted = await urPanel.writeProperties({ values: { power: true } });
 
 readProperties 返回 `{identifier:{value,timestamp,receivedTime,quality,source}}`。时间单位毫秒；null/UNKNOWN 不能展示成正常实时值。不同宿主能力读 context.capabilities；不可用时展示原因。命令状态为 accepted/succeeded/failed/timeout；Web 宿主在设备成功但属性尚未同步时可附带 stateSynchronized=false，此时显示“设备已确认，状态尚未同步”，不伪造上报值；超时表示执行未知，不得自动换到 BLE 再发一次。错误 code 为 INVALID_PARAMS/FORBIDDEN/UNSUPPORTED_CAPABILITY/TIMEOUT/SESSION_CLOSED。
 
-Web 通过校验 iframe 身份后的 MessageChannel 运行，sandbox 只允许脚本；面板无法读取宿主登录态。App 缓存包和属性快照，离线仅供查看；控制需要联网。本轮暂不提供蓝牙控制，capabilities.ble.available=false。Android/iOS 包安装与离线冷启动需各自真机验证。小程序能力不足时保留原生面板，不绕开业务域名和通信约束。
+Web 通过校验 iframe 身份后的 MessageChannel 运行，sandbox 只允许脚本；面板可显式调用 getAuth 读取运行期认证，不能读取宿主DOM或持久化凭据。App 缓存包和属性快照，离线仅供查看；控制需要联网。本轮暂不提供蓝牙控制，capabilities.ble.available=false。Android/iOS 包安装与离线冷启动需各自真机验证。小程序能力不足时保留原生面板，不绕开业务域名和通信约束。
+
+## 平台接口与运行期认证
+
+新控制面板按正式物模型和现有接口开发，不迁移旧小程序路由、字段别名或旧UI行为。定时、日志、分享、支付等属于设备详情通用能力，不放入控制面板。
+
+- `await urPanel.getAuth()` 返回 `{baseURL,headers}`。`headers.token` 为当前登录token，同时包含宿主对应的应用、企业和项目请求头；不使用refresh token。每次调用读取实时会话，账号或企业改变后原面板失效。不得写入源码、ZIP、日志、URL或离线缓存。
+- `await urPanel.request({path,data})` 调用当前平台已有 **POST** 接口，path为 `/api/v1/` 开头的纯相对路径；不传完整URL、query或自定义认证头。data为对象，结构遵循该接口，不受SDK标量属性声明格式约束。宿主自动携带当前认证上下文，后端执行原有鉴权；它不是设备限定令牌，接口权限与当前登录用户相同。
+- 返回值是平台成功响应中的 `data`，不是 `{code,msg,data}` 外层包装；错误通过Promise拒绝，保留业务code/message。接口调用不自动跟踪设备回执；面板拿到msgToken后自行调用回执查询接口，或使用有现成跟踪的writeProperties/invokeAction。受理不等于执行成功。
+- 请求经本机桥调用宿主请求客户端，因此Web/App不依赖iframe跨域fetch。包的CSP仍禁止直接联网；需要凭据时通过getAuth取得，平台调用优先使用request。不开放父窗口DOM或原生插件。
+- 消息请求超时10秒，接口请求超时8秒；设备命令应使用异步接口参数，之后另查回执。超时不自动重发。请求消息上限64KiB，App原生请求消息上限32KiB；大查询应分页。
+- 模拟getAuth返回空headers，不提供真实token；request仅执行宿主createMockAdapter的apiHandlers本地替身，未配置时返回UNSUPPORTED_CAPABILITY，禁止转向真实平台。默认下载样板仍使用属性语义方法；开发接口型模拟面板时须配对应本地替身。
+- App离线不提供getAuth/request能力；账号token不会进入包或设备快照。实际App桥行为仍需Android/iOS真机验收。
+
+```js
+const context = await urPanel.getContext();
+// 需要交给自有接口客户端时按调用读取；不要持久化或输出headers。
+const auth = await urPanel.getAuth();
+const { msgToken } = await urPanel.request({
+  path: '/api/v1/things/device/interact/property-control-send',
+  data: {
+    productID: context.productID,
+    deviceName: context.deviceName,
+    data: JSON.stringify({ power: true }), // 改为正式模型的字段和值
+    isAsync: true,
+    shadowControl: 1, // 按接口合同选择，不从旧UI猜测
+  },
+});
+// 后续查询 /api/v1/things/device/interact/property-control-get-one，
+// data传同一productID/deviceName和msgToken；200设备回执才是成功。
+```
+
+复杂索引属性、设备profile与控制策略直接采用对应平台接口的正式参数；不再为每一条接口创建SDK方法，不添加旧面板兼容转换层。requirements仅描述现有语义方法可校验的能力；接口型能力不能伪填为受支持的数组声明，应在开发说明列出实际接口、模型校验与依赖，运行前读取正式模型检查。
 
 ## 导入和绑定
 

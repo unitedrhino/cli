@@ -110,7 +110,39 @@ window.addEventListener('pagehide', () => unsubscribe(), { once: true });
 | `invokeAction({identifier,params})` | 返回 commandID、accepted；无参数也传 `{}` | 参数遵循实际行为输入模型，不能虚构行为 |
 | `subscribe({topics},callback)` | 返回取消订阅函数 | 监听属性、连接和命令；退出页面释放订阅 |
 
-命令最终状态为 succeeded、failed 或 timeout；超时表示结果未知，不自动重发。设备已确认但 `stateSynchronized: false` 时，应提示状态尚未同步并保留实际上报值，后续属性到达后再更新按钮。面板不得直接请求管理 API、读取父窗口 DOM 或保存账号令牌。
+命令最终状态为 succeeded、failed 或 timeout；超时表示结果未知，不自动重发。设备已确认但 `stateSynchronized: false` 时，应提示状态尚未同步并保留实际上报值，后续属性到达后再更新按钮。平台接口可通过request调用，凭据由getAuth运行期读取；不读取父窗口DOM或保存账号令牌。
+
+## 平台接口与运行期认证
+
+新控制面板按正式物模型和现有接口开发，不迁移旧小程序路由、字段别名或旧UI行为。定时、日志、分享、支付等属于设备详情通用能力，不放入控制面板。
+
+- `await urPanel.getAuth()` 返回 `{baseURL,headers}`。`headers.token` 为当前登录token，同时包含宿主对应的应用、企业和项目请求头；不使用refresh token。每次调用读取实时会话，账号或企业改变后原面板失效。不得写入源码、ZIP、日志、URL或离线缓存。
+- `await urPanel.request({path,data})` 调用当前平台已有 **POST** 接口，path为 `/api/v1/` 开头的纯相对路径；不传完整URL、query或自定义认证头。data为对象，结构遵循该接口，不受SDK标量属性声明格式约束。宿主自动携带当前认证上下文，后端执行原有鉴权；它不是设备限定令牌，接口权限与当前登录用户相同。
+- 返回值是平台成功响应中的 `data`，不是 `{code,msg,data}` 外层包装；错误通过Promise拒绝，保留业务code/message。接口调用不自动跟踪设备回执；面板拿到msgToken后自行调用回执查询接口，或使用有现成跟踪的writeProperties/invokeAction。受理不等于执行成功。
+- 请求经本机桥调用宿主请求客户端，因此Web/App不依赖iframe跨域fetch。包的CSP仍禁止直接联网；需要凭据时通过getAuth取得，平台调用优先使用request。不开放父窗口DOM或原生插件。
+- 消息请求超时10秒，接口请求超时8秒；设备命令应使用异步接口参数，之后另查回执。超时不自动重发。请求消息上限64KiB，App原生请求消息上限32KiB；大查询应分页。
+- 模拟getAuth返回空headers，不提供真实token；request仅执行宿主createMockAdapter的apiHandlers本地替身，未配置时返回UNSUPPORTED_CAPABILITY，禁止转向真实平台。默认下载样板仍使用属性语义方法；开发接口型模拟面板时须配对应本地替身。
+- App离线不提供getAuth/request能力；账号token不会进入包或设备快照。实际App桥行为仍需Android/iOS真机验收。
+
+```js
+const context = await urPanel.getContext();
+// 需要交给自有接口客户端时按调用读取；不要持久化或输出headers。
+const auth = await urPanel.getAuth();
+const { msgToken } = await urPanel.request({
+  path: '/api/v1/things/device/interact/property-control-send',
+  data: {
+    productID: context.productID,
+    deviceName: context.deviceName,
+    data: JSON.stringify({ power: true }), // 改为正式模型的字段和值
+    isAsync: true,
+    shadowControl: 1, // 按接口合同选择，不从旧UI猜测
+  },
+});
+// 后续查询 /api/v1/things/device/interact/property-control-get-one，
+// data传同一productID/deviceName和msgToken；200设备回执才是成功。
+```
+
+复杂索引属性、设备profile与控制策略直接采用对应平台接口的正式参数；不再为每一条接口创建SDK方法，不添加旧面板兼容转换层。requirements仅描述现有语义方法可校验的能力；接口型能力不能伪填为受支持的数组声明，应在开发说明列出实际接口、模型校验与依赖，运行前读取正式模型检查。
 
 ## 6. 在后台模拟、导入和绑定
 

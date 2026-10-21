@@ -5,6 +5,13 @@
   function bridgeError(code, message) {
     return Object.assign(new Error(message), { code });
   }
+  function validateApiRequest(params) {
+    requestObject(params);
+    onlyKeys(params, ["path", "data"]);
+    if (typeof params.path !== "string" || !/^\/api\/v1\/[\w-]+(?:\/[\w-]+)*$/.test(params.path))
+      throw bridgeError("INVALID_PARAMS", "\u8BF7\u4F7F\u7528 /api/v1/ \u5F00\u5934\u7684\u5E73\u53F0\u63A5\u53E3\u8DEF\u5F84");
+    if (params.data !== void 0) requestObject(params.data);
+  }
   function requestObject(value) {
     if (!value || Object.prototype.toString.call(value) !== "[object Object]") throw bridgeError("INVALID_PARAMS", "\u8BF7\u6C42\u53C2\u6570\u5FC5\u987B\u662F\u5BF9\u8C61");
   }
@@ -53,6 +60,11 @@
     const dispatch = async (method, params) => {
       requestObject(params);
       switch (method) {
+        case "getAuth": {
+          onlyKeys(params, []);
+          if (!adapter.getAuth) throw bridgeError("UNSUPPORTED_CAPABILITY", "\u5F53\u524D\u5BBF\u4E3B\u672A\u63D0\u4F9B\u8BA4\u8BC1\u4FE1\u606F");
+          return adapter.getAuth();
+        }
         case "getContext": {
           onlyKeys(params, []);
           return adapter.context;
@@ -82,6 +94,11 @@
           const values = await adapter.readProperties(ids);
           requestObject(values);
           return Object.fromEntries(Object.entries(values).filter(([key]) => ids.includes(key)));
+        }
+        case "request": {
+          validateApiRequest(params);
+          if (!adapter.request) throw bridgeError("UNSUPPORTED_CAPABILITY", "\u5F53\u524D\u5BBF\u4E3B\u672A\u63D0\u4F9B\u5E73\u53F0\u63A5\u53E3\u8C03\u7528");
+          return adapter.request(params);
         }
         case "subscribe": {
           onlyKeys(params, ["topics"]);
@@ -218,7 +235,7 @@
   }
 
   // apps/web/packages/saas/src/device-panel/mock.ts
-  function createMockAdapter(requirements) {
+  function createMockAdapter(requirements, options = {}) {
     const listeners = /* @__PURE__ */ new Set();
     const values = {};
     const properties = requirements.filter((item) => item.kind === "property").map((item) => ({
@@ -243,11 +260,20 @@
         deviceID: "mock-device",
         productID: "mock-product",
         deviceName: "\u6A21\u62DF\u8BBE\u5907",
-        capabilities: { cloud: { available: true }, ble: { available: false, reason: "\u6A21\u62DF\u5BBF\u4E3B\u672A\u8FDE\u63A5\u84DD\u7259" } }
+        capabilities: { cloud: { available: true }, api: { available: true, source: "mock" }, ble: { available: false, reason: "\u6A21\u62DF\u5BBF\u4E3B\u672A\u8FDE\u63A5\u84DD\u7259" } }
       },
       model: {
         properties,
         actions: requirements.filter((item) => item.kind === "action").map((item) => ({ identifier: item.identifier, input: item.input || {}, available: true }))
+      },
+      async getAuth() {
+        return { baseURL: "", headers: {} };
+      },
+      async request(params) {
+        validateApiRequest(params);
+        const handler = options.apiHandlers?.[params.path];
+        if (!handler) throw bridgeError("UNSUPPORTED_CAPABILITY", "\u6A21\u62DF\u63A5\u53E3\u5C1A\u672A\u914D\u7F6E\uFF0C\u4E0D\u4F1A\u8BBF\u95EE\u771F\u5B9E\u8BBE\u5907");
+        return handler(params.data || {});
       },
       async readProperties(ids) {
         return snapshot(ids);

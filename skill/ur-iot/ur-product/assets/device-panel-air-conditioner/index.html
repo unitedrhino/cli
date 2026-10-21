@@ -29,11 +29,9 @@
       <div class="layout">
         <section class="card climate" aria-label="温度控制">
           <div class="climate-head">
-            <span class="eyebrow">CLIMATE CONTROL</span
+            <span class="eyebrow">温度调节</span
             ><span class="pill" id="mode-label">模式未知</span>
           </div>
-          <div class="appliance" aria-hidden="true"></div>
-          <div class="airflow" aria-hidden="true"><span></span><span></span><span></span></div>
           <div class="dial">
             <svg viewBox="0 0 268 224" aria-hidden="true">
               <path class="ticks" d="M42 184a110 110 0 1 1 184 0" />
@@ -82,7 +80,7 @@
           <section class="card control-card">
             <div class="section-heading">
               <h2>运行模式</h2>
-              <span>选择适合的温度</span>
+              <span>选择适合的运行方式</span>
             </div>
             <div class="choices" role="group" aria-label="运行模式">
               <button
@@ -142,7 +140,7 @@
           <section class="card control-card">
             <div class="section-heading">
               <h2>风速</h2>
-              <span>让风刚刚好</span>
+              <span>选择送风强度</span>
             </div>
             <div class="segmented" role="group" aria-label="风速">
               <button
@@ -180,15 +178,12 @@
               </button>
             </div>
           </section>
-          <p class="notice">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 11v6m0-10v.01" /></svg
-            ><span id="control-note">设备回执确认后，操作才算完成。</span>
-          </p>
+          <div class="notice" role="status" aria-live="polite">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m8 12 3 3 5-6" /></svg>
+            <p class="feedback" id="feedback">正在读取设备状态…</p>
+          </div>
         </div>
       </div>
-      <p class="feedback" id="feedback" role="status" aria-live="polite">正在读取设备状态…</p>
       <footer class="footer">
         <span class="footer-mark">联犀 · 设备控制</span><span id="data-note">状态由设备上报</span>
       </footer>

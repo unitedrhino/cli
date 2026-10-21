@@ -1,19 +1,19 @@
 /* 文件说明：HTML 设备面板共用视觉样板；业务仅消费语义变量，保持跨设备的一致外观。 */
 :root {
   color-scheme: light;
-  --background: #f4f7f8;
+  --background: #f6f8fa;
   --card: #fff;
   --foreground: #182b33;
   --muted: #edf3f4;
   --muted-foreground: #647980;
   --border: #e1e9eb;
   --primary: #087f82;
-  --primary-soft: #e6f4f3;
+  --primary-soft: #e7f4f2;
   --on-primary: #fff;
   --success: #21734e;
   --danger: #ba3a43;
-  --radius: 24px;
-  --shadow: 0 12px 40px #183c4608;
+  --radius: 20px;
+  --shadow: 0 4px 20px color-mix(in srgb, var(--foreground) 3%, transparent);
   --space: 8px;
   font-family:
     Inter,
@@ -75,7 +75,7 @@ p {
   margin: 0;
 }
 h1 {
-  font-size: 24px;
+  font-size: 22px;
   letter-spacing: -0.6px;
   font-weight: 650;
 }
@@ -89,34 +89,34 @@ h2 {
 .eyebrow {
   font-size: 11px;
   font-weight: 650;
-  letter-spacing: 2px;
+  letter-spacing: 0.5px;
   color: var(--primary);
 }
 .panel {
-  max-width: 1080px;
+  max-width: 1160px;
   margin: auto;
-  padding: 36px 32px 24px;
+  padding: 24px 28px 16px;
 }
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 .identity {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   align-items: center;
 }
 .brand-icon {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 14px;
   color: var(--primary);
 }
 .subtitle {
@@ -146,7 +146,7 @@ h2 {
 }
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
   gap: 20px;
 }
 .card {
@@ -156,7 +156,8 @@ h2 {
   box-shadow: var(--shadow);
 }
 .climate {
-  padding: 28px;
+  padding: 22px 28px;
+  background: linear-gradient(155deg, var(--primary-soft), var(--card) 75%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -174,59 +175,15 @@ h2 {
   padding: 5px 10px;
   background: var(--primary-soft);
   color: var(--primary);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 550;
-}
-.appliance {
-  position: relative;
-  width: 220px;
-  height: 62px;
-  margin: 32px auto 4px;
-  border: 1px solid var(--border);
-  border-radius: 12px 12px 18px 18px;
-  background: linear-gradient(175deg, var(--card), var(--muted));
-  box-shadow: 0 12px 20px #183c4608;
-}
-.appliance:before {
-  content: '';
-  position: absolute;
-  bottom: 10px;
-  left: 14px;
-  right: 14px;
-  height: 9px;
-  border-top: 2px solid var(--border);
-  border-bottom: 2px solid var(--border);
-  border-radius: 0 0 6px 6px;
-}
-.appliance:after {
-  content: '';
-  position: absolute;
-  right: 19px;
-  top: 15px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--primary);
-}
-.airflow {
-  display: flex;
-  gap: 23px;
-  justify-content: center;
-  height: 22px;
-  color: var(--border);
-}
-.airflow span {
-  width: 1px;
-  height: 20px;
-  background: currentColor;
-  transform: rotate(14deg);
 }
 .dial {
   position: relative;
   width: 268px;
   height: 224px;
   max-width: 100%;
-  margin-top: 10px;
+  margin-top: 14px;
   display: grid;
   place-items: center;
 }
@@ -238,18 +195,18 @@ h2 {
   stroke-width: 4;
 }
 .dial .track {
-  stroke: var(--muted);
-  stroke-width: 5;
+  stroke: var(--border);
+  stroke-width: 7;
 }
 .dial .arc {
   stroke: var(--primary);
   opacity: 0.9;
-  stroke-width: 5;
+  stroke-width: 7;
   stroke-dasharray: 280 480;
 }
 .dial .ticks {
   stroke: var(--border);
-  stroke-width: 8;
+  stroke-width: 4;
   stroke-dasharray: 1 12;
 }
 .dial-value {
@@ -257,8 +214,8 @@ h2 {
   margin-top: 17px;
 }
 .temperature {
-  font-size: 76px;
-  font-weight: 450;
+  font-size: 80px;
+  font-weight: 550;
   letter-spacing: -5px;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
@@ -286,8 +243,8 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 210px;
-  margin-top: -5px;
+  width: 220px;
+  margin-top: -2px;
 }
 .stepper button,
 .icon-button {
@@ -309,8 +266,8 @@ h2 {
   justify-content: center;
   gap: 7px;
   width: 100%;
-  margin-top: 28px;
-  padding-top: 18px;
+  margin-top: 24px;
+  padding-top: 16px;
   font-size: 12px;
   color: var(--muted-foreground);
 }
@@ -320,7 +277,7 @@ h2 {
   gap: 16px;
 }
 .power-card {
-  padding: 22px 24px;
+  padding: 20px 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -344,16 +301,16 @@ h2 {
 .power-button[aria-pressed='true'] {
   background: var(--primary);
   color: var(--on-primary);
-  box-shadow: 0 6px 16px #087f8229;
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 .control-card {
-  padding: 22px 24px;
+  padding: 20px 22px;
 }
 .section-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 .section-heading > span {
   font-size: 11px;
@@ -365,14 +322,15 @@ h2 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .choice {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   gap: 9px;
   min-width: 0;
-  min-height: 74px;
-  border-radius: 14px;
+  min-height: 76px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--muted-foreground);
@@ -382,6 +340,16 @@ h2 {
   border-color: var(--primary);
   background: var(--primary-soft);
   color: var(--primary);
+}
+.choice[aria-pressed='true']::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
 }
 .choice svg {
   width: 22px;
@@ -398,7 +366,7 @@ h2 {
 .segmented button {
   border: 1px solid transparent;
   border-radius: 10px;
-  min-height: 40px;
+  min-height: 44px;
   font-size: 12px;
   background: transparent;
   color: var(--muted-foreground);
@@ -406,10 +374,10 @@ h2 {
 .segmented button[aria-pressed='true'] {
   background: var(--card);
   color: var(--primary);
-  box-shadow: 0 2px 6px #183c4608;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--foreground) 4%, transparent);
 }
 .notice {
-  padding: 2px 8px;
+  padding: 0 4px;
   display: flex;
   align-items: flex-start;
   gap: 9px;
@@ -424,9 +392,8 @@ h2 {
 .feedback {
   min-height: 20px;
   font-size: 12px;
-  margin-top: 20px;
   color: var(--muted-foreground);
-  text-align: center;
+  text-align: left;
 }
 .feedback[data-state='error'] {
   color: var(--danger);
@@ -436,7 +403,7 @@ h2 {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-top: 24px;
+  margin-top: 14px;
   font-size: 11px;
   color: var(--muted-foreground);
 }
@@ -462,8 +429,8 @@ h2 {
   color: var(--primary);
 }
 .switch-symbol svg {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
 }
 .switch-hero .power-button {
   margin: 24px auto 0;
@@ -480,19 +447,21 @@ h2 {
 }
 @media (min-width: 760px) {
   .climate {
-    min-height: 510px;
+    min-height: 0;
   }
   .controls .notice {
     margin-top: auto;
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 759px) {
   .panel {
     padding: 22px 16px 20px;
   }
   .topbar {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    gap: 8px;
   }
+  .subtitle { max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   h1 {
     font-size: 20px;
   }
@@ -513,12 +482,7 @@ h2 {
     gap: 14px;
   }
   .climate {
-    padding: 22px;
-  }
-  .appliance {
-    margin-top: 24px;
-    width: 190px;
-    height: 54px;
+    padding: 20px;
   }
   .dial {
     margin-top: 2px;
@@ -551,41 +515,5 @@ h2 {
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
-  }
-}
-
-/* 后台默认预览壳为620px高；桌面紧凑排列保留完整反馈，手机仍自然纵向滚动。 */
-@media (min-width: 760px) and (max-height: 700px) {
-  .panel {
-    padding: 24px 24px 16px;
-  }
-  .topbar {
-    margin-bottom: 16px;
-  }
-  .climate {
-    padding: 20px;
-    min-height: 0;
-  }
-  .appliance {
-    margin-top: 14px;
-    width: 190px;
-    height: 48px;
-  }
-  .dial {
-    width: 230px;
-    height: 188px;
-  }
-  .temperature {
-    font-size: 64px;
-  }
-  .climate-bottom {
-    margin-top: 16px;
-    padding-top: 12px;
-  }
-  .feedback {
-    margin-top: 12px;
-  }
-  .footer {
-    margin-top: 16px;
   }
 }

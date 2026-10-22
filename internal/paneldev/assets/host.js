@@ -67,7 +67,13 @@
         }
         case "getContext": {
           onlyKeys(params, []);
-          return adapter.context;
+          return {
+            ...adapter.context,
+            capabilities: {
+              ...adapter.context.capabilities,
+              settings: { available: !!adapter.openSettings }
+            }
+          };
         }
         case "getThingModel": {
           onlyKeys(params, []);
@@ -83,6 +89,12 @@
             throw bridgeError("INVALID_PARAMS", "\u884C\u4E3A\u8F93\u5165\u53C2\u6570\u4E0D\u5339\u914D");
           for (const [key, value] of Object.entries(params.params)) validateValue(inputs[key], value);
           return adapter.invokeAction(params.identifier, params.params);
+        }
+        case "openSettings": {
+          onlyKeys(params, []);
+          if (!adapter.openSettings) throw bridgeError("UNSUPPORTED_CAPABILITY", "\u5F53\u524D\u5BBF\u4E3B\u4E0D\u652F\u6301\u8BBE\u5907\u8BBE\u7F6E");
+          await adapter.openSettings();
+          return { opened: true };
         }
         case "readProperties": {
           onlyKeys(params, ["identifiers"]);
@@ -234,6 +246,70 @@
     return JSON.stringify(value) ?? "undefined";
   }
 
+  // apps/web/packages/saas/src/device-panel/mock-settings.ts
+  function createMockSettings(context) {
+    let dialog;
+    const dispose = () => {
+      const current = dialog;
+      dialog = void 0;
+      current?.close();
+      current?.remove();
+    };
+    const open = () => {
+      if (dialog?.open) {
+        dialog.focus();
+        return;
+      }
+      dialog = document.createElement("dialog");
+      dialog.setAttribute("aria-label", "\u6A21\u62DF\u8BBE\u5907\u8BBE\u7F6E");
+      dialog.style.cssText = "box-sizing:border-box;width:min(440px,calc(100vw - 32px));max-height:85vh;overflow:auto;padding:24px;border:1px solid color-mix(in srgb,currentColor 16%,transparent);border-radius:16px;background:Canvas;color:CanvasText;font:14px/1.6 system-ui,sans-serif;box-shadow:0 16px 60px color-mix(in srgb,CanvasText 15%,transparent)";
+      const title = document.createElement("h2");
+      title.textContent = "\u8BBE\u5907\u8BBE\u7F6E";
+      title.style.cssText = "margin:0 0 8px;font-size:20px";
+      const note = document.createElement("p");
+      note.textContent = "\u6A21\u62DF\u8BBE\u5907 \xB7 \u4EC5\u9884\u89C8\u8BBE\u7F6E\u5165\u53E3\uFF0C\u4E0D\u8BFB\u53D6\u6216\u4FEE\u6539\u771F\u5B9E\u8BBE\u5907";
+      note.style.cssText = "margin:0 0 20px;opacity:.65";
+      const list = document.createElement("dl");
+      for (const [label, value] of [
+        ["\u8BBE\u5907\u540D\u79F0", context.displayName || context.deviceName],
+        ["\u8BBE\u5907 ID", context.deviceID],
+        ["\u4EA7\u54C1 ID", context.productID]
+      ]) {
+        const row = document.createElement("div");
+        row.style.cssText = "display:flex;justify-content:space-between;gap:24px;padding:16px 0;border-top:1px solid color-mix(in srgb,currentColor 10%,transparent)";
+        const name = document.createElement("dt");
+        const text = document.createElement("dd");
+        name.textContent = String(label);
+        text.textContent = String(value || "\u6682\u65E0\u4FE1\u606F");
+        text.style.cssText = "margin:0;text-align:right;overflow-wrap:anywhere";
+        row.append(name, text);
+        list.append(row);
+      }
+      const help = document.createElement("p");
+      help.textContent = "\u771F\u5B9E\u73AF\u5883\u7531\u5BBF\u4E3B\u63D0\u4F9B\u8BBE\u5907\u4FE1\u606F\u3001\u540D\u79F0\u548C\u5176\u4ED6\u53EF\u7528\u8BBE\u7F6E\uFF1B\u6743\u9650\u4E0E\u5F53\u524D\u8BBE\u5907\u4FDD\u6301\u4E00\u81F4\u3002";
+      help.style.cssText = "opacity:.65;margin:16px 0 24px";
+      const close = document.createElement("button");
+      close.type = "button";
+      close.textContent = "\u8FD4\u56DE\u9762\u677F";
+      close.style.cssText = "width:100%;min-height:44px;border:0;border-radius:8px;background:Highlight;color:HighlightText;font:inherit;cursor:pointer";
+      close.addEventListener("click", dispose);
+      const current = dialog;
+      current.addEventListener(
+        "close",
+        () => {
+          current.remove();
+          if (dialog === current) dialog = void 0;
+        },
+        { once: true }
+      );
+      dialog.append(title, note, list, help, close);
+      document.body.append(dialog);
+      dialog.showModal();
+      close.focus();
+    };
+    return { open, dispose };
+  }
+
   // apps/web/packages/saas/src/device-panel/mock.ts
   function createMockAdapter(requirements, options = {}) {
     const listeners = /* @__PURE__ */ new Set();
@@ -254,14 +330,22 @@
     }
     const emit = (event) => listeners.forEach((callback) => callback(event));
     const snapshot = (ids) => Object.fromEntries(ids.map((id) => [id, { value: values[id], timestamp: Date.now(), receivedTime: Date.now(), quality: "good", source: "mock" }]));
+    const context = {
+      mode: "mock",
+      deviceID: "mock-device",
+      productID: "mock-product",
+      deviceName: "\u6A21\u62DF\u8BBE\u5907",
+      capabilities: {
+        settings: { available: true },
+        cloud: { available: true },
+        api: { available: true, source: "mock" },
+        ble: { available: false, reason: "\u6A21\u62DF\u5BBF\u4E3B\u672A\u8FDE\u63A5\u84DD\u7259" }
+      }
+    };
+    const settings = createMockSettings(context);
     const adapter = {
-      context: {
-        mode: "mock",
-        deviceID: "mock-device",
-        productID: "mock-product",
-        deviceName: "\u6A21\u62DF\u8BBE\u5907",
-        capabilities: { cloud: { available: true }, api: { available: true, source: "mock" }, ble: { available: false, reason: "\u6A21\u62DF\u5BBF\u4E3B\u672A\u8FDE\u63A5\u84DD\u7259" } }
-      },
+      context,
+      openSettings: settings.open,
       model: {
         properties,
         actions: requirements.filter((item) => item.kind === "action").map((item) => ({ identifier: item.identifier, input: item.input || {}, available: true }))
@@ -298,6 +382,7 @@
         return () => listeners.delete(scoped);
       },
       dispose() {
+        settings.dispose();
         listeners.clear();
       }
     };

@@ -183,11 +183,21 @@
       }),
     ),
   );
+  /** 设置由可信宿主打开，不拼装路由；单次点击只调用一次，异常保留当前面板。 */
+  const settingsButton = $('#settings');
+  settingsButton?.addEventListener('click', async () => {
+    if (settingsButton.disabled) return;
+    settingsButton.disabled = true;
+    try { await urPanel.openSettings(); }
+    catch (error) { feedback(error.message || '无法打开设备设置', true); }
+    finally { settingsButton.disabled = false; }
+  });
   /** start 先订阅再读值，避免初始化期间漏报；卸载时销毁当前订阅和等待定时器。 */
   async function start() {
     try {
-      const context = await urPanel.getContext(),
-        model = await urPanel.getThingModel();
+      const context = await urPanel.getContext();
+      if (settingsButton) settingsButton.hidden = context.capabilities?.settings?.available !== true;
+      const model = await urPanel.getThingModel();
       state.fields = new Map(model.properties.map((field) => [field.identifier, field]));
       state.writable =
         context.mode !== 'offline' && context.capabilities?.cloud?.available === true;

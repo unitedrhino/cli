@@ -9,3 +9,6 @@
 - 已上报状态决定数值和选中项；发送时锁定控制，accepted 仅表示受理；成功回执不伪造属性更新，超时不自动重试。
 - 图片和配套数据放 .data/；平台导入会在隔离模拟中生成 .data/cover.png。README、技能说明及物模型随 ZIP 分发，不在运行时执行或自动导入。
 - 依次执行 ur things panel validate .、serve .、pack . --out ../panel.zip。模拟覆盖正常、失败、超时、离线；导入后台后再验真实状态、命令与回执。
+
+
+通用设备设置使用右上角齿轮和 `await window.urPanel.openSettings()`；先检查 `getContext().capabilities.settings.available`。调用不传设备ID或URL，宿主固定当前设备。Web打开当前设备的基础设置，移动端进入已有设备设置页；模拟仅展示模拟设备信息，不调用真实接口。无支持时隐藏入口，跳转失败留在原面板；返回后继续从宿主读取状态。定时、分享等通用能力仍由设备详情管理，不复制进HTML面板。

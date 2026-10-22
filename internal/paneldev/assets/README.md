@@ -27,3 +27,6 @@ skills/panel-development.md
 
 
 只可导入ZIP，根目录meta.json为必需文件。字段的必需性、格式版本/内容版本/SDK版本区别、requirements各项含义及路径限制见随包development.html的“声明清单和能力合同”。打包时选择工程内全部文件，不能把外层工程目录一起压进去。导出包与下载模板都保留根meta.json及其引用的资料。
+
+
+通用设备设置使用右上角齿轮和 `await window.urPanel.openSettings()`；先检查 `getContext().capabilities.settings.available`。调用不传设备ID或URL，宿主固定当前设备。Web打开当前设备的基础设置，移动端进入已有设备设置页；模拟仅展示模拟设备信息，不调用真实接口。无支持时隐藏入口，跳转失败留在原面板；返回后继续从宿主读取状态。定时、分享等通用能力仍由设备详情管理，不复制进HTML面板。

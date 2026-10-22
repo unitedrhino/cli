@@ -126,6 +126,7 @@ window.addEventListener('pagehide', () => unsubscribe(), { once: true });
 | SDK 方法 | 参数与返回 | 界面应如何使用 |
 | --- | --- | --- |
 | `getContext()` | 返回当前设备上下文、mode、capabilities | 区分模拟、在线、离线，判断可用能力 |
+| `openSettings()` | 无参数，返回 `{opened:true}` | 按capabilities.settings显示齿轮，宿主固定当前设备；模拟仅预览设置入口 |
 | `getThingModel()` | 返回宿主限定的属性、行为及可用状态 | 按真实范围、单位、枚举和读写权限渲染控件 |
 | `readProperties({identifiers})` | 返回 `{identifier:{value,timestamp,receivedTime,quality,source}}`，时间单位毫秒 | 未知或无效质量显示未知，缓存不标成实时数据 |
 | `writeProperties({values})` | 返回 commandID、accepted | 只表示受理，先显示等待，不能立刻提示设备执行成功 |
@@ -133,6 +134,17 @@ window.addEventListener('pagehide', () => unsubscribe(), { once: true });
 | `subscribe({topics},callback)` | 返回取消订阅函数 | 监听属性、连接和命令；退出页面释放订阅 |
 
 命令最终状态为 succeeded、failed 或 timeout；超时表示结果未知，不自动重发。设备已确认但 `stateSynchronized: false` 时，应提示状态尚未同步并保留实际上报值，后续属性到达后再更新按钮。平台接口可通过request调用，凭据由getAuth运行期读取；不读取父窗口DOM或保存账号令牌。
+
+
+## 通用设备设置入口
+
+开关和空调模板右上角的齿轮通过 `await window.urPanel.openSettings()` 打开宿主的当前设备设置。方法不接受参数，禁止拼接小程序路由、设备身份或任意URL；先读取 `const context = await window.urPanel.getContext()`，仅当 `context.capabilities.settings.available === true` 时显示入口。返回 `{opened:true}` 只表示设置已打开，不代表保存过设备配置。
+
+- Web后台复用设备详情已有的基础信息设置窗口，要求当前用户有设备更新权限；保存后由原设备详情刷新，不创建另一套设备管理表单。
+- H5/Android/iOS移动宿主进入 `/packageDevice/pages/settings/index`，身份由已校验的当前设备快照提供并编码；离开时销毁旧桥，返回时重建并重新读状态。设备名称、位置、分享、设备版本和系统属性沿用原页面能力及权限。
+- 模拟工作台和CLI弹出“模拟设备设置”，只展示当前模拟身份；不读取或修改真实设备。关闭窗口保留模拟属性，重新运行/卸载会同时清理窗口。
+- 宿主未支持时返回 `UNSUPPORTED_CAPABILITY`，模板隐藏入口；导航失败显示原因并保留原面板。设置与设备控制锁相互独立，设备关机不影响可用的通用设置入口。
+- 定时、日志、分享等仍属设备详情的通用能力，控制面板只提供设置入口；面板自己的参数子页可用包内HTML实现，继续复用当前宿主会话。
 
 ## 平台接口与运行期认证
 

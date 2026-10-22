@@ -517,3 +517,15 @@ h2 {
     transition: none !important;
   }
 }
+
+/* 设置入口独立于控制锁，关闭或离线设备仍可使用宿主允许的通用设置。 */
+.header-actions { display: flex; align-items: center; gap: var(--space); flex-shrink: 0; }
+.settings-button { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 10px; border: 1px solid var(--border); border-radius: 50%; background: var(--card); color: var(--muted-foreground); }
+.settings-button[hidden] { display: none; }
+.settings-button:hover:enabled { color: var(--primary); background: var(--primary-soft); }
+
+/* 窄屏优先保留44px设置触控区，设备副标题在剩余宽度内省略。 */
+.topbar > .identity { min-width: 0; flex: 1; }
+.topbar .identity > div { min-width: 0; }
+.topbar h1 { white-space: nowrap; }
+.topbar .subtitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

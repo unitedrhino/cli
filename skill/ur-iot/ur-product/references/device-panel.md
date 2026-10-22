@@ -73,6 +73,17 @@ readProperties 返回 `{identifier:{value,timestamp,receivedTime,quality,source}
 
 Web 通过校验 iframe 身份后的 MessageChannel 运行，sandbox 只允许脚本；面板可显式调用 getAuth 读取运行期认证，不能读取宿主DOM或持久化凭据。App 缓存包和属性快照，离线仅供查看；控制需要联网。本轮暂不提供蓝牙控制，capabilities.ble.available=false。Android/iOS 包安装与离线冷启动需各自真机验证。小程序能力不足时保留原生面板，不绕开业务域名和通信约束。
 
+
+## 通用设备设置入口
+
+开关和空调模板右上角的齿轮通过 `await window.urPanel.openSettings()` 打开宿主的当前设备设置。方法不接受参数，禁止拼接小程序路由、设备身份或任意URL；先读取 `const context = await window.urPanel.getContext()`，仅当 `context.capabilities.settings.available === true` 时显示入口。返回 `{opened:true}` 只表示设置已打开，不代表保存过设备配置。
+
+- Web后台复用设备详情已有的基础信息设置窗口，要求当前用户有设备更新权限；保存后由原设备详情刷新，不创建另一套设备管理表单。
+- H5/Android/iOS移动宿主进入 `/packageDevice/pages/settings/index`，身份由已校验的当前设备快照提供并编码；离开时销毁旧桥，返回时重建并重新读状态。设备名称、位置、分享、设备版本和系统属性沿用原页面能力及权限。
+- 模拟工作台和CLI弹出“模拟设备设置”，只展示当前模拟身份；不读取或修改真实设备。关闭窗口保留模拟属性，重新运行/卸载会同时清理窗口。
+- 宿主未支持时返回 `UNSUPPORTED_CAPABILITY`，模板隐藏入口；导航失败显示原因并保留原面板。设置与设备控制锁相互独立，设备关机不影响可用的通用设置入口。
+- 定时、日志、分享等仍属设备详情的通用能力，控制面板只提供设置入口；面板自己的参数子页可用包内HTML实现，继续复用当前宿主会话。
+
 ## 平台接口与运行期认证
 
 新控制面板按正式物模型和现有接口开发，不迁移旧小程序路由、字段别名或旧UI行为。定时、日志、分享、支付等属于设备详情通用能力，不放入控制面板。

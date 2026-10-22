@@ -125,6 +125,8 @@
   /** sdk 保留单设备语义方法；直接调用现有平台接口时由宿主补齐当前登录上下文。 */
   const sdk = Object.freeze({
     getContext: () => call('getContext'),
+    // 设置目标固定为宿主当前设备，面板不能指定URL或其他设备。
+    openSettings: () => call('openSettings'),
     getAuth: () => call('getAuth'),
     request: (params) => call('request', params),
     getThingModel: () => call('getThingModel'),

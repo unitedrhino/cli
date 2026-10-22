@@ -4,6 +4,23 @@
 
 样式修改从 panel.css 的语义变量开始，保留标题与连接状态、主控制区、分组操作、固定反馈区和页脚。只使用随包资源；不得在单个按钮中另造颜色、字体、圆角或阴影；完整视觉约束见开发技能的 device-panel.md。
 
-panel.js 通过 window.urPanel 读取当前设备和模型，按实际权限禁用控件。accepted 仅表示受理，成功以 command 回执为准。未知值不伪装关闭；离线只展示缓存。manifest 是能力合同，不是组件树；接入实际产品前核对真实物模型字段。
+panel.js 通过 window.urPanel 读取当前设备和模型，按实际权限禁用控件。accepted 仅表示受理，成功以 command 回执为准。未知值不伪装关闭；离线只展示缓存。meta.json 是能力合同，不是组件树；接入实际产品前核对真实物模型字段。
 
 serve 使用假设备，不连接平台或蓝牙。mock.json 为扩展工具说明，默认模拟器按合同推导初始值，不读取该文件。打包文件放工程目录外。
+
+## 包结构与接入
+
+`meta.json` 集中定义名称、备注、内容版本、支持终端 `platforms`、SDK 合同及能力 `requirements`。`readme`、`skills`、`thingModel`、`cover` 均为包内相对路径：
+
+```text
+meta.json
+index.html / panel.css / panel.js / panel-sdk.js
+README.md
+skills/panel-development.md
+.data/thing-model.json
+.data/cover.png             # 网页首次导入时自动生成
+```
+
+支持终端值为 `web`、`h5`、`appAndroid`、`appIos`、`mini`；本模板只声明已实现的 Web、H5、Android、iOS 宿主，小程序需另验其宿主约束。不要同时保留 meta.json 和 manifest.json。
+
+配套模型使用联犀 JSON 格式。先在目标产品核对或导入 `.data/thing-model.json`，再导入面板，可选绑定设备、产品、品类。导入面板不会自动修改物模型。`.data/cover.png` 是隔离模拟截图，封面不代表实时状态。元数据、README 和技能文档均不能授予权限或指定资源归属。

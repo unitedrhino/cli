@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"image/png"
 	"io"
 	"path"
 	"regexp"
@@ -20,6 +21,9 @@ import (
 
 // SDKVersion 是当前正式面板支持的 SDK 合同版本。
 const SDKVersion = "1.0.0"
+
+// CoverFile 是随不可变包保存的模拟封面，导出回导后保持同图。
+const CoverFile = ".data/cover.png"
 
 // MaxCompressed/MaxExpanded/MaxFiles 限定面板包的压缩大小、展开大小与文件数，防止解包资源耗尽。
 const (
@@ -62,14 +66,18 @@ func (r *Requirement) UnmarshalJSON(data []byte) error {
 
 // Manifest 是包的不可变元数据与能力合同，不描述 UI 组件和布局。
 type Manifest struct {
-	FormatVersion int           `json:"formatVersion"`     // 包格式版本，固定为 1。
-	Name          string        `json:"name"`              // 可展示的面板名称。
-	Desc          string        `json:"desc,omitempty"`    // 作者说明。
-	Version       string        `json:"version,omitempty"` // 作者内容版本，不是可变发布指针。
-	Entry         string        `json:"entry"`             // 根入口 index.html。
-	SDKVersion    string        `json:"sdkVersion"`        // 运行所需 SDK 版本。
-	Platforms     []string      `json:"platforms"`         // 作者声明的终端能力范围。
-	Requirements  []Requirement `json:"requirements"`      // 所需物模型功能，可为空数组。
+	Cover         string        `json:"cover,omitempty"`      // 包内 PNG 封面路径，统一为 .data/cover.png。
+	Readme        string        `json:"readme,omitempty"`     // 开发者说明的 Markdown 路径。
+	Skills        []string      `json:"skills,omitempty"`     // 给开发 Agent 的 Markdown 技能说明路径，仅作为资料。
+	ThingModel    string        `json:"thingModel,omitempty"` // 配套联犀物模型 JSON 路径，不自动导入模型。
+	FormatVersion int           `json:"formatVersion"`        // 包格式版本，固定为 1。
+	Name          string        `json:"name"`                 // 可展示的面板名称。
+	Desc          string        `json:"desc,omitempty"`       // 作者说明。
+	Version       string        `json:"version,omitempty"`    // 作者内容版本，不是可变发布指针。
+	Entry         string        `json:"entry"`                // 根入口 index.html。
+	SDKVersion    string        `json:"sdkVersion"`           // 运行所需 SDK 版本。
+	Platforms     []string      `json:"platforms"`            // 作者声明的终端能力范围。
+	Requirements  []Requirement `json:"requirements"`         // 所需物模型功能，可为空数组。
 }
 
 // File 描述归一化运行文件的字节数和摘要，供客户端下载校验。
@@ -189,6 +197,15 @@ func Decode(name string, data []byte) (*Package, error) {
 
 // normalize 提取内嵌清单、统一入口序列化、检查静态依赖并计算规范化内容指纹。
 func normalize(files map[string][]byte) (*Package, error) {
+	if cover, exists := files[CoverFile]; exists {
+		config, e := png.DecodeConfig(bytes.NewReader(cover))
+		if e != nil || len(cover) > 1<<20 || config.Width < 1 || config.Height < 1 || config.Width > 1920 || config.Height > 1920 || config.Width*config.Height > 2_000_000 {
+			return nil, fmt.Errorf("面板封面须为1MiB以内且不超过200万像素的PNG")
+		}
+		if _, e := png.Decode(bytes.NewReader(cover)); e != nil {
+			return nil, fmt.Errorf("面板封面PNG损坏")
+		}
+	}
 	entry, ok := files["index.html"]
 	if !ok {
 		return nil, fmt.Errorf("缺少根入口 index.html")
@@ -197,7 +214,14 @@ func normalize(files map[string][]byte) (*Package, error) {
 	if err != nil {
 		return nil, err
 	}
-	manifestBytes := files["manifest.json"]
+	metadataFile := "manifest.json"
+	if _, exists := files["meta.json"]; exists {
+		metadataFile = "meta.json"
+		if _, duplicate := files["manifest.json"]; duplicate {
+			return nil, fmt.Errorf("meta.json 与 manifest.json 不得同时存在，请只保留一份清单")
+		}
+	}
+	manifestBytes := files[metadataFile]
 	embedded := 0
 	var walk func(*html.Node) error
 	walk = func(n *html.Node) error {
@@ -254,13 +278,38 @@ func normalize(files map[string][]byte) (*Package, error) {
 	if err = ValidateManifest(m); err != nil {
 		return nil, err
 	}
+	if m.Cover != "" && m.Cover != CoverFile {
+		return nil, fmt.Errorf("封面必须使用 %s", CoverFile)
+	}
+	references := append([]string{m.Readme, m.ThingModel}, m.Skills...)
+	for _, ref := range references {
+		if ref == "" {
+			continue
+		}
+		if !validPath(ref) || files[ref] == nil {
+			return nil, fmt.Errorf("元数据引用的文件不存在或路径无效：%s", ref)
+		}
+	}
+	if m.Readme != "" && path.Ext(m.Readme) != ".md" {
+		return nil, fmt.Errorf("readme 必须引用 Markdown 文件")
+	}
+	for _, skill := range m.Skills {
+		if skill == "" || path.Ext(skill) != ".md" {
+			return nil, fmt.Errorf("skills 必须引用 Markdown 文件")
+		}
+	}
+	if m.ThingModel != "" && (path.Ext(m.ThingModel) != ".json" || !json.Valid(files[m.ThingModel])) {
+		return nil, fmt.Errorf("thingModel 必须引用有效 JSON 文件")
+	}
+	// 新工程可先声明封面路径，首次网页导入时生成；尚未截图不伪造封面。
+
 	var rendered bytes.Buffer
 	if err = html.Render(&rendered, root); err != nil {
 		return nil, err
 	}
 	files["index.html"] = rendered.Bytes()
 	metadata, _ := json.Marshal(m)
-	files["manifest.json"], err = canonicalJSON(metadata)
+	files[metadataFile], err = canonicalJSON(metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +416,7 @@ func validPath(p string) bool {
 
 // allowedExtension 将可托管资源限制为静态网页文件。
 func allowedExtension(p string) bool {
-	return contains([]string{".html", ".js", ".mjs", ".css", ".json", ".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".woff", ".woff2", ".ttf"}, strings.ToLower(path.Ext(p)))
+	return contains([]string{".md", ".html", ".js", ".mjs", ".css", ".json", ".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".woff", ".woff2", ".ttf"}, strings.ToLower(path.Ext(p)))
 }
 
 // attr 获取 HTML 属性，缺省返回空串。

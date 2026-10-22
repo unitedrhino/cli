@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "profile": {
+    "productID": ""
+  },
+  "properties": [
+    {
+      "identifier": "power",
+      "name": "电源",
+      "tag": 1,
+      "required": true,
+      "mode": "rw",
+      "define": {
+        "type": "bool",
+        "mapping": {
+          "0": "关闭",
+          "1": "开启"
+        }
+      },
+      "order": 1,
+      "funcGroup": 1,
+      "userPerm": 3,
+      "controlMode": 1,
+      "recordMode": 1,
+      "isPassword": 2
+    }
+  ],
+  "events": [],
+  "actions": []
+}

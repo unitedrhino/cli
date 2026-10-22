@@ -5,6 +5,8 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/json"
+	"image"
+	"image/png"
 	"os"
 	"strings"
 	"testing"
@@ -132,5 +134,86 @@ func TestCompressedResourceExport(t *testing.T) {
 	imported, e := Decode("roundtrip.zip", exported)
 	if e != nil || imported.Hash != large.Hash {
 		t.Fatalf("导出不能回导：%v", e)
+	}
+}
+
+// TestPackageCover 验证截图完整性、导出回导及内容摘要，拒绝伪装图片与超大尺寸。
+func TestPackageCover(t *testing.T) {
+	var out bytes.Buffer
+	if e := png.Encode(&out, image.NewRGBA(image.Rect(0, 0, 64, 40))); e != nil {
+		t.Fatal(e)
+	}
+	p, e := Decode("cover.zip", fixtureZIP(t, map[string][]byte{"index.html": fixtureHTML(t), CoverFile: out.Bytes()}, zip.Deflate, false))
+	if e != nil {
+		t.Fatal(e)
+	}
+	exported, e := p.ZIP()
+	if e != nil {
+		t.Fatal(e)
+	}
+	again, e := Decode("again.zip", exported)
+	if e != nil || !bytes.Equal(again.Files[CoverFile], out.Bytes()) {
+		t.Fatalf("封面未完整保留: %v", e)
+	}
+	without, e := Decode("plain.html", fixtureHTML(t))
+	if e != nil {
+		t.Fatal(e)
+	}
+	if without.Hash == p.Hash {
+		t.Fatal("封面未参与摘要")
+	}
+	for name, data := range map[string][]byte{"SVG伪装": []byte(`<svg onload="alert(1)"></svg>`), "PNG截断": out.Bytes()[:30]} {
+		t.Run(name, func(t *testing.T) {
+			if _, e := Decode("bad.zip", fixtureZIP(t, map[string][]byte{"index.html": fixtureHTML(t), CoverFile: data}, zip.Store, false)); e == nil {
+				t.Fatal("损坏封面未拒绝")
+			}
+		})
+	}
+	out.Reset()
+	if e := png.Encode(&out, image.NewRGBA(image.Rect(0, 0, 1921, 1))); e != nil {
+		t.Fatal(e)
+	}
+	if _, e := Decode("large.zip", fixtureZIP(t, map[string][]byte{"index.html": fixtureHTML(t), CoverFile: out.Bytes()}, zip.Store, false)); e == nil {
+		t.Fatal("超大封面未拒绝")
+	}
+}
+
+// TestPackageMetadataBundle 验证新清单、资料目录、终端和完整导出不会丢失；拒绝两份清单及路径逃逸。
+func TestPackageMetadataBundle(t *testing.T) {
+	base, err := Decode("base.html", fixtureHTML(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := base.Manifest
+	m.Readme = "README.md"
+	m.Skills = []string{"skills/panel-development.md"}
+	m.ThingModel = ".data/thing-model.json"
+	m.Cover = CoverFile
+	metadata, _ := json.Marshal(m)
+	files := map[string][]byte{"meta.json": metadata, "index.html": base.Files["index.html"], "README.md": []byte("# 开发说明"), "skills/panel-development.md": []byte("# 面板约束"), ".data/thing-model.json": []byte(`{"version":"1.0","properties":[]}`)}
+	p, err := Decode("new.zip", fixtureZIP(t, files, zip.Deflate, false))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.Manifest.Platforms[0] != "web" || p.Manifest.Readme != "README.md" || p.Files["manifest.json"] != nil {
+		t.Fatal("新元数据未生效")
+	}
+	z, err := p.ZIP()
+	if err != nil {
+		t.Fatal(err)
+	}
+	q, err := Decode("round.zip", z)
+	if err != nil || q.Hash != p.Hash {
+		t.Fatalf("元数据包回导不稳定：%v", err)
+	}
+	files["manifest.json"] = metadata
+	if _, err = Decode("duplicate.zip", fixtureZIP(t, files, zip.Deflate, false)); err == nil {
+		t.Fatal("接受双份清单")
+	}
+	delete(files, "manifest.json")
+	m.Readme = "../README.md"
+	files["meta.json"], _ = json.Marshal(m)
+	if _, err = Decode("escape.zip", fixtureZIP(t, files, zip.Deflate, false)); err == nil {
+		t.Fatal("接受资料路径逃逸")
 	}
 }

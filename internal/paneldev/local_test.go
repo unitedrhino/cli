@@ -28,7 +28,7 @@ func TestLocalDevelopment(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if len(p.Files) != 5 {
+	if len(p.Files) != 8 {
 		t.Fatal(p.Inventory)
 	}
 	out := filepath.Join(root, "panel.zip")
@@ -123,7 +123,7 @@ func TestAirConditionerTemplate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(p.Manifest.Requirements) != 5 || len(p.Files) != 5 {
+	if len(p.Manifest.Requirements) != 5 || len(p.Files) != 8 {
 		t.Fatal("空调合同或运行资源不完整")
 	}
 	// 平台实际建模拒绝文字枚举键；交付样板必须能够直接建立真实产品物模型。

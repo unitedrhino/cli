@@ -21,7 +21,7 @@ import (
 
 // assets 提供随 CLI 分发的固定 SDK、模拟宿主与示例工程，不依赖 CDN。
 //
-//go:embed assets/*
+//go:embed all:assets
 var assets embed.FS
 
 // Init 在不存在的目录写出完整可运行示例，绝不覆盖已有开发文件。
@@ -43,9 +43,12 @@ func InitTemplate(directory, template string) error {
 	if err := os.MkdirAll(directory, 0755); err != nil {
 		return err
 	}
-	for _, name := range []string{"manifest.json", "index.html", "panel-sdk.js", "panel.css", "panel.js", "mock.json", "README.md"} {
+	for _, name := range []string{"meta.json", "index.html", "panel-sdk.js", "panel.css", "panel.js", "mock.json", "README.md", "skills/panel-development.md", ".data/thing-model.json"} {
 		data, err := assets.ReadFile(prefix + name)
 		if err != nil {
+			return err
+		}
+		if err = os.MkdirAll(filepath.Dir(filepath.Join(directory, name)), 0755); err != nil {
 			return err
 		}
 		if err = os.WriteFile(filepath.Join(directory, name), data, 0644); err != nil {
@@ -92,12 +95,12 @@ func Load(input string) (*panelpkg.Package, error) {
 			return fmt.Errorf("不允许符号链接：%s", relative)
 		}
 		if entry.IsDir() {
-			if strings.HasPrefix(entry.Name(), ".") || entry.Name() == "node_modules" {
+			if (strings.HasPrefix(entry.Name(), ".") && relative != ".data") || entry.Name() == "node_modules" {
 				return filepath.SkipDir
 			}
 			return nil
 		}
-		if relative == "README.md" || relative == "mock.json" || strings.HasPrefix(entry.Name(), ".") {
+		if relative == "mock.json" || strings.HasPrefix(entry.Name(), ".") {
 			return nil
 		}
 		stat, e := entry.Info()

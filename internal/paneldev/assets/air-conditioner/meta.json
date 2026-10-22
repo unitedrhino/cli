@@ -73,5 +73,11 @@
         "unit": "°C"
       }
     }
-  ]
+  ],
+  "cover": ".data/cover.png",
+  "readme": "README.md",
+  "skills": [
+    "skills/panel-development.md"
+  ],
+  "thingModel": ".data/thing-model.json"
 }

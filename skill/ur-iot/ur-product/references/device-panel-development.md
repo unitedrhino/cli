@@ -14,7 +14,7 @@
 
 | 文件 | 用途 | 开发时怎么改 |
 | --- | --- | --- |
-| `manifest.json` | 名称、版本、终端和物模型能力合同 | 按实际物模型声明 requirements，发布修改时更新 version |
+| `meta.json` | 名称、版本、终端和物模型能力合同 | 按实际物模型声明 requirements，发布修改时更新 version |
 | `index.html` | 面板布局与控件 | 维护页面结构和控件的字段映射，保留 SDK 引用 |
 | `panel.css` | 共享样式、响应式布局与状态外观 | 优先调整统一变量，保持桌面双栏、手机单栏及状态样式 |
 | `panel.js` | 读取状态、响应操作和处理回执 | 通过 window.urPanel 调用宿主，按实际字段调整 |
@@ -159,3 +159,18 @@ const { msgToken } = await urPanel.request({
 - Web / 手机型号切换只是视口尺寸预览，Android/iOS App 仍需分别真机验证。
 - 当前离线缓存用于查看，不支持蓝牙控制；微信小程序能力不足时使用原生设备页，不把 App 能力当成小程序能力。
 - 常见导入失败：多套目录、缺清单、外部资源、字段合同不一致、范围/枚举错误；先 validate，再按具体错误修正。
+
+
+## 包元数据与资料目录
+
+新模板以根目录 `meta.json` 为唯一清单。它包含 `formatVersion: 1`、`name`、`desc`、`version`、`entry: "index.html"`、`sdkVersion: "1.0.0"`、`platforms` 和 `requirements`。平台会用导入表单的名称和备注改写同一份清单，导出后与列表保持一致。
+
+`platforms` 必须明确列出支持终端，只接受 `web`、`h5`、`appAndroid`、`appIos`、`mini`，不得重复或为空；声明不替代宿主和真机验证。现有 Web/H5/App 模板声明前四项，不因能加载 HTML 就自动增加小程序。
+
+资料引用字段均为包内相对路径：`cover: ".data/cover.png"`、`thingModel: ".data/thing-model.json"`、`readme: "README.md"`、`skills: ["skills/panel-development.md"]`。除首次导入自动补齐的封面外，声明的文件必须存在；README/skills 只接受 Markdown，物模型只接受有效 JSON。真实模型还须用物模型校验命令及目标产品核对，不因面板包可导入就认为模型匹配。
+
+`.data/` 允许保存截图和配套物模型，README 面向人、skills 面向开发 Agent。CLI init、validate、pack 和网页下载均保留这些资料；不扫描工程其他隐藏目录，不携带 node_modules。它们只作为资料，不自动导入物模型、不执行技能内容，不包含账号、密钥或固定设备身份。
+
+网页首次导入在无凭据、禁止网络的临时模拟框中生成 1200×720 画面，再导出 640×384 PNG 到 `.data/cover.png`；封面超过1 MiB、损坏或超200万像素会拒绝。已有封面回导保留原图和内容摘要。旧包无图显示“暂无封面”，不借用其他资产图片。导出ZIP包含封面及开发资料。ZIP仍限制10 MiB压缩、30 MiB展开、100文件，不新增导入接口。
+
+旧包的 manifest.json 或单HTML内嵌清单仍可读入，但新模板只维护 meta.json；两种根清单同时存在时拒绝导入，避免平台选错终端、版本或能力合同。离线/实际运行的 SDK 合同保持不变。

@@ -174,3 +174,18 @@ const { msgToken } = await urPanel.request({
 网页首次导入在无凭据、禁止网络的临时模拟框中生成 1200×720 画面，再导出 640×384 PNG 到 `.data/cover.png`；封面超过1 MiB、损坏或超200万像素会拒绝。已有封面回导保留原图和内容摘要。旧包无图显示“暂无封面”，不借用其他资产图片。导出ZIP包含封面及开发资料。ZIP仍限制10 MiB压缩、30 MiB展开、100文件，不新增导入接口。
 
 旧包的 manifest.json 或单HTML内嵌清单仍可读入，但新模板只维护 meta.json；两种根清单同时存在时拒绝导入，避免平台选错终端、版本或能力合同。离线/实际运行的 SDK 合同保持不变。
+
+
+## 原位更新已有面板
+
+后台面板卡片点击“更新”，填写名称和备注并选择新 HTML/ZIP，点击“确认更新”。更新保留 panelID 及设备、产品、品类的全部绑定；用户在设备面板点击“刷新”后加载新内容。开发仍在本地完成，没有在线编辑。
+
+CLI 先查询并核对 `info --json '{"panelID":"<panel-id>"}'` 返回的 `data.panel.packageHash`，再显式提交原版本摘要：
+
+```sh
+ur things panel update ./my-panel --panel-id <panel-id> --expected-hash <原版本完整packageHash>
+```
+
+调用 `POST /api/v1/things/panel/package/update`：`panelID` 为保持不变的资产身份；`expectedPackageHash` 为查询时的64字符完整摘要；`filePath` 为当前登录账号上传的临时ZIP路径；可选 `name` 非空时同时替换 `desc`（空值清除备注），省略名称则使用新包名称备注。成功返回 `panelID/packageHash/manifest/reused`，同内容不改写。权限为 `things/panel/info:update`，普通企业不能修改公共面板。
+
+任何直接引用（包括其他企业不可列出的绑定）存在时，更新要求 `requirements`、`platforms` 的声明及 `sdkVersion` 与原版本保持一致；需要改变依赖时另行导入并重新核对绑定。无引用可更换依赖。并发摘要不匹配、非法包或另一个面板已使用相同内容均拒绝，原包和绑定保持不变；不要自动读取新摘要重试覆盖。旧资源授权在五分钟有效期内读取原包快照，新解析返回新内容摘要；已打开页面不会强制中断，须刷新加载新版本。回退使用上个版本完整包和当前摘要再次更新。更新不执行物模型导入。

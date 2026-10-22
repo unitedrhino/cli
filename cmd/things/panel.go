@@ -45,6 +45,14 @@ func newPanelCommand() *cobra.Command {
 	}}
 	serve.Flags().Int("port", 0, "本机端口，0 自动分配")
 	imp := &cobra.Command{Use: "import <directory|html|zip>", Short: "校验上传并导入不可变资产，不自动绑定", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		// 更新要求调用方显式提供已核对的目标和完整摘要，禁止自动读取最新摘要覆盖并发修改。
+		if cmd.Name() == "update" {
+			id, _ := cmd.Flags().GetString("panel-id")
+			hash, _ := cmd.Flags().GetString("expected-hash")
+			if strings.TrimSpace(id) == "" || len(hash) != 64 {
+				return fmt.Errorf("更新必须提供 --panel-id 和完整的 --expected-hash；请先查询 info 核对原版本")
+			}
+		}
 		// 导入元数据只有显式名称时才覆盖，未提供时保留工程清单。
 		name, _ := cmd.Flags().GetString("name")
 		desc, _ := cmd.Flags().GetString("desc")
@@ -83,12 +91,26 @@ func newPanelCommand() *cobra.Command {
 			body["name"] = strings.TrimSpace(name)
 			body["desc"] = strings.TrimSpace(desc)
 		}
+		if cmd.Name() == "update" {
+			body["panelID"], _ = cmd.Flags().GetString("panel-id")
+			body["expectedPackageHash"], _ = cmd.Flags().GetString("expected-hash")
+			delete(body, "ownerScope")
+			return panelAPI(cmd, "package/update", body)
+		}
 		return panelAPI(cmd, "package/import", body)
 	}}
 	imp.Flags().String("scope", "", "兼容旧调用：平台自动公共，其他企业自动当前企业")
 	imp.Flags().String("name", "", "覆盖导入清单名称；省略时保留原名称")
 	imp.Flags().String("desc", "", "配合 --name 覆盖备注，空值清除旧备注")
-	root.AddCommand(initCommand, validate, pack, serve, imp)
+	// update 与导入复用本地校验和上传，独立的后端权限与摘要负责原位更新保护。
+	update := &cobra.Command{Use: "update <directory|html|zip>", Short: "导入新版本更新原面板，保留全部绑定", Args: cobra.ExactArgs(1), RunE: imp.RunE}
+	update.Flags().String("panel-id", "", "要更新的已有面板ID")
+	update.Flags().String("expected-hash", "", "已核对原版本的完整packageHash，冲突时需重新确认")
+	update.Flags().String("scope", "", "仅兼容共用上传逻辑；更新归属固定为原资产")
+	_ = update.Flags().MarkHidden("scope")
+	update.Flags().String("name", "", "覆盖清单名称；省略使用新包名称")
+	update.Flags().String("desc", "", "配合--name替换备注")
+	root.AddCommand(initCommand, validate, pack, serve, imp, update)
 	for _, item := range []struct{ name, path, short string }{{"info", "info/get-one", "查询面板详情"}, {"list", "info/get-list", "查询面板列表"}, {"resolve", "resolve", "解析当前设备面板"}, {"delete", "info/delete", "删除无直接引用的资产"}, {"export", "package/export", "导出标准面板包"}, {"binding", "binding/get-one", "读取本层配置及继承结果"}, {"bind", "binding/update", "按期望版本更新绑定，必要时显式确认影响"}, {"bindings", "binding/get-list", "查询资产直接引用"}} {
 		item := item
 		command := &cobra.Command{Use: item.name, Short: item.short, Args: cobra.NoArgs, RunE: func(cmd *cobra.Command, args []string) error {

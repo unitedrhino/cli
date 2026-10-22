@@ -23,14 +23,14 @@ func newPanelCommand() *cobra.Command {
 		return paneldev.InitTemplate(args[0], template)
 	}}
 	initCommand.Flags().String("template", "switch", "面板样板：switch / air-conditioner")
-	validate := &cobra.Command{Use: "validate <directory|html|zip>", Short: "离线校验包资源、合同与内容摘要", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+	validate := &cobra.Command{Use: "validate <directory|zip>", Short: "离线校验包资源、合同与内容摘要", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		p, e := paneldev.Load(args[0])
 		if e != nil {
 			return e
 		}
 		return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{"valid": true, "packageHash": p.Hash, "manifest": p.Manifest, "files": p.Inventory})
 	}}
-	pack := &cobra.Command{Use: "pack <directory|html|zip>", Short: "离线校验并输出标准 ZIP（不覆盖文件）", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+	pack := &cobra.Command{Use: "pack <directory|zip>", Short: "离线校验并输出标准 ZIP（不覆盖文件）", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		output, _ := cmd.Flags().GetString("out")
 		p, e := paneldev.Pack(args[0], output)
 		if e != nil {
@@ -39,12 +39,12 @@ func newPanelCommand() *cobra.Command {
 		return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{"file": output, "packageHash": p.Hash})
 	}}
 	pack.Flags().String("out", "panel.zip", "输出路径，建议放在工程目录外")
-	serve := &cobra.Command{Use: "serve <directory|html|zip>", Short: "本机离线模拟运行，不连接真实设备", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+	serve := &cobra.Command{Use: "serve <directory|zip>", Short: "本机离线模拟运行，不连接真实设备", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		port, _ := cmd.Flags().GetInt("port")
 		return paneldev.Serve(cmd.Context(), args[0], port, cmd.OutOrStdout())
 	}}
 	serve.Flags().Int("port", 0, "本机端口，0 自动分配")
-	imp := &cobra.Command{Use: "import <directory|html|zip>", Short: "校验上传并导入不可变资产，不自动绑定", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+	imp := &cobra.Command{Use: "import <directory|zip>", Short: "校验上传并导入不可变资产，不自动绑定", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		// 更新要求调用方显式提供已核对的目标和完整摘要，禁止自动读取最新摘要覆盖并发修改。
 		if cmd.Name() == "update" {
 			id, _ := cmd.Flags().GetString("panel-id")
@@ -103,7 +103,7 @@ func newPanelCommand() *cobra.Command {
 	imp.Flags().String("name", "", "覆盖导入清单名称；省略时保留原名称")
 	imp.Flags().String("desc", "", "配合 --name 覆盖备注，空值清除旧备注")
 	// update 与导入复用本地校验和上传，独立的后端权限与摘要负责原位更新保护。
-	update := &cobra.Command{Use: "update <directory|html|zip>", Short: "导入新版本更新原面板，保留全部绑定", Args: cobra.ExactArgs(1), RunE: imp.RunE}
+	update := &cobra.Command{Use: "update <directory|zip>", Short: "导入新版本更新原面板，保留全部绑定", Args: cobra.ExactArgs(1), RunE: imp.RunE}
 	update.Flags().String("panel-id", "", "要更新的已有面板ID")
 	update.Flags().String("expected-hash", "", "已核对原版本的完整packageHash，冲突时需重新确认")
 	update.Flags().String("scope", "", "仅兼容共用上传逻辑；更新归属固定为原资产")

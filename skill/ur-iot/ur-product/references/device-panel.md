@@ -15,7 +15,7 @@ ur things panel pack ./my-panel --out ./my-panel.zip
 
 这四条命令离线可用，无需账号、后端或 CDN。serve 只监听本机，界面明确标记模拟设备，不会调用真实设备。外部修改文件后重新运行页面加载最新校验资源。模板、SDK 和 mock 示例随 CLI 可执行文件分发；也可复制本技能 [assets/device-panel](../assets/device-panel) 后使用同样命令。ZIP 输出放工程目录外，现有文件不会被覆盖。
 
-工程包含 meta.json、index.html、panel-sdk.js 和包内 CSS/JS/图片/字体。仅单 HTML 时把 manifest 放入 `<script id="ur-panel-manifest" type="application/json">`，SDK 脚本内联。不能有外部 CDN、远程脚本、iframe、base、对象嵌入、符号链接、路径穿越或缺失资源。限制：压缩 10 MiB、展开 30 MiB、100 文件。导出归一化标准 ZIP，回导以内容复用资产。
+工程包含 meta.json、index.html、panel-sdk.js 和包内 CSS/JS/图片/字体。只允许导入ZIP；根目录meta.json必须存在，单HTML及旧manifest.json均不能作为导入格式。不能有外部 CDN、远程脚本、iframe、base、对象嵌入、符号链接、路径穿越或缺失资源。限制：压缩 10 MiB、展开 30 MiB、100 文件。导出归一化标准 ZIP，回导以内容复用资产。
 
 ## 视觉与交互样板（开发前必读）
 
@@ -144,12 +144,12 @@ ur things panel export --json '{"panelID":"<资产ID>"}' --out ./exported.zip
 
 网页首次导入在无凭据、禁止网络的临时模拟框中生成 1200×720 画面，再导出 640×384 PNG 到 `.data/cover.png`；封面超过1 MiB、损坏或超200万像素会拒绝。已有封面回导保留原图和内容摘要。旧包无图显示“暂无封面”，不借用其他资产图片。导出ZIP包含封面及开发资料。ZIP仍限制10 MiB压缩、30 MiB展开、100文件，不新增导入接口。
 
-旧包的 manifest.json 或单HTML内嵌清单仍可读入，但新模板只维护 meta.json；两种根清单同时存在时拒绝导入，避免平台选错终端、版本或能力合同。离线/实际运行的 SDK 合同保持不变。
+新导入和更新仅接受ZIP，根目录必须有meta.json与index.html；拒绝manifest.json及HTML内嵌清单。存量有效面板在服务启动时自动迁移为根meta.json格式，保留面板ID、归属、创建时间及全部绑定版本，重新生成资源清单和内容摘要；新资源全部写成功后才切换资产指针，旧对象保留用于回滚。重复启动跳过已迁移资产，在.data/package-source.json记录原包摘要，避免不同来源的旧包归一后碰撞，不自动合并、删除或解绑；资源损坏或其他校验失败停止启动并记录具体面板ID。日常导入、更新、运行和导出不提供旧格式分支；导出直接返回当前新包，其packageHash与当前资产一致。
 
 
 ## 原位更新已有面板
 
-后台面板卡片点击“更新”，填写名称和备注并选择新 HTML/ZIP，点击“确认更新”。更新保留 panelID 及设备、产品、品类的全部绑定；用户在设备面板点击“刷新”后加载新内容。开发仍在本地完成，没有在线编辑。
+后台面板卡片点击“更新”，填写名称和备注并选择新 ZIP，点击“确认更新”。更新保留 panelID 及设备、产品、品类的全部绑定；用户在设备面板点击“刷新”后加载新内容。开发仍在本地完成，没有在线编辑。
 
 CLI 先查询并核对 `info --json '{"panelID":"<panel-id>"}'` 返回的 `data.panel.packageHash`，再显式提交原版本摘要：
 

@@ -12,15 +12,27 @@ import (
 	"testing"
 )
 
-// fixtureHTML 构造含清单的独立页面，测试通过真实解析链路而非替代校验器。
+// fixtureHTML 提供没有第二份清单的正常运行入口。
 func fixtureHTML(t *testing.T) []byte {
+	t.Helper()
+	return []byte(`<!doctype html><html><head><style>body{color:red}</style></head><body>环境面板</body></html>`)
+}
+
+// fixtureMetadata 提供独立根元数据，字段与真实包合同一致。
+func fixtureMetadata(t *testing.T) []byte {
 	t.Helper()
 	m := Manifest{FormatVersion: 1, Name: "环境面板", Entry: "index.html", SDKVersion: SDKVersion, Platforms: []string{"web", "h5"}, Requirements: []Requirement{{Kind: "property", Identifier: "temperature", Required: true, Define: map[string]any{"type": "float", "unit": "℃"}, Access: "read"}}}
 	b, e := json.Marshal(m)
 	if e != nil {
 		t.Fatal(e)
 	}
-	return []byte(`<!doctype html><html><head><script type="application/json" id="ur-panel-manifest">` + string(b) + `</script><style>body{color:red}</style></head><body>环境面板</body></html>`)
+	return b
+}
+
+// fixturePackage 按唯一正式导入路径校验真实 ZIP，禁止测试绕过必需清单。
+func fixturePackage(t *testing.T) (*Package, error) {
+	t.Helper()
+	return Decode("panel.zip", fixtureZIP(t, map[string][]byte{"meta.json": fixtureMetadata(t), "index.html": fixtureHTML(t)}, zip.Deflate, false))
 }
 
 // fixtureZIP 创建真实不同压缩方式和条目属性的压缩包。
@@ -47,9 +59,9 @@ func fixtureZIP(t *testing.T, files map[string][]byte, method uint16, symlink bo
 	return out.Bytes()
 }
 
-// TestPackageRoundTrip 证明 HTML、导出 ZIP 与 DEFLATE ZIP 回导复用相同规范化摘要。
+// TestPackageRoundTrip 证明根 meta.json 的 ZIP 导出和回导摘要一致。
 func TestPackageRoundTrip(t *testing.T) {
-	p, e := Decode("环境.html", fixtureHTML(t))
+	p, e := fixturePackage(t)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -73,11 +85,11 @@ func TestPackageRoundTrip(t *testing.T) {
 
 // TestPackageRejectsUnsafeInputs 验证越界、缺失资源、非法清单与外部依赖均无法形成资产。
 func TestPackageRejectsUnsafeInputs(t *testing.T) {
-	base, e := Decode("sample.html", fixtureHTML(t))
+	base, e := fixturePackage(t)
 	if e != nil {
 		t.Fatal(e)
 	}
-	cases := map[string][]byte{"traversal": fixtureZIP(t, map[string][]byte{"../index.html": fixtureHTML(t)}, zip.Store, false), "symlink": fixtureZIP(t, base.Files, zip.Store, true), "missing-entry": fixtureZIP(t, map[string][]byte{"manifest.json": base.Files["manifest.json"]}, zip.Store, false), "broken": []byte("not zip")}
+	cases := map[string][]byte{"traversal": fixtureZIP(t, map[string][]byte{"../index.html": fixtureHTML(t)}, zip.Store, false), "symlink": fixtureZIP(t, base.Files, zip.Store, true), "missing-entry": fixtureZIP(t, map[string][]byte{"meta.json": base.Files["meta.json"]}, zip.Store, false), "broken": []byte("not zip")}
 	for name, data := range cases {
 		t.Run(name, func(t *testing.T) {
 			if _, e := Decode("bad.zip", data); e == nil {
@@ -85,8 +97,8 @@ func TestPackageRejectsUnsafeInputs(t *testing.T) {
 			}
 		})
 	}
-	for _, html := range []string{strings.Replace(string(fixtureHTML(t)), "</body>", `<script src="https://cdn.example/a.js"></script></body>`, 1), strings.Replace(string(fixtureHTML(t)), "</body>", `<img src="assets/missing.png"></body>`, 1), strings.Replace(string(fixtureHTML(t)), "</body>", `<iframe src="anything"></iframe></body>`, 1), `<html><body>缺少清单</body></html>`} {
-		if _, e := Decode("bad.html", []byte(html)); e == nil {
+	for _, html := range []string{strings.Replace(string(fixtureHTML(t)), "</body>", `<script src="https://cdn.example/a.js"></script></body>`, 1), strings.Replace(string(fixtureHTML(t)), "</body>", `<img src="assets/missing.png"></body>`, 1), strings.Replace(string(fixtureHTML(t)), "</body>", `<iframe src="anything"></iframe></body>`, 1)} {
+		if _, e := Decode("bad.zip", fixtureZIP(t, map[string][]byte{"meta.json": fixtureMetadata(t), "index.html": []byte(html)}, zip.Deflate, false)); e == nil {
 			t.Fatal("非法 HTML 被接受")
 		}
 	}
@@ -94,7 +106,7 @@ func TestPackageRejectsUnsafeInputs(t *testing.T) {
 
 // TestPackageLocalResources 验证多资源包必须包含被引用的脚本/样式，资源内容参与摘要。
 func TestPackageLocalResources(t *testing.T) {
-	p, e := Decode("sample.html", fixtureHTML(t))
+	p, e := fixturePackage(t)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -118,7 +130,7 @@ func TestPackageLocalResources(t *testing.T) {
 
 // TestCompressedResourceExport 验证大但可压缩的资源不会在导出时膨胀到无法回导。
 func TestCompressedResourceExport(t *testing.T) {
-	p, e := Decode("sample.html", fixtureHTML(t))
+	p, e := fixturePackage(t)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -143,7 +155,7 @@ func TestPackageCover(t *testing.T) {
 	if e := png.Encode(&out, image.NewRGBA(image.Rect(0, 0, 64, 40))); e != nil {
 		t.Fatal(e)
 	}
-	p, e := Decode("cover.zip", fixtureZIP(t, map[string][]byte{"index.html": fixtureHTML(t), CoverFile: out.Bytes()}, zip.Deflate, false))
+	p, e := Decode("cover.zip", fixtureZIP(t, map[string][]byte{"meta.json": fixtureMetadata(t), "index.html": fixtureHTML(t), CoverFile: out.Bytes()}, zip.Deflate, false))
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -155,7 +167,7 @@ func TestPackageCover(t *testing.T) {
 	if e != nil || !bytes.Equal(again.Files[CoverFile], out.Bytes()) {
 		t.Fatalf("封面未完整保留: %v", e)
 	}
-	without, e := Decode("plain.html", fixtureHTML(t))
+	without, e := fixturePackage(t)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -164,7 +176,7 @@ func TestPackageCover(t *testing.T) {
 	}
 	for name, data := range map[string][]byte{"SVG伪装": []byte(`<svg onload="alert(1)"></svg>`), "PNG截断": out.Bytes()[:30]} {
 		t.Run(name, func(t *testing.T) {
-			if _, e := Decode("bad.zip", fixtureZIP(t, map[string][]byte{"index.html": fixtureHTML(t), CoverFile: data}, zip.Store, false)); e == nil {
+			if _, e := Decode("bad.zip", fixtureZIP(t, map[string][]byte{"meta.json": fixtureMetadata(t), "index.html": fixtureHTML(t), CoverFile: data}, zip.Store, false)); e == nil {
 				t.Fatal("损坏封面未拒绝")
 			}
 		})
@@ -173,14 +185,14 @@ func TestPackageCover(t *testing.T) {
 	if e := png.Encode(&out, image.NewRGBA(image.Rect(0, 0, 1921, 1))); e != nil {
 		t.Fatal(e)
 	}
-	if _, e := Decode("large.zip", fixtureZIP(t, map[string][]byte{"index.html": fixtureHTML(t), CoverFile: out.Bytes()}, zip.Store, false)); e == nil {
+	if _, e := Decode("large.zip", fixtureZIP(t, map[string][]byte{"meta.json": fixtureMetadata(t), "index.html": fixtureHTML(t), CoverFile: out.Bytes()}, zip.Store, false)); e == nil {
 		t.Fatal("超大封面未拒绝")
 	}
 }
 
 // TestPackageMetadataBundle 验证新清单、资料目录、终端和完整导出不会丢失；拒绝两份清单及路径逃逸。
 func TestPackageMetadataBundle(t *testing.T) {
-	base, err := Decode("base.html", fixtureHTML(t))
+	base, err := fixturePackage(t)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -215,5 +227,32 @@ func TestPackageMetadataBundle(t *testing.T) {
 	files["meta.json"], _ = json.Marshal(m)
 	if _, err = Decode("escape.zip", fixtureZIP(t, files, zip.Deflate, false)); err == nil {
 		t.Fatal("接受资料路径逃逸")
+	}
+}
+
+// TestPanelZIPMetaRequired 只接受根目录有meta.json的ZIP，不能用旧清单或内嵌清单代替。
+func TestPanelZIPMetaRequired(t *testing.T) {
+	metadata, _ := json.Marshal(Manifest{FormatVersion: 1, Name: "严格ZIP", Entry: "index.html", SDKVersion: SDKVersion, Platforms: []string{"web"}, Requirements: []Requirement{}})
+	for name, data := range map[string][]byte{
+		"single.html":  fixtureHTML(t),
+		"embedded.zip": fixtureZIP(t, map[string][]byte{"meta.json": metadata, "index.html": []byte(`<html><head><script type="application/json" id="ur-panel-manifest">` + string(metadata) + `</script></head></html>`)}, zip.Deflate, false),
+		"legacy.zip":   fixtureZIP(t, map[string][]byte{"index.html": []byte("<html><body>旧包</body></html>"), "manifest.json": metadata}, zip.Deflate, false),
+		"nested.zip":   fixtureZIP(t, map[string][]byte{"index.html": []byte("<html></html>"), "panel/meta.json": metadata}, zip.Deflate, false),
+	} {
+		if _, e := Decode(name, data); e == nil {
+			t.Fatalf("缺少根meta.json的输入被接受：%s", name)
+		}
+	}
+	p, e := Decode("strict.zip", fixtureZIP(t, map[string][]byte{"index.html": []byte("<html><body>面板</body></html>"), "meta.json": metadata}, zip.Deflate, false))
+	if e != nil {
+		t.Fatal(e)
+	}
+	exported, e := p.ZIP()
+	if e != nil {
+		t.Fatal(e)
+	}
+	round, e := Decode("export.zip", exported)
+	if e != nil || round.Files["meta.json"] == nil || round.Hash != p.Hash {
+		t.Fatal("导出没有保留meta与摘要", e)
 	}
 }

@@ -141,61 +141,62 @@ func ValidateManifest(m Manifest) error {
 	return nil
 }
 
-// Decode 将 HTML 或 ZIP 输入解析成不可变、可重复导出的运行包；文件名只用于判断格式，不用于归属。
+// Decode 只接收根目录包含 meta.json 的 ZIP；不接受单 HTML、旧清单或内嵌清单。
 func Decode(name string, data []byte) (*Package, error) {
+	if !strings.EqualFold(path.Ext(name), ".zip") {
+		return nil, fmt.Errorf("只支持 ZIP 压缩包，根目录必须包含 meta.json 和 index.html")
+	}
 	if len(data) == 0 || len(data) > MaxCompressed {
 		return nil, fmt.Errorf("面板文件为空或超过 10 MiB")
 	}
 	files := map[string][]byte{}
-	if strings.EqualFold(path.Ext(name), ".html") || strings.EqualFold(path.Ext(name), ".htm") {
-		files["index.html"] = data
-	} else if strings.EqualFold(path.Ext(name), ".zip") {
-		z, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
-		if err != nil {
-			return nil, fmt.Errorf("ZIP 无效：%w", err)
-		}
-		if len(z.File) > MaxFiles {
-			return nil, fmt.Errorf("ZIP 文件数超过 %d", MaxFiles)
-		}
-		var total int64
-		for _, f := range z.File {
-			if f.FileInfo().IsDir() {
-				if !validPath(strings.TrimSuffix(f.Name, "/")) {
-					return nil, fmt.Errorf("ZIP 目录路径无效")
-				}
-				continue
-			}
-			if !validPath(f.Name) || !f.Mode().IsRegular() || f.Flags&1 != 0 || !allowedExtension(f.Name) {
-				return nil, fmt.Errorf("ZIP 文件路径或类型无效：%s", f.Name)
-			}
-			if _, ok := files[f.Name]; ok {
-				return nil, fmt.Errorf("ZIP 存在重复文件：%s", f.Name)
-			}
-			if f.UncompressedSize64 > MaxExpanded || total+int64(f.UncompressedSize64) > MaxExpanded {
-				return nil, fmt.Errorf("ZIP 展开超过 30 MiB")
-			}
-			reader, e := f.Open()
-			if e != nil {
-				return nil, e
-			}
-			content, e := io.ReadAll(io.LimitReader(reader, MaxExpanded-total+1))
-			reader.Close()
-			if e != nil {
-				return nil, fmt.Errorf("ZIP 文件校验失败：%w", e)
-			}
-			total += int64(len(content))
-			if total > MaxExpanded {
-				return nil, fmt.Errorf("ZIP 实际展开超限")
-			}
-			files[f.Name] = content
-		}
-	} else {
-		return nil, fmt.Errorf("只支持 HTML 或 ZIP")
+	z, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
+	if err != nil {
+		return nil, fmt.Errorf("ZIP 无效：%w", err)
 	}
+	if len(z.File) > MaxFiles {
+		return nil, fmt.Errorf("ZIP 文件数超过 %d", MaxFiles)
+	}
+	var total int64
+	for _, f := range z.File {
+		if f.FileInfo().IsDir() {
+			if !validPath(strings.TrimSuffix(f.Name, "/")) {
+				return nil, fmt.Errorf("ZIP 目录路径无效")
+			}
+			continue
+		}
+		if !validPath(f.Name) || !f.Mode().IsRegular() || f.Flags&1 != 0 || !allowedExtension(f.Name) {
+			return nil, fmt.Errorf("ZIP 文件路径或类型无效：%s", f.Name)
+		}
+		if _, ok := files[f.Name]; ok {
+			return nil, fmt.Errorf("ZIP 存在重复文件：%s", f.Name)
+		}
+		if f.UncompressedSize64 > MaxExpanded || total+int64(f.UncompressedSize64) > MaxExpanded {
+			return nil, fmt.Errorf("ZIP 展开超过 30 MiB")
+		}
+		reader, e := f.Open()
+		if e != nil {
+			return nil, e
+		}
+		content, e := io.ReadAll(io.LimitReader(reader, MaxExpanded-total+1))
+		reader.Close()
+		if e != nil {
+			return nil, fmt.Errorf("ZIP 文件校验失败：%w", e)
+		}
+		total += int64(len(content))
+		if total > MaxExpanded {
+			return nil, fmt.Errorf("ZIP 实际展开超限")
+		}
+		files[f.Name] = content
+	}
+	if len(files["meta.json"]) == 0 {
+		return nil, fmt.Errorf("ZIP 根目录必须包含有效的 meta.json")
+	}
+
 	return normalize(files)
 }
 
-// normalize 提取内嵌清单、统一入口序列化、检查静态依赖并计算规范化内容指纹。
+// normalize 校验唯一的根元数据、静态依赖与封面，并计算规范化内容指纹。
 func normalize(files map[string][]byte) (*Package, error) {
 	if cover, exists := files[CoverFile]; exists {
 		config, e := png.DecodeConfig(bytes.NewReader(cover))
@@ -214,56 +215,24 @@ func normalize(files map[string][]byte) (*Package, error) {
 	if err != nil {
 		return nil, err
 	}
-	metadataFile := "manifest.json"
-	if _, exists := files["meta.json"]; exists {
-		metadataFile = "meta.json"
-		if _, duplicate := files["manifest.json"]; duplicate {
-			return nil, fmt.Errorf("meta.json 与 manifest.json 不得同时存在，请只保留一份清单")
-		}
+	if _, exists := files["manifest.json"]; exists {
+		return nil, fmt.Errorf("不支持 manifest.json，请只使用根目录 meta.json")
 	}
-	manifestBytes := files[metadataFile]
-	embedded := 0
-	var walk func(*html.Node) error
-	walk = func(n *html.Node) error {
-		for child := n.FirstChild; child != nil; {
-			next := child.NextSibling
-			if child.Type == html.ElementNode && child.Data == "script" && attr(child, "id") == "ur-panel-manifest" {
-				embedded++
-				if embedded > 1 || attr(child, "type") != "application/json" {
-					return fmt.Errorf("重复或无效的内嵌清单")
-				}
-				text := ""
-				for c := child.FirstChild; c != nil; c = c.NextSibling {
-					if c.Type == html.TextNode {
-						text += c.Data
-					}
-				}
-				if len(manifestBytes) > 0 {
-					a, e := canonicalJSON(manifestBytes)
-					if e != nil {
-						return e
-					}
-					b, e := canonicalJSON([]byte(text))
-					if e != nil {
-						return e
-					}
-					if !bytes.Equal(a, b) {
-						return fmt.Errorf("内嵌清单与根清单不一致")
-					}
-				} else {
-					manifestBytes = []byte(text)
-				}
-				n.RemoveChild(child)
-			} else {
-				if e := walk(child); e != nil {
-					return e
-				}
+	manifestBytes := files["meta.json"]
+	// 内嵌清单不再作为第二份合同，避免页面声明和根元数据发生歧义。
+	var checkMetadata func(*html.Node) error
+	checkMetadata = func(n *html.Node) error {
+		if n.Type == html.ElementNode && n.Data == "script" && attr(n, "id") == "ur-panel-manifest" {
+			return fmt.Errorf("不支持 HTML 内嵌清单，请将元数据放入根目录 meta.json")
+		}
+		for child := n.FirstChild; child != nil; child = child.NextSibling {
+			if e := checkMetadata(child); e != nil {
+				return e
 			}
-			child = next
 		}
 		return nil
 	}
-	if err = walk(root); err != nil {
+	if err = checkMetadata(root); err != nil {
 		return nil, err
 	}
 	var m Manifest
@@ -309,7 +278,7 @@ func normalize(files map[string][]byte) (*Package, error) {
 	}
 	files["index.html"] = rendered.Bytes()
 	metadata, _ := json.Marshal(m)
-	files[metadataFile], err = canonicalJSON(metadata)
+	files["meta.json"], err = canonicalJSON(metadata)
 	if err != nil {
 		return nil, err
 	}

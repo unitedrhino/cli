@@ -311,9 +311,21 @@
   }
 
   // apps/web/packages/saas/src/device-panel/mock.ts
+  function copy(value) {
+    if (Array.isArray(value)) return value.map((item) => copy(item));
+    if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, copy(item)]));
+    return value;
+  }
   function createMockAdapter(requirements, options = {}) {
     const listeners = /* @__PURE__ */ new Set();
     const values = {};
+    const timers = /* @__PURE__ */ new Set();
+    let pending;
+    let disposed = false;
+    const scenario = options.scenario || "normal";
+    const timing = options.timing || (options.scenario ? { accepted: 100, reported: 600, result: 800, timeout: 32e3 } : { accepted: 0, reported: 0, result: 50, timeout: 32e3 });
+    if ([timing.accepted, timing.reported, timing.result, timing.timeout].some((value) => !Number.isFinite(value) || value < 0) || timing.accepted > timing.reported || timing.reported > timing.result || timing.result > timing.timeout)
+      throw bridgeError("INVALID_PARAMS", "\u6A21\u62DF\u65F6\u5E8F\u5FC5\u987B\u6309\u53D7\u7406\u3001\u4E0A\u62A5\u3001\u56DE\u6267\u3001\u8D85\u65F6\u9012\u589E");
     const properties = requirements.filter((item) => item.kind === "property").map((item) => ({
       ...item.define,
       identifier: item.identifier,
@@ -326,10 +338,77 @@
       if (field.type === "bool") value = false;
       else if (["float", "int", "timestamp"].includes(field.type)) value = Number(field.min || 0);
       else if (field.type === "enum") value = Object.keys(field.mapping || field.values || {})[0] ?? "";
-      values[field.identifier] = value;
+      values[field.identifier] = Object.prototype.hasOwnProperty.call(options.initialValues || {}, field.identifier) ? copy(options.initialValues?.[field.identifier]) : value;
     }
-    const emit = (event) => listeners.forEach((callback) => callback(event));
-    const snapshot = (ids) => Object.fromEntries(ids.map((id) => [id, { value: values[id], timestamp: Date.now(), receivedTime: Date.now(), quality: "good", source: "mock" }]));
+    const emit = (event) => {
+      if (!disposed) listeners.forEach((callback) => callback(event));
+    };
+    const quality = (value) => {
+      if (value === null || value === void 0) return "unknown";
+      return scenario === "offline" ? "cached" : "good";
+    };
+    const snapshot = (ids) => Object.fromEntries(
+      ids.map((id) => [
+        id,
+        {
+          value: copy(values[id]),
+          timestamp: Date.now(),
+          receivedTime: Date.now(),
+          quality: quality(values[id]),
+          source: "mock"
+        }
+      ])
+    );
+    const schedule = (delay, callback) => {
+      if (!delay) {
+        if (!disposed) callback();
+        return;
+      }
+      const timer = setTimeout(() => {
+        timers.delete(timer);
+        if (!disposed) callback();
+      }, delay);
+      timers.add(timer);
+    };
+    const active = () => {
+      if (disposed) throw bridgeError("SESSION_CLOSED", "\u6A21\u62DF\u4F1A\u8BDD\u5DF2\u5173\u95ED");
+      if (scenario === "offline") throw bridgeError("DEVICE_OFFLINE", "\u6A21\u62DF\u8BBE\u5907\u5DF2\u79BB\u7EBF\uFF0C\u6682\u4E0D\u80FD\u63A7\u5236");
+    };
+    const report = (next) => {
+      if (disposed) return;
+      Object.assign(values, copy(next));
+      emit({ topic: "property", data: snapshot(Object.keys(next)) });
+    };
+    const execute = (next, action) => {
+      active();
+      if (pending) throw bridgeError("COMMAND_PENDING", "\u8BF7\u7B49\u5F85\u5F53\u524D\u6A21\u62DF\u547D\u4EE4\u5B8C\u6210");
+      const commandID = messageID();
+      pending = { commandID };
+      return new Promise((resolve, reject) => {
+        if (pending) pending.reject = reject;
+        schedule(timing.accepted, () => {
+          if (pending?.commandID === commandID) pending.reject = void 0;
+          resolve({ commandID, status: "accepted", source: "mock" });
+        });
+        if (scenario === "normal" && next) schedule(timing.reported, () => report(next));
+        schedule(scenario === "timeout" ? timing.timeout : timing.result, () => {
+          pending = void 0;
+          const status = { failure: "failed", normal: "succeeded", offline: "unknown", timeout: "unknown", unsynchronized: "succeeded" }[scenario];
+          emit({
+            topic: "command",
+            data: {
+              commandID,
+              source: "mock",
+              status,
+              ...scenario === "failure" ? { message: "\u6A21\u62DF\u6267\u884C\u5931\u8D25" } : {},
+              ...scenario === "timeout" ? { message: "\u6267\u884C\u7ED3\u679C\u672A\u77E5\uFF0C\u8BF7\u786E\u8BA4\u8BBE\u5907\u72B6\u6001\u540E\u91CD\u8BD5" } : {},
+              ...scenario === "unsynchronized" ? { stateSynchronized: false } : {},
+              ...action ? { identifier: action.identifier, ...scenario === "normal" ? { output: action.params } : {} } : {}
+            }
+          });
+        });
+      });
+    };
     const context = {
       mode: "mock",
       deviceID: "mock-device",
@@ -337,7 +416,7 @@
       deviceName: "\u6A21\u62DF\u8BBE\u5907",
       capabilities: {
         settings: { available: true },
-        cloud: { available: true },
+        cloud: { available: scenario !== "offline" },
         api: { available: true, source: "mock" },
         ble: { available: false, reason: "\u6A21\u62DF\u5BBF\u4E3B\u672A\u8FDE\u63A5\u84DD\u7259" }
       }
@@ -354,6 +433,7 @@
         return { baseURL: "", headers: {} };
       },
       async request(params) {
+        active();
         validateApiRequest(params);
         const handler = options.apiHandlers?.[params.path];
         if (!handler) throw bridgeError("UNSUPPORTED_CAPABILITY", "\u6A21\u62DF\u63A5\u53E3\u5C1A\u672A\u914D\u7F6E\uFF0C\u4E0D\u4F1A\u8BBF\u95EE\u771F\u5B9E\u8BBE\u5907");
@@ -363,16 +443,10 @@
         return snapshot(ids);
       },
       async writeProperties(next) {
-        Object.assign(values, next);
-        const commandID = messageID();
-        emit({ topic: "property", data: snapshot(Object.keys(next)) });
-        setTimeout(() => emit({ topic: "command", data: { commandID, status: "succeeded", source: "mock" } }), 50);
-        return { commandID, status: "accepted", source: "mock" };
+        return execute(copy(next));
       },
       async invokeAction(identifier, params) {
-        const commandID = messageID();
-        setTimeout(() => emit({ topic: "command", data: { commandID, identifier, status: "succeeded", output: params, source: "mock" } }), 50);
-        return { commandID, status: "accepted", source: "mock" };
+        return execute(void 0, { identifier, params: copy(params) });
       },
       subscribe(topics, callback) {
         const scoped = (event) => {
@@ -382,11 +456,16 @@
         return () => listeners.delete(scoped);
       },
       dispose() {
+        disposed = true;
+        timers.forEach((timer) => clearTimeout(timer));
+        timers.clear();
+        pending?.reject?.(bridgeError("SESSION_CLOSED", "\u6A21\u62DF\u4F1A\u8BDD\u5DF2\u5173\u95ED"));
+        pending = void 0;
         settings.dispose();
         listeners.clear();
       }
     };
-    return { adapter, emit, values };
+    return { adapter, emit, report, values };
   }
 
   // apps/web/packages/saas/src/device-panel/dev-host.ts

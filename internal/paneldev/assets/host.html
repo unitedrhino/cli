@@ -1,0 +1,187 @@
+<!doctype html>
+<!-- 文件说明：CLI 隔离模拟工作台，设备预览与调试信息分区，桌面/手机仅改变预览宽度。 -->
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>面板模拟工作台</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --background: #edf2f4;
+        --card: #fff;
+        --foreground: #182b33;
+        --muted: #647980;
+        --border: #dce5e8;
+        --primary: #087f82;
+        --primary-soft: #e6f4f3;
+        --danger: #ba3a43;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          14px/1.5 -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          'PingFang SC',
+          sans-serif;
+        background: var(--background);
+        color: var(--foreground);
+      }
+      header {
+        min-height: 76px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 32px;
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+      }
+      h1 {
+        font-size: 17px;
+        margin: 0;
+        font-weight: 600;
+      }
+      p {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .tools {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .badge {
+        font-size: 11px;
+        border-radius: 20px;
+        padding: 5px 10px;
+        color: var(--primary);
+        background: var(--primary-soft);
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--muted);
+        border-radius: 8px;
+        padding: 7px 12px;
+        font-size: 12px;
+      }
+      button[aria-pressed='true'] {
+        color: var(--primary);
+        background: var(--primary-soft);
+        border-color: var(--primary);
+      }
+      button:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 3px;
+      }
+      .viewport-switch {
+        display: flex;
+        gap: 4px;
+      }
+      .workspace {
+        padding: 24px;
+        display: flex;
+        justify-content: center;
+      }
+      .preview {
+        width: 100%;
+        max-width: 1080px;
+        transition: max-width 0.2s;
+      }
+      .preview[data-size='mobile'] {
+        max-width: 390px;
+      }
+      iframe {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        width: 100%;
+        height: calc(100vh - 142px);
+        min-height: 660px;
+        background: var(--card);
+        box-shadow: 0 16px 64px #183c460d;
+      }
+      #error {
+        color: var(--danger);
+        text-align: center;
+        white-space: pre-wrap;
+        margin: 0;
+      }
+      #error:not(:empty) {
+        padding: 12px;
+      }
+      .help {
+        max-width: 1080px;
+        margin: 0 auto 20px;
+        font-size: 11px;
+        color: var(--muted);
+        text-align: center;
+      }
+      @media (max-width: 600px) {
+        header {
+          padding: 16px;
+          align-items: flex-start;
+        }
+        .tools {
+          flex-wrap: wrap;
+          justify-content: flex-end;
+          gap: 6px;
+        }
+        .badge {
+          display: none;
+        }
+        .workspace {
+          padding: 12px;
+        }
+        .viewport-switch {
+          display: none;
+        }
+        iframe {
+          border-radius: 16px;
+          height: calc(100vh - 112px);
+          min-height: 600px;
+        }
+        .help {
+          padding: 0 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>面板模拟工作台</h1>
+        <p>本地开发 · 保存代码后重新运行</p>
+      </div>
+      <div class="tools">
+        <span class="badge">模拟设备 · 不下发真实指令</span>
+        <div class="viewport-switch" role="group" aria-label="预览尺寸">
+          <button type="button" data-size="desktop" aria-pressed="true">桌面</button
+          ><button type="button" data-size="mobile" aria-pressed="false">手机</button>
+        </div>
+        <button type="button" id="reload">重新运行</button>
+      </div>
+    </header>
+    <p id="error" role="alert"></p>
+    <div class="workspace">
+      <div class="preview" id="preview" data-size="desktop">
+        <iframe
+          id="panel"
+          title="自定义面板"
+          sandbox="allow-scripts"
+          referrerpolicy="no-referrer"
+        ></iframe>
+      </div>
+    </div>
+    <p class="help">此处使用合成数据。真实设备需导入面板、核对物模型并完成绑定。</p>
+    <script src="/__ur_panel/host.js"></script>
+  </body>
+</html>

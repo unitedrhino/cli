@@ -1,0 +1,531 @@
+/* 文件说明：HTML 设备面板共用视觉样板；业务仅消费语义变量，保持跨设备的一致外观。 */
+:root {
+  color-scheme: light;
+  --background: #f6f8fa;
+  --card: #fff;
+  --foreground: #182b33;
+  --muted: #edf3f4;
+  --muted-foreground: #647980;
+  --border: #e1e9eb;
+  --primary: #087f82;
+  --primary-soft: #e7f4f2;
+  --on-primary: #fff;
+  --success: #21734e;
+  --danger: #ba3a43;
+  --radius: 20px;
+  --shadow: 0 4px 20px color-mix(in srgb, var(--foreground) 3%, transparent);
+  --space: 8px;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'PingFang SC',
+    'Microsoft YaHei',
+    sans-serif;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 14px;
+  line-height: 1.5;
+}
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+button:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 4px;
+}
+button,
+article {
+  transition:
+    background 0.18s,
+    border-color 0.18s,
+    opacity 0.18s;
+}
+button:hover:enabled {
+  border-color: var(--primary);
+}
+svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+h1,
+h2,
+p {
+  margin: 0;
+}
+h1 {
+  font-size: 22px;
+  letter-spacing: -0.6px;
+  font-weight: 650;
+}
+h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.muted {
+  color: var(--muted-foreground);
+}
+.eyebrow {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.5px;
+  color: var(--primary);
+}
+.panel {
+  max-width: 1160px;
+  margin: auto;
+  padding: 24px 28px 16px;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.identity {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--primary);
+}
+.subtitle {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--card);
+  padding: 7px 12px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted-foreground);
+}
+.status[data-connected='true'] .status-dot {
+  background: var(--success);
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.climate {
+  padding: 22px 28px;
+  background: linear-gradient(155deg, var(--primary-soft), var(--card) 75%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 0;
+}
+.climate-head {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pill {
+  border-radius: 20px;
+  padding: 5px 10px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 550;
+}
+.dial {
+  position: relative;
+  width: 268px;
+  height: 224px;
+  max-width: 100%;
+  margin-top: 14px;
+  display: grid;
+  place-items: center;
+}
+.dial svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  stroke-width: 4;
+}
+.dial .track {
+  stroke: var(--border);
+  stroke-width: 7;
+}
+.dial .arc {
+  stroke: var(--primary);
+  opacity: 0.9;
+  stroke-width: 7;
+  stroke-dasharray: 280 480;
+}
+.dial .ticks {
+  stroke: var(--border);
+  stroke-width: 4;
+  stroke-dasharray: 1 12;
+}
+.dial-value {
+  position: relative;
+  margin-top: 17px;
+}
+.temperature {
+  font-size: 80px;
+  font-weight: 550;
+  letter-spacing: -5px;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.temperature sup {
+  vertical-align: top;
+  position: relative;
+  top: 13px;
+  font-size: 25px;
+  letter-spacing: 0;
+  margin-left: 5px;
+  color: var(--muted-foreground);
+}
+.dial-label {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  margin-bottom: 6px;
+}
+.dial-caption {
+  font-size: 12px;
+  color: var(--primary);
+  margin-top: 8px;
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 220px;
+  margin-top: -2px;
+}
+.stepper button,
+.icon-button {
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+}
+.range {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+.climate-bottom {
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  margin-top: 24px;
+  padding-top: 16px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.power-card {
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.section-label {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  margin-bottom: 5px;
+}
+.power-button {
+  border: 0;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+}
+.power-button[aria-pressed='true'] {
+  background: var(--primary);
+  color: var(--on-primary);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+.control-card {
+  padding: 20px 22px;
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-heading > span {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+.choices {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+  min-height: 76px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.choice[aria-pressed='true'] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.choice[aria-pressed='true']::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+.choice svg {
+  width: 22px;
+  height: 22px;
+}
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 4px;
+  gap: 4px;
+  border-radius: 14px;
+  background: var(--muted);
+}
+.segmented button {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  min-height: 44px;
+  font-size: 12px;
+  background: transparent;
+  color: var(--muted-foreground);
+}
+.segmented button[aria-pressed='true'] {
+  background: var(--card);
+  color: var(--primary);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+.notice {
+  padding: 0 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.notice svg {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+.feedback {
+  min-height: 20px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  text-align: left;
+}
+.feedback[data-state='error'] {
+  color: var(--danger);
+}
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+.footer-mark {
+  font-weight: 600;
+  letter-spacing: 0.6px;
+}
+.switch-hero {
+  max-width: 560px;
+  margin: auto;
+  padding: 40px;
+  text-align: center;
+}
+.switch-symbol {
+  margin: 32px auto 24px;
+  display: grid;
+  place-items: center;
+  width: 128px;
+  height: 128px;
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.switch-symbol svg {
+  width: 44px;
+  height: 44px;
+}
+.switch-hero .power-button {
+  margin: 24px auto 0;
+  width: 64px;
+  height: 64px;
+}
+.hero-state {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+.hidden {
+  display: none;
+}
+@media (min-width: 760px) {
+  .climate {
+    min-height: 0;
+  }
+  .controls .notice {
+    margin-top: auto;
+  }
+}
+@media (max-width: 759px) {
+  .panel {
+    padding: 22px 16px 20px;
+  }
+  .topbar {
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+  .subtitle { max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  h1 {
+    font-size: 20px;
+  }
+  .brand-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+  }
+  .identity {
+    gap: 10px;
+  }
+  .status {
+    padding: 6px 9px;
+    font-size: 11px;
+  }
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .climate {
+    padding: 20px;
+  }
+  .dial {
+    margin-top: 2px;
+    width: 250px;
+    height: 210px;
+  }
+  .temperature {
+    font-size: 72px;
+  }
+  .climate-bottom {
+    margin-top: 24px;
+  }
+  .power-card,
+  .control-card {
+    padding: 20px;
+  }
+  .controls {
+    gap: 14px;
+  }
+  .footer {
+    margin-top: 20px;
+  }
+  .choice {
+    min-height: 70px;
+  }
+  .switch-hero {
+    padding: 28px 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* 设置入口独立于控制锁，关闭或离线设备仍可使用宿主允许的通用设置。 */
+.header-actions { display: flex; align-items: center; gap: var(--space); flex-shrink: 0; }
+.settings-button { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 10px; border: 1px solid var(--border); border-radius: 50%; background: var(--card); color: var(--muted-foreground); }
+.settings-button[hidden] { display: none; }
+.settings-button:hover:enabled { color: var(--primary); background: var(--primary-soft); }
+
+/* 窄屏优先保留44px设置触控区，设备副标题在剩余宽度内省略。 */
+.topbar > .identity { min-width: 0; flex: 1; }
+.topbar .identity > div { min-width: 0; }
+.topbar h1 { white-space: nowrap; }
+.topbar .subtitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

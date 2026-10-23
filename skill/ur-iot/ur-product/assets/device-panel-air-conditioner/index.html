@@ -1,0 +1,199 @@
+<!doctype html>
+<!-- 文件说明：统一设备控制样板；全部状态和命令通过当前设备的 window.urPanel 获取。 -->
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>智能空调</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <header class="topbar">
+        <div class="identity">
+          <span class="brand-icon"
+            ><svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9 4l3 3 3-3M9 20l3-3 3 3M4 11l4-1-1-4M20 13l-4 1 1 4M7 18l1-4-4-1M17 6l-1 4 4 1"
+              /></svg
+          ></span>
+          <div>
+            <h1>智能空调</h1>
+            <p class="subtitle" id="device-name">舒适生活，轻松掌控</p>
+          </div>
+        </div>
+        <div class="header-actions">
+        <div class="status" id="connection">
+          <i class="status-dot"></i><span id="connection-label">连接中</span>
+        </div>
+        <button type="button" id="settings" class="settings-button" aria-label="设备设置" title="设备设置" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 3-.6 2.1-1.7 1-2.2-.5-2.5 4.3 1.6 1.6v2l-1.6 1.6 2.5 4.3 2.2-.5 1.7 1 .6 2.1h5l.6-2.1 1.7-1 2.2.5 2.5-4.3-1.6-1.6v-2l1.6-1.6-2.5-4.3-2.2.5-1.7-1L14.5 3z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        </div>
+      </header>
+      <div class="layout">
+        <section class="card climate" aria-label="温度控制">
+          <div class="climate-head">
+            <span class="eyebrow">温度调节</span
+            ><span class="pill" id="mode-label">模式未知</span>
+          </div>
+          <div class="dial">
+            <svg viewBox="0 0 268 224" aria-hidden="true">
+              <path class="ticks" d="M42 184a110 110 0 1 1 184 0" />
+              <path class="track" d="M56 174a94 94 0 1 1 156 0" />
+              <path class="arc" d="M56 174a94 94 0 1 1 156 0" />
+            </svg>
+            <div class="dial-value">
+              <p class="dial-label">设定温度</p>
+              <div class="temperature"><span id="temperature">—</span><sup>°C</sup></div>
+              <p class="dial-caption" id="climate-caption">等待设备状态</p>
+            </div>
+          </div>
+          <div class="stepper">
+            <button type="button" data-step="-1" aria-label="降低温度" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" /></svg></button
+            ><span class="range" id="temperature-range">16 — 30 °C</span
+            ><button type="button" data-step="1" aria-label="升高温度" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12" /></svg>
+            </button>
+          </div>
+          <p class="climate-bottom">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 8h12a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h5a3 3 0 1 1-3 3" /></svg
+            ><span id="ambient-label">室内温度 · 未知</span>
+          </p>
+        </section>
+        <div class="controls">
+          <section class="card power-card">
+            <div>
+              <p class="section-label">设备电源</p>
+              <h2 id="power-label">状态未知</h2>
+            </div>
+            <button
+              type="button"
+              class="power-button"
+              id="power"
+              aria-label="空调电源"
+              aria-pressed="false"
+              disabled
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v9M7 5a8 8 0 1 0 10 0" />
+              </svg>
+            </button>
+          </section>
+          <section class="card control-card">
+            <div class="section-heading">
+              <h2>运行模式</h2>
+              <span>选择适合的运行方式</span>
+            </div>
+            <div class="choices" role="group" aria-label="运行模式">
+              <button
+                type="button"
+                class="choice"
+                data-property="mode"
+                data-value="0"
+                aria-pressed="false"
+                disabled
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9 4l3 3 3-3M9 20l3-3 3 3M4 11l4-1-1-4M20 13l-4 1 1 4M7 18l1-4-4-1M17 6l-1 4 4 1"
+                  /></svg
+                ><span>制冷</span></button
+              ><button
+                type="button"
+                class="choice"
+                data-property="mode"
+                data-value="1"
+                aria-pressed="false"
+                disabled
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="4" />
+                  <path
+                    d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"
+                  /></svg
+                ><span>制热</span></button
+              ><button
+                type="button"
+                class="choice"
+                data-property="mode"
+                data-value="2"
+                aria-pressed="false"
+                disabled
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3s-6 7-6 11a6 6 0 0 0 12 0c0-4-6-11-6-11Z" /></svg
+                ><span>除湿</span></button
+              ><button
+                type="button"
+                class="choice"
+                data-property="mode"
+                data-value="3"
+                aria-pressed="false"
+                disabled
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="m7 16 5-12 5 12M9 12h6M4 7a9 9 0 0 0 0 10m16 0a9 9 0 0 0 0-10M2 7h2V5m18 12h-2v2"
+                  /></svg
+                ><span>自动</span>
+              </button>
+            </div>
+          </section>
+          <section class="card control-card">
+            <div class="section-heading">
+              <h2>风速</h2>
+              <span>选择送风强度</span>
+            </div>
+            <div class="segmented" role="group" aria-label="风速">
+              <button
+                type="button"
+                data-property="fanSpeed"
+                data-value="0"
+                aria-pressed="false"
+                disabled
+              >
+                自动</button
+              ><button
+                type="button"
+                data-property="fanSpeed"
+                data-value="1"
+                aria-pressed="false"
+                disabled
+              >
+                低风</button
+              ><button
+                type="button"
+                data-property="fanSpeed"
+                data-value="2"
+                aria-pressed="false"
+                disabled
+              >
+                中风</button
+              ><button
+                type="button"
+                data-property="fanSpeed"
+                data-value="3"
+                aria-pressed="false"
+                disabled
+              >
+                高风
+              </button>
+            </div>
+          </section>
+          <div class="notice" role="status" aria-live="polite">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m8 12 3 3 5-6" /></svg>
+            <p class="feedback" id="feedback">正在读取设备状态…</p>
+          </div>
+        </div>
+      </div>
+      <footer class="footer">
+        <span class="footer-mark">联犀 · 设备控制</span><span id="data-note">状态由设备上报</span>
+      </footer>
+    </main>
+    <script src="panel-sdk.js"></script>
+    <script src="panel.js"></script>
+  </body>
+</html>

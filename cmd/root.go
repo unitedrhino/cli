@@ -93,6 +93,13 @@ func isReadOnlyCommand(args []string) bool {
 	if len(args) == 0 {
 		return true
 	}
+	// 面板离线开发不触发版本联网检查，断网空目录同样可用。
+	if len(args) >= 3 && args[0] == "things" && args[1] == "panel" {
+		switch args[2] {
+		case "init", "validate", "serve", "pack":
+			return true
+		}
+	}
 	first := args[0]
 	switch first {
 	case "--help", "-h", "help", "--version", "version", "--check-latest", "completion", "setup", "login", "upgrade":

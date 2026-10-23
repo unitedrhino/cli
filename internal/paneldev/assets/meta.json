@@ -1,0 +1,30 @@
+{
+  "formatVersion": 1,
+  "name": "本地开关面板",
+  "version": "1.2.0",
+  "entry": "index.html",
+  "sdkVersion": "1.0.0",
+  "platforms": [
+    "web",
+    "h5",
+    "appAndroid",
+    "appIos"
+  ],
+  "requirements": [
+    {
+      "kind": "property",
+      "identifier": "power",
+      "required": true,
+      "access": "write",
+      "define": {
+        "type": "bool"
+      }
+    }
+  ],
+  "cover": ".data/cover.png",
+  "readme": "README.md",
+  "skills": [
+    "skills/panel-development.md"
+  ],
+  "thingModel": ".data/thing-model.json"
+}

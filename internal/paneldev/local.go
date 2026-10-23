@@ -182,6 +182,24 @@ func Serve(ctx context.Context, input string, port int, out io.Writer) error {
 			w.Header().Set("Content-Type", "application/javascript")
 			w.Write(data)
 			return
+		case "/__ur_panel/mock":
+			// 夹具只从已校验工程中的固定路径读取，缺省为空；格式错误必须让本地开发者看到。
+			p, e := Load(input)
+			if e != nil {
+				http.Error(w, "工程校验失败", 422)
+				return
+			}
+			fixture := map[string]json.RawMessage{}
+			if raw, exists := p.Files[".data/mock.json"]; exists {
+				if e = json.Unmarshal(raw, &fixture); e != nil || fixture == nil {
+					http.Error(w, "模拟初值必须为JSON对象", 422)
+					return
+				}
+			}
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(fixture)
+			return
+
 		case "/__ur_panel/manifest":
 			p, e := Load(input)
 			if e != nil {

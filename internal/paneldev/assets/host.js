@@ -336,8 +336,11 @@
     for (const field of properties) {
       let value = "";
       if (field.type === "bool") value = false;
-      else if (["float", "int", "timestamp"].includes(field.type)) value = Number(field.min || 0);
-      else if (field.type === "enum") value = Object.keys(field.mapping || field.values || {})[0] ?? "";
+      else if (["float", "int", "timestamp"].includes(field.type)) {
+        const step = Number(field.step || 1);
+        const first = Number((Math.ceil(Number(field.min || 0) / step - 1e-9) * step).toFixed(8));
+        value = first <= Number(field.max ?? first) ? first : void 0;
+      } else if (field.type === "enum") value = Object.keys(field.mapping || field.values || {})[0] ?? "";
       values[field.identifier] = Object.prototype.hasOwnProperty.call(options.initialValues || {}, field.identifier) ? copy(options.initialValues?.[field.identifier]) : value;
     }
     const emit = (event) => {
@@ -482,10 +485,13 @@
     const error = document.querySelector("#error");
     if (!frame || !error) return;
     try {
-      const response = await fetch("/__ur_panel/manifest");
+      const [response, fixtureResponse] = await Promise.all([fetch("/__ur_panel/manifest"), fetch("/__ur_panel/mock")]);
       if (!response.ok) throw new Error("\u5DE5\u7A0B\u6821\u9A8C\u5931\u8D25\uFF0C\u8BF7\u8FD0\u884C ur things panel validate");
-      const manifest = await response.json();
-      const { adapter } = createMockAdapter(manifest.requirements);
+      if (!fixtureResponse.ok) throw new Error("\u6A21\u62DF\u521D\u503C\u6587\u4EF6\u65E0\u6548\uFF0C\u8BF7\u68C0\u67E5.data/mock.json");
+      const [manifest, initialValues] = await Promise.all([response.json(), fixtureResponse.json()]);
+      const scenario = new URLSearchParams(location.search).get("scenario");
+      if (scenario && !["failure", "normal", "offline", "timeout", "unsynchronized"].includes(scenario)) throw new Error("\u6A21\u62DF\u573A\u666F\u65E0\u6548");
+      const { adapter } = createMockAdapter(manifest.requirements, { initialValues, scenario: scenario ? scenario : void 0 });
       const cleanup = attachPanelBridge(frame, adapter, manifest.requirements, (text) => {
         error.textContent = text;
       });

@@ -32,6 +32,9 @@ const (
 	MaxFiles      = 100
 )
 
+// MaxRequirements 独立限制单设备面板的能力声明数量，不复用ZIP文件上限，覆盖复杂摄像机与门铃模型。
+const MaxRequirements = 256
+
 // Requirement 声明面板需要的单设备物模型能力；Define/Input 保留平台的参数定义结构。
 type Requirement struct {
 	Kind       string         `json:"kind"`             // 属性、下行行为或事件命名空间。
@@ -104,8 +107,11 @@ func ValidateManifest(m Manifest) error {
 	if strings.TrimSpace(m.Name) == "" || utf8.RuneCountInString(m.Name) > 80 || utf8.RuneCountInString(m.Desc) > 2000 || len(m.Version) > 64 {
 		return fmt.Errorf("面板名称、说明或内容版本无效")
 	}
-	if len(m.Platforms) == 0 || m.Requirements == nil || len(m.Requirements) > MaxFiles {
+	if len(m.Platforms) == 0 || m.Requirements == nil {
 		return fmt.Errorf("需要 platforms 和 requirements 数组")
+	}
+	if len(m.Requirements) > MaxRequirements {
+		return fmt.Errorf("能力声明数超过 %d", MaxRequirements)
 	}
 	seen := map[string]bool{}
 	for _, p := range m.Platforms {

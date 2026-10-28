@@ -321,6 +321,7 @@
     const values = {};
     const timers = /* @__PURE__ */ new Set();
     let pending;
+    const commands = /* @__PURE__ */ new Set();
     let disposed = false;
     const scenario = options.scenario || "normal";
     const timing = options.timing || (options.scenario ? { accepted: 100, reported: 600, result: 800, timeout: 32e3 } : { accepted: 0, reported: 0, result: 50, timeout: 32e3 });
@@ -333,6 +334,33 @@
       mode: item.access === "write" ? "rw" : "r",
       available: true
     }));
+    const motionGroups = copy(options.motionGroups === void 0 ? [] : options.motionGroups);
+    const motionIDs = /* @__PURE__ */ new Set();
+    const motionValueValid = (identifier, value) => {
+      const field = properties.find((item) => item.identifier === identifier && item.mode === "rw");
+      if (!field) return false;
+      if (field.type === "bool") return typeof value === "boolean";
+      if (field.type === "enum") return ["number", "string"].includes(typeof value) && Object.prototype.hasOwnProperty.call(field.mapping || {}, String(value));
+      const step = Number(field.step || 1);
+      return ["float", "int"].includes(field.type) && typeof value === "number" && Number.isFinite(value) && (field.type !== "int" || Number.isInteger(value)) && value >= Number(field.min) && value <= Number(field.max) && Number.isFinite(step) && step > 0 && Math.abs(value / step - Math.round(value / step)) < 1e-8;
+    };
+    if (!Array.isArray(motionGroups)) throw bridgeError("INVALID_PARAMS", "\u8FDE\u7EED\u8FD0\u52A8\u6A21\u62DF\u58F0\u660E\u5FC5\u987B\u4E3A\u6570\u7EC4");
+    for (const group of motionGroups) {
+      if (!group || typeof group.id !== "string" || !group.id || motionIDs.has(group.id) || !motionValueValid(group.stopIdentifier, group.stopValue) || !Array.isArray(group.directions) || (group.startIdentifier === null ? group.directions.length > 0 : group.directions.length === 0 || group.directions.some((direction) => !direction || !motionValueValid(group.startIdentifier || "", direction.value))))
+        throw bridgeError("INVALID_PARAMS", "\u8FDE\u7EED\u8FD0\u52A8\u6A21\u62DF\u58F0\u660E\u4E0E\u53EF\u5199\u7269\u6A21\u578B\u4E0D\u4E00\u81F4");
+      motionIDs.add(group.id);
+    }
+    const sameMotionValue = (identifier, actual, expected) => properties.find((item) => item.identifier === identifier)?.type === "enum" ? String(actual) === String(expected) : actual === expected;
+    const motionFor = (next) => {
+      if (!next || Object.keys(next).length !== 1) return void 0;
+      for (const group of motionGroups) {
+        if (Object.prototype.hasOwnProperty.call(next, group.stopIdentifier) && sameMotionValue(group.stopIdentifier, next[group.stopIdentifier], group.stopValue))
+          return { group, kind: "stop" };
+        if (group.startIdentifier && Object.prototype.hasOwnProperty.call(next, group.startIdentifier) && group.directions.some((direction) => sameMotionValue(group.startIdentifier || "", next[group.startIdentifier || ""], direction.value)))
+          return { group, kind: "start" };
+      }
+      return void 0;
+    };
     for (const field of properties) {
       let value = "";
       if (field.type === "bool") value = false;
@@ -384,18 +412,29 @@
     };
     const execute = (next, action) => {
       active();
-      if (pending) throw bridgeError("COMMAND_PENDING", "\u8BF7\u7B49\u5F85\u5F53\u524D\u6A21\u62DF\u547D\u4EE4\u5B8C\u6210");
+      const motion = motionFor(next);
+      if (pending) {
+        if (motion?.kind !== "stop" || pending.motion?.kind !== "start" || pending.motion.group !== motion.group)
+          throw bridgeError("COMMAND_PENDING", "\u8BF7\u7B49\u5F85\u5F53\u524D\u6A21\u62DF\u547D\u4EE4\u5B8C\u6210");
+        pending.superseded = true;
+      }
       const commandID = messageID();
-      pending = { commandID };
+      const command = { commandID, motion, superseded: false };
+      pending = command;
+      commands.add(command);
       return new Promise((resolve, reject) => {
-        if (pending) pending.reject = reject;
+        command.reject = reject;
         schedule(timing.accepted, () => {
-          if (pending?.commandID === commandID) pending.reject = void 0;
+          command.reject = void 0;
           resolve({ commandID, status: "accepted", source: "mock" });
         });
-        if (scenario === "normal" && next) schedule(timing.reported, () => report(next));
+        if (scenario === "normal" && next)
+          schedule(timing.reported, () => {
+            if (!command.superseded) report(next);
+          });
         schedule(scenario === "timeout" ? timing.timeout : timing.result, () => {
-          pending = void 0;
+          if (pending === command) pending = void 0;
+          commands.delete(command);
           const status = { failure: "failed", normal: "succeeded", offline: "unknown", timeout: "unknown", unsynchronized: "succeeded" }[scenario];
           emit({
             topic: "command",
@@ -462,13 +501,40 @@
         disposed = true;
         timers.forEach((timer) => clearTimeout(timer));
         timers.clear();
-        pending?.reject?.(bridgeError("SESSION_CLOSED", "\u6A21\u62DF\u4F1A\u8BDD\u5DF2\u5173\u95ED"));
+        commands.forEach((command) => command.reject?.(bridgeError("SESSION_CLOSED", "\u6A21\u62DF\u4F1A\u8BDD\u5DF2\u5173\u95ED")));
+        commands.clear();
         pending = void 0;
         settings.dispose();
         listeners.clear();
       }
     };
     return { adapter, emit, report, values };
+  }
+
+  // apps/web/packages/saas/src/device-panel/mock-resources.ts
+  async function loadPanelMockResources(entryURL, fetcher = fetch) {
+    const entry = new URL(entryURL, globalThis.location?.href);
+    if (!["http:", "https:"].includes(entry.protocol)) throw new Error("\u6A21\u62DF\u9762\u677F\u5165\u53E3\u534F\u8BAE\u65E0\u6548");
+    const read = async (name) => {
+      let response;
+      try {
+        response = await fetcher(new URL(`.data/${name}.json`, entry), { credentials: "omit", redirect: "error" });
+      } catch {
+        throw new Error("\u6A21\u62DF\u8D44\u6E90\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u7F51\u7EDC\u540E\u91CD\u8BD5");
+      }
+      if (response.status === 404) return void 0;
+      if (!response.ok) throw new Error("\u6A21\u62DF\u8D44\u6E90\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u5237\u65B0\u9762\u677F\u6388\u6743\u540E\u91CD\u8BD5");
+      try {
+        return await response.json();
+      } catch {
+        throw new Error("\u9762\u677F\u6A21\u62DF\u6570\u636E\u683C\u5F0F\u65E0\u6548");
+      }
+    };
+    const [initialValues, motionGroups] = await Promise.all([read("mock"), read("motion-groups")]);
+    if (initialValues !== void 0 && (!initialValues || typeof initialValues !== "object" || Array.isArray(initialValues)))
+      throw new Error("\u6A21\u62DF\u521D\u503C\u5FC5\u987B\u4E3AJSON\u5BF9\u8C61");
+    if (motionGroups !== void 0 && !Array.isArray(motionGroups)) throw new Error("\u8FDE\u7EED\u8FD0\u52A8\u6A21\u62DF\u58F0\u660E\u5FC5\u987B\u4E3A\u6570\u7EC4");
+    return { initialValues, motionGroups };
   }
 
   // apps/web/packages/saas/src/device-panel/dev-host.ts
@@ -485,13 +551,12 @@
     const error = document.querySelector("#error");
     if (!frame || !error) return;
     try {
-      const [response, fixtureResponse] = await Promise.all([fetch("/__ur_panel/manifest"), fetch("/__ur_panel/mock")]);
+      const [response, mockResources] = await Promise.all([fetch("/__ur_panel/manifest"), loadPanelMockResources("/panel/index.html")]);
       if (!response.ok) throw new Error("\u5DE5\u7A0B\u6821\u9A8C\u5931\u8D25\uFF0C\u8BF7\u8FD0\u884C ur things panel validate");
-      if (!fixtureResponse.ok) throw new Error("\u6A21\u62DF\u521D\u503C\u6587\u4EF6\u65E0\u6548\uFF0C\u8BF7\u68C0\u67E5.data/mock.json");
-      const [manifest, initialValues] = await Promise.all([response.json(), fixtureResponse.json()]);
+      const manifest = await response.json();
       const scenario = new URLSearchParams(location.search).get("scenario");
       if (scenario && !["failure", "normal", "offline", "timeout", "unsynchronized"].includes(scenario)) throw new Error("\u6A21\u62DF\u573A\u666F\u65E0\u6548");
-      const { adapter } = createMockAdapter(manifest.requirements, { initialValues, scenario: scenario ? scenario : void 0 });
+      const { adapter } = createMockAdapter(manifest.requirements, { ...mockResources, scenario: scenario ? scenario : void 0 });
       const cleanup = attachPanelBridge(frame, adapter, manifest.requirements, (text) => {
         error.textContent = text;
       });

@@ -136,7 +136,8 @@
           return {};
         }
         case "writeProperties": {
-          onlyKeys(params, ["values"]);
+          onlyKeys(params, ["values", "completion"]);
+          if (params.completion !== void 0 && params.completion !== "receipt") throw bridgeError("INVALID_PARAMS", "\u547D\u4EE4\u5B8C\u6210\u65B9\u5F0F\u65E0\u6548");
           requestObject(params.values);
           if (Object.keys(params.values).length === 0) throw bridgeError("INVALID_PARAMS", "\u5199\u5165\u503C\u4E0D\u80FD\u4E3A\u7A7A");
           for (const [id, value] of Object.entries(params.values)) {
@@ -156,7 +157,7 @@
             if (!["bool", "enum", "float", "int", "string", "timestamp"].includes(field.type))
               throw bridgeError("UNSUPPORTED_CAPABILITY", "\u5F53\u524D\u672A\u5B9E\u73B0\u8BE5\u6570\u636E\u7C7B\u578B");
           }
-          return adapter.writeProperties(params.values);
+          return params.completion === "receipt" ? adapter.writeProperties(params.values, { completion: "receipt" }) : adapter.writeProperties(params.values);
         }
         default: {
           throw bridgeError("UNSUPPORTED_CAPABILITY", "\u672A\u77E5\u7684\u9762\u677F\u65B9\u6CD5");

@@ -135,6 +135,12 @@ window.addEventListener('pagehide', () => unsubscribe(), { once: true });
 | `invokeAction({identifier,params})` | 返回 commandID、accepted；无参数也传 `{}` | 参数遵循实际行为输入模型，不能虚构行为 |
 | `subscribe({topics},callback)` | 返回取消订阅函数 | 监听属性、连接和命令；退出页面释放订阅 |
 
+`getThingModel()`返回运行期SDK模型：`properties`中每项的`identifier`、`type`、`mode`、`available`以及存在的`min/max/step/unit/mapping`直接位于属性对象上，例如读取`property.min`，不是`property.define.min`。`mode: "r"`只读，`mode: "rw"`可写；仍需结合`available`和设备连接状态决定是否显示操作。约束缺失不能补成零值或虚构范围。
+
+ZIP中的`.data/thing-model.json`是平台原生模型，约束位于`properties[].define`，另有`userPerm`等导入字段。它用于物模型导入和包结构校验，不能拿来代替宿主实际返回的SDK模型；SDK合同不保证返回`userPerm`。验证原生模型和真实宿主时应分别按这两种结构检查，不因SDK省略原生导入字段而推断设备能力缺失。
+
+对于设备自动复位的触发字段，可在已确认其协议时使用 `writeProperties({values: {clear_event: true}, completion: 'receipt'})`；宿主收到设备成功回执后立即发布命令结果，不等待属性等于下发值。返回 accepted 仍只是受理；面板必须独立等待设备新上报的复位值和成功回执，不能用回执伪造属性或宣称复位成功。省略 completion 的普通属性保留原有同步规则；无法识别该选项的旧宿主会拒绝请求，不会自动重发，须先升级宿主再发布使用该选项的面板。
+
 命令最终状态为 succeeded、failed 或 timeout；超时表示结果未知，不自动重发。设备已确认但 `stateSynchronized: false` 时，应提示状态尚未同步并保留实际上报值，后续属性到达后再更新按钮。平台接口可通过request调用，凭据由getAuth运行期读取；不读取父窗口DOM或保存账号令牌。
 
 

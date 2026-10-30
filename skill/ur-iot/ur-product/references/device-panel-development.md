@@ -39,6 +39,8 @@ ur things panel pack ./air-conditioner --out ./air-conditioner.zip
 
 `validate`、`serve`、`pack` 均可离线运行，无需登录；serve 的控制只改变模拟设备，不会发送到平台。直接双击 `index.html` 没有宿主桥，不能代替模拟运行。输出 ZIP 放在工程目录外，避免把旧包再次装入新包。CLI 不覆盖已有输出文件，重复打包时使用新文件名。
 
+模拟设备若有已确认的布尔命令自动复位，可在 `.data/reset-triggers.json` 显式写入数组，如 `[{"identifier":"clear_event","triggerValue":true,"resetValue":false}]`。字段必须在清单中声明为可写布尔属性；模拟正常执行时才上报复位，失败、未同步及超时不伪造状态。该文件只影响模拟器，实际设备仍以协议和真实上报为准；禁止凭字段名称猜测复位行为。
+
 也可以让 CLI 创建工程：
 
 ```sh

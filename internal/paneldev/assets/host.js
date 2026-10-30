@@ -350,6 +350,11 @@
         throw bridgeError("INVALID_PARAMS", "\u8FDE\u7EED\u8FD0\u52A8\u6A21\u62DF\u58F0\u660E\u4E0E\u53EF\u5199\u7269\u6A21\u578B\u4E0D\u4E00\u81F4");
       motionIDs.add(group.id);
     }
+    const resetTriggers = copy(options.resetTriggers === void 0 ? [] : options.resetTriggers);
+    if (!Array.isArray(resetTriggers) || resetTriggers.some(
+      (item, index) => !item || typeof item.identifier !== "string" || item.triggerValue !== true || item.resetValue !== false || !properties.some((field) => field.identifier === item.identifier && field.type === "bool" && field.mode === "rw") || resetTriggers.findIndex((other) => other?.identifier === item.identifier) !== index
+    ))
+      throw bridgeError("INVALID_PARAMS", "\u547D\u4EE4\u590D\u4F4D\u6A21\u62DF\u58F0\u660E\u4E0E\u53EF\u5199\u5E03\u5C14\u6A21\u578B\u4E0D\u4E00\u81F4");
     const sameMotionValue = (identifier, actual, expected) => properties.find((item) => item.identifier === identifier)?.type === "enum" ? String(actual) === String(expected) : actual === expected;
     const motionFor = (next) => {
       if (!next || Object.keys(next).length !== 1) return void 0;
@@ -430,7 +435,11 @@
         });
         if (scenario === "normal" && next)
           schedule(timing.reported, () => {
-            if (!command.superseded) report(next);
+            if (!command.superseded) {
+              const reported = copy(next);
+              for (const trigger of resetTriggers) if (reported[trigger.identifier] === trigger.triggerValue) reported[trigger.identifier] = trigger.resetValue;
+              report(reported);
+            }
           });
         schedule(scenario === "timeout" ? timing.timeout : timing.result, () => {
           if (pending === command) pending = void 0;
@@ -530,11 +539,12 @@
         throw new Error("\u9762\u677F\u6A21\u62DF\u6570\u636E\u683C\u5F0F\u65E0\u6548");
       }
     };
-    const [initialValues, motionGroups] = await Promise.all([read("mock"), read("motion-groups")]);
+    const [initialValues, motionGroups, resetTriggers] = await Promise.all([read("mock"), read("motion-groups"), read("reset-triggers")]);
     if (initialValues !== void 0 && (!initialValues || typeof initialValues !== "object" || Array.isArray(initialValues)))
       throw new Error("\u6A21\u62DF\u521D\u503C\u5FC5\u987B\u4E3AJSON\u5BF9\u8C61");
     if (motionGroups !== void 0 && !Array.isArray(motionGroups)) throw new Error("\u8FDE\u7EED\u8FD0\u52A8\u6A21\u62DF\u58F0\u660E\u5FC5\u987B\u4E3A\u6570\u7EC4");
-    return { initialValues, motionGroups };
+    if (resetTriggers !== void 0 && !Array.isArray(resetTriggers)) throw new Error("\u547D\u4EE4\u590D\u4F4D\u6A21\u62DF\u58F0\u660E\u5FC5\u987B\u4E3A\u6570\u7EC4");
+    return { initialValues, motionGroups, resetTriggers };
   }
 
   // apps/web/packages/saas/src/device-panel/dev-host.ts

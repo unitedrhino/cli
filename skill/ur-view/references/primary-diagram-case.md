@@ -1,136 +1,72 @@
-# 一次图 + 实时数据绑定案例（多模态核对，配电一次图）
+# 电力一次图绘制与案例
 
-适用场景：配电一次图（DWG）铺满当底图，在回路/柜列位置叠加 TextCommon 实时显示
-`Ua/Ia/P/TotalEnergy` 等属性。环境特定取值（租户/项目/屏/产品编号）一律用占位符，
-落地时按目标环境替换。
+CLI v0.9.0 起，先按[组件与图元搜索](component-search.md)查询组件和图元详情，再按本文生成画布、独立绑定设备，并按[能源接入指南](primary-diagram-energy.md)挂接区域。更新 CLI 时同步升级随包 Skills，搜索结果用于核对可用组件和图形来源。
 
-### 取数命令速查（项目/区域/设备/物模型/实时值，均已实测）
+本指南覆盖按区域生成、按图纸复原和区域加图纸匹配三种入口。开始时确认项目、区域范围、参考风格、可编辑粒度和实际测点来源。环境地址与认证取值从目标环境说明读取，文中编号均为占位符。
 
-前置：profile 配好目标租户（见下"环境与认证"），以下命令直接可用。
+## 按任务阅读
 
-```bash
-# 项目列表 → 拿 projectID（大屏/设备都挂在项目下）
-ur things project info get-list
-# 区域树（按用电类型分的区域，含 areaID/areaName/父子关系）
-ur things area info get-list
-# 设备列表（deviceName/deviceAlias/areaID/productID/isOnline；当前租户全量）
-ur things device info get-list
-# 按区域/产品过滤设备（body 透传 API 参数）
-ur things device info get-list --body '{"areaID":"<areaID>","productID":"<productID>"}'
-# 物模型属性（identifier/name/单位在 affordance.define.unit，affordance 是 JSON 字符串需二次解析；type=1 为属性）
-ur api /api/v1/things/product/schema/get-list --body '{"productID":"<productID>","page":{"page":1,"size":100}}'
-# 单设备最新属性值（核对绑定数据用）
-ur things device log property -p <productID> -d <device-name>
-# 兜底：任意 API（如跨项目查设备需 project-id 头时）
-ur api /api/v1/things/device/info/get-list -H 'project-id: <projectID>' --body '{"page":{"page":1,"size":50}}'
-```
+| 当前任务 | 参考资料 |
+| --- | --- |
+| 确定绘制流程、布局和验收 | 本文 |
+| 选择组件、图库图元、端口和数据字段 | [一次图组件与图元](primary-diagram-components.md) |
+| 独立电表绑定、实时推送、接入能耗中心 | [能源接入与数据绑定](primary-diagram-energy.md) |
+| 查看可改用的模型和完整画布 | [电气模型示例](../assets/primary-diagram/region-model.json)、[画布示例](../assets/primary-diagram/region-canvas.json) |
+| 读取 CAD 图框、文字与渲染图 | `ur-doc` 技能的 CAD 工作流 |
 
-字段对应关系（绑定画布要用）：
+## 从输入到可编辑草稿
 
-- `deviceName` → `requestIoTDeviceConfig.deviceNames`；`deviceAlias` 括号内文字 → 别名标签。
-- `productID` → `requestIoTDeviceConfig.productID`。
-- schema `identifier`（Ua/Ia/P/TotalEnergy…）→ `dataIDs`。
-- 设备 `areaID` 只用于"按区域圈设备"，**与图上位置无直接关系**（区域按用电类型、图按柜列）。
+1. **读取范围**。查询区域树，明确所选区域及下级区域，读取其设备、产品物模型和已有区域配置。采用 `productID + deviceName` 作为电表身份，建立区域、用途、回路与测点的对应表。
+2. **核对图纸**。先看整图，再放大变压器、进线、联络、SVG、补偿和全部馈线柜。记录柜号、回路编号、用途、容量、开关规格、CT 变比、线缆及接地关系。已有 CAD 渲染结果可直接复用。
+3. **建立电气模型**。AI 输出母线、柜组、回路、设备节点、显式连接和测点，程序计算坐标。区域层级用于分组，供电关系按图纸或已有配置确认。资料不足时生成参考草稿，并在节点写入 `referenceOnly: true`、连接写入 `verified: false` 及判断依据。
+4. **匹配图元**。从内置图库接口取得原始图片和来源 ID，逐项看图核对角色、方向、端子及透明通道。使用独立 Image 表达设备，独立 ConnectLine 表达接线，独立 TextCommon 表达文字和读数。
+5. **排版与绑定**。展开柜组和器件链，区分一次通流线路与计量二次连接。已确认的设备属性写入对应回路，无测点时显示带单位的 `--`。设计规格放参数区。
+6. **打开编辑器**。普通生成保存为草稿。支持选择、移动和缩放设备、文字及连接线，保存后重开核对。自然语言局部修改沿用稳定 ID，保留上一版供恢复。
+7. **发布与接入能源**。获得发布授权后，备份草稿、发布快照和绑定配置，保存并发布，回读确认，再按区域绑定到能耗中心配电图。具体接口见能源接入指南。
 
-### 环境与认证（坑已踩平）
+## 布局与信息密度
 
-```bash
-# 服务器外网不可达时建隧道
-ssh -f -N -L <local-port>:127.0.0.1:<port> <user>@<host>
-# profile：直接写 ~/.ur/config.json 或 ur setup；baseURL 填隧道地址
-# 关键坑：
-#  1. 平台管理员对租户项目无权限(100012)，必须用租户管理员账号；
-#  2. 带非 platform 的 tenant-code 登录可能报"参数重复"（用户-企业关系唯一约束）：
-#     绕过 = 不带 tenant-code 登录拿 token，写入 profile.token，请求头 tenant-code 仍带目标租户；
-#  3. ssh 隧道会断，命令 connection refused 时先重连隧道。
-ur config list            # 看当前 profile
-ur check                  # 验证认证
-```
+采用安科瑞黑底金线参考时，母线构成骨架，柜组和回路用途构成阅读层次。主进线集中展示三相电压、三相电流和功率，普通馈线展示 Ia、Ib、Ic、P。其他已配置测点保存在模型中，需要时进入详情或修改画布查看。
 
-### 多模态核对流程（核心方法论，需 AI 看图判断）
+每条有设计依据的馈线依次展开保护器件、互感器与出线。多功能仪表放在独立功能框中，二次计量线从模型声明的 CT 端口引出。断路器保留断口，设备的引线端点与连接线重合。
 
-1. **独立图片处理**：DWG 不能直接读，先渲染成 PNG。本地起 file-viewer 临时工程
-   （`@file-viewer/renderer-cad`，`cad.canvasOptions.preserveDrawingBuffer=true`，dpr=2），
-   合成 WebGL 层 + 文字标注层导出高清 PNG；必要时按区域裁剪局部图再读。
-2. **AI 看图识别**：读 PNG 全貌与局部，识别柜列布局、进线/变压器间隔、回路标签文字。
-3. **与平台数据交叉确认**（只读 SQL 或 `ur api`）：设备名前缀 ↔ 图纸分组
-   （本例 `1Dx`↔1.dwg、`2Dx`↔2.dwg，图内"至LLT1-2#/T1D2#柜顶母排"文字佐证）；
-   区域树维度（按用电类型）与图纸维度（按柜列）是否一致。
-4. **定叠加坐标**（从零到画布坐标的完整操作）：
-   - 看 PNG 全貌定电路区像素边界（左/右/上/下，如 x∈[<x0>,<x1>]、y∈[<y0>,<y1>]），
-     换算画布坐标：`x_canvas = x_png/W*1920`、`y_canvas = y_png/H*1080`（Image `fit:'fill'` 铺满时）。
-   - 数列：电路区被竖线分成 N 列，N 应等于配电柜组数（本例 6 列 ↔ 1D4-1D9）；列边界均分或看竖线。
-   - 列内排序：设备按回路号**数值**序（1D4-2 在 1D4-10 前，别用字典序）自上而下均布，
-     `row_h=(y1-y0)/n`，第 i 台 `y=y0+i*row_h`。
-   - 别名标签文字取 `device_alias` 括号内（"变配电房/充电桩/备用"），与值标签同位叠加。
-   - 图纸无回路编号时（模板图）以上均为"列序≈柜序"示意布局，须在结论里如实标注。
-5. **诚实记录核对结论**：本例图纸为**通用模板图**——回路"编号/容量/用途"与柜号栏全空白，
-   device_name 无法与图上回路按文本一一映射；叠加位置为"列序≈柜序"的示意绑定。
-   正式项目应先在图上填写回路编号，或走图元级绑定路线（见 docs/大屏 TASK-029）。
+常规区域可采用 `layout: "engineering"`。当前布局每列最多四路，短柜共列时分别保留母线起点与间距，A/B 段独立安排。复杂图纸沿用完整柜列布局，按图纸保留特殊柜内部支路和参数。
 
-### CLI 操作全流程
+缺少进线档案的区域显示进线待配置。当前页面可省去左侧说明框和底部来源备注，参考属性、连接依据和数据来源记录在模型与案例中，图上的待核对提示放在相关设备或参数位置。
 
-```bash
-# 0a. 取数（项目/区域/设备/物模型/实时值，命令见"取数命令速查"）：
-#     projectID → 建屏 body 与 project-id 头；deviceName/alias → 绑定与标签；identifier → dataIDs
-# 0b. 环境：profile 配 baseURL/appID=200/tenantCode/account/password（ur setup 或直接写 ~/.ur/config.json）
-#    服务器外网不可达时用 ssh 隧道：ssh -f -N -L <local-port>:127.0.0.1:<port> <user>@<host>，baseURL 填隧道地址
-#    注意：平台管理员对租户项目无权限（100012），须用租户管理员账号
-# 1. 上传底图（返回 url 含请求 Host，写画布时改成相对路径 /oss/... 以便任意入口访问）
-ur view asset upload -f 1.png --name "一次图-1#配电室"
-# 2. 建屏（body 带 projectID）
-ur view screen create --body '{"projectName":"一次图案例-1#配电室","projectID":"<projectID>"}'
-# 3. 本地编画布（Image 铺满 + TextCommon 叠加，结构见下）→ 校验 → 推送 → 发布
-ur view screen validate -f screen.json
-ur view screen push -f screen.json --id <screen-id>
-ur view screen publish --id <screen-id>        # 预览页 /view/{id} 只认发布态
-# 4. 验证：ur view screen describe --id <screen-id> 看绑定；浏览器/截图看实时值
-```
+## 案例一　完整 T2 图纸复原
 
-### 画布绑定 JSON 要点
+输入为 `2.dwg`，目标为黑底金线的完整 T2 系统。按原图区分变压器、总进线、联络柜、SVG 柜、补偿柜和 T2D4～T2D9 的 60 条馈线。
 
-- 背景：`Image`（Informations/Mores/Image）`attr {0,0,1920,1080}`、`option.fit:'fill'`、
-  `option.dataset:'/oss/...'`（相对路径）、`zIndex:-1`。
-- 叠加：`TextCommon`，`option.format {enabled,prefix:'Ua ',suffix:' V',decimals:1}` 带单位，
-  `backgroundColor:'#ffffffd9'` 白底压图。
-- **全量节点布局**（用户要求所有回路都有节点时）：列序↔柜序（左起 6 列 ↔ 1D4-1D9/2D4-2D9），
-  列内设备按回路号数值序自上而下均布（`row_h=(y1-y0)/n`）。每设备 5 个标签：
-  首行**别名标签**（静态 TextCommon，`dataset="<设备名> <别名括号内用途>"`，蓝底左对齐，
-  别名取 `device_alias` 括号内文字如"变配电房/充电桩/备用"），下面 2×2 值标签
-  （`Ua Ia / P TotalEnergy`，fontSize 9，`ah=min(row_h*0.32,16)`、`gh=min((row_h-ah)/2,18)` 防重叠）。
-  1# 331 组件 / 2# 301 组件，发布页渲染与 WS 推送均正常（组件多时 playwright 截图需加大 timeout）。
-- 数据：`request.requestDataType=5` + `requestIoTDeviceConfig`
-  `{queryType:'property', mode:'latest', productID, deviceNames:[设备名], dataIDs:[标识符]}`
-  （**chartMode 留空**才走 WS 实时推送 `project.prop.{projectID}`，停轮询）。
+- 核对每路编号、用途和规格，保留图纸参数表。补偿柜按原图区分开关、CT、熔断器、接触器、补偿级和接地，重复级按原图省略标记表达。
+- 变压器上下绕组接法、进出线和接地关系逐项核实。电表绑定只填写能明确对应原图回路的实际测点，其余读数显示 `--`。
+- 全图保存在独立大屏，按实际区域生成新图时可与图纸版本并存。图纸版本的参数用于该系统复原。
+- 验收覆盖 60 路数量、柜号、关键参数、特殊柜支路、器件断口、保存重开和完整规模下的缩放性能。
 
-### 列表封面回写
+## 案例二　按真实区域拆图
 
-列表卡片缩略图读 `indexImage`，新建屏默认为空。回写流程：
+示例项目有 19 个下级区域，共 129 台独立电表，其中 128 台为平台实时演示电表，另有 1 台离线历史电表。生成 19 张区域明细与 1 张顶层总览，区域树逐项选择对应图。
 
-```bash
-# 1. 截发布页全图当封面（playwright/agent-browser 均可）
-# 2. 上传（scene 必须带，返回临时桶签名 URL）
-curl -F file=@cover.png -F scene=goView/projectIndexImage .../api/v1/system/common/upload-file
-# 3. 取 fileUri 路径并剥掉 "/oss/temporary/" 前缀得到临时桶 key，传给 update：
-#    后端会 CopyFromTempBucket 到公共桶并保存公共路径（/oss/public/...），永久有效
-ur api /api/v1/view/project/update --body '{"id":<屏ID>,"indexImage":"<临时桶key>","type":"screen"}'
-```
+以含 7 台电表的楼层为样板，按用途排列照明、插座、空调、新风、公共设备、应急照明、备用，每台电表独立成回路。七路排为四路加三路，每路分别引用保护开关和三个单相 CT 图元，并展示该表独有的 Ia、Ib、Ic、P。当前区域缺少保护配置图纸，因此器件与柜组为参考结构，开关规格和 CT 变比标待核对。
 
-注意：传 `/oss/...` 相对路径或带签名的完整 URL 都不对——前者 key 不存在报错，
-后者签名过期后封面失效；只有临时桶 key 会触发"拷到公共桶"分支。
+含离线设备的楼层将该设备单独归入待核对分组，并在回路附近注明历史上报时间。能源站两台总进线电表按 A/B 段分别展示七项读数。顶层总览复用这两台进线的身份，并列出下级区域索引。
 
-### 验证技巧与坑
+本案例现网验收通过 20 张图的入口、图元数量和文字边界检查。实际抽查的 24 个测点在首载后继续变化，设备、文字、连接线通过浏览器事件驱动的拖动、保存和重开核对。
 
-- `/view/{id}` 预览只认**发布态**；新建屏 `detail/get-one` 无默认 content（pull 报 missing content），画布需完整自建。
-- playwright 同页 `goto` 切换 `#/view/27` → `#/view/28` 不重渲染（hash 路由同组件），须新开 page。
-- 素材/封面 URL 由后端按请求 Host 生成：经隧道上传会得到隧道地址，画布 dataset 用相对路径 `/oss/...`。
+![区域一次图案例](../assets/primary-diagram/region-example.png)
 
-### 案例实录与踩坑
+## 可直接改用的示例
 
-- 属性标识符（配电表产品示例）：`Ua/Ub/Uc/Ia/Ib/Ic/P/PF/TotalEnergy/TotalEnergyChange`。
-- 素材 url 由后端按请求 Host 生成：经隧道上传会得到隧道地址的 url，
-  写画布必须改相对路径 `/oss/...`，否则用户浏览器打不开。
-- 登录带非 platform 的 tenant-code 时后端可能报"参数重复"（用户-企业关系唯一约束，
-  首登绑定后复登冲突）：绕过法——不带 tenant-code 登录拿 token 写入 profile.token，
-  请求头 tenant-code 仍按目标租户带。
-- 新建屏 `detail/get-one` 无默认 content，画布需完整自建（pull 会报 missing content）。
+`assets/primary-diagram/region-model.json` 提供两条独立馈线的完整语义模型，测点默认未绑定。`region-canvas.json` 为同一模型经当前编译器生成的完整 GoView 画布，包含组件默认字段，可导入编辑器查看。
+
+使用时先替换项目与区域信息，依据设备物模型填写每路 binding，重新从图库接口取得图元 URL。可直接导入画布示例，在编辑器或画布 JSON 中填写实际设备和属性。SaaS 开发环境还可以使用 `parseElectricalDiagram`、`reconcileElectricalBindings`、`compileElectricalCanvas` 校验并生成画布。生产数据只在完成实际回路对应核对后写入。
+
+联犀 SaaS 开发仓库中的实现位于 `apps/web/packages/bigscreen/src/views/bigscreen/electrical/`。`model.ts` 校验对象、引用和测点，`generate.ts` 负责区域与 AI 编排，`canvas.ts` 转换原生组件，`engineering.ts` 负责区域工程排版。
+
+## 发布前验收
+
+- 对照整图与局部图，核对柜列、回路、设备角色、关键编号和设计参数。
+- 确认设备、文字及连线各自可选，开关断口和 CT 端口接线正确，整图无白块、裁切及文字碰撞。
+- 从能耗中心实际菜单选择区域，检查绑定身份、读数、放大、缩小、重置和区域切换。
+- 等待非空读数加载后再连续采样，观察目标设备推送及数值变化，记录离线和无测点情况。
+- 备份并回读发布快照，实际移动后保存重开。样板验收完成后再批量应用同类区域。

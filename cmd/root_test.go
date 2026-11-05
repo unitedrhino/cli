@@ -13,6 +13,7 @@ func TestIsReadOnlyCommand(t *testing.T) {
 		{name: "无参数", args: nil, want: true},
 		{name: "帮助", args: []string{"--help"}, want: true},
 		{name: "升级", args: []string{"upgrade"}, want: true},
+		{name: "离线组件目录", args: []string{"view", "component", "search", "--json"}, want: true},
 		{name: "业务命令", args: []string{"things", "device", "info", "get-list"}, want: false},
 		{name: "全局应用参数", args: []string{"--app", "iot", "things", "device", "info", "get-list"}, want: false},
 	}

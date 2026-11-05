@@ -1,5 +1,5 @@
 {
-  "snapshotDate": "2026-08-03",
+  "snapshotDate": "2026-11-05",
   "source": "apps/web/packages/bigscreen/src/goview/packages/components",
   "components": [
     {
@@ -493,6 +493,19 @@
       "singleValueSelfRender": false
     },
     {
+      "key": "EmbedPage",
+      "chartKey": "VEmbedPage",
+      "conKey": "VCEmbedPage",
+      "title": "内嵌页面",
+      "category": "Mores",
+      "categoryName": "更多",
+      "package": "Informations",
+      "chartFrame": "common",
+      "image": "embedPage.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
       "key": "Image",
       "chartKey": "VImage",
       "conKey": "VCImage",
@@ -570,6 +583,23 @@
       "package": "Informations",
       "chartFrame": "common",
       "image": "words_cloud.png",
+      "iotQueryTypes": [
+        "property",
+        "deviceStatus",
+        "deviceInfo"
+      ],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "AlarmRecord",
+      "chartKey": "VAlarmRecord",
+      "conKey": "VCAlarmRecord",
+      "title": "告警记录",
+      "category": "Tables",
+      "categoryName": "表格",
+      "package": "Tables",
+      "chartFrame": "common",
+      "image": "alarm_record.png",
       "iotQueryTypes": [
         "property",
         "deviceStatus",
@@ -888,6 +918,19 @@
       "singleValueSelfRender": false
     },
     {
+      "key": "GlTFModel",
+      "chartKey": "VGlTFModel",
+      "conKey": "VCGlTFModel",
+      "title": "3D模型",
+      "category": "Three",
+      "categoryName": "三维",
+      "package": "Decorates",
+      "chartFrame": "common",
+      "image": "glTFModel.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
       "key": "ThreeEarth01",
       "chartKey": "VThreeEarth01",
       "conKey": "VCThreeEarth01",
@@ -1029,6 +1072,19 @@
       "package": "Decorates",
       "chartFrame": "static",
       "image": "flow-circle.png",
+      "iotQueryTypes": [],
+      "singleValueSelfRender": false
+    },
+    {
+      "key": "ConnectLine",
+      "chartKey": "VConnectLine",
+      "conKey": "VCConnectLine",
+      "title": "动画连线",
+      "category": "FlowChart",
+      "categoryName": "流程",
+      "package": "Decorates",
+      "chartFrame": "static",
+      "image": "flow-zhexian.png",
       "iotQueryTypes": [],
       "singleValueSelfRender": false
     },

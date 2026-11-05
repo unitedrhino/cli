@@ -194,12 +194,13 @@ func Perform(opts Options) (*Result, error) {
 		return result, err
 	}
 
-	// 10. 同步内置 skills：复用本次已解压的包内 skill/ 目录，避免二次下载。
-	//     失败只记录警告，不阻断升级成功
+	// 10. 同步内置 skills，失败明确返回错误，避免将版本不一致报告为完整升级成功。
 	if skillsDir := GetDefaultSkillsDir(); skillsDir != "" {
 		count, syncErr := SyncSkillsFromExtract(extractDir, skillsDir)
 		if syncErr != nil {
-			result.SkillsMessage = fmt.Sprintf("内置 skills 同步失败（可稍后运行 ur skills update）: %v", syncErr)
+			result.ErrorMessage = fmt.Sprintf("CLI 已替换，内置 skills 同步失败，请重新运行 ur upgrade --force: %v", syncErr)
+			result.SkillsMessage = result.ErrorMessage
+			return result, syncErr
 		} else {
 			result.SkillsSynced = true
 			result.SkillsUpdated = count

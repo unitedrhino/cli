@@ -591,7 +591,7 @@ go test -cover ./...
 
 ## v0.9.0 组件与图元搜索
 
-CLI、随包 Skills 和一次图案例在同一版本更新。已有安装执行 `ur upgrade --version v0.9.1`，再用 `ur --version` 检查 CLI 与 Skills 版本。升级同步已识别的客户端技能副本，AI 客户端需重开会话加载新技能。
+CLI、随包 Skills 和一次图案例在同一版本更新。已有安装执行 `ur upgrade --version v0.9.2`，再用 `ur --version` 检查 CLI 与 Skills 版本。升级同步已识别的客户端技能副本，AI 客户端需重开会话加载新技能。
 
 ```bash
 # 离线搜索组件，查询注册信息与 IoT 支持矩阵
@@ -611,7 +611,7 @@ ur view builtin-image get-one --id bi-electric-0952 --json
 
 一次图流程为搜索图元、查看原图核对符号、生成独立画布组件、逐表绑定、校验并保存草稿，再按授权发布和绑定能源区域。`ConnectLine` 为存量画布保留，常用面板另有 `FlowChartLine`。完整参数与案例见 [搜索说明](skill/ur-view/references/component-search.md)、[一次图案例](skill/ur-view/references/primary-diagram-case.md) 和 [能源接入](skill/ur-view/references/primary-diagram-energy.md)。
 
-搜索能力始于 v0.9.0，推荐使用修复跨盘升级的 v0.9.1。旧版跨盘升级报错时，可重新运行官方一键安装脚本安装完整包。更新说明见 [v0.9.1](references/releases/v0.9.1.md) 和 [v0.9.0](references/releases/v0.9.0.md)。
+搜索能力始于 v0.9.0，推荐使用完整修复 CLI 与 Skills 跨盘升级的 v0.9.2。旧版跨盘升级报错时，可重新运行官方一键安装脚本安装完整包。更新说明见 [v0.9.2](references/releases/v0.9.2.md)、[v0.9.1](references/releases/v0.9.1.md) 和 [v0.9.0](references/releases/v0.9.0.md)。
 
 ## 发布（维护者）
 

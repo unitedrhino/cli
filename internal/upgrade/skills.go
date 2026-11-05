@@ -1,3 +1,4 @@
+// 文件说明：查询与更新随包 Skills，更新和 CLI 升级复用目标目录内暂存、替换及回滚流程。
 package upgrade
 
 import (
@@ -278,83 +279,72 @@ func UpdateSkills(skillsDir string, dryRun bool) (*SkillsUpdateResult, error) {
 		return result, err
 	}
 
-	// 在解压目录中查找 skill/ 目录
-	srcSkillsDir := findSkillDir(extractDir)
-	if srcSkillsDir == "" {
-		result.ErrorMessage = "未在安装包中找到 skills 目录"
-		return result, err
+	// 与 CLI 升级共用同一套同步路径，避免独立更新仍把旧目录备份到跨盘的下载目录。
+	result.UpdatedCount, err = SyncSkillsFromExtract(extractDir, skillsDir)
+	if err != nil {
+		result.ErrorMessage = err.Error()
 	}
-
-	// 备份旧 skills
-	backupDir := filepath.Join(tmpDir, "backup")
-	if err := os.Rename(skillsDir, backupDir); err != nil {
-		result.ErrorMessage = fmt.Sprintf("备份旧 skills 失败: %v", err)
-		return result, err
-	}
-
-	// 复制新的 skills
-	if err := copyDir(srcSkillsDir, skillsDir); err != nil {
-		// 回滚：恢复旧 skills
-		os.RemoveAll(skillsDir)
-		os.Rename(backupDir, skillsDir)
-		result.ErrorMessage = fmt.Sprintf("安装新 skills 失败（已回滚）: %v", err)
-		return result, err
-	}
-
-	// 统计更新的 skill 数量
-	entries, _ := os.ReadDir(skillsDir)
-	for _, e := range entries {
-		if e.IsDir() {
-			result.UpdatedCount++
-		}
-	}
-
-	return result, nil
+	return result, err
 }
 
-// SyncSkillsFromExtract 将解压目录中的 skill/ 目录同步到目标 skills 目录（备份→替换→失败回滚）。
+// SyncSkillsFromExtract 将解压目录中的 skill/ 完整暂存到安装盘，再备份、替换并在失败时回滚。
 // 供 ur upgrade 升级二进制后复用已下载的安装包同步内置 skills，避免二次下载。
 // 返回同步的 skill 目录数量；解压目录中无 skill/ 时返回错误。
 func SyncSkillsFromExtract(extractDir, skillsDir string) (updatedCount int, err error) {
 	if skillsDir == "" {
 		return 0, fmt.Errorf("无法确定 skills 目录")
 	}
+	skillsDir = filepath.Clean(skillsDir)
 	srcSkillsDir := findSkillDir(extractDir)
 	if srcSkillsDir == "" {
 		return 0, fmt.Errorf("未在安装包中找到 skills 目录")
 	}
 
-	// 确保目标目录存在
-	if err := os.MkdirAll(skillsDir, 0o755); err != nil {
+	// 暂存和备份均放在目标的同一文件系统，先复制成功再移动旧目录。
+	if err := os.MkdirAll(filepath.Dir(skillsDir), 0o755); err != nil {
 		return 0, fmt.Errorf("创建 skills 目录失败: %w", err)
 	}
-
-	// 备份旧 skills（临时目录内，同步成功后随 tmpDir 清理）
-	backupDir := filepath.Join(filepath.Dir(extractDir), "skills-backup")
+	stageRoot, err := os.MkdirTemp(filepath.Dir(skillsDir), ".ur-skills-sync-*")
+	if err != nil {
+		return 0, fmt.Errorf("创建 skills 暂存目录失败: %w", err)
+	}
+	keepBackup := false
+	defer func() {
+		// 回滚失败时留下旧目录，错误信息给出位置，供后续恢复。
+		if !keepBackup {
+			_ = os.RemoveAll(stageRoot)
+		}
+	}()
+	stagedDir := filepath.Join(stageRoot, "new")
+	if err := copyDir(srcSkillsDir, stagedDir); err != nil {
+		return 0, fmt.Errorf("暂存新 skills 失败: %w", err)
+	}
+	entries, err := os.ReadDir(stagedDir)
+	if err != nil {
+		return 0, err
+	}
+	backupDir := filepath.Join(stageRoot, "old")
 	hadOld := false
 	if _, statErr := os.Stat(skillsDir); statErr == nil {
 		hadOld = true
 		if err := os.Rename(skillsDir, backupDir); err != nil {
 			return 0, fmt.Errorf("备份旧 skills 失败: %w", err)
 		}
+	} else if !os.IsNotExist(statErr) {
+		return 0, statErr
 	}
 
-	// 复制新的 skills
-	if err := copyDir(srcSkillsDir, skillsDir); err != nil {
-		// 回滚：恢复旧 skills
-		os.RemoveAll(skillsDir)
+	if err := os.Rename(stagedDir, skillsDir); err != nil {
 		if hadOld {
-			os.Rename(backupDir, skillsDir)
+			if rollbackErr := os.Rename(backupDir, skillsDir); rollbackErr != nil {
+				keepBackup = true
+				return 0, fmt.Errorf("替换 skills 失败: %w，回滚失败: %v，旧版位于 %s", err, rollbackErr, backupDir)
+			}
 		}
-		return 0, fmt.Errorf("安装新 skills 失败（已回滚）: %w", err)
-	}
-	// 同步成功，删除备份
-	if hadOld {
-		os.RemoveAll(backupDir)
+		return 0, fmt.Errorf("替换 skills 失败: %w", err)
 	}
 
 	// 统计同步的 skill 目录数量
-	entries, _ := os.ReadDir(skillsDir)
 	for _, e := range entries {
 		if e.IsDir() {
 			updatedCount++

@@ -427,8 +427,8 @@ func replaceBinary(newPath, oldPath string) error {
 	if err != nil {
 		return err
 	}
-	defer staged.Close()
 	defer os.Remove(staged.Name())
+	defer staged.Close()
 	if _, err := io.Copy(staged, source); err != nil {
 		return err
 	}

@@ -6,7 +6,7 @@ gen-view-components.py — 盘点 GoView 大屏全部组件，生成 CLI 组件�
 用途：
   1. 遍历 goview 组件目录，从各组件 index.ts 正则提取 ConfigType 元数据
      （key/chartKey/conKey/title/category/categoryName/package/chartFrame/image）；
-     仅统计经分组 index.ts 注册、可被 packagesList 到达的组件（未注册的遗留目录自动排除）。
+     统计面板注册组件和存量画布仍使用的 ConnectLine，保留旧画布可查询、可校验能力。
      package/category/chartFrame 输出枚举**值**（如 Charts/Bars/echarts），
      与大屏画布存档 JSON 中实际存储的字符串一致。
   2. 结合前端 IoT 支持矩阵（queryTypeSupport.ts 的 isQueryTypeSupported 逻辑）
@@ -36,6 +36,7 @@ import json
 import os
 import re
 import sys
+from pathlib import Path
 
 # ── 8 大组件包注册顺序（与 packages/index.ts 的 packagesList 一致） ──
 PACKAGE_ORDER = [
@@ -180,6 +181,27 @@ def extract_literal(text, field):
     return m.group(1) if m else ''
 
 
+def extract_title(text, translations):
+    """读取字面标题或动态语言 getter，翻译缺失时阻止生成空标题。"""
+    title = extract_literal(text, 'title')
+    if title:
+        return title
+    match = re.search(r"get\s+title\(\)\s*\{\s*return\s+editorT\('([^']+)'\)", text)
+    if not match:
+        raise ValueError('组件缺少可解析的标题')
+    value = translations
+    for key in match.group(1).split('.'):
+        value = value[key]
+    return value
+
+
+def load_translations(src):
+    """从相邻 SaaS 中文语言文件加载标题，保持快照和界面名称一致。"""
+    directory = Path(src).parents[4] / 'saas/src/locales/langs/zh-CN'
+    return {path.stem: json.loads(path.read_text(encoding='utf-8'))
+            for path in directory.glob('*.json')}
+
+
 def extract_enum_member(text, field, enum_names):
     """提取 `field: <枚举名>.<成员>` 的成员名。"""
     for enum_name in enum_names:
@@ -243,6 +265,11 @@ def find_registered_components(src):
                         })
                 else:
                     queue.append(resolved)
+    # ConnectLine 已退出常用面板，但动态组件加载器仍用于重开已保存的一次图。
+    legacy_path = os.path.join(src, 'Decorates/FlowChart/ConnectLine/index.ts')
+    if os.path.isfile(legacy_path) and 'ConnectLine' not in seen_keys:
+        components.append({'package': 'Decorates', 'dir': os.path.dirname(legacy_path),
+                           'index_ts': legacy_path, 'text': read_text(legacy_path)})
     return components
 
 
@@ -295,7 +322,7 @@ def compute_iot_query_types(key, chart_key, chart_frame, dataset_present):
     return result
 
 
-def parse_regular_component(entry, enum_maps_by_package, global_enum_maps):
+def parse_regular_component(entry, enum_maps_by_package, global_enum_maps, translations):
     """解析常规组件 index.ts，输出 components.json 条目（package/category/chartFrame 输出真实枚举值）。"""
     text = entry['text']
     package = entry['package']
@@ -323,7 +350,7 @@ def parse_regular_component(entry, enum_maps_by_package, global_enum_maps):
         'key': key,
         'chartKey': chart_key,
         'conKey': extract_literal(text, 'conKey'),
-        'title': extract_literal(text, 'title'),
+        'title': extract_title(text, translations),
         'category': category,
         'categoryName': category_name,
         'package': package_value,
@@ -334,7 +361,7 @@ def parse_regular_component(entry, enum_maps_by_package, global_enum_maps):
     }
 
 
-def parse_presets(src, enum_maps_by_package, global_enum_maps):
+def parse_presets(src, enum_maps_by_package, global_enum_maps, translations):
     """解析 Presets 各子分类 index.ts：基础信息来自 Decorates/BorderCharts 底层 config，包/分类/标题/图片由 Preset 覆盖。"""
     results = []
     presets_dir = os.path.join(src, 'Presets')
@@ -357,7 +384,14 @@ def parse_presets(src, enum_maps_by_package, global_enum_maps):
             block = m.group(2)
             spread = re.search(r'new\s+(\w+)\(\)', block)
             base_file = imports.get(spread.group(1)) if spread else None
+            # 新版预置配置使用带命名导出的 import 或容器实例，按明确的 redirectComponent 找来源。
+            redirect = extract_literal(block, 'redirectComponent')
+            if redirect:
+                base_file = os.path.join(src, redirect, 'config.ts')
             base_text = read_text(base_file) if base_file and os.path.isfile(base_file) else ''
+            base_index = os.path.join(os.path.dirname(base_file), 'index.ts') if base_file else ''
+            if os.path.isfile(base_index):
+                base_text += '\n' + read_text(base_index)
             key = extract_literal(base_text, 'key')
             chart_key = extract_literal(base_text, 'chartKey')
             category_member = extract_enum_member(block, 'category', ('PresetCategoryEnum',))
@@ -375,7 +409,7 @@ def parse_presets(src, enum_maps_by_package, global_enum_maps):
                 'key': key,
                 'chartKey': chart_key,
                 'conKey': extract_literal(base_text, 'conKey'),
-                'title': extract_literal(block, 'title'),
+                'title': extract_title(block, translations),
                 'category': category,
                 'categoryName': category_name,
                 'package': package_value,
@@ -509,7 +543,7 @@ def gen_markdown(components, preset_items, snapshot_date, iot_fields, src):
     lines.append('# GoView 大屏组件清单')
     lines.append('')
     lines.append('> 快照日期：%s' % snapshot_date)
-    lines.append('> 源码路径：`%s`（仓库内相对路径 `apps/web/packages/bigscreen/src/goview/packages/components`）' % src)
+    lines.append('> 源码路径：`apps/web/packages/bigscreen/src/goview/packages/components`。包含面板注册组件及存量画布仍使用的 ConnectLine。')
     lines.append('> 本文件由 `scripts/gen-view-components.py` 自动生成，请勿手工编辑；前端组件变更后重新运行脚本即可刷新。')
     lines.append('> 表中 package/category/chartFrame 为画布存档 JSON 实际存储的枚举值字符串（如 `Charts`/`Bars`/`echarts`）。')
     lines.append('')
@@ -533,7 +567,7 @@ def gen_markdown(components, preset_items, snapshot_date, iot_fields, src):
             'Presets': '业务复合组件，通过 redirectComponent 指向底层实现',
         }.get(pkg, '')
         lines.append('| %s %s | %d | %s |' % (pkg, PACKAGE_CN[pkg], len(items), remark or '—'))
-    lines.append('| **合计** | **%d** | 静态注册组件总数 |' % total)
+    lines.append('| **合计** | **%d** | 组件目录条目数（含存量 ConnectLine） |' % total)
     lines.append('')
 
     # ── 各分类明细 ──
@@ -657,16 +691,17 @@ def main():
     # 全局枚举表（packages/index.type.ts）：PackagesCategoryEnum / ChartFrameEnum 成员名 → 枚举值，
     # components.json 的 package/category/chartFrame 输出枚举值（与大屏画布存档中实际存储的字符串一致）
     global_enum_maps = parse_enum_maps(os.path.join(os.path.dirname(src), 'index.type.ts'))
+    translations = load_translations(src)
 
     # 常规组件（含 Icons 的 Icon；Presets 走专用解析）
     components = []
     for entry in find_registered_components(src):
         if entry['package'] == 'Presets':
             continue
-        components.append(parse_regular_component(entry, enum_maps_by_package, global_enum_maps))
+        components.append(parse_regular_component(entry, enum_maps_by_package, global_enum_maps, translations))
 
     # Presets 复合组件
-    preset_items = parse_presets(src, enum_maps_by_package, global_enum_maps)
+    preset_items = parse_presets(src, enum_maps_by_package, global_enum_maps, translations)
 
     # 按包顺序合并（Presets 在 Photos 之后、Interact 之前）
     ordered = []
@@ -676,6 +711,9 @@ def main():
         else:
             ordered.extend([c for c in components if c['package'] == pkg])
     components = ordered
+    keys = [component['key'] for component in components]
+    if not all(keys) or len(set(keys)) != len(keys):
+        raise ValueError('组件 key 为空或重复，停止生成快照')
 
     # IoT 配置字段表
     goview_root = os.path.dirname(os.path.dirname(src))
@@ -684,6 +722,31 @@ def main():
 
     json_text = gen_json(components, args.snapshot_date)
     md_text = gen_markdown(components, preset_items, args.snapshot_date, iot_fields, src)
+    # 保持既有按专题拆分的文档入口，生成器重跑不会把技能合回超长单文件。
+    sections = re.split(r'(?m)(?=^## )', md_text)
+    groups = {'chart': [], 'info': [], 'decorate': [], 'iot-config': []}
+    overview = []
+    for section in sections:
+        heading = section.split('\n', 1)[0]
+        if heading.startswith('## Charts'):
+            groups['chart'].append(section)
+        elif heading.startswith(('## Decorates', '## Presets')):
+            groups['decorate'].append(section)
+        elif heading.startswith(('## Informations', '## Tables', '## Icons', '## Photos', '## Interact')):
+            groups['info'].append(section)
+        elif heading.startswith(('## 附录 C', '## 附录 D')):
+            groups['iot-config'].append(section)
+        else:
+            overview.append(section)
+    navigation = '\n## 分项清单\n\n' + '\n'.join(
+        '- [%s](components-%s.md)' % (name, group)
+        for group, name in [('chart', '图表组件'), ('info', '信息、表格与交互组件'),
+                            ('decorate', '装饰与预置组件'), ('iot-config', 'IoT 配置与支持矩阵')]) + '\n'
+    md_text = ''.join(overview) + navigation
+    for group, content in groups.items():
+        output = Path(args.md_out).with_name('components-%s.md' % group)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text('# 组件分项清单\n\n[返回组件总览](components.md)\n\n' + ''.join(content), encoding='utf-8')
 
     for out_path, content in ((args.json_out, json_text), (args.md_out, md_text)):
         os.makedirs(os.path.dirname(out_path), exist_ok=True)

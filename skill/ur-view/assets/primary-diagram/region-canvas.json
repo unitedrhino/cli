@@ -1,0 +1,4754 @@
+{
+  "editCanvasConfig": {
+    "width": 1920,
+    "height": 1080,
+    "background": "#000000",
+    "backgroundColor": "#000000",
+    "previewScaleType": "fit",
+    "projectName": "区域电力一次图示例",
+    "chartThemeColor": "dark",
+    "selectColor": true,
+    "opacity": 1,
+    "brightness": 1,
+    "contrast": 1,
+    "saturate": 1,
+    "filterShow": false,
+    "electricalDiagram": {
+      "model": {
+        "version": 1,
+        "layout": "engineering",
+        "title": "区域电力一次图示例",
+        "areaId": "sample-area",
+        "buses": [
+          {
+            "id": "bus-a",
+            "name": "A段 · 参考回路分组"
+          }
+        ],
+        "cabinets": [
+          {
+            "id": "cabinet-a",
+            "name": "区域馈线柜组 · 参考编排",
+            "kind": "feeder",
+            "busId": "bus-a",
+            "circuits": [
+              {
+                "id": "lighting",
+                "name": "照明回路",
+                "purpose": "照明",
+                "nodes": [
+                  {
+                    "id": "lighting-breaker",
+                    "role": "breaker",
+                    "label": "保护开关（参考）",
+                    "assetId": "bi-symbol-0038",
+                    "referenceOnly": true
+                  },
+                  {
+                    "id": "lighting-ct",
+                    "role": "ct",
+                    "label": "三相CT（参考）",
+                    "assetId": "bi-electric-0952",
+                    "referenceOnly": true
+                  },
+                  {
+                    "id": "lighting-out",
+                    "role": "load",
+                    "label": "出线（参考）",
+                    "referenceOnly": true
+                  },
+                  {
+                    "id": "lighting-meter",
+                    "role": "meter",
+                    "label": "独立电力仪表"
+                  }
+                ]
+              },
+              {
+                "id": "socket",
+                "name": "插座回路",
+                "purpose": "插座",
+                "nodes": [
+                  {
+                    "id": "socket-breaker",
+                    "role": "breaker",
+                    "label": "保护开关（参考）",
+                    "assetId": "bi-symbol-0038",
+                    "referenceOnly": true
+                  },
+                  {
+                    "id": "socket-ct",
+                    "role": "ct",
+                    "label": "三相CT（参考）",
+                    "assetId": "bi-electric-0952",
+                    "referenceOnly": true
+                  },
+                  {
+                    "id": "socket-out",
+                    "role": "load",
+                    "label": "出线（参考）",
+                    "referenceOnly": true
+                  },
+                  {
+                    "id": "socket-meter",
+                    "role": "meter",
+                    "label": "独立电力仪表"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "connections": [
+          {
+            "id": "lighting-wire-0",
+            "from": "bus-a",
+            "to": "lighting-breaker",
+            "verified": false,
+            "evidence": "示例参考结构，按区域图纸核对"
+          },
+          {
+            "id": "lighting-wire-1",
+            "from": "lighting-breaker",
+            "to": "lighting-ct",
+            "verified": false,
+            "evidence": "示例参考结构，按区域图纸核对"
+          },
+          {
+            "id": "lighting-wire-2",
+            "from": "lighting-ct",
+            "to": "lighting-out",
+            "verified": false,
+            "evidence": "示例参考结构，按区域图纸核对"
+          },
+          {
+            "id": "lighting-wire-3",
+            "from": "lighting-ct",
+            "to": "lighting-meter",
+            "verified": false,
+            "evidence": "示例参考结构，按区域图纸核对",
+            "fromPort": "bottom",
+            "toPort": "left"
+          },
+          {
+            "id": "socket-wire-0",
+            "from": "bus-a",
+            "to": "socket-breaker",
+            "verified": false,
+            "evidence": "示例参考结构，按区域图纸核对"
+          },
+          {
+            "id": "socket-wire-1",
+            "from": "socket-breaker",
+            "to": "socket-ct",
+            "verified": false,
+            "evidence": "示例参考结构，按区域图纸核对"
+          },
+          {
+            "id": "socket-wire-2",
+            "from": "socket-ct",
+            "to": "socket-out",
+            "verified": false,
+            "evidence": "示例参考结构，按区域图纸核对"
+          },
+          {
+            "id": "socket-wire-3",
+            "from": "socket-ct",
+            "to": "socket-meter",
+            "verified": false,
+            "evidence": "示例参考结构，按区域图纸核对",
+            "fromPort": "bottom",
+            "toPort": "left"
+          }
+        ],
+        "measurements": [
+          {
+            "id": "lighting-reading-Ia",
+            "ownerId": "lighting",
+            "label": "Ia",
+            "unit": "A"
+          },
+          {
+            "id": "lighting-reading-Ib",
+            "ownerId": "lighting",
+            "label": "Ib",
+            "unit": "A"
+          },
+          {
+            "id": "lighting-reading-Ic",
+            "ownerId": "lighting",
+            "label": "Ic",
+            "unit": "A"
+          },
+          {
+            "id": "lighting-reading-P",
+            "ownerId": "lighting",
+            "label": "P",
+            "unit": "kW"
+          },
+          {
+            "id": "socket-reading-Ia",
+            "ownerId": "socket",
+            "label": "Ia",
+            "unit": "A"
+          },
+          {
+            "id": "socket-reading-Ib",
+            "ownerId": "socket",
+            "label": "Ib",
+            "unit": "A"
+          },
+          {
+            "id": "socket-reading-Ic",
+            "ownerId": "socket",
+            "label": "Ic",
+            "unit": "A"
+          },
+          {
+            "id": "socket-reading-P",
+            "ownerId": "socket",
+            "label": "P",
+            "unit": "kW"
+          }
+        ],
+        "notes": [
+          "两回路示例，使用时依据目标区域、图纸与物模型填写实际设备绑定。",
+          "保护开关、三相CT与接线为参考结构，规格待目标区域资料核对。"
+        ]
+      },
+      "replacements": []
+    }
+  },
+  "componentList": [
+    {
+      "id": "electrical:title",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "区域电力一次图示例",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 40,
+        "y": 20,
+        "w": 1840,
+        "h": 44,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "区域电力一次图示例",
+        "fontSize": 30,
+        "fontColor": "#eef2f6",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:caption",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "配电回路拓扑 · 一次设备、计量回路与设计参数分别展示",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 40,
+        "y": 76,
+        "w": 1840,
+        "h": 26,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "配电回路拓扑 · 一次设备、计量回路与设计参数分别展示",
+        "fontSize": 17,
+        "fontColor": "#aab7c4",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:verification",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "参考配电结构 · 未确认的一次器件与接线待核对 · 静态金线不表示开关状态",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 40,
+        "y": 112,
+        "w": 1840,
+        "h": 26,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "参考配电结构 · 未确认的一次器件与接线待核对 · 静态金线不表示开关状态",
+        "fontSize": 14,
+        "fontColor": "#d4b365",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:bus-a",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "电气连接",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 425,
+        "y": 175,
+        "w": 650,
+        "h": 1,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 650,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 650,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 3,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:bus-a:label",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "A段 · 参考回路分组",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 445,
+        "y": 145,
+        "w": 630,
+        "h": 26,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "A段 · 参考回路分组",
+        "fontSize": 15,
+        "fontColor": "#ffb600",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:engineering:incoming-title",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "区域进线 · 尚未配置",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 55,
+        "y": 205,
+        "w": 300,
+        "h": 32,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "区域进线 · 尚未配置",
+        "fontSize": 22,
+        "fontColor": "#ffb600",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:engineering:incoming-empty",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "上级电源与进线器件待配置",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 55,
+        "y": 315,
+        "w": 300,
+        "h": 26,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "上级电源与进线器件待配置",
+        "fontSize": 16,
+        "fontColor": "#b6c1cc",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:engineering:bank:0",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "电气连接",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 425,
+        "y": 175,
+        "w": 1,
+        "h": 285,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 285
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 0,
+          "y": 285
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 3,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:engineering:bank:0:title",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "区域馈线柜组 · 参考编排",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 443,
+        "y": 200,
+        "w": 650,
+        "h": 26,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "区域馈线柜组 · 参考编排",
+        "fontSize": 19,
+        "fontColor": "#ffb600",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting:label",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "照明回路 · 照明",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 447,
+        "y": 235,
+        "w": 630,
+        "h": 26,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "照明回路 · 照明",
+        "fontSize": 19,
+        "fontColor": "#d8e0e8",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-breaker:symbol",
+      "key": "Image",
+      "chartConfig": {
+        "key": "Image",
+        "chartKey": "VImage",
+        "conKey": "VCImage",
+        "title": "保护开关（参考）",
+        "category": "Mores",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 485,
+        "y": 274,
+        "w": 52,
+        "h": 52,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "/app/iot/builtin-images/orig/bi-symbol-0038.png",
+        "assetId": "bi-symbol-0038",
+        "assetSource": "builtin",
+        "assetName": "箭头开关电气符号",
+        "fit": "contain",
+        "borderRadius": 0,
+        "tintColor": "#ffb600",
+        "symbolRotation": -90
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-ct:phase:0",
+      "key": "Image",
+      "chartConfig": {
+        "key": "Image",
+        "chartKey": "VImage",
+        "conKey": "VCImage",
+        "title": "三相CT（参考）",
+        "category": "Mores",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 567,
+        "y": 259.904625,
+        "w": 54,
+        "h": 54,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "/app/iot/builtin-images/orig/bi-electric-0952.svg",
+        "assetId": "bi-electric-0952",
+        "assetSource": "builtin",
+        "assetName": "圆形双斜杠电气符号",
+        "fit": "contain",
+        "borderRadius": 0,
+        "tintColor": "#ffb600",
+        "symbolRotation": 90
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-ct:phase:1",
+      "key": "Image",
+      "chartConfig": {
+        "key": "Image",
+        "chartKey": "VImage",
+        "conKey": "VCImage",
+        "title": "三相CT（参考）",
+        "category": "Mores",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 567,
+        "y": 283.904625,
+        "w": 54,
+        "h": 54,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "/app/iot/builtin-images/orig/bi-electric-0952.svg",
+        "assetId": "bi-electric-0952",
+        "assetSource": "builtin",
+        "assetName": "圆形双斜杠电气符号",
+        "fit": "contain",
+        "borderRadius": 0,
+        "tintColor": "#ffb600",
+        "symbolRotation": 90
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-ct:phase:2",
+      "key": "Image",
+      "chartConfig": {
+        "key": "Image",
+        "chartKey": "VImage",
+        "conKey": "VCImage",
+        "title": "三相CT（参考）",
+        "category": "Mores",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 567,
+        "y": 307.904625,
+        "w": 54,
+        "h": 54,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "/app/iot/builtin-images/orig/bi-electric-0952.svg",
+        "assetId": "bi-electric-0952",
+        "assetSource": "builtin",
+        "assetName": "圆形双斜杠电气符号",
+        "fit": "contain",
+        "borderRadius": 0,
+        "tintColor": "#ffb600",
+        "symbolRotation": 90
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-out:symbol",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "电气连接",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 657,
+        "y": 300,
+        "w": 40,
+        "h": 1,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 40,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 40,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 2,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "end",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false,
+        "arrowStyle": "triangle",
+        "arrowSize": 8,
+        "startArrowColor": "#ffb600",
+        "endArrowColor": "#ffb600"
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting:meter-panel",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "电气连接",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 760,
+        "y": 253,
+        "w": 330,
+        "h": 113,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 330,
+            "y": 0
+          },
+          {
+            "x": 330,
+            "y": 113
+          },
+          {
+            "x": 0,
+            "y": 113
+          },
+          {
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 1,
+        "baseColor": "#525146",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting:meter-panel:heading",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "多功能电力仪表 · 实时测量",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 772,
+        "y": 260,
+        "w": 306,
+        "h": 20,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "多功能电力仪表 · 实时测量",
+        "fontSize": 14,
+        "fontColor": "#a7b5c2",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-reading-Ia",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "--",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 772,
+        "y": 287,
+        "w": 145,
+        "h": 23,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "--",
+        "fontSize": 19,
+        "fontColor": "#ffee00",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "Ia ",
+          "suffix": " A",
+          "decimals": 1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-reading-Ib",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "--",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 772,
+        "y": 310,
+        "w": 145,
+        "h": 23,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "--",
+        "fontSize": 19,
+        "fontColor": "#50d040",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "Ib ",
+          "suffix": " A",
+          "decimals": 1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-reading-Ic",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "--",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 772,
+        "y": 333,
+        "w": 145,
+        "h": 23,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "--",
+        "fontSize": 19,
+        "fontColor": "#f53c3c",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "Ic ",
+          "suffix": " A",
+          "decimals": 1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-reading-P",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "--",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 937,
+        "y": 287,
+        "w": 145,
+        "h": 23,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "--",
+        "fontSize": 19,
+        "fontColor": "#f4dc70",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "P ",
+          "suffix": " kW",
+          "decimals": 1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting:specification",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "开关规格：待核对 CT变比：待核对",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 447,
+        "y": 368,
+        "w": 305,
+        "h": 44,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "开关规格：待核对 CT变比：待核对",
+        "fontSize": 12,
+        "fontColor": "#a7b4c0",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting:binding",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "测点未绑定",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 760,
+        "y": 369,
+        "w": 330,
+        "h": 22,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "测点未绑定",
+        "fontSize": 12,
+        "fontColor": "#8e9ba8",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket:label",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "插座回路 · 插座",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 447,
+        "y": 395,
+        "w": 630,
+        "h": 26,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "插座回路 · 插座",
+        "fontSize": 19,
+        "fontColor": "#d8e0e8",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-breaker:symbol",
+      "key": "Image",
+      "chartConfig": {
+        "key": "Image",
+        "chartKey": "VImage",
+        "conKey": "VCImage",
+        "title": "保护开关（参考）",
+        "category": "Mores",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 485,
+        "y": 434,
+        "w": 52,
+        "h": 52,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "/app/iot/builtin-images/orig/bi-symbol-0038.png",
+        "assetId": "bi-symbol-0038",
+        "assetSource": "builtin",
+        "assetName": "箭头开关电气符号",
+        "fit": "contain",
+        "borderRadius": 0,
+        "tintColor": "#ffb600",
+        "symbolRotation": -90
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-ct:phase:0",
+      "key": "Image",
+      "chartConfig": {
+        "key": "Image",
+        "chartKey": "VImage",
+        "conKey": "VCImage",
+        "title": "三相CT（参考）",
+        "category": "Mores",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 567,
+        "y": 419.904625,
+        "w": 54,
+        "h": 54,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "/app/iot/builtin-images/orig/bi-electric-0952.svg",
+        "assetId": "bi-electric-0952",
+        "assetSource": "builtin",
+        "assetName": "圆形双斜杠电气符号",
+        "fit": "contain",
+        "borderRadius": 0,
+        "tintColor": "#ffb600",
+        "symbolRotation": 90
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-ct:phase:1",
+      "key": "Image",
+      "chartConfig": {
+        "key": "Image",
+        "chartKey": "VImage",
+        "conKey": "VCImage",
+        "title": "三相CT（参考）",
+        "category": "Mores",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 567,
+        "y": 443.904625,
+        "w": 54,
+        "h": 54,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "/app/iot/builtin-images/orig/bi-electric-0952.svg",
+        "assetId": "bi-electric-0952",
+        "assetSource": "builtin",
+        "assetName": "圆形双斜杠电气符号",
+        "fit": "contain",
+        "borderRadius": 0,
+        "tintColor": "#ffb600",
+        "symbolRotation": 90
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-ct:phase:2",
+      "key": "Image",
+      "chartConfig": {
+        "key": "Image",
+        "chartKey": "VImage",
+        "conKey": "VCImage",
+        "title": "三相CT（参考）",
+        "category": "Mores",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 567,
+        "y": 467.904625,
+        "w": 54,
+        "h": 54,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "/app/iot/builtin-images/orig/bi-electric-0952.svg",
+        "assetId": "bi-electric-0952",
+        "assetSource": "builtin",
+        "assetName": "圆形双斜杠电气符号",
+        "fit": "contain",
+        "borderRadius": 0,
+        "tintColor": "#ffb600",
+        "symbolRotation": 90
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-out:symbol",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "电气连接",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 657,
+        "y": 460,
+        "w": 40,
+        "h": 1,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 40,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 40,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 2,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "end",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false,
+        "arrowStyle": "triangle",
+        "arrowSize": 8,
+        "startArrowColor": "#ffb600",
+        "endArrowColor": "#ffb600"
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket:meter-panel",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "电气连接",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 760,
+        "y": 413,
+        "w": 330,
+        "h": 113,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 330,
+            "y": 0
+          },
+          {
+            "x": 330,
+            "y": 113
+          },
+          {
+            "x": 0,
+            "y": 113
+          },
+          {
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 1,
+        "baseColor": "#525146",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket:meter-panel:heading",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "多功能电力仪表 · 实时测量",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 772,
+        "y": 420,
+        "w": 306,
+        "h": 20,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "多功能电力仪表 · 实时测量",
+        "fontSize": 14,
+        "fontColor": "#a7b5c2",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-reading-Ia",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "--",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 772,
+        "y": 447,
+        "w": 145,
+        "h": 23,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "--",
+        "fontSize": 19,
+        "fontColor": "#ffee00",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "Ia ",
+          "suffix": " A",
+          "decimals": 1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-reading-Ib",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "--",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 772,
+        "y": 470,
+        "w": 145,
+        "h": 23,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "--",
+        "fontSize": 19,
+        "fontColor": "#50d040",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "Ib ",
+          "suffix": " A",
+          "decimals": 1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-reading-Ic",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "--",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 772,
+        "y": 493,
+        "w": 145,
+        "h": 23,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "--",
+        "fontSize": 19,
+        "fontColor": "#f53c3c",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "Ic ",
+          "suffix": " A",
+          "decimals": 1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-reading-P",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "--",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 937,
+        "y": 447,
+        "w": 145,
+        "h": 23,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "--",
+        "fontSize": 19,
+        "fontColor": "#f4dc70",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "P ",
+          "suffix": " kW",
+          "decimals": 1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket:specification",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "开关规格：待核对 CT变比：待核对",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 447,
+        "y": 528,
+        "w": 305,
+        "h": 44,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "开关规格：待核对 CT变比：待核对",
+        "fontSize": 12,
+        "fontColor": "#a7b4c0",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket:binding",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "测点未绑定",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 760,
+        "y": 529,
+        "w": 330,
+        "h": 22,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "测点未绑定",
+        "fontSize": 12,
+        "fontColor": "#8e9ba8",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-wire-0",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "接线 · 待核对",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 425,
+        "y": 300,
+        "w": 60,
+        "h": 1,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 60,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 60,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 2,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false,
+        "name": "接线待核对"
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-wire-1",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "接线 · 待核对",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 537,
+        "y": 300,
+        "w": 35,
+        "h": 1,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 35,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 35,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 2,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false,
+        "name": "接线待核对"
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-wire-2",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "接线 · 待核对",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 616,
+        "y": 300,
+        "w": 41,
+        "h": 1,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 41,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 41,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 2,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false,
+        "name": "接线待核对"
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:lighting-wire-3",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "接线 · 待核对",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 594,
+        "y": 309.5,
+        "w": 166,
+        "h": 56.5,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 51.5
+          },
+          {
+            "x": 0,
+            "y": 56.5
+          },
+          {
+            "x": 152,
+            "y": 56.5
+          },
+          {
+            "x": 152,
+            "y": 0
+          },
+          {
+            "x": 166,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 51.5
+        },
+        "endPoint": {
+          "x": 166,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 1,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false,
+        "name": "计量二次连接"
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-wire-0",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "接线 · 待核对",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 425,
+        "y": 460,
+        "w": 60,
+        "h": 1,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 60,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 60,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 2,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false,
+        "name": "接线待核对"
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-wire-1",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "接线 · 待核对",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 537,
+        "y": 460,
+        "w": 35,
+        "h": 1,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 35,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 35,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 2,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false,
+        "name": "接线待核对"
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-wire-2",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "接线 · 待核对",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 616,
+        "y": 460,
+        "w": 41,
+        "h": 1,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 41,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 41,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 2,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false,
+        "name": "接线待核对"
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:socket-wire-3",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "接线 · 待核对",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 594,
+        "y": 469.5,
+        "w": 166,
+        "h": 56.5,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 51.5
+          },
+          {
+            "x": 0,
+            "y": 56.5
+          },
+          {
+            "x": 152,
+            "y": 56.5
+          },
+          {
+            "x": 152,
+            "y": 0
+          },
+          {
+            "x": 166,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 51.5
+        },
+        "endPoint": {
+          "x": 166,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 1,
+        "baseColor": "#ffb600",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false,
+        "name": "计量二次连接"
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:engineering:parameters",
+      "key": "ConnectLine",
+      "chartConfig": {
+        "key": "ConnectLine",
+        "chartKey": "VConnectLine",
+        "conKey": "VCConnectLine",
+        "title": "电气连接",
+        "category": "FlowChart",
+        "categoryName": "电力一次图",
+        "package": "Decorates",
+        "chartFrame": "static",
+        "image": ""
+      },
+      "attr": {
+        "x": 40,
+        "y": 950,
+        "w": 1840,
+        "h": 85,
+        "zIndex": 1
+      },
+      "option": {
+        "pathType": "straight",
+        "points": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 1840,
+            "y": 0
+          },
+          {
+            "x": 1840,
+            "y": 85
+          },
+          {
+            "x": 0,
+            "y": 85
+          },
+          {
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "startPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "endPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "startAnchor": "left",
+        "endAnchor": "right",
+        "lineWidth": 1,
+        "baseColor": "#525146",
+        "selectedColor": "#fff2b2",
+        "effectColor": "#ffb600",
+        "animate": false,
+        "autoPlay": false,
+        "direction": "static",
+        "arrow": "none",
+        "glow": false,
+        "shadow": false,
+        "pointRadius": 0,
+        "showLabel": false,
+        "disabled": false
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:engineering:parameters:heading",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "设计参数与核对项",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 52,
+        "y": 957,
+        "w": 1816,
+        "h": 20,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "设计参数与核对项",
+        "fontSize": 14,
+        "fontColor": "#a7b5c2",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    },
+    {
+      "id": "electrical:engineering:parameter-values",
+      "key": "TextCommon",
+      "chartConfig": {
+        "key": "TextCommon",
+        "chartKey": "VTextCommon",
+        "conKey": "VCTextCommon",
+        "title": "A段 · 参考回路分组：待核对  CT与开关规格见各回路  电缆规格：待核对",
+        "category": "Texts",
+        "categoryName": "电力一次图",
+        "package": "Informations",
+        "chartFrame": "common",
+        "image": ""
+      },
+      "attr": {
+        "x": 58,
+        "y": 989,
+        "w": 1804,
+        "h": 26,
+        "zIndex": 2
+      },
+      "option": {
+        "dataset": "A段 · 参考回路分组：待核对  CT与开关规格见各回路  电缆规格：待核对",
+        "fontSize": 16,
+        "fontColor": "#c2ccd6",
+        "paddingX": 0,
+        "paddingY": 0,
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "borderWidth": 0,
+        "borderColor": "#ffb600",
+        "borderRadius": 0,
+        "letterSpacing": 0,
+        "writingMode": "horizontal-tb",
+        "backgroundColor": "transparent",
+        "format": {
+          "enabled": true,
+          "prefix": "",
+          "suffix": "",
+          "decimals": -1,
+          "useThousands": false
+        },
+        "conditionalStyles": {
+          "enabled": false,
+          "rules": []
+        }
+      },
+      "isGroup": false,
+      "status": {
+        "hide": false,
+        "lock": false
+      },
+      "preview": {
+        "overFlowHidden": false
+      },
+      "styles": {
+        "filterShow": false,
+        "hueRotate": 0,
+        "saturate": 1,
+        "contrast": 1,
+        "brightness": 1,
+        "opacity": 1,
+        "rotateZ": 0,
+        "rotateX": 0,
+        "rotateY": 0,
+        "skewX": 0,
+        "skewY": 0,
+        "blendMode": "normal",
+        "animations": []
+      },
+      "events": {
+        "baseEvent": {},
+        "advancedEvents": {},
+        "interactEvents": []
+      },
+      "request": {
+        "requestDataType": 0,
+        "requestHttpType": "get",
+        "requestUrl": "",
+        "requestParams": {
+          "Body": {
+            "form-data": {},
+            "x-www-form-urlencoded": {},
+            "json": "",
+            "xml": ""
+          },
+          "Header": {},
+          "Params": {}
+        },
+        "requestIoTDeviceConfig": {}
+      }
+    }
+  ],
+  "requestGlobalConfig": {
+    "requestDataPond": [],
+    "requestInterval": 30,
+    "requestIntervalUnit": "second",
+    "requestOriginUrl": "",
+    "requestParams": {
+      "Body": {
+        "form-data": {},
+        "x-www-form-urlencoded": {},
+        "json": "",
+        "xml": ""
+      },
+      "Header": {},
+      "Params": {}
+    }
+  }
+}

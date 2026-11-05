@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "layout": "engineering",
+  "title": "区域电力一次图示例",
+  "areaId": "sample-area",
+  "buses": [
+    {
+      "id": "bus-a",
+      "name": "A段 · 参考回路分组"
+    }
+  ],
+  "cabinets": [
+    {
+      "id": "cabinet-a",
+      "name": "区域馈线柜组 · 参考编排",
+      "kind": "feeder",
+      "busId": "bus-a",
+      "circuits": [
+        {
+          "id": "lighting",
+          "name": "照明回路",
+          "purpose": "照明",
+          "nodes": [
+            {
+              "id": "lighting-breaker",
+              "role": "breaker",
+              "label": "保护开关（参考）",
+              "assetId": "bi-symbol-0038",
+              "referenceOnly": true
+            },
+            {
+              "id": "lighting-ct",
+              "role": "ct",
+              "label": "三相CT（参考）",
+              "assetId": "bi-electric-0952",
+              "referenceOnly": true
+            },
+            {
+              "id": "lighting-out",
+              "role": "load",
+              "label": "出线（参考）",
+              "referenceOnly": true
+            },
+            {
+              "id": "lighting-meter",
+              "role": "meter",
+              "label": "独立电力仪表"
+            }
+          ]
+        },
+        {
+          "id": "socket",
+          "name": "插座回路",
+          "purpose": "插座",
+          "nodes": [
+            {
+              "id": "socket-breaker",
+              "role": "breaker",
+              "label": "保护开关（参考）",
+              "assetId": "bi-symbol-0038",
+              "referenceOnly": true
+            },
+            {
+              "id": "socket-ct",
+              "role": "ct",
+              "label": "三相CT（参考）",
+              "assetId": "bi-electric-0952",
+              "referenceOnly": true
+            },
+            {
+              "id": "socket-out",
+              "role": "load",
+              "label": "出线（参考）",
+              "referenceOnly": true
+            },
+            {
+              "id": "socket-meter",
+              "role": "meter",
+              "label": "独立电力仪表"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "lighting-wire-0",
+      "from": "bus-a",
+      "to": "lighting-breaker",
+      "verified": false,
+      "evidence": "示例参考结构，按区域图纸核对"
+    },
+    {
+      "id": "lighting-wire-1",
+      "from": "lighting-breaker",
+      "to": "lighting-ct",
+      "verified": false,
+      "evidence": "示例参考结构，按区域图纸核对"
+    },
+    {
+      "id": "lighting-wire-2",
+      "from": "lighting-ct",
+      "to": "lighting-out",
+      "verified": false,
+      "evidence": "示例参考结构，按区域图纸核对"
+    },
+    {
+      "id": "lighting-wire-3",
+      "from": "lighting-ct",
+      "to": "lighting-meter",
+      "verified": false,
+      "evidence": "示例参考结构，按区域图纸核对",
+      "fromPort": "bottom",
+      "toPort": "left"
+    },
+    {
+      "id": "socket-wire-0",
+      "from": "bus-a",
+      "to": "socket-breaker",
+      "verified": false,
+      "evidence": "示例参考结构，按区域图纸核对"
+    },
+    {
+      "id": "socket-wire-1",
+      "from": "socket-breaker",
+      "to": "socket-ct",
+      "verified": false,
+      "evidence": "示例参考结构，按区域图纸核对"
+    },
+    {
+      "id": "socket-wire-2",
+      "from": "socket-ct",
+      "to": "socket-out",
+      "verified": false,
+      "evidence": "示例参考结构，按区域图纸核对"
+    },
+    {
+      "id": "socket-wire-3",
+      "from": "socket-ct",
+      "to": "socket-meter",
+      "verified": false,
+      "evidence": "示例参考结构，按区域图纸核对",
+      "fromPort": "bottom",
+      "toPort": "left"
+    }
+  ],
+  "measurements": [
+    {
+      "id": "lighting-reading-Ia",
+      "ownerId": "lighting",
+      "label": "Ia",
+      "unit": "A"
+    },
+    {
+      "id": "lighting-reading-Ib",
+      "ownerId": "lighting",
+      "label": "Ib",
+      "unit": "A"
+    },
+    {
+      "id": "lighting-reading-Ic",
+      "ownerId": "lighting",
+      "label": "Ic",
+      "unit": "A"
+    },
+    {
+      "id": "lighting-reading-P",
+      "ownerId": "lighting",
+      "label": "P",
+      "unit": "kW"
+    },
+    {
+      "id": "socket-reading-Ia",
+      "ownerId": "socket",
+      "label": "Ia",
+      "unit": "A"
+    },
+    {
+      "id": "socket-reading-Ib",
+      "ownerId": "socket",
+      "label": "Ib",
+      "unit": "A"
+    },
+    {
+      "id": "socket-reading-Ic",
+      "ownerId": "socket",
+      "label": "Ic",
+      "unit": "A"
+    },
+    {
+      "id": "socket-reading-P",
+      "ownerId": "socket",
+      "label": "P",
+      "unit": "kW"
+    }
+  ],
+  "notes": [
+    "两回路示例，使用时依据目标区域、图纸与物模型填写实际设备绑定。",
+    "保护开关、三相CT与接线为参考结构，规格待目标区域资料核对。"
+  ]
+}

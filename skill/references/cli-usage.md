@@ -1,5 +1,11 @@
 # CLI 用法
 
+## v0.9.0 组件与图元搜索
+
+CLI、随包 Skills 和一次图案例同步更新。执行 `ur upgrade --version v0.9.0` 后重开 AI 会话，使用 `ur view component search --keyword 连线 --json` 查询离线组件，使用 `ur view builtin-image search --keyword 圆形 --category electric --json` 查询平台图元。详情分别使用 `get-one --key TextCommon` 和 `get-one --id bi-electric-0952`，可加 `--json`。
+
+完整参数、输出、失败处理及“搜索 → 看图核对 → 生成画布 → 独立绑定 → 接入能源配电图”见[组件与图元搜索](../ur-view/references/component-search.md)。
+
 ## 全局选项
 
 ```bash

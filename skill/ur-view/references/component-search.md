@@ -1,6 +1,12 @@
 # 组件与图元搜索
 
-CLI v0.9.0 起提供组件目录和内置图元的专用查询命令。命令、本文、一次图案例及随包 Skills 同步发布。先执行 `ur --version` 核对安装版本，旧版执行 `ur upgrade --version v0.9.0`，升级会同步随包 Skills 与已识别的客户端副本。安装后仍使用旧技能的 AI 客户端需重开会话。
+CLI v0.9.0 起提供组件目录和内置图元的专用查询命令。命令、本文、一次图案例及随包 Skills 同步发布。先执行 `ur --version` 核对安装版本，旧版执行 `ur upgrade --version v0.9.1`，升级会同步随包 Skills 与已识别的客户端副本。安装后仍使用旧技能的 AI 客户端需重开会话。
+
+v0.9.1 修复临时下载目录与安装目录跨文件系统时的原子替换。旧版首次跨盘升级报错时，可重新运行官方安装脚本，Linux/macOS 使用以下命令，脚本同时安装 CLI 与 Skills。
+
+```bash
+curl -fsSL https://doc.unitedrhino.com/cli/install.sh | UR_TAG=v0.9.1 bash
+```
 
 ## 离线组件目录
 

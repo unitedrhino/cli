@@ -20,7 +20,7 @@ metadata:
 
 ## 电力一次图绘制、组件、案例与能源接入
 
-搜索组件或图元、核对命令版本和参数时，读取[组件与图元搜索](references/component-search.md)。CLI 命令、Skills、案例和发布说明同步交付，升级使用 `ur upgrade --version v0.9.0`。
+搜索组件或图元、核对命令版本和参数时，读取[组件与图元搜索](references/component-search.md)。CLI 命令、Skills、案例和发布说明同步交付，升级使用 `ur upgrade --version v0.9.1`。
 
 按区域生成、按图纸复原、区域加图纸匹配时，读取[一次图绘制与案例](references/primary-diagram-case.md)。其中包含完整 T2 图纸复原和按实际区域拆图两个案例，以及可导入的两回路画布示例。
 

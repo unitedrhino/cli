@@ -1,3 +1,4 @@
+// 文件说明：下载 CLI 发布包、备份并原子替换可执行文件，再同步随包 Skills。
 package upgrade
 
 import (
@@ -193,12 +194,13 @@ func Perform(opts Options) (*Result, error) {
 		return result, err
 	}
 
-	// 10. 同步内置 skills：复用本次已解压的包内 skill/ 目录，避免二次下载。
-	//     失败只记录警告，不阻断升级成功
+	// 10. 同步内置 skills，失败明确返回错误，避免将版本不一致报告为完整升级成功。
 	if skillsDir := GetDefaultSkillsDir(); skillsDir != "" {
 		count, syncErr := SyncSkillsFromExtract(extractDir, skillsDir)
 		if syncErr != nil {
-			result.SkillsMessage = fmt.Sprintf("内置 skills 同步失败（可稍后运行 ur skills update）: %v", syncErr)
+			result.ErrorMessage = fmt.Sprintf("CLI 已替换，内置 skills 同步失败，请重新运行 ur upgrade --force: %v", syncErr)
+			result.SkillsMessage = result.ErrorMessage
+			return result, syncErr
 		} else {
 			result.SkillsSynced = true
 			result.SkillsUpdated = count
@@ -413,29 +415,48 @@ func findBinary(dir string) (string, error) {
 	return found, nil
 }
 
-// replaceBinary 原子替换二进制文件
+// replaceBinary 将新二进制暂存到安装目录再原子替换，允许下载目录位于其他文件系统。
+// 复制或校验失败时保留旧文件；Windows 重命名运行中的旧文件后再安装，失败则回滚。
 func replaceBinary(newPath, oldPath string) error {
-	// Unix: 直接 rename 即可（同一文件系统下是原子的）
-	// Windows: 需要先删除旧文件再重命名（exe 文件在运行时无法删除）
+	// 在目标目录完成暂存，避免 /tmp、安装盘或网络挂载之间 rename 返回 EXDEV。
+	source, err := os.Open(newPath)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+	staged, err := os.CreateTemp(filepath.Dir(oldPath), ".ur-upgrade-*.new")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(staged.Name())
+	defer staged.Close()
+	if _, err := io.Copy(staged, source); err != nil {
+		return err
+	}
+	if err := staged.Chmod(0o755); err != nil {
+		return err
+	}
+	if err := staged.Sync(); err != nil {
+		return err
+	}
+	if err := staged.Close(); err != nil {
+		return err
+	}
+
 	if runtime.GOOS == "windows" {
 		oldBak := oldPath + ".old"
-		os.Rename(oldPath, oldBak)
-		if err := os.Rename(newPath, oldPath); err != nil {
-			os.Rename(oldBak, oldPath) // 回滚
+		if err := os.Rename(oldPath, oldBak); err != nil {
+			return err
+		}
+		if err := os.Rename(staged.Name(), oldPath); err != nil {
+			if rollbackErr := os.Rename(oldBak, oldPath); rollbackErr != nil {
+				return fmt.Errorf("安装失败: %w，恢复旧文件失败: %v", err, rollbackErr)
+			}
 			return err
 		}
 		os.Remove(oldBak)
 		return nil
 	}
 
-	// Unix: 确保新文件有执行权限
-	if err := os.Chmod(newPath, 0o755); err != nil {
-		return err
-	}
-
-	if err := os.Rename(newPath, oldPath); err != nil {
-		return err
-	}
-
-	return nil
+	return os.Rename(staged.Name(), oldPath)
 }

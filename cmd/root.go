@@ -93,6 +93,10 @@ func isReadOnlyCommand(args []string) bool {
 	if len(args) == 0 {
 		return true
 	}
+	// 组件目录随包内置，离线查询不触发版本联网检查。
+	if len(args) >= 2 && args[0] == "view" && args[1] == "component" {
+		return true
+	}
 	// 面板离线开发不触发版本联网检查，断网空目录同样可用。
 	if len(args) >= 3 && args[0] == "things" && args[1] == "panel" {
 		switch args[2] {

@@ -4,7 +4,7 @@
 // cmd/view，因此 cmd/shared（validate/describe 实现）与 cmd/view（命令注册）
 // 均可安全引用，不会形成循环 import。
 // components.json 由前端组件目录盘点生成（来源见 snapshot 的 source 字段），
-// 当前为占位版，后续会被完整盘点版本覆盖，schema 保持不变。
+// 快照随 CLI 与配套 Skills 同步更新。
 package data
 
 import (
@@ -31,12 +31,16 @@ type Component struct {
 	Title string `json:"title"`
 	// Category 组件分类，如 BAR / LINE / PIE
 	Category string `json:"category"`
+	// CategoryName 是分类的中文名称，供关键词搜索和说明使用。
+	CategoryName string `json:"categoryName"`
 	// Package 所属包，如 CHARTS / INFORMATIONS / MEDIAS
 	Package string `json:"package"`
 	// ChartFrame 渲染框架，如 ECHARTS / COMMON
 	ChartFrame string `json:"chartFrame"`
 	// Image 组件缩略图文件名
 	Image string `json:"image"`
+	// RedirectComponent 是预置组件的实际实现路径，画布创建时需保留。
+	RedirectComponent string `json:"redirectComponent,omitempty"`
 	// IoTQueryTypes 该组件支持的 IoT 查询类型列表；空列表表示该组件不支持 IoT 数据绑定
 	IoTQueryTypes []string `json:"iotQueryTypes"`
 	// SingleValueSelfRender 是否为单值自渲染组件

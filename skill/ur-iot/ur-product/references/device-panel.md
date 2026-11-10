@@ -4,10 +4,10 @@
 
 ## 先安装联犀 Skills
 
-使用 AI 开发联犀面板前，先安装完整联犀 CLI 与随包 `ur-api` Skills，再将技能安装到实际使用的 AI 客户端。CLI 安装方式见 [官方安装说明](https://github.com/unitedrhino/cli#安装与快速开始)。已有安装可执行：
+使用 AI 开发联犀面板前，按[官网安装与客户端 Skills 部署说明](../../../references/cli-usage.md#安装-cli-与客户端-skills)安装完整 CLI 和 `ur-api` Skills。官网脚本从国内 Harbor 制品源获取最新版，不需要从 GitHub 下载。首次安装和更新现有安装均可使用。安装后执行：
 
 ```sh
-ur upgrade --version v0.9.3
+ur --version
 ur skills target detect
 ur skills install --all
 ur skills status

@@ -1,5 +1,34 @@
 # CLI 用法
 
+## 安装 CLI 与客户端 Skills
+
+推荐使用官网国内一键安装，自动获取最新版 CLI 与完整 `skill/`，从 Harbor 制品源下载并校验 SHA256，无需访问 GitHub Release。
+
+Linux / macOS：
+
+```sh
+curl -fsSL https://doc.unitedrhino.com/cli/install.sh | bash
+```
+
+Windows PowerShell：
+
+```powershell
+irm https://doc.unitedrhino.com/cli/install.ps1 | iex
+```
+
+首次安装和更新现有安装都可运行对应脚本。按提示重新打开终端，再核对客户端目标并安装 Skills：
+
+```sh
+ur --version
+ur skills target detect
+ur skills install --all
+ur skills status
+```
+
+只安装到指定客户端目录时，使用 `ur skills install --dir <客户端技能目录>`。完成后重开 AI 会话；仅下载 CLI 和 Skills 包不代表客户端已经加载技能。
+
+`ur upgrade` 是另一条更新路径：当前优先 Gitee，失败回退 GitHub，不使用上述脚本的 Harbor 下载链路。若要继续走国内制品源，请重跑官网安装脚本，再执行客户端 Skills 安装与状态检查。
+
 ## v0.9.0 组件与图元搜索
 
 CLI、随包 Skills 和一次图案例同步更新。执行 `ur upgrade --version v0.9.2` 后重开 AI 会话，使用 `ur view component search --keyword 连线 --json` 查询离线组件，使用 `ur view builtin-image search --keyword 圆形 --category electric --json` 查询平台图元。详情分别使用 `get-one --key TextCommon` 和 `get-one --id bi-electric-0952`，可加 `--json`。

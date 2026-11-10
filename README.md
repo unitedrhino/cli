@@ -263,17 +263,15 @@ ur generate-skills --output ./my-skills/
 **一键安装 + 认证（AI 自动执行）**
 
 ```bash
-# 1. 下载（推荐:版本无关永久直链,总是最新版,免查版本号）
-#    平台名: Linux-x86_64 / Linux-aarch64 / macOS-x86_64 / macOS-arm64 / Windows-x86_64
-curl -L "https://github.com/unitedrhino/cli/releases/latest/download/ur-cli-Linux-x86_64.tar.gz" -o /tmp/ur-cli.tar.gz
-# 国内直连 GitHub 慢时,用 Gitee 指定版本(Gitee 无 latest 直链,版本号见 https://gitee.com/unitedrhino/cli/releases):
-# curl -L "https://gitee.com/unitedrhino/cli/releases/download/v0.7.0/ur-cli-v0.7.0-Linux-x86_64.tar.gz" -o /tmp/ur-cli.tar.gz
-# 需要钉住历史版本时: https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.tar.gz
-mkdir -p ~/.local/lib/ur && tar -xzf /tmp/ur-cli.tar.gz -C ~/.local/lib/ur --strip-components=1
-mkdir -p ~/.local/bin && ln -sf ~/.local/lib/ur/ur ~/.local/bin/ur
-
-# Windows (PowerShell)：完整解压 .zip 包，保持 ur.exe 与 skill/ 同级，再把所在目录加入 PATH
-# Invoke-WebRequest -Uri "https://github.com/unitedrhino/cli/releases/download/${VERSION}/ur-cli-${VERSION}-${PLATFORM}.zip" -OutFile "ur.zip"; Expand-Archive "ur.zip" -DestinationPath "$env:USERPROFILE\.local\lib\ur"
+# 1. 官网国内安装（Linux / macOS，自动识别架构并保留完整 Skills）
+curl -fsSL https://doc.unitedrhino.com/cli/install.sh | bash
+# Windows PowerShell 使用：irm https://doc.unitedrhino.com/cli/install.ps1 | iex
+# 按提示重开终端后检查版本，再核对目标、安装客户端 Skills
+ur --version
+ur skills target detect
+ur skills install --all
+ur skills status
+# 重开 AI 会话加载技能。离线面板初始化、校验、模拟、打包无需平台认证。
 
 # 2. 先检查 Sandbox 环境或历史 profile
 ur check --json
@@ -684,10 +682,10 @@ A: 历史 profile 有账号密码时 CLI 会自动刷新；否则按现有凭据
 
 设备面板支持从源码校验、本地模拟到 ZIP 打包、导入与导出。新版补齐模拟初值、复位型命令回执及独立的 256 项能力声明上限；模拟器不调用真实设备。
 
-AI 开发前需要安装联犀 Skills：
+AI 开发前，先按上文[国内一键安装](#安装与快速开始)获取最新版 CLI 与完整 Skills（首次安装和更新均可），再安装到实际使用的 AI 客户端：
 
 ```sh
-ur upgrade --version v0.9.3
+ur --version
 ur skills target detect
 ur skills install --all
 ur skills status

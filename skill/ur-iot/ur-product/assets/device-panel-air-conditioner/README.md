@@ -30,3 +30,5 @@ skills/panel-development.md
 
 
 通用设备设置使用右上角齿轮和 `await window.urPanel.openSettings()`；先检查 `getContext().capabilities.settings.available`。调用不传设备ID或URL，宿主固定当前设备。Web打开当前设备的基础设置，移动端进入已有设备设置页；模拟仅展示模拟设备信息，不调用真实接口。无支持时隐藏入口，跳转失败留在原面板；返回后继续从宿主读取状态。定时、分享等通用能力仍由设备详情管理，不复制进HTML面板。
+
+平台接口可使用原生 `fetch`：运行期调用 `window.urPanel.getAuth()` 获取平台地址和认证头，设置 `credentials: 'omit'` 并按当前用户权限调用同源接口。可直接复制随包 `development.html` 中的示例。模拟环境不会提供真实令牌；仅导入可信面板，不持久化或输出令牌。

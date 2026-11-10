@@ -144,18 +144,7 @@
             const field = model.properties.find((field2) => field2.identifier === id);
             if (!field || field.available === false || field.mode !== "rw" || field.panelAccess !== "write")
               throw bridgeError("FORBIDDEN", "\u5C5E\u6027\u672A\u58F0\u660E\u5199\u5165\u6216\u5F53\u524D\u4E0D\u53EF\u5199");
-            if (field.type === "bool" && typeof value !== "boolean" || ["int", "timestamp"].includes(field.type) && !Number.isSafeInteger(value) || field.type === "float" && (typeof value !== "number" || !Number.isFinite(value)) || field.type === "string" && typeof value !== "string")
-              throw bridgeError("INVALID_PARAMS", "\u5C5E\u6027\u6570\u636E\u7C7B\u578B\u65E0\u6548");
-            const max = Number(field.max);
-            if (typeof value === "string" && field.maxLen !== void 0 && value.length > Number(field.maxLen))
-              throw bridgeError("INVALID_PARAMS", "\u5C5E\u6027\u5B57\u7B26\u4E32\u8FC7\u957F");
-            const min = Number(field.min);
-            if (typeof value === "number" && (Number.isFinite(min) && value < min || Number.isFinite(max) && value > max))
-              throw bridgeError("INVALID_PARAMS", "\u5C5E\u6027\u8D85\u51FA\u5B9E\u9645\u8303\u56F4");
-            if (field.type === "enum" && (!["number", "string"].includes(typeof value) || !hasOwn(field.mapping || field.values || {}, String(value))))
-              throw bridgeError("INVALID_PARAMS", "\u679A\u4E3E\u503C\u65E0\u6548");
-            if (!["bool", "enum", "float", "int", "string", "timestamp"].includes(field.type))
-              throw bridgeError("UNSUPPORTED_CAPABILITY", "\u5F53\u524D\u672A\u5B9E\u73B0\u8BE5\u6570\u636E\u7C7B\u578B");
+            validatePropertyValue(field, value);
           }
           return params.completion === "receipt" ? adapter.writeProperties(params.values, { completion: "receipt" }) : adapter.writeProperties(params.values);
         }
@@ -224,16 +213,65 @@
     };
   }
   function validateValue(define, value) {
+    try {
+      validateDefineValue(define, value);
+    } catch {
+      throw bridgeError("INVALID_PARAMS", "\u884C\u4E3A\u8F93\u5165\u503C\u4E0D\u7B26\u5408\u5B9E\u9645\u7269\u6A21\u578B");
+    }
+  }
+  function validatePropertyValue(define, value) {
+    try {
+      validateDefineValue(define, value);
+    } catch {
+      throw bridgeError("INVALID_PARAMS", "\u5C5E\u6027\u503C\u4E0D\u7B26\u5408\u5B9E\u9645\u7269\u6A21\u578B");
+    }
+  }
+  function validateDefineValue(define, value) {
     const type = define?.type;
-    if (type === "bool" && typeof value === "boolean" || type === "string" && typeof value === "string") return;
-    if (type === "enum" && ["number", "string"].includes(typeof value) && hasOwn(define.mapping || define.values || {}, String(value))) return;
-    if (["float", "int", "timestamp"].includes(type) && typeof value === "number" && Number.isFinite(value) && (type === "float" || Number.isSafeInteger(value)) && (define.min === null || define.min === void 0 || value >= Number(define.min)) && (define.max === null || define.max === void 0 || value <= Number(define.max)))
+    if (type === "bool" && typeof value === "boolean") return;
+    if (type === "string" && typeof value === "string") {
+      const maxLength = Number(define.maxLen ?? define.max);
+      if (Number.isFinite(maxLength) && value.length > maxLength) throw new Error("\u5B57\u7B26\u4E32\u8D85\u957F");
       return;
-    throw bridgeError("INVALID_PARAMS", "\u884C\u4E3A\u8F93\u5165\u503C\u4E0D\u7B26\u5408\u5B9E\u9645\u7269\u6A21\u578B");
+    }
+    if (type === "enum" && ["number", "string"].includes(typeof value) && hasOwn(define.mapping || define.values || {}, String(value))) return;
+    if (["float", "int", "timestamp"].includes(type) && typeof value === "number" && Number.isFinite(value)) {
+      if (type !== "float" && !Number.isSafeInteger(value)) throw new Error("\u6574\u6570\u7C7B\u578B\u65E0\u6548");
+      const max = Number(define.max);
+      const min = Number(define.min);
+      if (define.min !== void 0 && define.min !== null && Number.isFinite(min) && value < min || define.max !== void 0 && define.max !== null && Number.isFinite(max) && value > max)
+        throw new Error("\u6570\u503C\u8D85\u51FA\u8303\u56F4");
+      return;
+    }
+    if (type === "struct") {
+      requestObject(value);
+      if (!Array.isArray(define.specs)) throw new Error("\u7ED3\u6784\u4F53\u7F3A\u5C11\u5B57\u6BB5\u5B9A\u4E49");
+      const specs = /* @__PURE__ */ new Map();
+      for (const item of define.specs) {
+        const identifier = item?.identifier;
+        const memberDefine = item?.dataType || item?.define;
+        if (typeof identifier !== "string" || !memberDefine || specs.has(identifier)) throw new Error("\u7ED3\u6784\u4F53\u5B57\u6BB5\u5B9A\u4E49\u65E0\u6548");
+        specs.set(identifier, memberDefine);
+      }
+      for (const [key, memberValue] of Object.entries(value)) {
+        const memberDefine = specs.get(key);
+        if (!memberDefine) throw new Error("\u7ED3\u6784\u4F53\u5305\u542B\u672A\u58F0\u660E\u5B57\u6BB5");
+        validateDefineValue(memberDefine, memberValue);
+      }
+      return;
+    }
+    if (type === "array" || type === "matrix") {
+      if (!Array.isArray(value) || value.length === 0 || !define.arrayInfo || typeof define.arrayInfo !== "object") throw new Error("\u6570\u7EC4\u5B9A\u4E49\u6216\u503C\u65E0\u6548");
+      const maxLength = Number(define.max);
+      if (Number.isFinite(maxLength) && maxLength >= 0 && value.length > maxLength) throw new Error("\u6570\u7EC4\u8D85\u957F");
+      for (const item of value) validateDefineValue(define.arrayInfo, item);
+      return;
+    }
+    throw bridgeError("UNSUPPORTED_CAPABILITY", "\u5F53\u524D\u7269\u6A21\u578B\u6570\u636E\u7C7B\u578B\u5C1A\u672A\u652F\u6301");
   }
   function matchesRequirement(requirement, field) {
     if (requirement.kind === "action") return canonical(requirement.input || {}) === canonical(field.input || {});
-    return ["type", "unit", "mapping", "values"].every(
+    return ["type", "unit", "mapping", "values", "min", "max", "step", "maxLen", "specs", "arrayInfo"].every(
       (key) => requirement.define?.[key] === void 0 || canonical(requirement.define[key]) === canonical(field[key])
     );
   }

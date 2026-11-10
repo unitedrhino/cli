@@ -13,6 +13,27 @@ import (
 	"testing"
 )
 
+// TestPackageRequirementLimit 验证真实 ZIP 可导入超过文件数上限的功能，同时限制过大的能力声明。
+func TestPackageRequirementLimit(t *testing.T) {
+	for _, tc := range []struct {
+		count     int
+		wantError bool
+	}{{112, false}, {257, true}} {
+		m := Manifest{FormatVersion: 1, Name: "对讲面板", Entry: "index.html", SDKVersion: SDKVersion, Platforms: []string{"web"}, Requirements: make([]Requirement, tc.count)}
+		for i := range m.Requirements {
+			m.Requirements[i] = Requirement{Kind: "property", Identifier: fmt.Sprintf("field_%d", i), Access: "read", Define: map[string]any{"type": "bool"}}
+		}
+		b, err := json.Marshal(m)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = Decode("panel.zip", fixtureZIP(t, map[string][]byte{"meta.json": b, "index.html": fixtureHTML(t)}, zip.Deflate, false))
+		if (err != nil) != tc.wantError {
+			t.Fatalf("%d 项能力：错误 %v", tc.count, err)
+		}
+	}
+}
+
 // fixtureHTML 提供没有第二份清单的正常运行入口。
 func fixtureHTML(t *testing.T) []byte {
 	t.Helper()

@@ -64,7 +64,7 @@ ur things panel pack ./my-panel --out ./my-panel.zip
 - platforms 为 web/h5/appAndroid/appIos/mini 的非空子集，声明不代表当前宿主已实现该能力。
 - requirements 中 kind/identifier/required 必须明确。属性 access 为 read/write；define 至少包含 type，可约束 unit、mapping/values。write 需要真实模型 rw 且用户有控制权。
 - action 只允许 dir=down；input 是以参数 identifier 为键、define 为值的映射。需要按实际类型编码，不要伪造行为。
-- required=true 的能力缺失或不兼容会拒绝直接绑定；required=false 的差异以 unavailableOptional 返回，面板应隐藏或禁用对应操作。当前 SDK 支持 bool/int/float/string/enum/timestamp；struct/array 和物模型事件没有通用实现。
+- required=true 的能力缺失或不兼容会拒绝直接绑定；required=false 的差异以 unavailableOptional 返回，面板应隐藏或禁用对应操作。基础控件覆盖 bool/int/float/string/enum/timestamp；复杂 struct/array/matrix 应按真实模型逐字段校验并实现专用控件，不能因桥接支持数据结构就宣称所有模板已提供对应界面。物模型事件不作为通用属性控件。
 - 同一品类/产品可复用满足合同的面板，不要求整个物模型一致；单位、读写和枚举语义变化仍须校验。
 
 ## window.urPanel

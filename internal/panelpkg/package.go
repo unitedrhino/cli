@@ -30,10 +30,9 @@ const (
 	MaxCompressed = 10 << 20
 	MaxExpanded   = 30 << 20
 	MaxFiles      = 100
+	// MaxRequirements 限制物模型能力数量，与 ZIP 文件数量分别计数。
+	MaxRequirements = 256
 )
-
-// MaxRequirements 独立限制单设备面板的能力声明数量，不复用ZIP文件上限，覆盖复杂摄像机与门铃模型。
-const MaxRequirements = 256
 
 // Requirement 声明面板需要的单设备物模型能力；Define/Input 保留平台的参数定义结构。
 type Requirement struct {

@@ -136,27 +136,17 @@
           return {};
         }
         case "writeProperties": {
-          onlyKeys(params, ["values"]);
+          onlyKeys(params, ["values", "completion"]);
+          if (params.completion !== void 0 && params.completion !== "receipt") throw bridgeError("INVALID_PARAMS", "\u547D\u4EE4\u5B8C\u6210\u65B9\u5F0F\u65E0\u6548");
           requestObject(params.values);
           if (Object.keys(params.values).length === 0) throw bridgeError("INVALID_PARAMS", "\u5199\u5165\u503C\u4E0D\u80FD\u4E3A\u7A7A");
           for (const [id, value] of Object.entries(params.values)) {
             const field = model.properties.find((field2) => field2.identifier === id);
             if (!field || field.available === false || field.mode !== "rw" || field.panelAccess !== "write")
               throw bridgeError("FORBIDDEN", "\u5C5E\u6027\u672A\u58F0\u660E\u5199\u5165\u6216\u5F53\u524D\u4E0D\u53EF\u5199");
-            if (field.type === "bool" && typeof value !== "boolean" || ["int", "timestamp"].includes(field.type) && !Number.isSafeInteger(value) || field.type === "float" && (typeof value !== "number" || !Number.isFinite(value)) || field.type === "string" && typeof value !== "string")
-              throw bridgeError("INVALID_PARAMS", "\u5C5E\u6027\u6570\u636E\u7C7B\u578B\u65E0\u6548");
-            const max = Number(field.max);
-            if (typeof value === "string" && field.maxLen !== void 0 && value.length > Number(field.maxLen))
-              throw bridgeError("INVALID_PARAMS", "\u5C5E\u6027\u5B57\u7B26\u4E32\u8FC7\u957F");
-            const min = Number(field.min);
-            if (typeof value === "number" && (Number.isFinite(min) && value < min || Number.isFinite(max) && value > max))
-              throw bridgeError("INVALID_PARAMS", "\u5C5E\u6027\u8D85\u51FA\u5B9E\u9645\u8303\u56F4");
-            if (field.type === "enum" && (!["number", "string"].includes(typeof value) || !hasOwn(field.mapping || field.values || {}, String(value))))
-              throw bridgeError("INVALID_PARAMS", "\u679A\u4E3E\u503C\u65E0\u6548");
-            if (!["bool", "enum", "float", "int", "string", "timestamp"].includes(field.type))
-              throw bridgeError("UNSUPPORTED_CAPABILITY", "\u5F53\u524D\u672A\u5B9E\u73B0\u8BE5\u6570\u636E\u7C7B\u578B");
+            validatePropertyValue(field, value);
           }
-          return adapter.writeProperties(params.values);
+          return params.completion === "receipt" ? adapter.writeProperties(params.values, { completion: "receipt" }) : adapter.writeProperties(params.values);
         }
         default: {
           throw bridgeError("UNSUPPORTED_CAPABILITY", "\u672A\u77E5\u7684\u9762\u677F\u65B9\u6CD5");
@@ -223,16 +213,65 @@
     };
   }
   function validateValue(define, value) {
+    try {
+      validateDefineValue(define, value);
+    } catch {
+      throw bridgeError("INVALID_PARAMS", "\u884C\u4E3A\u8F93\u5165\u503C\u4E0D\u7B26\u5408\u5B9E\u9645\u7269\u6A21\u578B");
+    }
+  }
+  function validatePropertyValue(define, value) {
+    try {
+      validateDefineValue(define, value);
+    } catch {
+      throw bridgeError("INVALID_PARAMS", "\u5C5E\u6027\u503C\u4E0D\u7B26\u5408\u5B9E\u9645\u7269\u6A21\u578B");
+    }
+  }
+  function validateDefineValue(define, value) {
     const type = define?.type;
-    if (type === "bool" && typeof value === "boolean" || type === "string" && typeof value === "string") return;
-    if (type === "enum" && ["number", "string"].includes(typeof value) && hasOwn(define.mapping || define.values || {}, String(value))) return;
-    if (["float", "int", "timestamp"].includes(type) && typeof value === "number" && Number.isFinite(value) && (type === "float" || Number.isSafeInteger(value)) && (define.min === null || define.min === void 0 || value >= Number(define.min)) && (define.max === null || define.max === void 0 || value <= Number(define.max)))
+    if (type === "bool" && typeof value === "boolean") return;
+    if (type === "string" && typeof value === "string") {
+      const maxLength = Number(define.maxLen ?? define.max);
+      if (Number.isFinite(maxLength) && value.length > maxLength) throw new Error("\u5B57\u7B26\u4E32\u8D85\u957F");
       return;
-    throw bridgeError("INVALID_PARAMS", "\u884C\u4E3A\u8F93\u5165\u503C\u4E0D\u7B26\u5408\u5B9E\u9645\u7269\u6A21\u578B");
+    }
+    if (type === "enum" && ["number", "string"].includes(typeof value) && hasOwn(define.mapping || define.values || {}, String(value))) return;
+    if (["float", "int", "timestamp"].includes(type) && typeof value === "number" && Number.isFinite(value)) {
+      if (type !== "float" && !Number.isSafeInteger(value)) throw new Error("\u6574\u6570\u7C7B\u578B\u65E0\u6548");
+      const max = Number(define.max);
+      const min = Number(define.min);
+      if (define.min !== void 0 && define.min !== null && Number.isFinite(min) && value < min || define.max !== void 0 && define.max !== null && Number.isFinite(max) && value > max)
+        throw new Error("\u6570\u503C\u8D85\u51FA\u8303\u56F4");
+      return;
+    }
+    if (type === "struct") {
+      requestObject(value);
+      if (!Array.isArray(define.specs)) throw new Error("\u7ED3\u6784\u4F53\u7F3A\u5C11\u5B57\u6BB5\u5B9A\u4E49");
+      const specs = /* @__PURE__ */ new Map();
+      for (const item of define.specs) {
+        const identifier = item?.identifier;
+        const memberDefine = item?.dataType || item?.define;
+        if (typeof identifier !== "string" || !memberDefine || specs.has(identifier)) throw new Error("\u7ED3\u6784\u4F53\u5B57\u6BB5\u5B9A\u4E49\u65E0\u6548");
+        specs.set(identifier, memberDefine);
+      }
+      for (const [key, memberValue] of Object.entries(value)) {
+        const memberDefine = specs.get(key);
+        if (!memberDefine) throw new Error("\u7ED3\u6784\u4F53\u5305\u542B\u672A\u58F0\u660E\u5B57\u6BB5");
+        validateDefineValue(memberDefine, memberValue);
+      }
+      return;
+    }
+    if (type === "array" || type === "matrix") {
+      if (!Array.isArray(value) || value.length === 0 || !define.arrayInfo || typeof define.arrayInfo !== "object") throw new Error("\u6570\u7EC4\u5B9A\u4E49\u6216\u503C\u65E0\u6548");
+      const maxLength = Number(define.max);
+      if (Number.isFinite(maxLength) && maxLength >= 0 && value.length > maxLength) throw new Error("\u6570\u7EC4\u8D85\u957F");
+      for (const item of value) validateDefineValue(define.arrayInfo, item);
+      return;
+    }
+    throw bridgeError("UNSUPPORTED_CAPABILITY", "\u5F53\u524D\u7269\u6A21\u578B\u6570\u636E\u7C7B\u578B\u5C1A\u672A\u652F\u6301");
   }
   function matchesRequirement(requirement, field) {
     if (requirement.kind === "action") return canonical(requirement.input || {}) === canonical(field.input || {});
-    return ["type", "unit", "mapping", "values"].every(
+    return ["type", "unit", "mapping", "values", "min", "max", "step", "maxLen", "specs", "arrayInfo"].every(
       (key) => requirement.define?.[key] === void 0 || canonical(requirement.define[key]) === canonical(field[key])
     );
   }
@@ -311,9 +350,22 @@
   }
 
   // apps/web/packages/saas/src/device-panel/mock.ts
+  function copy(value) {
+    if (Array.isArray(value)) return value.map((item) => copy(item));
+    if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, copy(item)]));
+    return value;
+  }
   function createMockAdapter(requirements, options = {}) {
     const listeners = /* @__PURE__ */ new Set();
     const values = {};
+    const timers = /* @__PURE__ */ new Set();
+    let pending;
+    const commands = /* @__PURE__ */ new Set();
+    let disposed = false;
+    const scenario = options.scenario || "normal";
+    const timing = options.timing || (options.scenario ? { accepted: 100, reported: 600, result: 800, timeout: 32e3 } : { accepted: 0, reported: 0, result: 50, timeout: 32e3 });
+    if ([timing.accepted, timing.reported, timing.result, timing.timeout].some((value) => !Number.isFinite(value) || value < 0) || timing.accepted > timing.reported || timing.reported > timing.result || timing.result > timing.timeout)
+      throw bridgeError("INVALID_PARAMS", "\u6A21\u62DF\u65F6\u5E8F\u5FC5\u987B\u6309\u53D7\u7406\u3001\u4E0A\u62A5\u3001\u56DE\u6267\u3001\u8D85\u65F6\u9012\u589E");
     const properties = requirements.filter((item) => item.kind === "property").map((item) => ({
       ...item.define,
       identifier: item.identifier,
@@ -321,15 +373,132 @@
       mode: item.access === "write" ? "rw" : "r",
       available: true
     }));
+    const motionGroups = copy(options.motionGroups === void 0 ? [] : options.motionGroups);
+    const motionIDs = /* @__PURE__ */ new Set();
+    const motionValueValid = (identifier, value) => {
+      const field = properties.find((item) => item.identifier === identifier && item.mode === "rw");
+      if (!field) return false;
+      if (field.type === "bool") return typeof value === "boolean";
+      if (field.type === "enum") return ["number", "string"].includes(typeof value) && Object.prototype.hasOwnProperty.call(field.mapping || {}, String(value));
+      const step = Number(field.step || 1);
+      return ["float", "int"].includes(field.type) && typeof value === "number" && Number.isFinite(value) && (field.type !== "int" || Number.isInteger(value)) && value >= Number(field.min) && value <= Number(field.max) && Number.isFinite(step) && step > 0 && Math.abs(value / step - Math.round(value / step)) < 1e-8;
+    };
+    if (!Array.isArray(motionGroups)) throw bridgeError("INVALID_PARAMS", "\u8FDE\u7EED\u8FD0\u52A8\u6A21\u62DF\u58F0\u660E\u5FC5\u987B\u4E3A\u6570\u7EC4");
+    for (const group of motionGroups) {
+      if (!group || typeof group.id !== "string" || !group.id || motionIDs.has(group.id) || !motionValueValid(group.stopIdentifier, group.stopValue) || !Array.isArray(group.directions) || (group.startIdentifier === null ? group.directions.length > 0 : group.directions.length === 0 || group.directions.some((direction) => !direction || !motionValueValid(group.startIdentifier || "", direction.value))))
+        throw bridgeError("INVALID_PARAMS", "\u8FDE\u7EED\u8FD0\u52A8\u6A21\u62DF\u58F0\u660E\u4E0E\u53EF\u5199\u7269\u6A21\u578B\u4E0D\u4E00\u81F4");
+      motionIDs.add(group.id);
+    }
+    const resetTriggers = copy(options.resetTriggers === void 0 ? [] : options.resetTriggers);
+    if (!Array.isArray(resetTriggers) || resetTriggers.some(
+      (item, index) => !item || typeof item.identifier !== "string" || item.triggerValue !== true || item.resetValue !== false || !properties.some((field) => field.identifier === item.identifier && field.type === "bool" && field.mode === "rw") || resetTriggers.findIndex((other) => other?.identifier === item.identifier) !== index
+    ))
+      throw bridgeError("INVALID_PARAMS", "\u547D\u4EE4\u590D\u4F4D\u6A21\u62DF\u58F0\u660E\u4E0E\u53EF\u5199\u5E03\u5C14\u6A21\u578B\u4E0D\u4E00\u81F4");
+    const sameMotionValue = (identifier, actual, expected) => properties.find((item) => item.identifier === identifier)?.type === "enum" ? String(actual) === String(expected) : actual === expected;
+    const motionFor = (next) => {
+      if (!next || Object.keys(next).length !== 1) return void 0;
+      for (const group of motionGroups) {
+        if (Object.prototype.hasOwnProperty.call(next, group.stopIdentifier) && sameMotionValue(group.stopIdentifier, next[group.stopIdentifier], group.stopValue))
+          return { group, kind: "stop" };
+        if (group.startIdentifier && Object.prototype.hasOwnProperty.call(next, group.startIdentifier) && group.directions.some((direction) => sameMotionValue(group.startIdentifier || "", next[group.startIdentifier || ""], direction.value)))
+          return { group, kind: "start" };
+      }
+      return void 0;
+    };
     for (const field of properties) {
       let value = "";
       if (field.type === "bool") value = false;
-      else if (["float", "int", "timestamp"].includes(field.type)) value = Number(field.min || 0);
-      else if (field.type === "enum") value = Object.keys(field.mapping || field.values || {})[0] ?? "";
-      values[field.identifier] = value;
+      else if (["float", "int", "timestamp"].includes(field.type)) {
+        const step = Number(field.step || 1);
+        const first = Number((Math.ceil(Number(field.min || 0) / step - 1e-9) * step).toFixed(8));
+        value = first <= Number(field.max ?? first) ? first : void 0;
+      } else if (field.type === "enum") value = Object.keys(field.mapping || field.values || {})[0] ?? "";
+      values[field.identifier] = Object.prototype.hasOwnProperty.call(options.initialValues || {}, field.identifier) ? copy(options.initialValues?.[field.identifier]) : value;
     }
-    const emit = (event) => listeners.forEach((callback) => callback(event));
-    const snapshot = (ids) => Object.fromEntries(ids.map((id) => [id, { value: values[id], timestamp: Date.now(), receivedTime: Date.now(), quality: "good", source: "mock" }]));
+    const emit = (event) => {
+      if (!disposed) listeners.forEach((callback) => callback(event));
+    };
+    const quality = (value) => {
+      if (value === null || value === void 0) return "unknown";
+      return scenario === "offline" ? "cached" : "good";
+    };
+    const snapshot = (ids) => Object.fromEntries(
+      ids.map((id) => [
+        id,
+        {
+          value: copy(values[id]),
+          timestamp: Date.now(),
+          receivedTime: Date.now(),
+          quality: quality(values[id]),
+          source: "mock"
+        }
+      ])
+    );
+    const schedule = (delay, callback) => {
+      if (!delay) {
+        if (!disposed) callback();
+        return;
+      }
+      const timer = setTimeout(() => {
+        timers.delete(timer);
+        if (!disposed) callback();
+      }, delay);
+      timers.add(timer);
+    };
+    const active = () => {
+      if (disposed) throw bridgeError("SESSION_CLOSED", "\u6A21\u62DF\u4F1A\u8BDD\u5DF2\u5173\u95ED");
+      if (scenario === "offline") throw bridgeError("DEVICE_OFFLINE", "\u6A21\u62DF\u8BBE\u5907\u5DF2\u79BB\u7EBF\uFF0C\u6682\u4E0D\u80FD\u63A7\u5236");
+    };
+    const report = (next) => {
+      if (disposed) return;
+      Object.assign(values, copy(next));
+      emit({ topic: "property", data: snapshot(Object.keys(next)) });
+    };
+    const execute = (next, action) => {
+      active();
+      const motion = motionFor(next);
+      if (pending) {
+        if (motion?.kind !== "stop" || pending.motion?.kind !== "start" || pending.motion.group !== motion.group)
+          throw bridgeError("COMMAND_PENDING", "\u8BF7\u7B49\u5F85\u5F53\u524D\u6A21\u62DF\u547D\u4EE4\u5B8C\u6210");
+        pending.superseded = true;
+      }
+      const commandID = messageID();
+      const command = { commandID, motion, superseded: false };
+      pending = command;
+      commands.add(command);
+      return new Promise((resolve, reject) => {
+        command.reject = reject;
+        schedule(timing.accepted, () => {
+          command.reject = void 0;
+          resolve({ commandID, status: "accepted", source: "mock" });
+        });
+        if (scenario === "normal" && next)
+          schedule(timing.reported, () => {
+            if (!command.superseded) {
+              const reported = copy(next);
+              for (const trigger of resetTriggers) if (reported[trigger.identifier] === trigger.triggerValue) reported[trigger.identifier] = trigger.resetValue;
+              report(reported);
+            }
+          });
+        schedule(scenario === "timeout" ? timing.timeout : timing.result, () => {
+          if (pending === command) pending = void 0;
+          commands.delete(command);
+          const status = { failure: "failed", normal: "succeeded", offline: "unknown", timeout: "unknown", unsynchronized: "succeeded" }[scenario];
+          emit({
+            topic: "command",
+            data: {
+              commandID,
+              source: "mock",
+              status,
+              ...scenario === "failure" ? { message: "\u6A21\u62DF\u6267\u884C\u5931\u8D25" } : {},
+              ...scenario === "timeout" ? { message: "\u6267\u884C\u7ED3\u679C\u672A\u77E5\uFF0C\u8BF7\u786E\u8BA4\u8BBE\u5907\u72B6\u6001\u540E\u91CD\u8BD5" } : {},
+              ...scenario === "unsynchronized" ? { stateSynchronized: false } : {},
+              ...action ? { identifier: action.identifier, ...scenario === "normal" ? { output: action.params } : {} } : {}
+            }
+          });
+        });
+      });
+    };
     const context = {
       mode: "mock",
       deviceID: "mock-device",
@@ -337,7 +506,7 @@
       deviceName: "\u6A21\u62DF\u8BBE\u5907",
       capabilities: {
         settings: { available: true },
-        cloud: { available: true },
+        cloud: { available: scenario !== "offline" },
         api: { available: true, source: "mock" },
         ble: { available: false, reason: "\u6A21\u62DF\u5BBF\u4E3B\u672A\u8FDE\u63A5\u84DD\u7259" }
       }
@@ -354,6 +523,7 @@
         return { baseURL: "", headers: {} };
       },
       async request(params) {
+        active();
         validateApiRequest(params);
         const handler = options.apiHandlers?.[params.path];
         if (!handler) throw bridgeError("UNSUPPORTED_CAPABILITY", "\u6A21\u62DF\u63A5\u53E3\u5C1A\u672A\u914D\u7F6E\uFF0C\u4E0D\u4F1A\u8BBF\u95EE\u771F\u5B9E\u8BBE\u5907");
@@ -363,16 +533,10 @@
         return snapshot(ids);
       },
       async writeProperties(next) {
-        Object.assign(values, next);
-        const commandID = messageID();
-        emit({ topic: "property", data: snapshot(Object.keys(next)) });
-        setTimeout(() => emit({ topic: "command", data: { commandID, status: "succeeded", source: "mock" } }), 50);
-        return { commandID, status: "accepted", source: "mock" };
+        return execute(copy(next));
       },
       async invokeAction(identifier, params) {
-        const commandID = messageID();
-        setTimeout(() => emit({ topic: "command", data: { commandID, identifier, status: "succeeded", output: params, source: "mock" } }), 50);
-        return { commandID, status: "accepted", source: "mock" };
+        return execute(void 0, { identifier, params: copy(params) });
       },
       subscribe(topics, callback) {
         const scoped = (event) => {
@@ -382,11 +546,44 @@
         return () => listeners.delete(scoped);
       },
       dispose() {
+        disposed = true;
+        timers.forEach((timer) => clearTimeout(timer));
+        timers.clear();
+        commands.forEach((command) => command.reject?.(bridgeError("SESSION_CLOSED", "\u6A21\u62DF\u4F1A\u8BDD\u5DF2\u5173\u95ED")));
+        commands.clear();
+        pending = void 0;
         settings.dispose();
         listeners.clear();
       }
     };
-    return { adapter, emit, values };
+    return { adapter, emit, report, values };
+  }
+
+  // apps/web/packages/saas/src/device-panel/mock-resources.ts
+  async function loadPanelMockResources(entryURL, fetcher = fetch) {
+    const entry = new URL(entryURL, globalThis.location?.href);
+    if (!["http:", "https:"].includes(entry.protocol)) throw new Error("\u6A21\u62DF\u9762\u677F\u5165\u53E3\u534F\u8BAE\u65E0\u6548");
+    const read = async (name) => {
+      let response;
+      try {
+        response = await fetcher(new URL(`.data/${name}.json`, entry), { credentials: "omit", redirect: "error" });
+      } catch {
+        throw new Error("\u6A21\u62DF\u8D44\u6E90\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u7F51\u7EDC\u540E\u91CD\u8BD5");
+      }
+      if (response.status === 404) return void 0;
+      if (!response.ok) throw new Error("\u6A21\u62DF\u8D44\u6E90\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u5237\u65B0\u9762\u677F\u6388\u6743\u540E\u91CD\u8BD5");
+      try {
+        return await response.json();
+      } catch {
+        throw new Error("\u9762\u677F\u6A21\u62DF\u6570\u636E\u683C\u5F0F\u65E0\u6548");
+      }
+    };
+    const [initialValues, motionGroups, resetTriggers] = await Promise.all([read("mock"), read("motion-groups"), read("reset-triggers")]);
+    if (initialValues !== void 0 && (!initialValues || typeof initialValues !== "object" || Array.isArray(initialValues)))
+      throw new Error("\u6A21\u62DF\u521D\u503C\u5FC5\u987B\u4E3AJSON\u5BF9\u8C61");
+    if (motionGroups !== void 0 && !Array.isArray(motionGroups)) throw new Error("\u8FDE\u7EED\u8FD0\u52A8\u6A21\u62DF\u58F0\u660E\u5FC5\u987B\u4E3A\u6570\u7EC4");
+    if (resetTriggers !== void 0 && !Array.isArray(resetTriggers)) throw new Error("\u547D\u4EE4\u590D\u4F4D\u6A21\u62DF\u58F0\u660E\u5FC5\u987B\u4E3A\u6570\u7EC4");
+    return { initialValues, motionGroups, resetTriggers };
   }
 
   // apps/web/packages/saas/src/device-panel/dev-host.ts
@@ -403,10 +600,12 @@
     const error = document.querySelector("#error");
     if (!frame || !error) return;
     try {
-      const response = await fetch("/__ur_panel/manifest");
+      const [response, mockResources] = await Promise.all([fetch("/__ur_panel/manifest"), loadPanelMockResources("/panel/index.html")]);
       if (!response.ok) throw new Error("\u5DE5\u7A0B\u6821\u9A8C\u5931\u8D25\uFF0C\u8BF7\u8FD0\u884C ur things panel validate");
       const manifest = await response.json();
-      const { adapter } = createMockAdapter(manifest.requirements);
+      const scenario = new URLSearchParams(location.search).get("scenario");
+      if (scenario && !["failure", "normal", "offline", "timeout", "unsynchronized"].includes(scenario)) throw new Error("\u6A21\u62DF\u573A\u666F\u65E0\u6548");
+      const { adapter } = createMockAdapter(manifest.requirements, { ...mockResources, scenario: scenario ? scenario : void 0 });
       const cleanup = attachPanelBridge(frame, adapter, manifest.requirements, (text) => {
         error.textContent = text;
       });

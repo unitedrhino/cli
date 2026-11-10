@@ -39,6 +39,8 @@ ur things panel pack ./air-conditioner --out ./air-conditioner.zip
 
 `validate`、`serve`、`pack` 均可离线运行，无需登录；serve 的控制只改变模拟设备，不会发送到平台。直接双击 `index.html` 没有宿主桥，不能代替模拟运行。输出 ZIP 放在工程目录外，避免把旧包再次装入新包。CLI 不覆盖已有输出文件，重复打包时使用新文件名。
 
+模拟设备若有已确认的布尔命令自动复位，可在 `.data/reset-triggers.json` 显式写入数组，如 `[{"identifier":"clear_event","triggerValue":true,"resetValue":false}]`。字段必须在清单中声明为可写布尔属性；模拟正常执行时才上报复位，失败、未同步及超时不伪造状态。该文件只影响模拟器，实际设备仍以协议和真实上报为准；禁止凭字段名称猜测复位行为。
+
 也可以让 CLI 创建工程：
 
 ```sh
@@ -46,7 +48,7 @@ ur things panel init ./my-switch
 ur things panel init ./my-aircon --template air-conditioner
 ```
 
-CLI 安装与升级方法见 [联犀 CLI 说明](https://gitee.com/unitedrhino/cli)。若当前版本提示未知命令，需要与此后台配套、包含设备面板命令的 CLI 构建包；正式发布版尚未包含该能力时，仅升级到旧发布版不能获得这些命令。未安装 CLI 时，仍可在本地编辑，把文件压缩为 ZIP 后导入后台模拟；压缩包根目录必须直接包含清单和入口，不能多套一层目录。
+CLI 与 Skills 安装步骤见 [面板开发入口](device-panel.md#先安装联犀-skills)。v0.9.2 已提供面板命令，v0.9.3 补齐模拟数据、复位型命令说明与独立的 256 项能力声明上限。先安装完整 CLI，再执行 `ur skills target detect` 和 `ur skills install --all`，重开 AI 客户端会话；仅升级可执行文件不能证明客户端已经加载新技能。未安装 CLI 时仍可编辑源码并将根目录清单与入口打包为 ZIP，导入后台模拟。
 
 ## 4. 声明清单和能力合同
 
@@ -132,6 +134,12 @@ window.addEventListener('pagehide', () => unsubscribe(), { once: true });
 | `writeProperties({values})` | 返回 commandID、accepted | 只表示受理，先显示等待，不能立刻提示设备执行成功 |
 | `invokeAction({identifier,params})` | 返回 commandID、accepted；无参数也传 `{}` | 参数遵循实际行为输入模型，不能虚构行为 |
 | `subscribe({topics},callback)` | 返回取消订阅函数 | 监听属性、连接和命令；退出页面释放订阅 |
+
+`getThingModel()`返回运行期SDK模型：`properties`中每项的`identifier`、`type`、`mode`、`available`以及存在的`min/max/step/unit/mapping`直接位于属性对象上，例如读取`property.min`，不是`property.define.min`。`mode: "r"`只读，`mode: "rw"`可写；仍需结合`available`和设备连接状态决定是否显示操作。约束缺失不能补成零值或虚构范围。
+
+ZIP中的`.data/thing-model.json`是平台原生模型，约束位于`properties[].define`，另有`userPerm`等导入字段。它用于物模型导入和包结构校验，不能拿来代替宿主实际返回的SDK模型；SDK合同不保证返回`userPerm`。验证原生模型和真实宿主时应分别按这两种结构检查，不因SDK省略原生导入字段而推断设备能力缺失。
+
+对于设备自动复位的触发字段，可在已确认其协议时使用 `writeProperties({values: {clear_event: true}, completion: 'receipt'})`；宿主收到设备成功回执后立即发布命令结果，不等待属性等于下发值。返回 accepted 仍只是受理；面板必须独立等待设备新上报的复位值和成功回执，不能用回执伪造属性或宣称复位成功。省略 completion 的普通属性保留原有同步规则；无法识别该选项的旧宿主会拒绝请求，不会自动重发，须先升级宿主再发布使用该选项的面板。
 
 命令最终状态为 succeeded、failed 或 timeout；超时表示结果未知，不自动重发。设备已确认但 `stateSynchronized: false` 时，应提示状态尚未同步并保留实际上报值，后续属性到达后再更新按钮。平台接口可通过request调用，凭据由getAuth运行期读取；不读取父窗口DOM或保存账号令牌。
 

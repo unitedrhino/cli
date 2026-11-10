@@ -2,6 +2,23 @@
 
 用于开发、校验和导入单设备 HTML 面板。面板管理展示、模拟、导入、更新、导出和删除；页面代码在本地编辑器或 AI 工具中维护。多设备大屏继续使用 ur-view。
 
+## 先安装联犀 Skills
+
+使用 AI 开发联犀面板前，先安装完整联犀 CLI 与随包 `ur-api` Skills，再将技能安装到实际使用的 AI 客户端。CLI 安装方式见 [官方安装说明](https://github.com/unitedrhino/cli#安装与快速开始)。已有安装可执行：
+
+```sh
+ur upgrade --version v0.9.3
+ur skills target detect
+ur skills install --all
+ur skills status
+```
+
+`target detect` 用于核对将写入哪些客户端；只安装到指定目录时，改用 `ur skills install --dir <客户端技能目录>`。安装完成重开 AI 会话，确认能发现 `ur-api → ur-iot → ur-product`，要求 AI 读取本指南和 [开发合同](device-panel-development.md)，再提供真实物模型及需求。仅下载 ZIP 或安装 CLI 不等于客户端已经加载 Skills。
+
+可以对 AI 说：“读取联犀 ur-product 面板开发指南，根据我提供的物模型生成一个电表面板。突出累计电量与三相参数，支持 Web 和手机布局；缺失读数显示未上报，不虚构可写字段。生成后校验、模拟预览，再打包。”这是一条需求示例，不代表已经执行或连接设备。
+
+公开面板方案库：<https://doc.unitedrhino.com/panel-library/>。可按品类预览并下载方案源码包，在本地调整后用 CLI 校验。方案库在线模拟数据与真实设备上报必须明确区分；下载包并不证明设备支持所有能力，导入、绑定与真机验证分开验收。Skills 随包提供开关和空调基础样板；完整品类方案通过面板库按需下载，不把历史调研文件作为发布资源。
+
 ## 从空目录开始
 
 ```sh
@@ -19,14 +36,14 @@ ur things panel pack ./my-panel --out ./my-panel.zip
 
 ## 视觉与交互样板（开发前必读）
 
-新面板从 [开关样板](../assets/device-panel) 或 [空调样板](../assets/device-panel-air-conditioner) 改起，不重新凭空设计。两套样板共用 panel.css 和 panel.js，外层模拟工作台不属于面板资源。后台管理仍沿用所在仓库的既有设计体系，面板内部是可离线运行的独立 HTML，不引入后台 UI 库或 CDN。
+新面板可从 [开关样板](../assets/device-panel)、[空调样板](../assets/device-panel-air-conditioner) 或面板库方案改起，按设备品类和品牌设计视觉。基础样板共用 panel.css 和 panel.js，外层模拟工作台不属于面板资源。后台管理仍沿用所在仓库的既有设计体系，面板内部是可离线运行的独立 HTML，不引入后台 UI 库或 CDN。
 
 | 约束 | 统一要求 |
 | --- | --- |
-| 颜色 | 从 panel.css 的 --background/card/foreground/muted-foreground/border/primary 等语义变量取值；默认浅色、青绿主色。业务控件不写裸色值。换品牌仅改变量，不逐控件另配色 |
+| 颜色 | 从 panel.css 的 --background/card/foreground/muted-foreground/border/primary 等语义变量取值；按品类与品牌选择主色，不要求所有设备使用青绿色。业务控件用语义变量，换品牌统一调整变量 |
 | 字体 | 系统无衬线字体；标题 20–24px，正文/控件 12–14px，辅助 11–12px；温度可用 72–80px；数值等宽，不拉伸、不靠 emoji 装饰 |
 | 间距 | 以 8px 为基本节奏，卡片间距 14–20px，内边距 20–28px；统一细边框、轻阴影和圆角，不混用玻璃、霓虹、厚阴影 |
-| 结构 | 设备身份和连接状态 → 核心状态/控制 → 分组操作 → 固定反馈区 → 数据来源；桌面双栏、760px以下单栏，温控卡片使用浅青绿底色突出核心数值，其余控制卡保持白底；反馈紧随控制区，320px 不横向溢出 |
+| 结构 | 设备身份和连接状态 → 核心状态/控制 → 分组操作 → 固定反馈区 → 数据来源；按内容设计桌面与手机布局，温控突出温度，电表突出电参量，网关突出连接和子设备；不强制所有品类共用同一配色或卡片布局；反馈紧随控制区，320px 不横向溢出 |
 | 控件 | 触控主按钮至少 44px；模式使用同组等宽按钮，风速使用分段按钮；正常/选中/禁用/发送中/失败/未知均有明确表现；支持键盘焦点、aria-label、aria-pressed 和实时反馈 |
 | 状态 | 不把关闭值、默认温度或缓存显示成实时状态；只读/离线/可选能力缺失禁用相应操作；accepted 与设备确认分开，等待期间锁定，失败/超时不自动重发 |
 | 用户文案 | 不显示 SDK、原始 JSON、命令 ID、packageHash 或连接栈；技术详情放在宿主调试区域。模拟与缓存必须明确标识，不能暗示真实设备 |
@@ -35,7 +52,7 @@ ur things panel pack ./my-panel --out ./my-panel.zip
 
 空调样板使用 power、targetTemperature、mode、fanSpeed，及可选 currentTemperature；具体类型、单位、枚举见其 meta.json。它们仅为演示合同，实际产品可能叫 PowerSwitch/SetTemperature 等，必须先查物模型再一致修改 HTML 控件映射、JS 和 requirements，不能为了套模板修改真实设备协议。
 
-交付前至少用 serve 查看桌面及手机，检查320px宽度、开关、温度边界、模式/风速选中、等待回执及失败/离线状态；保留截图。不能仅验证 HTML 能打开就称为视觉验收通过。模拟工作台提供桌面/手机宽度切换和重新运行，不提供在线编辑器。
+交付前至少用 serve 查看桌面及手机，检查320px宽度、开关、温度边界、模式/风速选中、等待回执及失败/离线状态；保留截图。不能仅验证 HTML 能打开就称为视觉验收通过。模拟工作台提供桌面/手机宽度切换和重新运行，不提供在线编辑器。面板内部按使用场景组织，不机械拆成“主面板、设备参数、设备状态”三个标签；设置入口仅放需要配置的项目。
 
 后台面板管理提供“接入说明”和开关/空调“下载模板”，列表显示首次接入流程，导入弹窗也可直接下载两套模板。完整入门流程、文件职责、SDK 参数与发布验收见 [面板开发说明](device-panel-development.md)。模板下载包附同内容的 development.html，解压后可离线阅读，也可直接导入模拟。后台只有一个导入入口：填写名称和备注，拖拽或点击上传；平台导入自动公共，其他企业自动当前企业，不提供归属选择。导入成功后可选择绑定设备、产品或品类，也可稍后绑定。
 
@@ -47,7 +64,7 @@ ur things panel pack ./my-panel --out ./my-panel.zip
 - platforms 为 web/h5/appAndroid/appIos/mini 的非空子集，声明不代表当前宿主已实现该能力。
 - requirements 中 kind/identifier/required 必须明确。属性 access 为 read/write；define 至少包含 type，可约束 unit、mapping/values。write 需要真实模型 rw 且用户有控制权。
 - action 只允许 dir=down；input 是以参数 identifier 为键、define 为值的映射。需要按实际类型编码，不要伪造行为。
-- required=true 的能力缺失或不兼容会拒绝直接绑定；required=false 的差异以 unavailableOptional 返回，面板应隐藏或禁用对应操作。当前 SDK 支持 bool/int/float/string/enum/timestamp；struct/array 和物模型事件没有通用实现。
+- required=true 的能力缺失或不兼容会拒绝直接绑定；required=false 的差异以 unavailableOptional 返回，面板应隐藏或禁用对应操作。基础控件覆盖 bool/int/float/string/enum/timestamp；复杂 struct/array/matrix 应按真实模型逐字段校验并实现专用控件，不能因桥接支持数据结构就宣称所有模板已提供对应界面。物模型事件不作为通用属性控件。
 - 同一品类/产品可复用满足合同的面板，不要求整个物模型一致；单位、读写和枚举语义变化仍须校验。
 
 ## window.urPanel

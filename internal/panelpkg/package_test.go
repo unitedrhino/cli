@@ -5,12 +5,34 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"image"
 	"image/png"
 	"os"
 	"strings"
 	"testing"
 )
+
+// TestPackageRequirementLimit 验证真实 ZIP 可导入超过文件数上限的功能，同时限制过大的能力声明。
+func TestPackageRequirementLimit(t *testing.T) {
+	for _, tc := range []struct {
+		count     int
+		wantError bool
+	}{{112, false}, {257, true}} {
+		m := Manifest{FormatVersion: 1, Name: "对讲面板", Entry: "index.html", SDKVersion: SDKVersion, Platforms: []string{"web"}, Requirements: make([]Requirement, tc.count)}
+		for i := range m.Requirements {
+			m.Requirements[i] = Requirement{Kind: "property", Identifier: fmt.Sprintf("field_%d", i), Access: "read", Define: map[string]any{"type": "bool"}}
+		}
+		b, err := json.Marshal(m)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = Decode("panel.zip", fixtureZIP(t, map[string][]byte{"meta.json": b, "index.html": fixtureHTML(t)}, zip.Deflate, false))
+		if (err != nil) != tc.wantError {
+			t.Fatalf("%d 项能力：错误 %v", tc.count, err)
+		}
+	}
+}
 
 // fixtureHTML 提供没有第二份清单的正常运行入口。
 func fixtureHTML(t *testing.T) []byte {
@@ -254,5 +276,53 @@ func TestPanelZIPMetaRequired(t *testing.T) {
 	round, e := Decode("export.zip", exported)
 	if e != nil || round.Files["meta.json"] == nil || round.Hash != p.Hash {
 		t.Fatal("导出没有保留meta与摘要", e)
+	}
+}
+
+// TestRequirementsIndependentOfFileCount 通过真实ZIP往返验证112项能力可导入，256项上限与100个文件上限各自生效。
+func TestRequirementsIndependentOfFileCount(t *testing.T) {
+	for _, count := range []int{112, 256, 257} {
+		t.Run(fmt.Sprint(count), func(t *testing.T) {
+			var manifest Manifest
+			if err := json.Unmarshal(fixtureMetadata(t), &manifest); err != nil {
+				t.Fatal(err)
+			}
+			manifest.Requirements = make([]Requirement, count)
+			for i := range manifest.Requirements {
+				manifest.Requirements[i] = Requirement{Kind: "property", Identifier: fmt.Sprintf("field_%d", i), Access: "read", Define: map[string]any{"type": "bool"}}
+			}
+			metadata, err := json.Marshal(manifest)
+			if err != nil {
+				t.Fatal(err)
+			}
+			pkg, err := Decode("fields.zip", fixtureZIP(t, map[string][]byte{"meta.json": metadata, "index.html": fixtureHTML(t)}, zip.Deflate, false))
+			if count > 256 {
+				if err == nil {
+					t.Fatal("超出能力上限仍接受")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("%d项能力的两文件ZIP被拒绝：%v", count, err)
+			}
+			exported, err := pkg.ZIP()
+			if err != nil {
+				t.Fatal(err)
+			}
+			imported, err := Decode("exported.zip", exported)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if imported.Hash != pkg.Hash || len(imported.Manifest.Requirements) != count {
+				t.Fatal("导出回导改变能力声明")
+			}
+		})
+	}
+	files := map[string][]byte{"meta.json": fixtureMetadata(t), "index.html": fixtureHTML(t)}
+	for i := 0; i < 99; i++ {
+		files[fmt.Sprintf(".data/file-%d.txt", i)] = []byte("资源边界")
+	}
+	if _, err := Decode("files.zip", fixtureZIP(t, files, zip.Deflate, false)); err == nil {
+		t.Fatal("101个文件仍被接受")
 	}
 }

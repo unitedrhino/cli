@@ -679,3 +679,20 @@ A: 使用 `--app` 参数：`ur --app iot api ...`，或通过 `UR_APP` 环境变
 
 ### Q: Token 过期了怎么办？
 A: 历史 profile 有账号密码时 CLI 会自动刷新；否则按现有凭据选择 `ur login --method device|password|aksk`。
+
+## v0.9.3：AI 设备面板开发与 Skills 安装
+
+设备面板支持从源码校验、本地模拟到 ZIP 打包、导入与导出。新版补齐模拟初值、复位型命令回执及独立的 256 项能力声明上限；模拟器不调用真实设备。
+
+AI 开发前需要安装联犀 Skills：
+
+```sh
+ur upgrade --version v0.9.3
+ur skills target detect
+ur skills install --all
+ur skills status
+```
+
+核对目标后安装，重开 AI 客户端会话，使用 `ur-api → ur-iot → ur-product` 的面板指南；只需单一目录时使用 `ur skills install --dir <目录>`。详细安装、需求示例、Web/手机布局与真实物模型约束见 [设备面板指南](skill/ur-iot/ur-product/references/device-panel.md)。
+
+[面板库](https://doc.unitedrhino.com/panel-library/)提供按品类下载的可修改源码与配置；随包 Skills 保留开关/空调基础样板，不包含历史调研素材。详见 [v0.9.3 更新说明](references/releases/v0.9.3.md)。

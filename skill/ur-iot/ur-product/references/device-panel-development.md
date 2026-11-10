@@ -48,7 +48,7 @@ ur things panel init ./my-switch
 ur things panel init ./my-aircon --template air-conditioner
 ```
 
-CLI 安装与升级方法见 [联犀 CLI 说明](https://gitee.com/unitedrhino/cli)。若当前版本提示未知命令，需要与此后台配套、包含设备面板命令的 CLI 构建包；正式发布版尚未包含该能力时，仅升级到旧发布版不能获得这些命令。未安装 CLI 时，仍可在本地编辑，把文件压缩为 ZIP 后导入后台模拟；压缩包根目录必须直接包含清单和入口，不能多套一层目录。
+CLI 与 Skills 安装步骤见 [面板开发入口](device-panel.md#先安装联犀-skills)。v0.9.2 已提供面板命令，v0.9.3 补齐模拟数据、复位型命令说明与独立的 256 项能力声明上限。先安装完整 CLI，再执行 `ur skills target detect` 和 `ur skills install --all`，重开 AI 客户端会话；仅升级可执行文件不能证明客户端已经加载新技能。未安装 CLI 时仍可编辑源码并将根目录清单与入口打包为 ZIP，导入后台模拟。
 
 ## 4. 声明清单和能力合同
 

@@ -497,6 +497,44 @@ func installCSP(root *html.Node) {
 	if head == nil {
 		return
 	}
-	meta := &html.Node{Type: html.ElementNode, Data: "meta", Attr: []html.Attribute{{Key: "id", Val: "ur-panel-csp"}, {Key: "http-equiv", Val: "Content-Security-Policy"}, {Key: "content", Val: "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'"}}}
+	meta := &html.Node{Type: html.ElementNode, Data: "meta", Attr: []html.Attribute{{Key: "id", Val: "ur-panel-csp"}, {Key: "http-equiv", Val: "Content-Security-Policy"}, {Key: "content", Val: "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-src 'none'"}}}
 	head.InsertBefore(meta, head.FirstChild)
+}
+
+// EnablePlatformFetch 仅更新平台注入的 CSP，使既有归一化面板能访问同源平台；原始包和摘要不变。
+func EnablePlatformFetch(content []byte) ([]byte, error) {
+	if !bytes.Contains(content, []byte("ur-panel-csp")) {
+		return content, nil
+	}
+	root, err := html.Parse(bytes.NewReader(content))
+	if err != nil {
+		return nil, err
+	}
+	changed := false
+	var visit func(*html.Node)
+	visit = func(node *html.Node) {
+		if node.Type == html.ElementNode && node.Data == "meta" && attr(node, "id") == "ur-panel-csp" {
+			for i := range node.Attr {
+				if strings.EqualFold(node.Attr[i].Key, "content") {
+					updated := strings.Replace(node.Attr[i].Val, "connect-src 'none'", "connect-src 'self'", 1)
+					if updated != node.Attr[i].Val {
+						node.Attr[i].Val = updated
+						changed = true
+					}
+				}
+			}
+		}
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			visit(child)
+		}
+	}
+	visit(root)
+	if !changed {
+		return content, nil
+	}
+	var out bytes.Buffer
+	if err := html.Render(&out, root); err != nil {
+		return nil, err
+	}
+	return out.Bytes(), nil
 }

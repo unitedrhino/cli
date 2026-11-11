@@ -71,6 +71,19 @@ ur things panel pack ./my-panel --out ./my-panel.zip
 
 SDK 通过本机宿主桥工作；运行期可通过 getAuth 获取当前认证，通过 request 调现有平台接口。禁止读取父窗口 DOM、拼设备密钥或把凭据写入资源包。
 
+原生 fetch 示例（只在可信面板运行时调用，不输出或保存认证头）：
+
+```js
+const { baseURL, headers } = await window.urPanel.getAuth();
+const { productID, deviceName } = await window.urPanel.getContext();
+const response = await fetch(`${baseURL}/api/v1/things/device/info/get-one`, {
+  method: 'POST', credentials: 'omit', headers,
+  body: JSON.stringify({ productID, deviceName }),
+});
+const result = await response.json();
+if (!response.ok || result.code !== 200) throw new Error(result.msg || '请求失败');
+```
+
 ```js
 const context = await urPanel.getContext();
 const model = await urPanel.getThingModel();
@@ -108,7 +121,7 @@ Web 通过校验 iframe 身份后的 MessageChannel 运行，sandbox 只允许�
 - `await urPanel.getAuth()` 返回 `{baseURL,headers}`。`headers.token` 为当前登录token，同时包含宿主对应的应用、企业和项目请求头；不使用refresh token。每次调用读取实时会话，账号或企业改变后原面板失效。不得写入源码、ZIP、日志、URL或离线缓存。
 - `await urPanel.request({path,data})` 调用当前平台已有 **POST** 接口，path为 `/api/v1/` 开头的纯相对路径；不传完整URL、query或自定义认证头。data为对象，结构遵循该接口，不受SDK标量属性声明格式约束。宿主自动携带当前认证上下文，后端执行原有鉴权；它不是设备限定令牌，接口权限与当前登录用户相同。
 - 返回值是平台成功响应中的 `data`，不是 `{code,msg,data}` 外层包装；错误通过Promise拒绝，保留业务code/message。接口调用不自动跟踪设备回执；面板拿到msgToken后自行调用回执查询接口，或使用有现成跟踪的writeProperties/invokeAction。受理不等于执行成功。
-- 请求经本机桥调用宿主请求客户端，因此Web/App不依赖iframe跨域fetch。包的CSP仍禁止直接联网；需要凭据时通过getAuth取得，平台调用优先使用request。不开放父窗口DOM或原生插件。
+- Web/H5及微信WebView可在 `await urPanel.getAuth()` 后用浏览器原生 `fetch` 请求平台同源接口，设置 `credentials: 'omit'` 并携带返回的headers；平台按当前用户权限校验。接口可以读取设备历史，也可以控制用户有权控制的设备。仅导入可信面板：脚本可读取当前用户令牌，权限不限于当前设备；关闭面板不会立即使已获取的令牌失效。不透明来源 `null` 不是面板专有来源，仍需依靠服务端鉴权。模拟宿主不提供真实令牌，不应把模拟当作平台验收。Android/iOS本地面板的原生fetch暂未验收；request仍通过宿主桥调用。
 - 消息请求超时10秒，接口请求超时8秒；设备命令应使用异步接口参数，之后另查回执。超时不自动重发。请求消息上限64KiB，App原生请求消息上限32KiB；大查询应分页。
 - 模拟getAuth返回空headers，不提供真实token；request仅执行宿主createMockAdapter的apiHandlers本地替身，未配置时返回UNSUPPORTED_CAPABILITY，禁止转向真实平台。默认下载样板仍使用属性语义方法；开发接口型模拟面板时须配对应本地替身。
 - App离线不提供getAuth/request能力；账号token不会进入包或设备快照。实际App桥行为仍需Android/iOS真机验收。

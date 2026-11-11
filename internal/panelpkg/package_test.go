@@ -40,6 +40,34 @@ func fixtureHTML(t *testing.T) []byte {
 	return []byte(`<!doctype html><html><head><style>body{color:red}</style></head><body>环境面板</body></html>`)
 }
 
+// TestPackagePlatformFetch 验证新包允许同源请求，既有包只调整平台注入的策略。
+func TestPackagePlatformFetch(t *testing.T) {
+	p, err := fixturePackage(t)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(p.Files["index.html"]), "connect-src &#39;self&#39;") && !strings.Contains(string(p.Files["index.html"]), "connect-src 'self'") {
+		t.Fatal("新导入面板未允许访问平台")
+	}
+	old := []byte(`<html><head><meta id="ur-panel-csp" http-equiv="Content-Security-Policy" content="connect-src 'none'; frame-src 'none'"><meta http-equiv="Content-Security-Policy" content="connect-src 'none'"></head><body>connect-src 'none'</body></html>`)
+	updated, err := EnablePlatformFetch(old)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Equal(updated, old) || !bytes.Contains(updated, []byte("connect-src &#39;self&#39;")) || bytes.Count(updated, []byte("connect-src &#39;none&#39;")) != 2 || !bytes.Contains(updated, []byte(">connect-src &#39;none&#39;</body>")) {
+		t.Fatalf("仅应调整平台策略，得到 %s", updated)
+	}
+	again, err := EnablePlatformFetch(updated)
+	if err != nil || !bytes.Equal(updated, again) {
+		t.Fatal("重复转换应保持原样")
+	}
+	unmanaged := []byte(`<html><head><meta content="connect-src 'none'"></head></html>`)
+	result, err := EnablePlatformFetch(unmanaged)
+	if err != nil || !bytes.Equal(result, unmanaged) {
+		t.Fatal("无平台策略的资产不应变化")
+	}
+}
+
 // fixtureMetadata 提供独立根元数据，字段与真实包合同一致。
 func fixtureMetadata(t *testing.T) []byte {
 	t.Helper()

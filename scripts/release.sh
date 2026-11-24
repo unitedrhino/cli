@@ -51,6 +51,12 @@ require_harbor() {
 
 require_harbor
 
+# Python 标准库负责 ZIP 编码；缺失时须在构建或清理产物前停止。
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "[release] 需要 Python 3 生成 UTF-8 ZIP 包" >&2
+  exit 1
+fi
+
 # curl_common_args 统一网络失败、HTTP 错误与超时处理，避免上传接口返回 4xx 时仍显示成功。
 curl_common_args=(--fail --show-error --silent --connect-timeout 15 --max-time 300)
 
@@ -249,7 +255,7 @@ while IFS= read -r line; do
     pkg_name="ur-cli-${VERSION}-${name}"
     platform_dir="${BUILD_DIR}/${goos}-${goarch}"
     if [[ "$goos" == "windows" ]]; then
-      (cd "${BUILD_DIR}" && zip -rq "${RELEASE_DIR}/${pkg_name}.zip" "${goos}-${goarch}")
+      (cd "${BUILD_DIR}" && python3 -m zipfile -c "${RELEASE_DIR}/${pkg_name}.zip" "${goos}-${goarch}")
     else
       (cd "${BUILD_DIR}" && tar -czf "${RELEASE_DIR}/${pkg_name}.tar.gz" "${goos}-${goarch}")
     fi
@@ -294,7 +300,7 @@ cat > "${SKILLS_STAGE}/ur-api/_meta.json" << EOF
   "updatedAt": "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 }
 EOF
-(cd "${SKILLS_STAGE}" && zip -rq "${RELEASE_DIR}/ur-api-skills-${VERSION}.zip" ur-api)
+(cd "${SKILLS_STAGE}" && python3 -m zipfile -c "${RELEASE_DIR}/ur-api-skills-${VERSION}.zip" ur-api)
 rm -rf "${SKILLS_STAGE}"
 echo "[skills] 已生成 ${RELEASE_DIR}/ur-api-skills-${VERSION}.zip"
 echo ""

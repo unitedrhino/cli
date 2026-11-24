@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+import zipfile
 
 # ROOT 只用于读取正式发版脚本，所有替身和产物均放在 .temp 中。
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,6 +26,7 @@ class ReleaseDistributionTest(unittest.TestCase):
         shutil.copy2(ROOT / 'scripts/release.sh', self.root / 'scripts/release.sh')
         (self.root / 'skill').mkdir()
         (self.root / 'skill/SKILL.md').write_text('# 技能\n')
+        (self.root / 'skill/中文说明.md').write_text('内容', encoding='utf-8')
         self.tools = self.root / 'tools'
         self.tools.mkdir()
         self.write_tool('go', '''#!/usr/bin/env python3
@@ -134,6 +136,15 @@ raise SystemExit(1 if os.environ.get('RELEASE_TEST_HARBOR_FAIL')=='1' else 0)
         self.assertEqual(len(log.read_text().splitlines()), 5)
         self.assertTrue((self.root / 'dist/release-v0.8.6/packages/sha256sums.txt').is_file())
         self.assertEqual(len(list((self.root / 'dist/release-v0.8.6/packages').glob('ur-cli-*'))), 5)
+
+    def test_zip_preserves_unicode_paths(self):
+        """Windows 与独立技能包均应使用标准 UTF-8 文件名。"""
+        self.execute_release(fail=True)
+        packages = self.root / 'dist/release-v0.8.6/packages'
+        for name, path in [('ur-api-skills-v0.8.6.zip', 'ur-api/中文说明.md'),
+                           ('ur-cli-v0.8.6-Windows-x86_64.zip', 'windows-amd64/skill/中文说明.md')]:
+            with zipfile.ZipFile(packages / name) as archive:
+                self.assertEqual(archive.read(path).decode('utf-8'), '内容')
 
 
 if __name__ == '__main__':

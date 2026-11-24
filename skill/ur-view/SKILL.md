@@ -50,7 +50,7 @@ metadata:
 
 ## 本地编辑工作流（AI 调优闭环，核心）
 
-`detail/update` 保存接口**纯透传不做校验**。优先复制已有组件完整配置，或用 `ur view component get-one --key <key> --json` 查询注册信息；图片组件的 `chartConfig.package` 必须为 `Informations`，`category` 为 `Mores`，注册键必须写在 `chartConfig` 内。使用支持这些检查的 CLI 执行 `validate` / `push`，校验通过后仍须回读并在目标编辑器与预览页检查实际图片；勿用 `--force` 跳过错误。推荐闭环：
+`detail/update` 不保证校验所有组件结构；旧服务可能直接透传画布，较新服务会拒绝部分新增错误并兼容旧数据。优先复制已有组件完整配置，或用 `ur view component get-one --key <key> --json` 查询注册信息；图片组件的 `chartConfig.package` 必须为 `Informations`，`category` 为 `Mores`，注册键必须写在 `chartConfig` 内。使用支持这些检查的 CLI 执行 `validate` / `push`，校验通过后仍须回读并在目标编辑器与预览页检查实际图片；勿用 `--force` 跳过错误。推荐闭环：
 
 ```bash
 # 1. 拉取远端编辑态画布到本地（同时落盘 <file>.meta.json 记录 projectID 等元信息）

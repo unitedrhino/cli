@@ -50,7 +50,7 @@ metadata:
 
 ## 本地编辑工作流（AI 调优闭环，核心）
 
-`detail/update` 保存接口**纯透传不做校验**，因此 CLI 在 `validate` / `push` 前置结构校验。推荐闭环：
+`detail/update` 保存接口**纯透传不做校验**。优先复制已有组件完整配置，或用 `ur view component get-one --key <key> --json` 查询注册信息；图片组件的 `chartConfig.package` 必须为 `Informations`，`category` 为 `Mores`，注册键必须写在 `chartConfig` 内。使用支持这些检查的 CLI 执行 `validate` / `push`，校验通过后仍须回读并在目标编辑器与预览页检查实际图片；勿用 `--force` 跳过错误。推荐闭环：
 
 ```bash
 # 1. 拉取远端编辑态画布到本地（同时落盘 <file>.meta.json 记录 projectID 等元信息）
@@ -151,7 +151,7 @@ CLI 当前组件快照包含 **81 项**，涵盖面板注册组件及存量画�
 - **发布快照机制**：编辑态改动不影响发布页；`push --publish` 或单独 `publish` 后发布页才更新。截图验证效果时确认截的是发布态（默认）且已重新发布。
 - **validate / push 校验规则摘要**（push 默认前置校验，error 阻断，`--force` 跳过）：
   - 顶层：`editCanvasConfig` 存在且 `width`/`height` 为正数；`componentList` 为数组；`requestGlobalConfig` 缺失仅 warning。
-  - 组件级：`id` 非空且全局唯一；`chartConfig.key` 非空且在组件 key 表内；`chartKey == "V"+key`、`conKey == "VC"+key`；`attr.w`/`attr.h` 为正数，`x`/`y`/`zIndex` 为数值；`status` / `events` 三件套缺失仅 warning。
+  - 组件级：`id` 非空且全局唯一；`chartConfig.key` 在组件目录中，`chartConfig.package` / `category` 与该目录一致，注册键必须位于 `chartConfig`；分组须有 `groupList`；`attr.w`/`attr.h` 为正数，`x`/`y`/`zIndex` 为数值；`styles.animations` 须为数组。`chartFrame` 与目录不一致、静态图片缺少地址、`status` / `events` 三件套缺失仅 warning；重定向组件路径单独核对。
   - IoT 级：`requestDataType=5` 时 `requestIoTDeviceConfig` 必填，`queryType` 必须在该组件支持矩阵内，`productID` 非空、`deviceNames` / `dataIDs` 为非空数组。
 - **screenshot 依赖本机 agent-browser**：依次执行 `open → wait（毫秒）→ screenshot`；`--wait` 单位是秒。前端地址取 `--front-base` 或环境变量 `UR_FRONT_BASE_URL`。实测：发布页默认模板 `{base}/app/iot/#/view/{id}`（`/view/` 兼容路由始终取已发布快照；`/iot/big-bigscreen/published/{id}` 在 iot 应用内会落入应用外壳不渲染画布，勿用），编辑态默认 `{base}/app/iot/#/iot/big-bigscreen/editor/{id}`；部署形态不同可用 `--url-template` 覆盖（支持 `{base}` / `{id}` 占位符）。发布页需登录态，建议先用 agent-browser 登录 iot 应用（租户管理员 + 选择企业）保持会话。
 - **鉴权口径**：view 域全部走 iot 应用上下文（app-id=200），运行时通过 `UR_*` 环境变量注入认证，先 `ur check` 确认身份。

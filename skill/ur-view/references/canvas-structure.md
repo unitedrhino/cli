@@ -26,6 +26,8 @@
 
 ---
 
+创建或编辑组件时先查询 `ur view component get-one --key <key> --json`，`chartConfig.package`、`category` 和内部注册键必须与目标组件一致，不能只在组件顶层填写。Image 的对应值为 `Informations`、`Mores`、`VImage`、`VCImage`。普通组件按 `package/category/key` 加载；错误或缺失会导致组件被跳过，保存可能丢失该组件。旧 CLI 的 validate 不检查这些字段；直接调用 API 会绕过 CLI 校验。
+
 ## 组件结构速览
 
 可直接抄改的 `componentList` 元素骨架。示例一：静态柱状图（BarCommon，requestDataType=0）：
@@ -41,8 +43,8 @@
     "chartKey": "VBarCommon",
     "conKey": "VCBarCommon",
     "title": "柱状图",
-    "category": "Charts",
-    "categoryName": "图表",
+    "category": "Bars",
+    "categoryName": "柱状图",
     "package": "Charts",
     "chartFrame": "echarts",
     "image": "bar.png"
@@ -77,8 +79,8 @@
     "chartKey": "VDial",
     "conKey": "VCDial",
     "title": "表盘",
-    "category": "Charts",
-    "categoryName": "图表",
+    "category": "Others",
+    "categoryName": "其他",
     "package": "Charts",
     "chartFrame": "common",
     "image": "dial.png"

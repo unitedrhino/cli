@@ -2,8 +2,11 @@
 package shared
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -22,6 +25,43 @@ func loadValidScreenContent(t *testing.T) map[string]any {
 		t.Fatalf("parse valid fixture: %v", err)
 	}
 	return content
+}
+
+// TestPushRejectsMissingImagePackage 验证缺少图片模块路径时，推送在发起请求前被阻断。
+func TestPushRejectsMissingImagePackage(t *testing.T) {
+	content := loadValidScreenContent(t)
+	comp := firstComponent(t, content)
+	comp["chartKey"], comp["conKey"] = "VImage", "VCImage"
+	comp["chartConfig"] = map[string]any{"key": "Image", "chartKey": "VImage", "conKey": "VCImage", "category": "Mores"}
+	raw, err := json.Marshal(content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "canvas.json")
+	if err := os.WriteFile(path, raw, 0600); err != nil {
+		t.Fatal(err)
+	}
+	var out, stderr bytes.Buffer
+	if code := runViewScreenPush(context.Background(), []string{"-f", path, "--id", "123"}, &out, &stderr); code != 1 || !strings.Contains(stderr.String(), "chartConfig.package") {
+		t.Fatalf("应拒绝缺失 package 的画布，code=%d stderr=%s", code, stderr.String())
+	}
+}
+
+// TestImageRegistrationInGroups 验证图片模块路径在分组内同样会被校验，修正后可以通过。
+func TestImageRegistrationInGroups(t *testing.T) {
+	content := loadValidScreenContent(t)
+	image := firstComponent(t, content)
+	image["chartKey"], image["conKey"] = "VImage", "VCImage"
+	image["chartConfig"] = map[string]any{"key": "Image", "chartKey": "VImage", "conKey": "VCImage", "category": "Mores"}
+	image["option"] = map[string]any{"dataset": "https://example.com/image.png"}
+	content["componentList"] = []any{map[string]any{"id": "group", "isGroup": true, "groupList": []any{image}}}
+	if !hasErrorField(errorFields(validateScreenContent(content)), "chartConfig.package") {
+		t.Fatal("分组内缺少图片 package 时应报错")
+	}
+	image["chartConfig"].(map[string]any)["package"] = "Informations"
+	if errs := errorFields(validateScreenContent(content)); len(errs) != 0 {
+		t.Fatalf("图片配置修正后应通过：%v", errs)
+	}
 }
 
 // mutateScreenContent 深拷贝基准 content 并应用变异函数
@@ -105,6 +145,43 @@ func TestValidateScreenContent_Errors(t *testing.T) {
 		mutate    func(content map[string]any)
 		wantField string
 	}{
+		{
+			name: "图片组件缺少 package",
+			mutate: func(content map[string]any) {
+				comp := firstComponent(t, content)
+				comp["chartKey"], comp["conKey"] = "VImage", "VCImage"
+				comp["chartConfig"] = map[string]any{"key": "Image", "chartKey": "VImage", "conKey": "VCImage", "category": "Mores"}
+			},
+			wantField: "chartConfig.package",
+		},
+		{
+			name: "组件分类错误",
+			mutate: func(content map[string]any) {
+				firstComponent(t, content)["chartConfig"].(map[string]any)["category"] = "Charts"
+			},
+			wantField: "chartConfig.category",
+		},
+		{
+			name: "仅顶层有注册键",
+			mutate: func(content map[string]any) {
+				delete(firstComponent(t, content)["chartConfig"].(map[string]any), "chartKey")
+			},
+			wantField: "chartKey",
+		},
+		{
+			name: "分组缺少子组件列表",
+			mutate: func(content map[string]any) {
+				content["componentList"] = []any{map[string]any{"id": "group", "isGroup": true}}
+			},
+			wantField: "groupList",
+		},
+		{
+			name: "无效重定向路径",
+			mutate: func(content map[string]any) {
+				firstComponent(t, content)["chartConfig"].(map[string]any)["redirectComponent"] = "wrong/Image"
+			},
+			wantField: "chartConfig.redirectComponent",
+		},
 		{
 			name: "非法组件 key",
 			mutate: func(content map[string]any) {

@@ -991,7 +991,9 @@ func validateScreenContent(content map[string]any) []viewIssue {
 			// Group 组件（isGroup=true）没有独立的 chartKey/conKey，
 			// 跳过 key 体系校验，递归校验其 groupList 子组件
 			if isGroup, _ := comp["isGroup"].(bool); isGroup {
-				if id != "" {
+				if id == "" {
+					add("error", locator, "id", "分组 id 缺失或为空")
+				} else {
 					if prev, dup := seenIDs[id]; dup {
 						add("error", locator, "id", fmt.Sprintf("与组件 [%d] 重复", prev))
 					} else {
@@ -1000,6 +1002,8 @@ func validateScreenContent(content map[string]any) []viewIssue {
 				}
 				if groupList, ok := asViewSlice(comp["groupList"]); ok {
 					walk(groupList)
+				} else {
+					add("error", locator, "groupList", "分组子组件列表缺失或不是数组")
 				}
 				continue
 			}
@@ -1031,22 +1035,50 @@ func validateViewComponent(comp map[string]any, locator string, add func(level, 
 		add("error", locator, "chartConfig.key", fmt.Sprintf("未知组件 key: %s（不在组件 key 表内）", key))
 	}
 
-	// chartKey/conKey 与 key 的前缀一致性：chartKey == "V"+key，conKey == "VC"+key
-	// 真实画布内容中二者位于 chartConfig 内（编辑器顶层字段不一定持久化），优先取 chartConfig
-	chartKey, _ := comp["chartKey"].(string)
-	conKey, _ := comp["conKey"].(string)
-	if chartKey == "" {
-		chartKey, _ = chartConfig["chartKey"].(string)
-	}
-	if conKey == "" {
-		conKey, _ = chartConfig["conKey"].(string)
-	}
+	// 编辑器通过 chartConfig 内的注册键注册组件，顶层字段不能替代它们。
+	chartKey, _ := chartConfig["chartKey"].(string)
+	conKey, _ := chartConfig["conKey"].(string)
 	if key != "" {
 		if chartKey != "V"+key {
 			add("error", locator, "chartKey", fmt.Sprintf("应为 %q，实际 %q", "V"+key, chartKey))
 		}
 		if conKey != "VC"+key {
 			add("error", locator, "conKey", fmt.Sprintf("应为 %q，实际 %q", "VC"+key, conKey))
+		}
+	}
+	for _, field := range []string{"chartKey", "conKey"} {
+		if value, exists := comp[field]; exists {
+			text, ok := value.(string)
+			expected, _ := chartConfig[field].(string)
+			if !ok || text != expected {
+				add("error", locator, field, "顶层注册键与 chartConfig 不一致")
+			}
+		}
+	}
+
+	// 普通组件按包、分类和 key 定位配置模块；重定向组件使用独立路径。
+	if meta := viewdata.FindComponent(key); meta != nil {
+		redirect, _ := chartConfig["redirectComponent"].(string)
+		if redirect == "" {
+			for _, entry := range []struct{ field, expected string }{{"package", meta.Package}, {"category", meta.Category}} {
+				field, expected := entry.field, entry.expected
+				value, _ := chartConfig[field].(string)
+				if value != expected {
+					add("error", locator, "chartConfig."+field, fmt.Sprintf("组件 %s 应为 %q，实际 %q", key, expected, value))
+				}
+			}
+		} else {
+			parts := strings.Split(redirect, "/")
+			if len(parts) != 3 || parts[0] == "" || parts[1] == "" || parts[2] == "" {
+				add("error", locator, "chartConfig.redirectComponent", "应为 package/category/key")
+			} else if target := viewdata.FindComponent(parts[2]); target != nil && (parts[0] != target.Package || parts[1] != target.Category) {
+				add("error", locator, "chartConfig.redirectComponent", fmt.Sprintf("目标组件 %s 的路径应为 %s/%s/%s", parts[2], target.Package, target.Category, target.Key))
+			} else if target == nil {
+				add("warning", locator, "chartConfig.redirectComponent", "目标组件不在本地快照中，需核对目标环境")
+			}
+		}
+		if frame, _ := chartConfig["chartFrame"].(string); frame != "" && frame != meta.ChartFrame {
+			add("warning", locator, "chartConfig.chartFrame", fmt.Sprintf("组件 %s 默认值为 %q，当前为 %q；请确认该覆盖符合目标环境", key, meta.ChartFrame, frame))
 		}
 	}
 
@@ -1111,6 +1143,12 @@ func validateViewComponent(comp map[string]any, locator string, add func(level, 
 	// IoT 绑定校验：requestDataType == 5 表示 IoT 设备数据源
 	request, _ := asViewMap(comp["request"])
 	dataType, _ := asViewFloat(request["requestDataType"])
+	if key == "Image" && int(dataType) == 0 {
+		option, _ := asViewMap(comp["option"])
+		if dataset, ok := option["dataset"].(string); !ok || strings.TrimSpace(dataset) == "" {
+			add("warning", locator, "option.dataset", "静态图片缺少有效图片地址，需确认是否有意留空")
+		}
+	}
 	if int(dataType) != 5 {
 		return
 	}
